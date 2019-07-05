@@ -1,0 +1,10 @@
+<label for="menu-toggle" id="menu-button">
+	<i class="material-icons" style="font-size:64px">account_circle</i>
+</label>
+<input type="checkbox" id="menu-toggle" name="menu-toggle" class="checkbox-hack">
+<div id="menu">
+	<label for="menu-toggle" class="scrim"></label>
+	<ul>
+		<li><button id="google-sign-in-button" onclick="hello('google').login()"><img src="/images/Google_G_logo.svg"><span>Sign in with Google</span></button></li>
+	</ul>
+</div>

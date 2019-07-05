@@ -1,0 +1,15 @@
+{
+	"short_name": "Maker Space Management Portal",
+	"name": "Maker Space Management Portal",
+	"icons": [
+		{
+			"src": "/images/makerlogo.png",
+			"sizes": "310x310",
+			"type": "image/png"
+	}
+	],
+	"start_url": "./index.html",
+	"display": "standalone",
+	"theme_color": "#000000",
+	"background_color": "#ffffff"
+}

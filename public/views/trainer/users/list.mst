@@ -1,0 +1,19 @@
+<article>
+	<header>
+		<h1>Users</h1>
+	</header>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Email</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#users}}<tr class="link" onclick="window.location = '/users/{{id}}';">
+				<td>{{name}}</td><td>{{email}}</td>
+			</tr>{{/users}}
+			{{^users}}<tr><td colspan="2">No users found.</td></tr>{{/users}}
+		</tbody>
+	</table>
+</article>

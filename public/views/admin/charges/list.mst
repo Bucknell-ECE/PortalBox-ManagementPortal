@@ -1,0 +1,54 @@
+<article>
+	<header>
+		<h1>Charges{{#search}}{{^customized}} for the Past Week{{/customized}}{{/search}}</h1>
+		<div class="button-group">
+			<label for="search-form-toggle"><i class="material-icons">search</i></label>
+		</div>
+	</header>
+	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
+	<form class="advanced_search">
+		<label for="after">After:</label>
+		<input type="date" name="after" id="after"{{#after}} value="{{.}}"{{/after}} />
+		<label for="before">Before:</label>
+		<input type="date" name="before" id="before"{{#before}} value="{{.}}"{{/before}} />
+		<label for="user_id">User:</label>
+		<select name="user_id" id="user_id" />
+			<option></option>
+			{{#users}}<option value="{{id}}">{{name}}</option>{{/users}}
+		</select>
+		<label for="equipment_id">Equipment:</label>
+		<select name="equipment_id" id="equipment_id" />
+			<option></option>
+			{{#equipment}}<option value="{{id}}">{{name}}</option>{{/equipment}}
+		</select>
+		<div class="button-group">
+			<button class="default" type="submit">Search</button>
+		</div>
+	</form>{{/search}}
+	<table>
+		<thead>
+			<tr>
+				<th>Time</th>
+				<th>User</th>
+				<th>Equipment</th>
+				<th>Policy</th>
+				<th>Duration</th>
+				<th>Rate</th>
+				<th>Amount</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#charges}}<tr class="link" onclick="window.location = '/charges/{{id}}';">
+				<td>{{time}}</td>
+				<td>{{user}}</td>
+				<td>{{equipment}}</td>
+				<td>{{charge_policy}}</td>
+				<td>{{charged_time}}</td>
+				<td>{{charge_rate}}</td>
+				<td>{{amount}}</td>
+			</tr>{{/charges}}
+			{{^charges}}<tr><td colspan="5">We did not find any log records matching your search</td></tr>{{/charges}}
+		</tbody>
+	</table>
+</article>
+	

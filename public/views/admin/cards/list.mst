@@ -1,0 +1,24 @@
+<article>
+	<header>
+		<h1>Cards</h1>
+		<div class="button-group">
+			<a href="/cards/add" class="default">Add</a>
+		</div>
+	</header>
+	<table>
+		<thead>
+			<tr>
+				<th>Card ID</th>
+				<th>Type</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#cards}}<tr class="link" onclick="window.location = '/cards/{{id}}';">
+				<td>{{id}}</td>
+				<td>{{type}}</td>
+			</tr>{{/cards}}
+			{{^cards}}<tr><td colspan="2">We did not find any cards</td></tr>{{/cards}}
+		</tbody>
+	</table>
+</article>
+	

@@ -1,0 +1,16 @@
+:root {
+	--dark-primary-color:#cc6000;     /* Dark Theme elements */
+	--default-primary-color:#ff8000;  /* Major theme elements */
+	--light-primary-color:#ffe0bc;    /* Alternate row backgrounds */
+	--text-primary-color:#212121;     /* Typically Black or dark grey; most text */
+	--text-secondary-color:#616161;   /* Dark to medium grey; quoted text/text in disabled elements */
+	--text-invert-color:#ffffff;      /* Text over the primary or accent color */
+	--dark-accent-color:#acacac;      /* Button/progress bar borders */
+	--accent-color:#dddddd;           /* Buttons/focus rings/progress bars */
+	--light-accent-color:#BBDEFB;     /* Disabled buttons */
+	--divider-color:#212121;          /* Typically black or dark grey; horizontal rules and table borders */
+	--shadow-color:#4c4c4c;           /* Typically black or dark grey */
+	
+	--success-color:#388E3C;
+	--error-color:#D32F2F;
+}

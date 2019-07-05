@@ -1,0 +1,10 @@
+<label for="menu-toggle" id="menu-button">
+	<img src="{{picture}}" class="circular" height="64" width="64" />
+</label>
+<input type="checkbox" id="menu-toggle" name="menu-toggle" class="checkbox-hack">
+<div id="menu">
+	<label for="menu-toggle" class="scrim"></label>
+	<ul>
+		<li><a href="/logout">Signout</a></li>
+	</ul>
+</div>

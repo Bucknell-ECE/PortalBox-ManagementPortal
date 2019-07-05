@@ -1,0 +1,21 @@
+<article>
+	<header>
+		<h1>Locations</h1>
+		<div class="button-group">
+			<a href="/locations/add" class="default">Add</a>
+		</div>
+	</header>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#locations}}<tr class="link" onclick="window.location = '/locations/{{id}}';">
+				<td>{{name}}</td>
+			</tr>{{/locations}}
+			{{^locations}}<tr><td>No locations found. <a href="/locations/add">Add one now?</a></td></tr>{{/locations}}
+		</tbody>
+	</table>
+</article>

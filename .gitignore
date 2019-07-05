@@ -1,0 +1,6 @@
+# keep config files out
+/public/config/config.ini
+/public/styles/palette.css
+
+# third party libraries... we manage these with yarn
+/public/js

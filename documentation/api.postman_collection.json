@@ -1,0 +1,860 @@
+{
+	"info": {
+		"_postman_id": "882c2d6b-013b-41d9-ad69-01ec17b6effe",
+		"name": "ECE PORTAL Box Management API",
+		"description": "This API implements a RESTful interface to the PORTAL Box Backend. It uses OAuth2 along with a session cookie for authentication see login.php.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Cards",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/cards.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"cards.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"123456789\", \"type_id\":1}"
+						},
+						"url": {
+							"raw": "{{host}}/api/cards.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"cards.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/cards.php?id=123456789",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"cards.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "123456789"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"000000000\", \"type_id\":2}"
+						},
+						"url": {
+							"raw": "{{host}}/api/cards.php?id=123456789",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"cards.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "123456789"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Card Types",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/card-types.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"card-types.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Equipment",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/equipment.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"equipment.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"ignored\",\n    \"name\": \"DANA 105 GlowForge\",\n    \"type_id\": 1,\n    \"mac_address\": \"01-23-45-67-89-AB\",\n    \"location_id\": 3,\n    \"timeout\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/equipment.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"equipment.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/equipment.php?id=2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"equipment.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"ignored\", \"name\":\"Emma Peel\", \"email\":\"emma.peel@avengers.tv\"}"
+						},
+						"url": {
+							"raw": "{{host}}/api/users.php?id=2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"users.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Equipment Types",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/equipment-types.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"equipment-types.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"ignored\", \"name\":\"GlowForge\"}"
+						},
+						"url": {
+							"raw": "{{host}}/api/equipment-types.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"equipment-types.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/equipment-types.php?id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"equipment-types.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"ignored\", \"name\":\"Glowforge 3D\"}"
+						},
+						"url": {
+							"raw": "{{host}}/api/equipment-types.php?id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"equipment-types.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Locations",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/locations.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"locations.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"ignored\", \"name\":\"Makerspace\"}"
+						},
+						"url": {
+							"raw": "{{host}}/api/locations.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"locations.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/locations.php?id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"locations.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"ignored\", \"name\":\"Maker Space\"}"
+						},
+						"url": {
+							"raw": "{{host}}/api/locations.php?id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"locations.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Logs",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/logs.php?location_id=3",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"logs.php"
+							],
+							"query": [
+								{
+									"key": "before",
+									"value": "2017-01-01",
+									"disabled": true
+								},
+								{
+									"key": "after",
+									"value": "2016-11-01",
+									"disabled": true
+								},
+								{
+									"key": "equipment_id",
+									"value": "4",
+									"disabled": true
+								},
+								{
+									"key": "location_id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Management Portal Access Levels",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/management-portal-access-levels.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"management-portal-access-levels.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/users.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"users.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"ignored\", \"name\":\"Emma Peel\", \"email\":\"emma@avengers.tv\"}"
+						},
+						"url": {
+							"raw": "{{host}}/api/users.php?Cookie={{auth_cookie}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"users.php"
+							],
+							"query": [
+								{
+									"key": "Cookie",
+									"value": "{{auth_cookie}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/users.php?id=105",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"users.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "105",
+									"description": "enter the id of a user for your install"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"ignored\", \"name\":\"Emma Peel\", \"email\":\"emma.peel@avengers.tv\"}"
+						},
+						"url": {
+							"raw": "{{host}}/api/users.php?id=2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"users.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{google_id_token}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "Authorization",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/login.php",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"login.php"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "78da0d8a-0e2b-49a1-a23a-e3557f280404",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "b3cec205-aab3-40f8-948c-53b8a2f8c6eb",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "7d629413-3bb2-4e11-b0f3-f5b27f05eaf5",
+			"key": "host",
+			"value": "${YOUR_TEST_SERVER:PORT}",
+			"type": "string"
+		},
+		{
+			"id": "796bdb19-573e-45a8-9e89-b9bcab8a5fc0",
+			"key": "auth_cookie",
+			"value": "PHPSESSID=${YOUR_SESSION_COOKIE}",
+			"type": "string"
+		},
+		{
+			"id": "11113c10-492b-471a-9a9c-4174aacc9584",
+			"key": "google_id_token",
+			"value": "${YOUR_GOOGLE_OAUTH2_ID_TOKEN}",
+			"type": "string"
+		}
+	]
+}

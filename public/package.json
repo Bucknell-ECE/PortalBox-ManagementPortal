@@ -1,0 +1,11 @@
+{
+	"name": "maker-portal",
+	"version": "2.0.0",
+	"main": "index.html",
+	"author": "T.K.Egan",
+	"license": "MIT",
+	"dependencies": {
+		"hellojs": "^1.18.1",
+		"moostaka": "https://github.com/bu-tegan/moostaka.git#tegan-devel"
+	}
+}

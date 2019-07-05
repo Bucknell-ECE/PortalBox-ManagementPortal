@@ -1,0 +1,20 @@
+<article>
+	<header>
+		<h1>Add Payment</h1>
+		<div class="button-group">
+			<a href="/payments">Cancel</a>
+			<button form="add-payment-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="add-payment-form">
+		<label for="time">Date:</label>
+		<input type="date" name="time" id="time" required />
+		<label for="amount">Amount:</label>
+		<input type="number" name="amount" id="amount" min="0.00" step="0.01" required />
+		<label for="user_id">User:</label>
+		<select name="user_id" id="user_id" required>
+			<option label="Please Choose"></option>
+			{{#users}}<option value="{{id}}">{{name}}</option>{{/users}}
+		</select>
+	</form>
+</article>

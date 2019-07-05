@@ -1,0 +1,45 @@
+{{#charge}}
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />
+<article>
+	<header>
+		<h1>Charge</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-edit-state" class="default">Edit</label>
+		</div>
+	</header>
+	<dl>
+		<dt>Date:</label>
+		<dd>{{time}}</dd>
+		<dt>User:</label>
+		<dd><a href="/users/{{user_id}}">{{user}}</a></dd>
+		<dt>Equipment:</label>
+		<dd><a href="/equipment/{{equipment_id}}">{{equipment}}</a></dd>
+		<dt>Amount:</label>
+		<dd>{{amount}}</dd>
+	</dl>
+</article>
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
+<article>
+	<header>
+		<h1>Charge</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-view-state">Cancel</label>
+			<button form="edit-charge-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="edit-charge-form">
+		<input type="hidden" name="equipment_id" value="{{equipment_id}}" />
+		<input type="hidden" name="user_id" value="{{user_id}}" />
+		<label for="amount">Amount:</label>
+		<input type="text" name="amount" id="amount" value="{{amount}}" required />
+	</form>
+</article>
+{{/charge}}
+{{^charge}}
+<article>
+	<header>
+		<h1>Charge</h1>
+	</header>
+	<p>Sorry we couldn't find that</p>
+</article>
+{{/charge}}

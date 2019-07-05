@@ -1,0 +1,28 @@
+<article>
+	<header>
+		<h1>Users</h1>
+		<div class="button-group">
+			<!-- <label for="filter-form-toggle"><i class="material-icons">filter</i></label> -->
+			<a href="/users/add" class="default">Add</a>
+		</div>
+	</header>
+	<!-- <input type="checkbox" id="filter-form-toggle" class="checkbox-hack" />
+	<form class="advanced_search">
+		<label for="name">Name:</label>
+		<input name="name" id="name" />
+	</form> -->
+	<table>
+		<thead>
+			<tr>
+				<th><a href="/users/sort/name">Name</a></th>
+				<th><a href="/users/sort/email">Email</a></th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#users}}<tr class="link" onclick="window.location = '/users/{{id}}';">
+				<td>{{name}}</td><td>{{email}}</td>
+			</tr>{{/users}}
+			{{^users}}<tr><td colspan="2">No users found. <a href="/locations/add">Add one now?</a></td></tr>{{/users}}
+		</tbody>
+	</table>
+</article>

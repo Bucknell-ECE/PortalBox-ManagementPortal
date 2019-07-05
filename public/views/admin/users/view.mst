@@ -1,0 +1,91 @@
+{{#user}}
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />
+<article>
+	<header>
+		<h1>User</h1>
+	</header>
+	<div class="row">
+		<section>
+			<header>
+				<h2>Details</h2>
+				<div class="button-group">
+					<label for="view-edit-toggle-edit-state">Edit</label>
+				</div>
+			</header>
+			<dl>
+				<dt>Name:</label>
+				<dd>{{name}}</dd>
+				<dt>Email:</dt>
+				<dd><a href="mailto:{{email}}">{{email}}</a></dd>
+				<dt>Management Portal Access:</dt>
+				<dd>{{management_portal_access_level}}</dd>
+				<dt>Authorized for:</dt>
+				<dd>
+					<ul>
+						{{#authorizations}}<li>{{equipment_type}}</li>{{/authorizations}}
+						{{^authorizations}}<li>Not yet Authorized for any Equipment</li>{{/authorizations}}
+					</ul>
+				</dd>
+			</dl>
+		</section>
+		<section>
+			<header>
+				<h2>Account History</h2>
+				<div class="button-group">
+					<a href="/users/{{id}}/add_payment" class="default">Add Payment</a>
+				</div>
+			</header>
+			<table>
+				<thead>
+					<tr><th>Date</th><th>Equipment</th><th>Amount</th></tr>
+				</thead>
+				<tbody>
+					{{#ledger}}<tr{{#equipment_id}} class="debit link"{{/equipment_id}} onclick="window.location = '/{{#equipment_id}}charges{{/equipment_id}}{{^equipment_id}}payments{{/equipment_id}}/{{id}}';">
+						<td>{{time}}</td>
+						<td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>
+						<td>{{amount}}</td>
+					</tr>{{/ledger}}
+					{{^ledger}}<tr><td colspan="3">No account activity to date</td></tr>{{/ledger}}
+				</tbody>
+				<tfoot>
+					<tr><td colspan="2" style="text-align:right">Balance:</td><td>{{balance}}</td></tr>
+				</tfoot>
+			</table>
+		</section>
+	</div>
+</article>
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
+<article>
+	<header>
+		<h1>User</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-view-state">Cancel</label>
+			<button form="edit-user-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+    <form id="edit-user-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" value="{{name}}" required />
+		<label for="email">Email:</label>
+		<input type="text" name="email" id="email" value="{{email}}" required />
+		<label for="management_portal_access_level_id">Management Portal Access Level:</label>
+		<select name="management_portal_access_level_id" id="management_portal_access_level_id" required />
+			<option></option>
+			{{#management_portal_access_levels}}<option value="{{id}}">{{name}}</option>{{/management_portal_access_levels}}
+		</select>
+		<label for="authorizations">Authorizations:</label>
+		<fieldset id="authorizations">
+			{{#equipment_types}}<input type="checkbox" name="authorizations.{{id}}" id="authorizations.{{id}}" /><label for="authorizations.{{id}}">{{name}}</label>{{/equipment_types}}
+			{{^equipment_types}}<p>No equipment types yet defined that the user can be authorized for.</p>{{/equipment_types}}
+		</fieldset>
+	</form>
+</article>
+{{/user}}
+{{^user}}
+<article>
+	<header>
+		<h1>User</h1>
+	</header>
+	<p>Sorry we couldn't find that</p>
+</article>
+{{/user}}

@@ -1,0 +1,27 @@
+<article>
+	<header>
+		<h1>Equipment</h1>
+		<div class="button-group">
+			<a href="/equipment/add" class="default">Add</a>
+		</div>
+	</header>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Type</th>
+				<th>Location</th>
+				<th>Available</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#equipment}}<tr class="link" onclick="window.location = '/equipment/{{id}}';">
+				<td>{{name}}</td>
+				<td>{{type}}</td>
+				<td>{{location}}</td>
+				<td class="center">{{#in_use}}<i class="material-icons">highlight_off</i>{{/in_use}}{{^in_use}}<i class="material-icons">check_circle_outline</i>{{/in_use}}</td>
+			</tr>{{/equipment}}
+			{{^equipment}}<tr><td colspan="3">No equipment found. <a href="/equipment/add">Add one now?</a></td></tr>{{/equipment}}
+		</tbody>
+	</table>
+</article>

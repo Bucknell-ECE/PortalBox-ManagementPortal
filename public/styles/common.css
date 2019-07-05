@@ -1,0 +1,230 @@
+/* basics */
+html, body { margin:0; padding:0; background:#eeeeee; color:var(--text-primary-color); font-family:sans-serif; }
+
+/* page header */
+body>header {
+	background:var(--default-primary-color); color:var(--text-invert-color);
+	display:flex; flex-direction:row; justify-content:space-between; align-items:center;
+	padding:0.5em;
+	position:relative; /* anchor our menu */
+}
+body>header h1 a, body>header h1 a.active, body>header h1 a.visited {
+	color:var(--text-invert-color); text-decoration:none;
+}
+
+/* layout */
+main {
+	display:flex; flex-direction:column; align-items:center;
+}
+
+article { margin:1em 0; padding:0 1em; }
+article header, section header {
+	display:flex; flex-direction:row; justify-content:space-between; align-items:center;
+}
+article > header > h1, section > header > h2 {
+	margin-right:2em;
+}
+
+@media(min-width:1024px) {
+	.row {
+		display:flex; flex-direction:row; justify-content:flex-start;
+	}
+	.row > * { margin-right:2em }
+	.row > *.last-child { margin-right:0em }
+}
+
+.circular { border-radius:50%; }
+
+/* tables */
+table { border-spacing:0; border-collapse:collapse; }
+th, td { margin:0; padding:0.2em 0.4em; }
+th, th a {
+	background:var(--default-primary-color); color:var(--text-invert-color); text-decoration:none;
+}
+tr:nth-of-type(2n) {
+	background:var(--light-primary-color);
+}
+tr.link { cursor: pointer; }
+td.center { text-align:center; }
+
+tfoot { border-top: solid thin var(--accent-color) }
+
+/* checkboxes used to store UI state are hidden */
+.checkbox-hack { display:none; }
+.scrim {
+	margin:0;
+	display:none;
+	position:fixed;
+	top:0; bottom:0; left:0; right:0;
+	z-index:-1;
+}
+
+/* toggle view (article) useful for view/edit without load */
+.checkbox-hack + article { display:none; }
+.checkbox-hack:checked + article { display:block; }
+
+/* toggle view search form */
+.checkbox-hack + form.advanced_search { display:none; }
+.checkbox-hack:checked + form.advanced_search { display:grid; }
+
+/* menu revealed by clicking user image */
+#menu > ul {
+	position:absolute; top:75%; right:1.5em;
+	background:white; color:var(--text-primary-color);;
+	box-shadow:0 1px 3px var(--shadow-color);
+	padding:0.25em; list-style-type:none; text-indent:0;
+	display:none;
+	border-radius:0.25em;
+}
+#menu ul a, #menu ul a.active, #menu ul a.visited { color:var(--text-primary-color); }
+#menu > ul:before {
+	content:"";
+	position:absolute; top:-0.5em; right:0.5em;
+	border-bottom:white solid 0.5em;
+	border-left:transparent solid 0.5em; border-right:transparent solid 0.5em;
+}
+#menu-toggle:checked + #menu > .scrim { z-index:1; display:block; }
+#menu-toggle:checked + #menu > ul { z-index:2; display:block }
+
+/* popup help */
+.help { position:relative }
+.help .content > div {
+	position:absolute; top:1.5em; right:-0.5em;
+	background:white; color:var(--text-primary-color);;
+	box-shadow:0 1px 3px var(--shadow-color);
+	padding:0.25em; list-style-type:none; text-indent:0;
+	display:none;
+	border-radius:0.25em;
+	min-width:15vw; width:max-content; max-width:50vw;
+}
+.help .content > div:before {
+	content:"";
+	position:absolute; top:-0.5em; right:0.75em;
+	border-bottom:white solid 0.5em;
+	border-left:transparent solid 0.5em; border-right:transparent solid 0.5em;
+}
+.help .checkbox-hack:checked + .content > .scrim { z-index:1; display:block; } 
+.help .checkbox-hack:checked + .content > div { z-index:2; display:block; } 
+
+/* top menu buttons*/
+.icon-button a {
+	display:flex; flex-direction:column; justify-content:flex-start; align-items:center;
+	color:var(--text-primary-color); text-decoration:none; text-align:center;
+	white-space:nowrap;
+	font-size:1.25em;
+}
+.icon-button a i { font-size:3em; }
+
+/* Google OAuth Signin button */
+#google-sign-in-button {
+	background:rgb(66, 133, 244); color:white;
+	border:solid thin rgb(66,133,244);
+	display:flex; flex-direction:row; align-content:center;
+	flex-grow:0;
+	width:max-content; padding:0;
+}
+#google-sign-in-button span {padding:0.5em; font-size:larger;}
+#google-sign-in-button img { background:white; height:3em; width:3em; }
+
+/* Indefinate Wait spinner */
+.spinner {
+	height: 60px; width: 60px; margin: 94px auto 0 auto;
+	position: relative;
+	animation: rotation .6s infinite linear;
+	border-left: 6px solid #CCC;
+	border-right: 6px solid #CCC;
+	border-bottom: 6px solid #CCC;
+	border-top: 6px solid #999;
+	border-radius: 100%;
+}
+
+@keyframes rotation {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(359deg);
+	}
+}
+
+/* Form styling */
+.button-group { text-align:right }
+.button-group a, .button-group button, .button-group label {
+	margin:0.5em; padding:0.3em 0.6em;
+	background:var(--accent-color);
+	color:var(--text-primary-color);
+	border:solid thin var(--dark-accent-color); border-radius:4px;
+	box-shadow:0 1px 3px var(--shadow-color);
+	font-size:1em; font-family:sans-serif;
+	cursor:pointer;
+	text-align:center; text-decoration:none;
+	flex-grow:1;
+}
+.button-group a.default, .button-group button.default, .button-group label.default {
+	background:var(--default-primary-color);
+	border-color:var(--dark-primary-color);
+	color:var(--text-invert-color);
+}
+.button-group .material-icons {
+	/* Google does dumb things so we have to shift in px */
+	position:relative;
+	top: 6px;
+}
+
+form {
+	display:grid;
+	grid-template-columns:1fr, 2fr, 1em;
+	grid-gap:1em;
+	align-items:baseline;
+}
+
+form > label, form > fieldset > input {
+	grid-column:1/2;
+	text-align:right;
+}
+
+form > .button-group {
+	grid-column:2/3;
+	margin-left:0;
+}
+form > input, form > select, form > fieldset, form > fieldset > label {
+	grid-column:2/3;
+	text-align:left;
+	margin-left:0;
+}
+
+form > fieldset {
+	display:grid;
+	grid-template-columns:1em, 1fr;
+	grid-gap:1em;
+	align-items:center;
+	border:none 0px transparent;
+}
+
+form > .help {
+	grid-column:3/4;
+}
+
+/* Definition lists used for detail views */
+dl {
+	display:grid;
+	grid-template-columns:1fr, 3fr;
+	grid-gap:1em;
+}
+
+dt {
+	grid-column:1/2;
+	text-align:right;
+}
+
+dd {
+	grid-column:2/3;
+	text-align:left;
+	margin-left:0;
+}
+dd > ul {
+	padding-left:1em;
+}
+
+/* Misc */
+.debit { color:red; }

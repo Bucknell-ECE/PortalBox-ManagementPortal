@@ -1,0 +1,25 @@
+<article>
+	<header>
+		<h1>Add User</h1>
+		<div class="button-group">
+			<a href="/users">Cancel</a>
+			<button form="add-user-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="add-user-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" required />
+		<label for="email">Email:</label>
+		<input type="text" name="email" id="email" required />
+		<label for="management_portal_access_level_id">Management Portal Access Level:</label>
+		<select name="management_portal_access_level_id" id="management_portal_access_level_id" required />
+			<option></option>
+			{{#management_portal_access_levels}}<option value="{{id}}">{{name}}</option>{{/management_portal_access_levels}}
+		</select>
+		<label for="authorizations">Authorizations:</label>
+		<fieldset id="authorizations">
+			{{#equipment_types}}<input type="checkbox" name="authorizations.{{id}}" id="authorizations.{{id}}" /><label for="authorizations.{{id}}">{{name}}</label>{{/equipment_types}}
+			{{^equipment_types}}<p>No equipment types yet defined that the user can be authorized for.</p>{{/equipment_types}}
+		</fieldset>
+	</form>
+</article>
