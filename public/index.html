@@ -526,6 +526,7 @@
 					});
 				});
 				moostaka.route("/cards/add", params => {
+					let p0 = new Promise((resolve, reject) => { resolve(card_types); });
 					let p1 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
 						if(response.ok) {
 							return response.json();
@@ -542,7 +543,7 @@
 					});
 
 					Promise.all([p1, p2]).then(values => {
-						moostaka.render("#main", "admin/cards/add", {"types": card_types, "equipment_types": values[1], "users": values[2]}, {}, () => {
+						moostaka.render("#main", "admin/cards/add", {"types": values[0], "equipment_types": values[1], "users": values[2]}, {}, () => {
 							let form = document.getElementById("add-card-form");
 							form.addEventListener("submit", (e) => { add_card(e); });
 							let equipment_type_selector_label = document.getElementById("equipment_type_id_label");
@@ -611,6 +612,7 @@
 					});
 				});
 				moostaka.route("/cards/:id", params => {
+					let p0 = new Promise((resolve, reject) => { resolve(card_types); });
 					let p1 = fetch("/api/cards.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
 						if(response.ok) {
 							return response.json();
@@ -634,7 +636,7 @@
 					});
 
 					Promise.all([p0, p1, p2, p3]).then(values => {
-						moostaka.render("#main", "admin/cards/view", {"types": card_types, "card": values[1], "equipment_types": values[2], "users": values[3]}, {}, () => {
+						moostaka.render("#main", "admin/cards/view", {"types": values[0], "card": values[1], "equipment_types": values[2], "users": values[3]}, {}, () => {
 							let form = document.getElementById("edit-card-form");
 							form.addEventListener("submit", (e) => { update_card(values[1], e); });
 							let equipment_type_selector = document.getElementById("equipment_type_id");
