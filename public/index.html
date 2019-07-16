@@ -542,7 +542,7 @@
 						throw "API was unable to list users";
 					});
 
-					Promise.all([p1, p2]).then(values => {
+					Promise.all([p0, p1, p2]).then(values => {
 						moostaka.render("#main", "admin/cards/add", {"types": values[0], "equipment_types": values[1], "users": values[2]}, {}, () => {
 							let form = document.getElementById("add-card-form");
 							form.addEventListener("submit", (e) => { add_card(e); });
