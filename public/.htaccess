@@ -1,4 +1,6 @@
 <FilesMatch "(package\.json|yarn\.rc|yarn\.lock|README\.md)$">
 	Deny From All
-	Require all
+	Require all denied
 </FilesMatch>
+
+CGIPassAuth On
