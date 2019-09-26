@@ -5,7 +5,12 @@
 		die('No Authorization header provided');	 // should include link to docs
 	}
 
-	$url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' . $_SERVER['HTTP_AUTHORIZATION'];
+	if(8 > strlen($_SERVER['HTTP_AUTHORIZATION']) || 0 != strcmp('Bearer ', substr($_SERVER['HTTP_AUTHORIZATION'], 0 , 7))) {
+		header('HTTP/1.0 400 Bad Request');
+		die('Improperly formatted Authorization header. Please use "Bearer " + token syntax');
+	}
+	$token = substr($_SERVER['HTTP_AUTHORIZATION'], 7);
+	$url = 'https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=' . $token;
 	$response = json_decode(file_get_contents($url), true);
 
 	// response should contain email and exp fields or error_description

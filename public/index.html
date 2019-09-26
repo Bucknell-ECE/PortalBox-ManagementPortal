@@ -1202,7 +1202,7 @@
 			hello.on("auth.login", auth => {
 				// check if google auth suceessful???
 				if(auth && auth.authResponse && auth.authResponse.id_token) {
-					fetch("/api/login.php", {"credentials": "same-origin", headers: {"Authorization": auth.authResponse.id_token}}).then(response => {
+					fetch("/api/login.php", {"credentials": "same-origin", headers: {"Authorization": "Bearer " + auth.authResponse.id_token}}).then(response => {
 						if(response.ok) {
 							return response.json();
 						} else {
