@@ -15,7 +15,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{{#equipment}}<tr class="link" onclick="window.location = '/equipment/{{id}}';">
+			{{#equipment}}<tr class="link" onclick="moostaka.navigate('/equipment/{{id}}');">
 				<td>{{name}}</td>
 				<td>{{type}}</td>
 				<td>{{location}}</td>

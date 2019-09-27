@@ -12,7 +12,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{{#locations}}<tr class="link" onclick="window.location = '/locations/{{id}}';">
+			{{#locations}}<tr class="link" onclick="moostaka.navigate('/locations/{{id}}');">
 				<td>{{name}}</td>
 			</tr>{{/locations}}
 			{{^locations}}<tr><td>No locations found. <a href="/locations/add">Add one now?</a></td></tr>{{/locations}}
