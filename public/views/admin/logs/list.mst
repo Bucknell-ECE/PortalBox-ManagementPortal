@@ -1,3 +1,7 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li>Logs</li>
+</ul>
 <article>
 	<header>
 		<h1>Access Logs{{#search}}{{^customized}} for the Past Week{{/customized}}{{/search}}</h1>

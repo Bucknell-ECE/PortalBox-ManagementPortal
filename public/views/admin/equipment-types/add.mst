@@ -1,3 +1,8 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/equipment-types">Equipment Types</a></li>
+	<li>Add Equipment Type</li>
+</ul>
 <article>
 	<header>
 		<h1>Add Equipment Type</h1>

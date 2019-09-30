@@ -35,6 +35,16 @@ article > header > h1, section > header > h2 {
 
 .circular { border-radius:50%; }
 
+.crumbs {
+	display:flex; flex-direction:row; justify-content:flex-start;
+	list-style-type:none;
+	margin:0; padding:0.2em 0.5em; text-indent:0; width:100%;
+	box-sizing:border-box;
+}
+.crumbs li { padding:0.3em 0; }
+.crumbs li::after { content:"›"; padding:0 0.2em; }
+.crumbs li:last-of-type::after { display:none }
+
 /* tables */
 table { border-spacing:0; border-collapse:collapse; }
 th, td { margin:0; padding:0.2em 0.4em; }
