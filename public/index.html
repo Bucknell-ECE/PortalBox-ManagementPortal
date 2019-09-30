@@ -449,7 +449,9 @@
 			function list_users(params) {
 				let url = "/api/users.php";
 				let sort = "";
-				let filter = "";
+				let search = "";
+
+				console.log(params);
 
 				if('sort' in params) {
 					if('name' == params.sort) {
@@ -462,10 +464,10 @@
 					}
 				}
 
-				if('filter' in params) {
-					url += '?filter=';
-					url += encodeURIComponent(params.filter);
-					filter = params.filter;
+				if('name' in params) {
+					url += '?search=';
+					url += encodeURIComponent(params.name);
+					search = params.name;
 				}
 
 				fetch(url, {"credentials": "same-origin"}).then(response => {
@@ -475,7 +477,7 @@
 
 					throw "API was unable to list users";
 				}).then(users => {
-					moostaka.render("#main", "admin/users/list", {"users": users, "sort": sort, "filter":filter});
+					moostaka.render("#main", "admin/users/list", {"users": users, "sort": sort, "search":search});
 				}).catch(error => {
 					moostaka.render("#main", "error", {"error": error});
 				});
@@ -1037,6 +1039,7 @@
 					});
 				});
 				moostaka.route("/users/sort/:sort", list_users);
+				moostaka.route("/users/search/:name", list_users);
 				moostaka.route("/users/:id", params => {
 					let p0 = fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
 						if(response.ok) {

@@ -185,7 +185,8 @@ form {
 	display:grid;
 	grid-template-columns:1fr, 2fr, 1em;
 	grid-gap:1em;
-	align-items:baseline;
+	align-items:center;
+	margin-bottom:0.5em;
 }
 
 form > label, form > fieldset > input {
