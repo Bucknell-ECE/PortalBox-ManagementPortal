@@ -108,6 +108,9 @@
 					} else { // List
 						$connection = DB::getConnection();
 						$sql = 'SELECT id, name, email FROM users';
+						if(isset($_GET['filter']) && !empty($_GET['filter'])) {
+							$sql .= ' WHERE name LIKE "%:filter%"';
+						}
 						if(isset($_GET['sort']) && !empty($_GET['sort'])) {
 							$sort = strtolower($_GET['sort']);
 							switch($sort) {
@@ -120,6 +123,9 @@
 							}
 						}
 						$query = $connection->prepare($sql);
+						if(isset($_GET['filter']) && !empty($_GET['filter'])) {
+							$query->bindValue(':filter', urldecode($_GET['filter']));
+						}
 						if($query->execute()) {
 							$users = $query->fetchAll(\PDO::FETCH_ASSOC);
 							echo json_encode($users);

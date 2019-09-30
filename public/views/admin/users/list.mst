@@ -2,15 +2,15 @@
 	<header>
 		<h1>Users</h1>
 		<div class="button-group">
-			<!-- <label for="filter-form-toggle"><i class="material-icons">filter</i></label> -->
+			<label for="filter-form-toggle"><i class="material-icons">filter</i></label>
 			<a href="/users/add" class="default">Add</a>
 		</div>
 	</header>
-	<!-- <input type="checkbox" id="filter-form-toggle" class="checkbox-hack" />
+	<input type="checkbox" id="filter-form-toggle" class="checkbox-hack" {{#filter}}checked{{/filter}}/>
 	<form class="advanced_search">
 		<label for="name">Name:</label>
-		<input name="name" id="name" />
-	</form> -->
+		<input name="name" id="name" onchange="moostaka.navigate('/users/filter/' + this.value)" value="{{filter}}" />
+	</form>
 	<table>
 		<thead>
 			<tr>

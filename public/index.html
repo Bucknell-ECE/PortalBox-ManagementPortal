@@ -30,7 +30,7 @@
 			/*
 			 * While an end point exists for card_type, the types are integral
 			 * to the functioning of the Portal Box application, and would need
-			 * be changed in a coordeinated manner not only here but also the
+			 * be changed in a coordinated manner not only here but also the
 			 * DB and the Portal Box application. Therefore it is reasonable to
 			 * hard code them at this time.
 			 */
@@ -448,14 +448,24 @@
 			 */
 			function list_users(params) {
 				let url = "/api/users.php";
+				let sort = "";
+				let filter = "";
 
 				if('sort' in params) {
 					if('name' == params.sort) {
 						url += '?sort=name';
+						sort = 'name';
 					}
 					if('email' == params.sort) {
 						url += '?sort=email';
+						sort = 'email';
 					}
+				}
+
+				if('filter' in params) {
+					url += '?filter=';
+					url += encodeURIComponent(params.filter);
+					filter = params.filter;
 				}
 
 				fetch(url, {"credentials": "same-origin"}).then(response => {
@@ -465,7 +475,7 @@
 
 					throw "API was unable to list users";
 				}).then(users => {
-					moostaka.render("#main", "admin/users/list", {"users": users});
+					moostaka.render("#main", "admin/users/list", {"users": users, "sort": sort, "filter":filter});
 				}).catch(error => {
 					moostaka.render("#main", "error", {"error": error});
 				});
