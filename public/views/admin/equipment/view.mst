@@ -1,10 +1,9 @@
-{{#card}}
+{{#equipment}}
 <ul class="crumbs">
 	<li><a href="/">Home</a></li>
 	<li><a href="/equipment">Equipment</a></li>
 	<li>{{name}} ({{id}})</li>
 </ul>
-{{#equipment}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />
 <article>
 	<header>

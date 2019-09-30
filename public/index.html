@@ -1189,7 +1189,6 @@
 
 						throw "API was unable to list equipment";
 					}).then(equipment => {
-						console.log(equipment);
 						moostaka.render("#main", "unauthenticated/availability", {"equipment": equipment});
 					}).catch(error => {
 						console.log(error);
