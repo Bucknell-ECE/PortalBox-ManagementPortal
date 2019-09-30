@@ -1,3 +1,7 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li>Cards</li>
+</ul>
 <article>
 	<header>
 		<h1>Cards</h1>

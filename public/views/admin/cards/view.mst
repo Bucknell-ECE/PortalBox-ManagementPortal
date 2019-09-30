@@ -1,4 +1,9 @@
 {{#card}}
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/cards">Cards</a></li>
+	<li>Card {{id}}</li>
+</ul>
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />
 <article>
 	<header>
