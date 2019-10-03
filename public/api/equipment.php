@@ -66,6 +66,10 @@
 	}
 
 	// all users can use this endpoint check authentication in each method
+	if((include_once '../lib/Security.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+	}
 
 	if((include_once '../lib/Database.php') === FALSE) {
 		header('HTTP/1.0 500 Internal Server Error');
@@ -77,23 +81,7 @@
 		case 'GET':		// List/Read
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 				// check authentication
-				if(session_status() !== PHP_SESSION_ACTIVE) {
-					$success = session_start();
-					if(!$success) {
-						session_abort();
-						header('HTTP/1.0 403 Not Authorized');
-						die('You must request a session cookie from the api using the login.php endpoint before accessing this endpoint');
-					}
-				}
-				if(!array_key_exists('user', $_SESSION)) {
-					header('HTTP/1.0 403 Not Authorized');
-					die('Your session is invalid. Perhaps you need to reauthenticate.');
-				}
-				//only admins can use this endpoint
-				if(3 != $_SESSION['user']['management_portal_access_level_id']) {
-					header('HTTP/1.0 403 Not Authorized');
-					die('You have not been granted permissions to view full equipment details.');
-				}
+				require_authorization('admin');
 
 				$connection = DB::getConnection();
 				$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
@@ -118,21 +106,9 @@
 					die('We experienced issues communicating with the database');
 				}
 			} else { // List
-				// check authentication
-				$authenticated = false;
-				if(session_status() !== PHP_SESSION_ACTIVE) {
-					$success = session_start();
-					if(!$success) {
-						session_abort();
-					} else {
-						if(array_key_exists('user', $_SESSION)) {
-							$authenticated = true;
-						}
-					}
-				}
 				$connection = DB::getConnection();
 				$sql = '';
-				if($authenticated) {
+				if(is_user_authenticated()) {
 					$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
 				} else {
 					$sql = 'SELECT e.id, e.name, t.name AS type, l.name AS location, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id ORDER BY l.name';
@@ -157,24 +133,9 @@
 			}
 			break;
 		case 'POST':	// Update
-			// check authentication
-			if(session_status() !== PHP_SESSION_ACTIVE) {
-				$success = session_start();
-				if(!$success) {
-					session_abort();
-					header('HTTP/1.0 403 Not Authorized');
-					die('You must request a session cookie from the api using the login.php endpoint before accessing this endpoint');
-				}
-			}
-			if(!array_key_exists('user', $_SESSION)) {
-				header('HTTP/1.0 403 Not Authorized');
-				die('Your session is invalid. Perhaps you need to reauthenticate.');
-			}
-			//only admins can use this endpoint
-			if(3 != $_SESSION['user']['management_portal_access_level_id']) {
-				header('HTTP/1.0 403 Not Authorized');
-				die('You have not been granted permissions to modify equipment.');
-			}
+			// check authorization
+			require_authorization('admin');
+
 			// validate that we have an oid
 			if(!isset($_GET['id']) || empty($_GET['id'])) {
 				header('HTTP/1.0 400 Bad Request');
@@ -227,24 +188,8 @@
 			}
 			break;
 		case 'PUT':		// Create
-			// check authentication
-			if(session_status() !== PHP_SESSION_ACTIVE) {
-				$success = session_start();
-				if(!$success) {
-					session_abort();
-					header('HTTP/1.0 403 Not Authorized');
-					die('You must request a session cookie from the api using the login.php endpoint before accessing this endpoint');
-				}
-			}
-			if(!array_key_exists('user', $_SESSION)) {
-				header('HTTP/1.0 403 Not Authorized');
-				die('Your session is invalid. Perhaps you need to reauthenticate.');
-			}
-			//only admins can use this endpoint
-			if(3 != $_SESSION['user']['management_portal_access_level_id']) {
-				header('HTTP/1.0 403 Not Authorized');
-				die('You have not been granted permission to add equipment to this system.');
-			}
+			// check authorization
+			require_authorization('admin');
 
 			$equipment = json_decode(file_get_contents('php://input'), TRUE);
 			if(NULL !== $equipment) {

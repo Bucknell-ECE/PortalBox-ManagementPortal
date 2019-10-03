@@ -35,19 +35,12 @@
 	}
 
 	// check authentication
-	if(session_status() !== PHP_SESSION_ACTIVE) {
-		$success = session_start();
-		if(!$success) {
-			session_abort();
-			header('HTTP/1.0 403 Not Authorized');
-			die('You must request a session cookie from the api using the login.php endpoint before accessing this endpoint');
-		}
+	// trainers and admins can use this endpoint, we'll have to check authorization in each method
+	if((include_once '../lib/Security.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
-	if(!array_key_exists('user', $_SESSION)) {
-		header('HTTP/1.0 403 Not Authorized');
-		die('Your session is invalid. Perhaps you need to reauthenticate.');
-	}
-	// admins and trainers can use methods of this endpoint
+	require_authentication();
 
 	// only authenticated users should reach this point
 	if((include_once '../lib/Database.php') === FALSE) {
@@ -58,10 +51,7 @@
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
-			if(2 != $_SESSION['user']['management_portal_access_level_id'] && 3 != $_SESSION['user']['management_portal_access_level_id']) {
-				header('HTTP/1.0 403 Not Authorized');
-				die('You have not been granted privileges to list equipment types.');
-			}
+			require_authorization('trainer');
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 				$connection = DB::getConnection();
 				$sql = 'SELECT et.id, et.name, et.requires_training, et.charge_policy_id, cp.name AS charge_policy, et.charge_rate FROM equipment_types AS et INNER JOIN charge_policies AS cp ON cp.id = et.charge_policy_id WHERE et.id = :id';
@@ -107,10 +97,7 @@
 			}
 			break;
 		case 'POST':	// Update
-			if(3 != $_SESSION['user']['management_portal_access_level_id']) {
-				header('HTTP/1.0 403 Not Authorized');
-				die('You have not been granted privileges to modify equipment types.');
-			}
+			require_authorization('admin');
 
 			// validate that we have an oid
 			if(!isset($_GET['id']) || empty($_GET['id'])) {
@@ -156,10 +143,7 @@
 			}
 			break;
 		case 'PUT':	// Create
-			if(3 != $_SESSION['user']['management_portal_access_level_id']) {
-				header('HTTP/1.0 403 Not Authorized');
-				die('You have not been granted privileges to create equipment types.');
-			}
+			require_authorization('admin');
 
 			$equipment_type = json_decode(file_get_contents('php://input'), TRUE);
 			if(NULL !== $equipment_type) {
