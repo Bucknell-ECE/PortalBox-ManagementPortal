@@ -21,7 +21,7 @@
 	// only authenticated users should reach this point
 	if((include_once '../lib/Database.php') === FALSE) {
 		header('HTTP/1.0 500 Internal Server Error');
-		die('We were unable to load some dependencies. Please ask you server administrator to investigate');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
 	// switch on the request method

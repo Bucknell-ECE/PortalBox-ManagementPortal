@@ -8,7 +8,7 @@
 	function validate($equipment) {
 		if(!is_array($equipment)) {
 			header('HTTP/1.0 500 Internal Server Error');
-			die('We seem to have encountered an unexpected difficulty. Please ask you server administrator to investigate');
+			die('We seem to have encountered an unexpected difficulty. Please ask your server administrator to investigate');
 		}
 		if(!array_key_exists('name', $equipment) || empty($equipment['name'])) {
 			header('HTTP/1.0 400 Bad Request');
@@ -69,7 +69,7 @@
 
 	if((include_once '../lib/Database.php') === FALSE) {
 		header('HTTP/1.0 500 Internal Server Error');
-		die('We were unable to load some dependencies. Please ask you server administrator to investigate');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
 	// switch on the request method

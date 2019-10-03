@@ -7,7 +7,7 @@
 	function validate($card) {
 		if(!is_array($card)) {
 			header('HTTP/1.0 500 Internal Server Error');
-			die('We seem to have encountered an unexpected difficulty. Please ask you server administrator to investigate');
+			die('We seem to have encountered an unexpected difficulty. Please ask your server administrator to investigate');
 		}
 		if(!array_key_exists('id', $card) || empty($card['id'])) {
 			header('HTTP/1.0 400 Bad Request');
@@ -56,7 +56,7 @@
 	// only authenticated users should reach this point
 	if((include_once '../lib/Database.php') === FALSE) {
 		header('HTTP/1.0 500 Internal Server Error');
-		die('We were unable to load some dependencies. Please ask you server administrator to investigate');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
 	// switch on the request method

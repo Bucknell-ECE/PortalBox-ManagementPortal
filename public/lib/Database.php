@@ -43,7 +43,9 @@
 				try {
 					self::$pdo = new DB();
 				} catch(PDOException $e) {
-					return false;
+					// error_log($e->getMessage());
+					header('HTTP/1.0 500 Internal Server Error');
+					die('We were unable to connect to the backend database. Please ask your server administrator to investigate');
 				}
 			}
 			

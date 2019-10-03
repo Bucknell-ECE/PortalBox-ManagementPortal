@@ -23,7 +23,7 @@
 		// registered with our system and has api permissions
 		if((include_once '../lib/Database.php') === FALSE) {
 			header('HTTP/1.0 500 Internal Server Error');
-			die('We were unable to load some dependencies. Please ask you server administrator to investigate');
+			die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 		}
 		$connection = DB::getConnection();
 		$sql = 'SELECT * FROM users WHERE email = :email';
@@ -42,7 +42,7 @@
 					} else {
 						session_abort();
 						header('HTTP/1.0 500 Internal Server Error');
-						die('We were unable to start your session. Please ask you server administrator to investigate');
+						die('We were unable to start your session. Please ask your server administrator to investigate');
 					}
 				} else {
 					echo json_encode($user);
