@@ -124,9 +124,66 @@
 			}
 
 			/*
-			 * Callback that handles adding a card to the backend. Currently,
-			 * does not work as some other pieces need to be in place first or
-			 * the process of adding a card needs to be rethought.
+			 * Callback that handles adding an api key to the backend. Bound
+			 * to the form.submit() in moostaka.render() for the view
+			 */
+			 function add_api_key(event) {
+				event.preventDefault();
+				let data = get_form_data(event.target);
+
+				fetch("/api/api-keys.php", {
+					body: JSON.stringify(data),
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					method: "PUT"
+				}).then(response => {
+					if(response.ok) {
+						return response.json();
+					}
+
+					throw "API was unable to save new API key";
+				}).then(data => {
+					moostaka.navigate("/api-keys");
+					// notify user of success
+				}).catch(error => {
+					moostaka.render("#main", "error", {"error": error});
+				});
+			}
+
+			/*
+			 * Callback that handles updating cards on backend. Bound
+			 * to the form.submit() in moostaka.render() for the view.
+			 */
+			function update_api_key(key, event) {
+				event.preventDefault();
+				let data = get_form_data(event.target);
+
+				fetch("/api/api-keys.php?id=" + key.id, {
+					body: JSON.stringify(data),
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					method: "POST"
+				}).then(response => {
+					if(response.ok) {
+						return response.json();
+					}
+
+					throw "API was unable to save API key";
+				}).then(data => {
+					moostaka.navigate("/api-keys");
+					// notify user of success
+				}).catch(error => {
+					moostaka.render("#main", "error", {"error": error});
+				});
+			}
+
+			/*
+			 * Callback that handles adding a card to the backend. Bound
+			 * to the form.submit() in moostaka.render() for the view
 			 */
 			function add_card(event) {
 				event.preventDefault();
@@ -521,6 +578,41 @@
 				});
 				moostaka.route("/logout", params => {
 					hello("google").logout();
+				});
+				moostaka.route("/api-keys", params => {
+					fetch("/api/api-keys.php", {"credentials": "same-origin"}).then(response => {
+						if(response.ok) {
+							return response.json();
+						}
+
+						throw "API was unable to list api keys";
+					}).then(keys => {
+						moostaka.render("#main", "admin/api-keys/list", {"keys": keys});
+					}).catch(error => {
+						moostaka.render("#main", "error", {"error": error});
+					});
+				});
+				moostaka.route("/api-keys/add", params => {
+					moostaka.render("#main", "admin/api-keys/add", {}, {}, () => {
+						let form = document.getElementById("add-api-key-form");
+						form.addEventListener("submit", (e) => { add_api_key(e); });
+					});
+				});
+				moostaka.route("/api-keys/:id", params => {
+					fetch("/api/api-keys.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
+						if(response.ok) {
+							return response.json();
+						}
+
+						throw "API was unable to find api key: " + params.id;
+					}).then(key => {
+						moostaka.render("#main", "admin/api-keys/view", {"key": key}, {}, () => {
+							let form = document.getElementById("edit-api-key-form");
+							form.addEventListener("submit", (e) => { update_api_key(key, e); });
+						});
+					}).catch(error => {
+						moostaka.render("#main", "error", {"error": error});
+					});
 				});
 				moostaka.route("/cards", params => {
 					fetch("/api/cards.php", {"credentials": "same-origin"}).then(response => {
