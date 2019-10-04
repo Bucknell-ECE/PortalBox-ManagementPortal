@@ -7,6 +7,150 @@
 	},
 	"item": [
 		{
+			"name": "API Keys",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/api-keys.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"api-keys.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"Google Forms Integration\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/api-keys.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"api-keys.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{auth_cookie}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":-1, \"name\":\"Reservations Integration\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/api-keys.php?id=2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"api-keys.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{auth_cookie}}"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/api-keys.php?id=4",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"api-keys.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "4"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
 			"name": "Cards",
 			"item": [
 				{
@@ -161,6 +305,119 @@
 							"path": [
 								"api",
 								"card-types.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Charges",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/charges.php?equipment_id=8&user_id=105&after=2019-05-01&before=2019-07-01",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"charges.php"
+							],
+							"query": [
+								{
+									"key": "equipment_id",
+									"value": "8",
+									"description": "Filter charges to include on those created in use of the equipment with the specified oid"
+								},
+								{
+									"key": "user_id",
+									"value": "105",
+									"description": "Filter charges to include only those incurred by the user with the specified oid"
+								},
+								{
+									"key": "after",
+									"value": "2019-05-01",
+									"description": "Filter charges to include only those on or after the specifed date (YYYY-MM-DD)"
+								},
+								{
+									"key": "before",
+									"value": "2019-07-01",
+									"description": "Filter charges to include only those on or before the specified date (YYYY-MM-DD)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{auth_cookie}}"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/charges.php?id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"charges.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Retrieve only the charge with the specified oid"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{auth_cookie}}"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/charges.php?id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"charges.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "Retrieve only the charge with the specified oid"
+								}
 							]
 						}
 					},
@@ -347,7 +604,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"id\":\"ignored\", \"name\":\"GlowForge\"}"
+							"raw": "{\"id\":\"ignored\", \"name\":\"GlowForge\", \"requires_training\":true, \"charge_policy_id\":1}"
 						},
 						"url": {
 							"raw": "{{host}}/api/equipment-types.php",
@@ -411,7 +668,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"id\":\"ignored\", \"name\":\"Glowforge 3D\"}"
+							"raw": "{\"id\":\"ignored\", \"name\":\"Glowforge 3D\", \"requires_training\":false, \"charge_policy_id\":2}"
 						},
 						"url": {
 							"raw": "{{host}}/api/equipment-types.php?id=1",
@@ -647,6 +904,149 @@
 			]
 		},
 		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/payments.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"payments.php"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "105",
+									"description": "filter payments by user",
+									"disabled": true
+								},
+								{
+									"key": "before",
+									"value": "2019-06-30",
+									"description": "filter payments by end date",
+									"disabled": true
+								},
+								{
+									"key": "after",
+									"value": "2019-05-01",
+									"description": "filter payments by start date",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"amount\":20.75, \"time\":\"2019-06-10 15:42:00\", \"user_id\": 105}"
+						},
+						"url": {
+							"raw": "{{host}}/api/payments.php",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"payments.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{auth_cookie}}"
+							}
+						],
+						"url": {
+							"raw": "{{host}}/api/payments.php?id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"payments.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "the the oid of the payment to retrieve"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{auth_cookie}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"id\":\"ignored\", \"amount\":30, \"time\":\"2019-04-10 15:42:00\", \"user_id\": 105}"
+						},
+						"url": {
+							"raw": "{{host}}/api/payments.php?id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"payments.php"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "the oid of the payment to modify"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Users",
 			"item": [
 				{
@@ -661,13 +1061,26 @@
 							}
 						],
 						"url": {
-							"raw": "{{host}}/api/users.php",
+							"raw": "{{host}}/api/users.php?search=Ma",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"users.php"
+							],
+							"query": [
+								{
+									"key": "sort",
+									"value": "name",
+									"description": "Sort the list by 'name' or 'email'",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "Ma",
+									"description": "Filter the list for values with a name containing the search string"
+								}
 							]
 						}
 					},
@@ -856,5 +1269,6 @@
 			"value": "${YOUR_GOOGLE_OAUTH2_ID_TOKEN}",
 			"type": "string"
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
