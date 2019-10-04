@@ -152,6 +152,23 @@
 				});
 			}
 
+			function delete_api_key(id) {
+				if(window.confirm("Are you sure you want to delete the API key")) { 
+					fetch("/api/api-keys.php?id=" + id, {
+						credentials: "include",
+						method: "DELETE"
+					}).then(response => {
+						if(response.ok) {
+							moostaka.navigate("/api-keys");
+						}
+
+						throw "API was unable to save new API key";
+					}).catch(error => {
+						moostaka.render("#main", "error", {"error": error});
+					});
+				}
+			}
+
 			/*
 			 * Callback that handles updating cards on backend. Bound
 			 * to the form.submit() in moostaka.render() for the view.

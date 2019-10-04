@@ -9,6 +9,7 @@
 	<header>
 		<h1>API Key</h1>
 		<div class="button-group">
+			<button type="button" onclick="delete_api_key({{id}});">Delete</button>
 			<label for="view-edit-toggle-edit-state" class="default">Edit</label>
 		</div>
 	</header>
