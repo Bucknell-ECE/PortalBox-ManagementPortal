@@ -18,7 +18,6 @@
 			header('HTTP/1.0 400 Bad Request');
 			die('You must specify the user\'s email');
 		}
-		// warning hardcoded values... management access levels are baked in
 		if(!array_key_exists('management_portal_access_level_id', $user) || empty($user['management_portal_access_level_id'])) {
 			header('HTTP/1.0 400 Bad Request');
 			die('You must specify the user\'s management portal access level');
@@ -38,7 +37,7 @@
 				die('We experienced issues communicating with the database');
 			}
 		}
-		if(!array_key_exists('authorizations', $user) || empty($user['authorizations']) || !is_array($user['authorizations'])) {
+		if(!array_key_exists('authorizations', $user) || !is_array($user['authorizations'])) {
 			header('HTTP/1.0 400 Bad Request');
 			die('You must specify the user\'s authorizations');
 		}
@@ -363,6 +362,7 @@
 					die(json_last_error_msg());
 				}
 			}
+			break;
 		case 'PUT':		// Create
 			require_authorization('admin');
 			$user = json_decode(file_get_contents('php://input'), TRUE);
