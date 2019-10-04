@@ -1,4 +1,22 @@
 <?php
+	class SecurityContext {
+		private static $context;	/** The singelton instance */
+
+		public $authorization_level;
+
+		private function __construct() {
+			$authorization_level = -1;
+		}
+
+		public static function getContext() {
+			if(!self::$context) {
+				self::$context = new SecurityContext();
+			}
+			
+			return self::$context;
+		}
+	}
+
 	// Should enumerate authentication levels???
 
 	/**
@@ -9,14 +27,51 @@
 	 * 		HTTP request being serviced
 	 */
 	function is_user_authenticated() {
+		if(-1 < SecurityContext::getContext()->authorization_level) {
+			return true;
+		}
+
+		// Check for Brearer token
+		if(array_key_exists('HTTP_AUTHORIZATION', $_SERVER) &&
+			8 < strlen($_SERVER['HTTP_AUTHORIZATION']) &&
+			0 == strcmp('Bearer ', substr($_SERVER['HTTP_AUTHORIZATION'], 0 , 7))) {
+			$token = substr($_SERVER['HTTP_AUTHORIZATION'], 7);
+
+			if((include_once '../lib/Database.php') === FALSE) {
+				header('HTTP/1.0 500 Internal Server Error');
+				die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+			}
+
+			$connection = DB::getConnection();
+			$sql = 'SELECT id FROM api_keys WHERE token = :token';
+			$query = $connection->prepare($sql);
+			$query->bindValue(':token', $token);
+			if($query->execute()) {
+				if($row = $query->fetch(\PDO::FETCH_NUM)) {
+					// authorization level is ???
+					// full access now but maybe should be restricted
+					// by all key or for specific keys in future?
+					SecurityContext::getContext()->authorization_level = 3;
+					return true;
+				}
+			}
+		}
+
+		// Check for cookie based session 
 		if(session_status() !== PHP_SESSION_ACTIVE) {
 			$success = session_start();
 			if(!$success) {
 				session_abort();
 			} else {
 				if(array_key_exists('user', $_SESSION)) {
+					SecurityContext::getContext()->authorization_level = $_SESSION['user']['management_portal_access_level_id'];
 					return true;
 				}
+			}
+		} else {
+			if(array_key_exists('user', $_SESSION)) {
+				SecurityContext::getContext()->authorization_level = $_SESSION['user']['management_portal_access_level_id'];
+				return true;
 			}
 		}
 
@@ -35,8 +90,12 @@
 	 */
 	function get_user_authorization_level() {
 		if(is_user_authenticated()) {
-			return $_SESSION['user']['management_portal_access_level_id'];
+			return SecurityContext::getContext()->authorization_level;
 		} else {
+			// sure context initializes to 0 but if is_user_authenticated is
+			// not called first, an authenticated user will have the incorrect
+			// level 0 the if structure helps those who are speed reading and
+			// ignoring long comments
 			return 0;
 		}
 	}
@@ -46,15 +105,7 @@
 	 * associated with an authenticated user
 	 */
 	function require_authentication() {
-		if(session_status() !== PHP_SESSION_ACTIVE) {
-			$success = session_start();
-			if(!$success) {
-				session_abort();
-				header('HTTP/1.0 403 Not Authorized');
-				die('You must request a session cookie from the api using the login.php endpoint before accessing this endpoint');
-			}
-		}
-		if(!array_key_exists('user', $_SESSION)) {
+		if(!is_user_authenticated()) {
 			header('HTTP/1.0 403 Not Authorized');
 			die('Your session is invalid. Perhaps you need to reauthenticate.');
 		}
@@ -72,15 +123,17 @@
 	function require_authorization($authorization_level) {
 		require_authentication();
 
+		$level = SecurityContext::getContext()->authorization_level;
+
 		// WARNING hard coded values
 		switch($authorization_level) {
 			case 'admin':	//only admins can use this endpoint
-				if(3 != $_SESSION['user']['management_portal_access_level_id']) {
+				if(3 != $level) {
 					header('HTTP/1.0 403 Not Authorized');
 					die('You have not been granted privileges for this data.');
 				}
 			case 'trainer':
-				if(2 > $_SESSION['user']['management_portal_access_level_id']) {
+				if(2 > $level) {
 					header('HTTP/1.0 403 Not Authorized');
 					die('You have not been granted privileges for this data.');
 				}
