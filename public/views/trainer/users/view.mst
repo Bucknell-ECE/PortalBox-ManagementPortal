@@ -40,7 +40,7 @@
 		<input type="text" name="name" id="name" value="{{name}}" disabled />
 		<label for="email">Email:</label>
 		<input type="text" name="email" id="email" value="{{email}}" disabled />
-		<label for="authorizations">Authorizations:</label>
+		<label for="authorizations" style="align-self:baseline">Authorizations:</label>
 		<fieldset id="authorizations">
 			{{#equipment_types}}<input type="checkbox" name="authorizations.{{id}}" id="authorizations.{{id}}" /><label for="authorizations.{{id}}">{{name}}</label>{{/equipment_types}}
 			{{^equipment_types}}<p>No equipment types yet defined that the user can be authorized for.</p>{{/equipment_types}}

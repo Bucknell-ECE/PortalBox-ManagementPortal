@@ -1092,6 +1092,11 @@
 						"method": "PUT",
 						"header": [
 							{
+								"key": "Cookie",
+								"value": "{{auth_cookie}}",
+								"type": "text"
+							},
+							{
 								"key": "Content-Type",
 								"name": "Content-Type",
 								"value": "application/json",
@@ -1100,22 +1105,16 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"id\":\"ignored\", \"name\":\"Emma Peel\", \"email\":\"emma@avengers.tv\"}"
+							"raw": "{\"id\":\"ignored\", \"name\":\"Emma Peel\", \"email\":\"emma@avengers.tv\", \"management_portal_access_level_id\":1}"
 						},
 						"url": {
-							"raw": "{{host}}/api/users.php?Cookie={{auth_cookie}}",
+							"raw": "{{host}}/api/users.php",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"users.php"
-							],
-							"query": [
-								{
-									"key": "Cookie",
-									"value": "{{auth_cookie}}"
-								}
 							]
 						}
 					},
@@ -1133,7 +1132,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{host}}/api/users.php?id=105",
+							"raw": "{{host}}/api/users.php?id=4",
 							"host": [
 								"{{host}}"
 							],
@@ -1144,7 +1143,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "105",
+									"value": "4",
 									"description": "enter the id of a user for your install"
 								}
 							]
@@ -1171,10 +1170,10 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"id\":\"ignored\", \"name\":\"Emma Peel\", \"email\":\"emma.peel@avengers.tv\"}"
+							"raw": "{\"id\":\"ignored\", \"name\":\"Emma Peel\", \"email\":\"e.peel@avengers.tv\", \"management_portal_access_level_id\":\"3\", \"authorizations\":{\"1\":\"true\"}}"
 						},
 						"url": {
-							"raw": "{{host}}/api/users.php?id=2",
+							"raw": "{{host}}/api/users.php?id=4",
 							"host": [
 								"{{host}}"
 							],
@@ -1185,7 +1184,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "2"
+									"value": "4"
 								}
 							]
 						}
@@ -1226,6 +1225,87 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Invalid Access",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\":\"ignored\", \"name\":\"Emma Peel\", \"email\":\"emma@avengers.tv\", \"management_portal_access_level_id\":1, \"authorizations\":[]}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/users.php",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"users.php"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User (API Key)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "d770adad37e60061736d4e0d631fa9d2",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\":\"ignored\", \"name\":\"Steve Wozniak\", \"email\":\"woz@apple.com\", \"management_portal_access_level_id\":1, \"authorizations\":[]}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/users.php",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"users.php"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
@@ -1252,19 +1332,19 @@
 	],
 	"variable": [
 		{
-			"id": "7d629413-3bb2-4e11-b0f3-f5b27f05eaf5",
+			"id": "cce87184-10d5-4229-b443-59f0c54ba691",
 			"key": "host",
 			"value": "${YOUR_TEST_SERVER:PORT}",
 			"type": "string"
 		},
 		{
-			"id": "796bdb19-573e-45a8-9e89-b9bcab8a5fc0",
+			"id": "3647d2cf-70f9-41b0-83a6-8b0a77c99e5d",
 			"key": "auth_cookie",
 			"value": "PHPSESSID=${YOUR_SESSION_COOKIE}",
 			"type": "string"
 		},
 		{
-			"id": "11113c10-492b-471a-9a9c-4174aacc9584",
+			"id": "79d1ed10-1edf-4d35-a8a0-8cfbb06cfd56",
 			"key": "google_id_token",
 			"value": "${YOUR_GOOGLE_OAUTH2_ID_TOKEN}",
 			"type": "string"
