@@ -15,6 +15,15 @@
 	<dl>
 		<dt>Name:</label>
 		<dd>{{name}}</dd>
+		<dt>Equipment:</dt>
+		<dd>
+			{{#equipment}}
+			<ul>
+				<li><a href="/equipment/{{id}}">{{name}} ({{type}})</a></li>
+			</ul>
+			{{/equipment}}
+			{{^equipment}}No equipment is currently located here{{/equipment}}
+		</dd>
 	</dl>
 </article>
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />

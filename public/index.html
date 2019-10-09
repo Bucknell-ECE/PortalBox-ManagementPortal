@@ -1027,14 +1027,23 @@
 					});
 				});
 				moostaka.route("/locations/:id", params => {
-					fetch("/api/locations.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
+					let p0 = fetch("/api/locations.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
 						if(response.ok) {
 							return response.json();
 						}
 
 						throw "API was unable to find location: " + params.id;
-					}).then(location => {
-						moostaka.render("#main", "admin/locations/view", {"location": location}, {}, () => {
+					});
+					let p1 = fetch("/api/equipment.php?location_id=" + params.id, {"credentials": "same-origin"}).then(response => {
+						if(response.ok) {
+							return response.json();
+						}
+
+						throw "API was unable to list equipment";
+					});
+					
+					Promise.all([p0,p1]).then(values => {
+						moostaka.render("#main", "admin/locations/view", {"location": values[0], "equipment": values[1]}, {}, () => {
 							let form = document.getElementById("edit-location-form");
 							form.addEventListener("submit", (e) => { update_location(location, e); });
 						});

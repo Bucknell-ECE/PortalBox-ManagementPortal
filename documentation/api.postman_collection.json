@@ -440,7 +440,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{host}}/api/equipment.php?location=Test%20Lab&type=Freeze Ray",
+							"raw": "{{host}}/api/equipment.php?location_id=1",
 							"host": [
 								"{{host}}"
 							],
@@ -451,11 +451,17 @@
 							"query": [
 								{
 									"key": "location",
-									"value": "Test%20Lab"
+									"value": "Test%20Lab",
+									"disabled": true
 								},
 								{
 									"key": "type",
-									"value": "Freeze Ray"
+									"value": "Freeze Ray",
+									"disabled": true
+								},
+								{
+									"key": "location_id",
+									"value": "1"
 								}
 							]
 						}
@@ -1342,19 +1348,19 @@
 	],
 	"variable": [
 		{
-			"id": "06c5b257-def4-4b07-82fc-a8913087803a",
+			"id": "df4f6b47-7a0d-4c41-8734-792954503bd5",
 			"key": "host",
 			"value": "${YOUR_TEST_SERVER:PORT}",
 			"type": "string"
 		},
 		{
-			"id": "fba2c8f9-05a7-4c6a-8bfd-bea9ac51ba66",
+			"id": "e4e87655-480e-4f60-bf98-92d4e7e0739e",
 			"key": "auth_cookie",
 			"value": "PHPSESSID=${YOUR_SESSION_COOKIE}",
 			"type": "string"
 		},
 		{
-			"id": "021aa38f-2aa3-47f3-aa79-1ac738e98383",
+			"id": "6fb7f94e-1bc1-4d24-af09-5407b1297a34",
 			"key": "google_id_token",
 			"value": "${YOUR_GOOGLE_OAUTH2_ID_TOKEN}",
 			"type": "string"
