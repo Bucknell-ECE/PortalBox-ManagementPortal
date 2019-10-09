@@ -113,7 +113,25 @@
 				} else {
 					$sql = 'SELECT e.id, e.name, t.name AS type, l.name AS location, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id ORDER BY l.name';
 				}
+				$where_clause_fragments = array();
+				if(isset($_GET['location']) && !empty($_GET['location'])) {
+					$where_clause_fragments[] = 'l.name = :location';
+				}
+				if(isset($_GET['type']) && !empty($_GET['type'])) {
+					$where_clause_fragments[] = 't.name = :type';
+				}
+				if(0 < count($where_clause_fragments)) {
+					$sql .= ' WHERE ';
+					$sql .= join(' AND ', $where_clause_fragments);
+				}
+
 				$query = $connection->prepare($sql);
+				if(isset($_GET['location']) && !empty($_GET['location'])) {
+					$query->bindValue(':location', $_GET['location']);
+				}
+				if(isset($_GET['type']) && !empty($_GET['type'])) {
+					$query->bindValue(':type', $_GET['type']);
+				}
 				if($query->execute()) {
 					$equipment = $query->fetchAll(\PDO::FETCH_ASSOC);
 					foreach($equipment as &$e) {
