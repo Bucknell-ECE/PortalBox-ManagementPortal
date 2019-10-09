@@ -1,4 +1,4 @@
-<FilesMatch "(package\.json|yarn\.rc|yarn\.lock|README\.md)$">
+<FilesMatch "(package\.json|\.yarnrc|yarn\.lock)$">
 	Deny From All
 	Require all denied
 </FilesMatch>
