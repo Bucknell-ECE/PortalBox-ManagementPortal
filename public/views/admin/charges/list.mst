@@ -42,7 +42,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{{#charges}}<tr class="link" onclick="moostaka.navigate('/charges/{{id}}');">
+			{{#charges}}<tr class="link" onclick="go('/charges/{{id}}', 'Charges');">
 				<td>{{time}}</td>
 				<td>{{user}}</td>
 				<td>{{equipment}}</td>

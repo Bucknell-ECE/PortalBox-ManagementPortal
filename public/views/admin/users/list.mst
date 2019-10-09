@@ -26,7 +26,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{{#users}}<tr class="link" onclick="moostaka.navigate('/users/{{id}}');">
+			{{#users}}<tr class="link" onclick="go('/users/{{id}}', 'Users');">
 				<td>{{name}}</td><td>{{email}}</td>
 			</tr>{{/users}}
 			{{^users}}<tr><td colspan="2">No users found. <a href="/locations/add">Add one now?</a></td></tr>{{/users}}

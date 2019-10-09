@@ -47,7 +47,7 @@
 					<tr><th>Date</th><th>Equipment</th><th>Amount</th></tr>
 				</thead>
 				<tbody>
-					{{#ledger}}<tr{{#equipment_id}} class="debit link"{{/equipment_id}} onclick="moostaka.navigate('/{{#equipment_id}}charges{{/equipment_id}}{{^equipment_id}}payments{{/equipment_id}}/{{id}}');">
+					{{#ledger}}<tr{{#equipment_id}} class="debit link"{{/equipment_id}} onclick="go('/{{#equipment_id}}charges{{/equipment_id}}{{^equipment_id}}payments{{/equipment_id}}/{{id}}', {{name}});">
 						<td>{{time}}</td>
 						<td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>
 						<td>{{amount}}</td>

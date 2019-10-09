@@ -84,6 +84,27 @@
 			];
 
 			/**
+			 * While Moostaka is pretty great; simple, open source, has made
+			 * this SPA possible; there is a shortcoming: it's design really
+			 * only supports navigation by HTML link elements. Unfortunately,
+			 * linking table rows is not part of the HTML standard so we need
+			 * a bit of a work around. We will bind the click event of table
+			 * rows to this helper function making them work with moostaka
+			 * as if they are links.
+			 * 
+			 * go - make the browser "navigate" to the given url even when
+			 *     when the url is virtual, ie only valid in the SPA
+			 * @param (string)destination_url - the location the browser should
+			 *     "navigate" to
+			 * @param (string)current_page_title - what the history entry for
+			 *     page where the click occured should be called
+			 */
+			function go(destination_url, current_page_title) {
+				moostaka.navigate(destination_url);
+				history.pushState({}, current_page_title, destination_url);
+			}
+
+			/**
 			 * Helper which iterates the fields in a form creating an object
 			 * which has key value pairs corresponding to the name and value
 			 * of the fields with a name attribute. If name is of the form
