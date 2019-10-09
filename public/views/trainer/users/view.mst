@@ -19,10 +19,12 @@
 		<dd><a href="mailto:{{email}}">{{email}}</a></dd>
 		<dt>Authorized for:</dt>
 		<dd>
+			{{#authorizations}}
 			<ul>
-				{{#authorizations}}<li>{{equipment_type}}</li>{{/authorizations}}
-				{{^authorizations}}<li>Not yet Authorized for any Equipment</li>{{/authorizations}}
+				<li>{{equipment_type}}</li>
 			</ul>
+			{{/authorizations}}
+			{{^authorizations}}Not yet Authorized for any Equipment{{/authorizations}}
 		</dd>
 	</dl>
 </article>
