@@ -9,6 +9,14 @@ In some shell commands you may need to provide values left up to you. These valu
 ## License
 This project is licensed under the Apache 2.0 License - see the LICENSE file for details
 
+## Supported Server Environments
+Makerportal is known to work with:
+
+ - Apache 2.4 + mod_php
+ - Nginx 1.12 + PHP-FPM
+
+if you use a different configuration please create a pull request to let us know. Some example server configurations can be found in the `documentation/Example Server Configurations` directory.
+
 ## Configuration
 Configuration is handled with two files. The first, `public/config/config.ini` specifies the database connection parameters used by the webservice a.k.a REST API and the Google OAuth Client ID used for OAUTH2 authentication. The second `public/styles/palette.css` is used to set the site's color palette. Example configuration files are provided in the respective directories. To use the Bucknell color palette simply copy `public/styles/example-palette.css` to `public/styles/palette.css`. While copying `public/config/example-config.ini` to `public/config/config.ini` is the fastest way to get started, you will need to then edit `config.ini` providing your database connection parameters and API key.
 
