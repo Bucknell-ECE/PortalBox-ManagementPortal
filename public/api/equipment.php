@@ -96,6 +96,10 @@
 						}
 						// join in cards
 						echo json_encode($equipment);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
 					} else {
 						header('HTTP/1.0 404 Not Found');
 						die('We have no record of that equipment');
@@ -147,6 +151,10 @@
 					}
 					unset($e);
 					echo json_encode($equipment);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					die($query->errorInfo()[2]);
@@ -199,6 +207,10 @@
 					// id field for consistency
 					$equipment['id'] = $_GET['id'];
 					echo json_encode($equipment);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -246,6 +258,10 @@
 					// We'll return the equipment after adding/overwriting an id field
 					$equipment['id'] = $connection->lastInsertId('equipment_id_seq');
 					echo json_encode($equipment);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					die($query->errorInfo()[2]);

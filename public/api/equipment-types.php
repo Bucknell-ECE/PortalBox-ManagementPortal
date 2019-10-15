@@ -65,6 +65,10 @@
 							$equipment_type['requires_training'] = false;
 						}
 						echo json_encode($equipment_type);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
 					} else {
 						header('HTTP/1.0 404 Not Found');
 						die('We have no record of that equipment type');
@@ -89,6 +93,10 @@
 					}
 					unset($equipment_type);
 					echo json_encode($equipment_types);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -132,6 +140,10 @@
 					// value in the id field for consistency
 					$equipment_type['id'] = $_GET['id'];
 					echo json_encode($equipment_type);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -168,6 +180,10 @@
 					// We'll return the equipment_type after adding/overwriting an id field
 					$equipment_type['id'] = $connection->lastInsertId('equipment_types_id_seq');
 					echo json_encode($equipment_type);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);

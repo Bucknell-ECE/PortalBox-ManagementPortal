@@ -82,6 +82,10 @@
 
 							// join in cards
 							echo json_encode($user);
+							if(JSON_ERROR_NONE != json_last_error()) {
+								header('HTTP/1.0 500 Internal Server Error');
+								die(json_last_error_msg());
+							}
 						} else {
 							header('HTTP/1.0 500 Internal Server Error');
 							//die($query->errorInfo()[2]);
@@ -120,6 +124,10 @@
 				if($query->execute()) {
 					$users = $query->fetchAll(\PDO::FETCH_ASSOC);
 					echo json_encode($users);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -255,6 +263,10 @@
 							}
 						} // failure here should not be reported as a failure though
 						echo json_encode($user);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
 					} else {
 						$connection->rollBack();
 						header('HTTP/1.0 500 Internal Server Error');
@@ -370,6 +382,10 @@
 								}
 							} // failure here should not be reported as a failure though
 							echo json_encode($user);
+							if(JSON_ERROR_NONE != json_last_error()) {
+								header('HTTP/1.0 500 Internal Server Error');
+								die(json_last_error_msg());
+							}
 						} else {
 							header('HTTP/1.0 500 Internal Server Error');
 							//die($query->errorInfo()[2]);
@@ -436,6 +452,10 @@
 					// user now in consistent state, commit and return
 					$connection->commit();
 					echo json_encode($user);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					$connection->rollBack();
 					header('HTTP/1.0 500 Internal Server Error');

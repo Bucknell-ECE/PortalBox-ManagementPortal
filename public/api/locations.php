@@ -39,6 +39,10 @@
 				if($query->execute()) {
 					if($location = $query->fetch(\PDO::FETCH_ASSOC)) {
 						echo json_encode($location);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
 					} else {
 						header('HTTP/1.0 404 Not Found');
 						die('We have no record of that location');
@@ -55,6 +59,10 @@
 				if($query->execute()) {
 					$locations = $query->fetchAll(\PDO::FETCH_ASSOC);
 					echo json_encode($locations);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -87,6 +95,10 @@
 					// id field for consistency
 					$location['id'] = $_GET['id'];
 					echo json_encode($location);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -113,6 +125,10 @@
 					// We'll return the location after adding/overwriting an id field
 					$location['id'] = $connection->lastInsertId('locations_id_seq');
 					echo json_encode($location);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);

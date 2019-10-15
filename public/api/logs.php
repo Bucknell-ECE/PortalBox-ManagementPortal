@@ -53,6 +53,10 @@
 			if($query->execute()) {
 				$events = $query->fetchAll(PDO::FETCH_ASSOC);
 				echo json_encode($events);
+				if(JSON_ERROR_NONE != json_last_error()) {
+					header('HTTP/1.0 500 Internal Server Error');
+					die(json_last_error_msg());
+				}
 			} else {
 				header('HTTP/1.0 500 Internal Server Error');
 				//die($query->errorInfo()[2]);

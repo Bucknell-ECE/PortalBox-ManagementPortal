@@ -48,6 +48,10 @@
 				if($query->execute()) {
 					if($api_key = $query->fetch(\PDO::FETCH_ASSOC)) {
 						echo json_encode($api_key);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
 					} else {
 						header('HTTP/1.0 404 Not Found');
 						die('We have no record of that api key');
@@ -64,6 +68,10 @@
 				if($query->execute()) {
 					$api_keys = $query->fetchAll(\PDO::FETCH_ASSOC);
 					echo json_encode($api_keys);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -105,6 +113,10 @@
 						}
 					}
 					echo json_encode($api_key);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -134,6 +146,10 @@
 					$api_key['id'] = $connection->lastInsertId('api_keys_id_seq');
 					$api_key['token'] = $token;
 					echo json_encode($api_key);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -161,6 +177,10 @@
 					$query->bindValue(':id', $_GET['id']);
 					if($query->execute()) {
 						echo json_encode($api_key);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
 					}
 				} else {
 					header('HTTP/1.0 404 Not Found');

@@ -39,6 +39,10 @@
 						// Successful login!!!
 						$_SESSION['user'] = $user;
 						echo json_encode($user);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
 					} else {
 						session_abort();
 						header('HTTP/1.0 500 Internal Server Error');
@@ -46,6 +50,10 @@
 					}
 				} else {
 					echo json_encode($user);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				}
 			} else {
 				header('HTTP/1.0 403 Not Authorized');

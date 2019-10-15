@@ -20,6 +20,10 @@
 			if($query->execute()) {
 				$policies = $query->fetchAll(\PDO::FETCH_ASSOC);
 				echo json_encode($policies);
+				if(JSON_ERROR_NONE != json_last_error()) {
+					header('HTTP/1.0 500 Internal Server Error');
+					die(json_last_error_msg());
+				}
 			}
 			break;
 		default: // policies is read only

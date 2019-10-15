@@ -58,6 +58,10 @@
 				if($query->execute()) {
 					if($card = $query->fetch(\PDO::FETCH_ASSOC)) {
 						echo json_encode($card);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
 					} else {
 						header('HTTP/1.0 404 Not Found');
 						die('We have no record of that card');
@@ -74,6 +78,10 @@
 				if($query->execute()) {
 					$cards = $query->fetchAll(\PDO::FETCH_ASSOC);
 					echo json_encode($cards);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -188,6 +196,10 @@
 
 							$connection->commit();
 							echo json_encode($card);
+							if(JSON_ERROR_NONE != json_last_error()) {
+								header('HTTP/1.0 500 Internal Server Error');
+								die(json_last_error_msg());
+							}
 						} else {
 							$connection->rollBack();
 							header('HTTP/1.0 500 Internal Server Error');
@@ -251,6 +263,10 @@
 
 					$connection->commit();
 					echo json_encode($card);
+					if(JSON_ERROR_NONE != json_last_error()) {
+						header('HTTP/1.0 500 Internal Server Error');
+						die(json_last_error_msg());
+					}
 				} else {
 					$connection->rollBack();
 					header('HTTP/1.0 500 Internal Server Error');

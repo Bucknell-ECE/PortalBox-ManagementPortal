@@ -10,6 +10,10 @@
 			case 'GET':
 				// we only want to reply with oauth settings
 				echo json_encode($settings['oauth']);
+				if(JSON_ERROR_NONE != json_last_error()) {
+					header('HTTP/1.0 500 Internal Server Error');
+					die(json_last_error_msg());
+				}
 				break;
 			default: // config is read only
 				header('HTTP/1.0 405 Method Not Allowed');
