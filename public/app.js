@@ -893,14 +893,30 @@ function init_routes_for_authenticated_admin() {
         });
     });
     moostaka.route("/equipment", params => {
-        fetch("/api/equipment.php", {"credentials": "same-origin"}).then(response => {
+        // get search params if any
+        let search = {};
+        let searchParams = (new URL(document.location)).searchParams;
+        for(let p of searchParams) {
+            if(0 < p[1].length) {
+                search[p[0]] = p[1];
+            }
+        }
+        if(0 < Object.keys(search).length) {
+            search.customized = true;
+        } else {
+            // if search is an empty object mustache disregards it entirely
+            // fool mustache by setting a value any value :)
+            search.customized = false;
+        }
+
+        fetch("/api/equipment.php?" + searchParams.toString(), {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
             }
 
             throw "API was unable to list equipment";
         }).then(equipment => {
-            moostaka.render("#main", "admin/equipment/list", {"equipment": equipment});
+            moostaka.render("#main", "admin/equipment/list", {"equipment": equipment, "search":search});
         }).catch(error => {
             moostaka.render("#main", "error", {"error": error});
         });

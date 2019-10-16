@@ -63,6 +63,10 @@
 			header('HTTP/1.0 400 Bad Request');
 			die('You must specify the equipment\'s timeout');
 		}
+		if(!array_key_exists('in_service', $equipment) || !isset($equipment['in_service'])) {
+			header('HTTP/1.0 400 Bad Request');
+			die('You must specify whether the equipment is in service');
+		}
 	}
 
 	// all users can use this endpoint check authentication in each method
@@ -84,7 +88,7 @@
 				require_authorization('admin');
 
 				$connection = DB::getConnection();
-				$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
+				$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':id', $_GET['id']);
 				if($query->execute()) {
@@ -93,6 +97,11 @@
 							$equipment['in_use'] = true;
 						} else {
 							$equipment['in_use'] = false;
+						}
+						if($equipment['in_service']) {
+							$equipment['in_service'] = true;
+						} else {
+							$equipment['in_service'] = false;
 						}
 						// join in cards
 						echo json_encode($equipment);
@@ -113,9 +122,9 @@
 				$connection = DB::getConnection();
 				$sql = '';
 				if(is_user_authenticated()) {
-					$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
+					$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
 				} else {
-					$sql = 'SELECT e.id, e.name, t.name AS type, l.name AS location, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id ORDER BY l.name';
+					$sql = 'SELECT e.id, e.name, t.name AS type, l.name AS location, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
 				}
 				$where_clause_fragments = array();
 				if(isset($_GET['location_id']) && !empty($_GET['location_id'])) {
@@ -126,10 +135,16 @@
 				if(isset($_GET['type']) && !empty($_GET['type'])) {
 					$where_clause_fragments[] = 't.name = :type';
 				}
+				if(isset($_GET['include_out_of_service']) && !empty($_GET['include_out_of_service'])) {
+					// do nothing i.e. do not filter for in service only
+				} else {
+					$where_clause_fragments[] = 'e.in_service = 1';
+				}
 				if(0 < count($where_clause_fragments)) {
 					$sql .= ' WHERE ';
 					$sql .= join(' AND ', $where_clause_fragments);
 				}
+				$sql .= ' ORDER BY l.name';
 
 				$query = $connection->prepare($sql);
 				if(isset($_GET['location_id']) && !empty($_GET['location_id'])) {
@@ -147,6 +162,11 @@
 							$e['in_use'] = true;
 						} else {
 							$e['in_use'] = false;
+						}
+						if($e['in_service']) {
+							$e['in_service'] = true;
+						} else {
+							$e['in_service'] = false;
 						}
 					}
 					unset($e);
@@ -192,7 +212,7 @@
 				}
 
 				// Save to the database
-				$sql = 'UPDATE equipment SET name = :name, type_id = :type_id, mac_address = :mac_address, location_id = :location_id, timeout = :timeout WHERE id = :id';
+				$sql = 'UPDATE equipment SET name = :name, type_id = :type_id, mac_address = :mac_address, location_id = :location_id, timeout = :timeout, in_service = :in_service WHERE id = :id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':id', $_GET['id']);
 				$query->bindValue(':name', $equipment['name']);
@@ -200,6 +220,7 @@
 				$query->bindValue(':mac_address', str_replace(array('-', ':'), '', $equipment['mac_address']));
 				$query->bindValue(':location_id', $equipment['location_id']);
 				$query->bindValue(':timeout', $equipment['timeout'], PDO::PARAM_INT);
+				$query->bindValue(':in_service', $equipment['in_service'], PDO::PARAM_BOOL);
 				if($query->execute()) {
 					// success
 					// most drivers do not report the number of rows on an UPDATE
@@ -245,13 +266,14 @@
 				}
 
 				// Save to the database
-				$sql = 'INSERT INTO equipment(name, type_id, mac_address, location_id, timeout) VALUES(:name, :type_id, :mac_address, :location_id, :timeout)';
+				$sql = 'INSERT INTO equipment(name, type_id, mac_address, location_id, timeout, in_service) VALUES(:name, :type_id, :mac_address, :location_id, :timeout, :in_service)';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':name', $equipment['name']);
 				$query->bindValue(':type_id', $equipment['type_id']);
 				$query->bindValue(':mac_address', str_replace(array('-', ':'), '', $equipment['mac_address']));
 				$query->bindValue(':location_id', $equipment['location_id']);
 				$query->bindValue(':timeout', $equipment['timeout'], PDO::PARAM_INT);
+				$query->bindValue(':in_service', $equipment['in_service'], PDO::PARAM_BOOL);
 				if($query->execute()) {
 					// success
 					// most drivers do not report the number of rows on an INSERT

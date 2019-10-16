@@ -40,5 +40,7 @@
 				</div>
 			</div>
 		</div>
+		<label for="in_service">In service:</label>
+		<input type="checkbox" name="in_service" id="in_service" checked />
 	</form>
 </article>
