@@ -52,10 +52,23 @@
 			}
 			if($query->execute()) {
 				$events = $query->fetchAll(PDO::FETCH_ASSOC);
-				echo json_encode($events);
-				if(JSON_ERROR_NONE != json_last_error()) {
-					header('HTTP/1.0 500 Internal Server Error');
-					die(json_last_error_msg());
+				error_log($_SERVER['HTTP_ACCEPT']);
+				switch($_SERVER['HTTP_ACCEPT']) {
+					case 'text/csv':
+						$out = fopen('php://output', 'w');
+						fputcsv($out, array('id', 'time', 'event type', 'equipment id', 'equipment', 'card id', 'user'));
+						foreach($events as $record) {
+							fputcsv($out, $record);
+						}
+						fclose($out);
+						break;
+					case 'application/json':
+					default:
+						echo json_encode($events);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
 				}
 			} else {
 				header('HTTP/1.0 500 Internal Server Error');

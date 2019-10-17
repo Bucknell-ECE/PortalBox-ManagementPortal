@@ -454,6 +454,32 @@ function update_location(location, event) {
 }
 
 /**
+ * Retrieves log as currently filtered in csv format and allows user
+ * to save as a CSV file
+ */
+function saveLog(search) {
+    let url = '/api/logs.php?' + search;
+
+    fetch(url, {
+        credentials: "include",
+        headers: {
+            "Accept": "text/csv"
+        }
+    }).then(response => {
+        if(response.ok) {
+            return response.text();
+        }
+
+        throw "API was unable to create report from log";
+    }).then(data => {
+        let blob = new Blob([data], {type: "text/csv;charset=utf-8"});
+        saveAs(blob, "log.csv");    // provided by Eli Grey's FileSaver.js
+    }).catch(error => {
+        moostaka.render("#main", "error", {"error": error});
+    });
+}
+
+/**
  * Callback that handles adding a payment to the backend. Bound
  * to the form.submit() in moostaka.render() for the view
  */
@@ -1078,8 +1104,9 @@ function init_routes_for_authenticated_admin() {
             oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
             searchParams.append("after", oneWeekAgo.toISOString());
         }
-        
-        let p0 = fetch("/api/logs.php?" + searchParams.toString(), {"credentials": "same-origin"}).then(response => {
+        let queryString = searchParams.toString();
+
+        let p0 = fetch("/api/logs.php?" + queryString, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
             }
@@ -1102,7 +1129,7 @@ function init_routes_for_authenticated_admin() {
         });
         
         Promise.all([p0, p1, p2]).then(values => {
-            moostaka.render("#main", "admin/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2]}, {}, () => {
+            moostaka.render("#main", "admin/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "queryString":queryString}, {}, () => {
                 //fix up selects
                 if(search.hasOwnProperty("equipment_id")) {
                     document.getElementById("equipment_id").value = search.equipment_id;

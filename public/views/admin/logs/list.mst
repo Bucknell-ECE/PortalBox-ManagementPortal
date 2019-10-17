@@ -6,6 +6,7 @@
 	<header>
 		<h1>Access Logs{{#search}}{{^customized}} for the Past Week{{/customized}}{{/search}}</h1>
 		<div class="button-group">
+			<button type="button" onclick="saveLog('{{queryString}}')"><i class="material-icons">save_alt</i></button>
 			<label for="search-form-toggle"><i class="material-icons">search</i></label>
 		</div>
 	</header>
