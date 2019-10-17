@@ -52,7 +52,6 @@
 			}
 			if($query->execute()) {
 				$events = $query->fetchAll(PDO::FETCH_ASSOC);
-				error_log($_SERVER['HTTP_ACCEPT']);
 				switch($_SERVER['HTTP_ACCEPT']) {
 					case 'text/csv':
 						$out = fopen('php://output', 'w');
