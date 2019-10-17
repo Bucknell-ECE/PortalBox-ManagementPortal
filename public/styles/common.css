@@ -194,7 +194,7 @@ tfoot { border-top: solid thin var(--accent-color) }
 
 form {
 	display:grid;
-	grid-template-columns:1fr, 2fr, 1em;
+	grid-template-columns:1fr 2fr 1em;
 	grid-gap:1em;
 	align-items:center;
 	margin-bottom:0.5em;
@@ -216,11 +216,12 @@ form > input, form > select, form > fieldset, form > fieldset > label {
 }
 
 form > fieldset {
-	display:grid;
-	grid-template-columns:1em, 1fr;
-	grid-gap:1em;
-	align-items:center;
+	display:flex; flex-direction:column;
 	border:none 0px transparent;
+	padding:0;
+}
+form > fieldset > * {
+	margin:0.25em 0;
 }
 
 form > .help {
