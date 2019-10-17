@@ -176,9 +176,20 @@ tfoot { border-top: solid thin var(--accent-color) }
 	color:var(--text-invert-color);
 }
 .button-group .material-icons {
-	/* Google does dumb things so we have to shift in px */
+	/*
+	 * Google's material icon font is tweaked for inline writing e.g. emoji
+	 * when using in buttons we want the perceptual weight to be the same
+	 * as a text button but the line to be the same height. We achieve this
+	 * by setting the disply to be inline (defualt to surrounding line height)
+	 * and setting the line-height of the content to be ridiculously small.
+	 * then it is a matter of adjusting the content position, Goole appears to
+	 * have biased the font to the line top rather than the baseline; shifting
+	 * down by 1/4 line appears to harmonize well with common fonts.
+	 */
+	line-height:0.1em;
+	display:inline;
 	position:relative;
-	top: 6px;
+	top:0.25em;
 }
 
 form {
