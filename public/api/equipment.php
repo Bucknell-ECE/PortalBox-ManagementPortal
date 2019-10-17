@@ -163,10 +163,12 @@
 						} else {
 							$e['in_use'] = false;
 						}
-						if($e['in_service']) {
-							$e['in_service'] = true;
-						} else {
-							$e['in_service'] = false;
+						if(is_user_authenticated()) {
+							if($e['in_service']) {
+								$e['in_service'] = true;
+							} else {
+								$e['in_service'] = false;
+							}
 						}
 					}
 					unset($e);
