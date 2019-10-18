@@ -221,6 +221,27 @@ function add_card(event) {
     });
 }
 
+function list_cards(params, auth_level) {
+    let url = "/api/cards.php";
+
+    // if('card_id' in params) {
+    //     url += '?search=';
+    //     url += encodeURIComponent(params.card_id);
+    // }
+
+    fetch(url, {"credentials": "same-origin"}).then(response => {
+        if(response.ok) {
+            return response.json();
+        }
+
+        throw "API was unable to list cards";
+    }).then(cards => {
+        moostaka.render("#main", auth_level + "/cards/list", {"cards": cards});
+    }).catch(error => {
+        moostaka.render("#main", "error", {"error": error});
+    });
+}
+
 /**
  * Callback that handles updating cards on backend. Bound
  * to the form.submit() in moostaka.render() for the view.
@@ -619,7 +640,7 @@ function add_user(event) {
 /**
  * Render an optionally sorted list of users
  */
-function list_users(params) {
+function list_users(params, auth_level) {
     let url = "/api/users.php";
     let sort = "";
     let search = "";
@@ -648,7 +669,7 @@ function list_users(params) {
 
         throw "API was unable to list users";
     }).then(users => {
-        moostaka.render("#main", "admin/users/list", {"users": users, "sort": sort, "search":search});
+        moostaka.render("#main", auth_level + "/users/list", {"users": users, "sort": sort, "search":search});
     }).catch(error => {
         moostaka.render("#main", "error", {"error": error});
     });
@@ -730,19 +751,7 @@ function init_routes_for_authenticated_admin() {
             moostaka.render("#main", "error", {"error": error});
         });
     });
-    moostaka.route("/cards", params => {
-        fetch("/api/cards.php", {"credentials": "same-origin"}).then(response => {
-            if(response.ok) {
-                return response.json();
-            }
-
-            throw "API was unable to list cards";
-        }).then(cards => {
-            moostaka.render("#main", "admin/cards/list", {"cards": cards});
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
-    });
+    moostaka.route("/cards", params => { list_cards(params, "admin"); });
     moostaka.route("/cards/add", params => {
         let p0 = new Promise((resolve, reject) => { resolve(card_types); });
         let p1 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
@@ -933,6 +942,7 @@ function init_routes_for_authenticated_admin() {
             moostaka.render("#main", "error", {"error": error});
         });
     });
+//    moostaka.route("/cards/search/:card_id", params => { list_cards(params, "admin"); });
     moostaka.route("/charges", params => {
         // get search params if any
         let search = {};
@@ -1201,7 +1211,7 @@ function init_routes_for_authenticated_admin() {
         });
     });
 */
-    moostaka.route("/users", list_users);
+    moostaka.route("/users", params => { list_users(params, "admin"); });
     moostaka.route("/users/add", params => {
         fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
@@ -1218,8 +1228,8 @@ function init_routes_for_authenticated_admin() {
             moostaka.render("#main", "error", {"error": error});
         });
     });
-    moostaka.route("/users/sort/:sort", list_users);
-    moostaka.route("/users/search/:name", list_users);
+    moostaka.route("/users/sort/:sort", params => { list_users(params, "admin"); });
+    moostaka.route("/users/search/:name", params => { list_users(params, "admin"); });
     moostaka.route("/users/:id", params => {
         let p0 = fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
@@ -1309,9 +1319,40 @@ function init_routes_for_authenticated_trainer() {
     moostaka.route("/", params => {
         moostaka.render("#main", "trainer/top-menu", params);
     });
-    moostaka.route("/logout", params => {
+    moostaka.route("/logout", _params => {
         hello("google").logout();
     });
+    moostaka.route("/cards", params => { list_cards(params, "trainer"); });
+    moostaka.route("/cards/add", _params => {
+        fetch("/api/users.php", {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            }
+
+            throw "API was unable to list users";
+        }).then(users => {
+            moostaka.render("#main", "trainer/cards/add", {"users": users}, {}, () => {
+                let form = document.getElementById("add-card-form");
+                form.addEventListener("submit", (e) => { add_card(e); });
+            });
+        }).catch(error => {
+            moostaka.render("#main", "error", {"error": error});
+        });
+    });
+    moostaka.route("/cards/:id", params => {
+        fetch("/api/cards.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            }
+
+            throw "API was unable to find card: " + params.id;
+        }).then(card => {
+            moostaka.render("#main", "trainer/cards/view", {"card": card});
+        }).catch(error => {
+            moostaka.render("#main", "error", {"error": error});
+        });
+    });
+//    moostaka.route("/cards/search/:card_id", params => { list_cards(params, "trainer"); });
     moostaka.route("/equipment", params => {
         fetch("/api/equipment.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
@@ -1325,19 +1366,9 @@ function init_routes_for_authenticated_trainer() {
             moostaka.render("#main", "error", {"error": error});
         });
     });
-    moostaka.route("/users", params => {
-        fetch("/api/users.php", {"credentials": "same-origin"}).then(response => {
-            if(response.ok) {
-                return response.json();
-            }
-
-            throw "API was unable to list users";
-        }).then(users => {
-            moostaka.render("#main", "trainer/users/list", {"users": users});
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
-    });
+    moostaka.route("/users", params => { list_users(params, "trainer"); });
+    moostaka.route("/users/sort/:sort", params => { list_users(params, "trainer"); });
+    moostaka.route("/users/search/:name", params => { list_users(params, "trainer"); });
     moostaka.route("/users/:id", params => {
         let p0 = fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {

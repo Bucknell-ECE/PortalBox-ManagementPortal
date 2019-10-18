@@ -2,6 +2,9 @@
 	<h1>Manage</h1>
 	<div class="row">
 		<div class="icon-button">
+			<a href="/cards"><i class="material-icons">nfc</i>Cards</a>
+		</div>
+		<div class="icon-button">
 			<a href="/equipment"><i class="material-icons">dock</i>Equipment</a>
 		</div>
 		<div class="icon-button">

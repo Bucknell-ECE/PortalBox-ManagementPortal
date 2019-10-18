@@ -61,7 +61,7 @@
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
 			require_authorization('trainer');
-			
+
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 				$connection = DB::getConnection();
 				$sql = 'SELECT u.id, u.name, u.email, u.management_portal_access_level_id, mpal.name AS management_portal_access_level FROM users AS u INNER JOIN management_portal_access_levels AS mpal ON mpal.id = u.management_portal_access_level_id WHERE u.id = :id';
@@ -302,7 +302,6 @@
 				$query->bindValue(':id', $_GET['id']);
 				if($query->execute()) {
 					if($user = $query->fetch(\PDO::FETCH_ASSOC)) {
-						error_log("Still processing trainer request");
 						// update authorizations...
 						// three cases: no change, granted (value is true in
 						//     submission but not db), revoked (in db but not
@@ -366,7 +365,7 @@
 									}
 								}
 							}
-							
+
 							// user now in consistent state, commit and return
 							$connection->commit();
 
@@ -410,6 +409,25 @@
 				validate($user);
 
 				$connection = DB::getConnection();
+
+				// insure user does NOT exist
+				$connection = DB::getConnection();
+				$sql = 'SELECT * FROM users WHERE email = :email';
+				$query = $connection->prepare($sql);
+				$query->bindValue(':email', $user['email']);
+				if($query->execute()) {
+					if(0 < $query->rowCount()) {
+						header('HTTP/1.0 403 Forbidden');
+						//die($query->errorInfo()[2]);
+						die('A user with the provided email address can not be added to the database');
+					}
+				} else {
+					header('HTTP/1.0 500 Internal Server Error');
+					//die($query->errorInfo()[2]);
+					die('We experienced issues communicating with the database');
+				}
+
+				// Should be safe to add user... (DB CONstraint will prevent race condition)
 				$sql = 'INSERT INTO users(name, email, management_portal_access_level_id) VALUES(:name, :email, :management_portal_access_level_id)';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':name', $user['name']);
@@ -473,5 +491,4 @@
 			header('HTTP/1.0 405 Method Not Allowed');
 			die('We were unable to understand your request.');
 	}
-	
 ?>

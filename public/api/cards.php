@@ -39,7 +39,8 @@
 		header('HTTP/1.0 500 Internal Server Error');
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
-	require_authorization('admin');
+	require_authorization('trainer');
+	$access_level = get_user_authorization_level();
 
 	// only authenticated users should reach this point
 	if((include_once '../lib/Database.php') === FALSE) {
@@ -73,8 +74,22 @@
 				}
 			} else { // List
 				$connection = DB::getConnection();
-				$sql = 'SELECT c.id, c.type_id, t.name AS type FROM cards AS c JOIN card_types AS t ON c.type_id = t.id';
+				if(2 < $access_level) { // admin
+					$sql = 'SELECT c.id, c.type_id, t.name AS type FROM cards AS c JOIN card_types AS t ON c.type_id = t.id';
+				} else { // not admin but trainer required :. trainer
+					// WARNING!!! Hardcoded value card type 4 is user cards
+					$sql = 'SELECT c.id, c.type_id, t.name AS type FROM cards AS c JOIN card_types AS t ON c.type_id = t.id WHERE c.type_id = 4';
+				}
+
+				// can not search because c.id is a BIGINT
+//				if(isset($_GET['search']) && !empty($_GET['search'])) {
+//					$sql .= ' WHERE c.id LIKE :pattern';
+//				}
 				$query = $connection->prepare($sql);
+//				if(isset($_GET['search']) && !empty($_GET['search'])) {
+//					$query->bindValue(':pattern', '%' . urldecode($_GET['search']) . '%');
+//				}
+
 				if($query->execute()) {
 					$cards = $query->fetchAll(\PDO::FETCH_ASSOC);
 					echo json_encode($cards);
@@ -90,6 +105,7 @@
 			}
 			break;
 		case 'POST':	// Update
+			require_authorization('admin');
 			// validate that we have an oid
 			if(!isset($_GET['id']) || empty($_GET['id'])) {
 				header('HTTP/1.0 400 Bad Request');
@@ -229,26 +245,68 @@
 				validate($card);
 
 				$connection = DB::getConnection();
-				$sql = 'INSERT INTO cards VALUES(:id, :type_id)';
-				$query = $connection->prepare($sql);
-				$query->bindValue(':id', $card['id']);
-				$query->bindValue(':type_id', $card['type_id']);
-				$connection->beginTransaction();
-				if($query->execute()) {
-					// most drivers do not report the number of rows on an INSERT
-					// since we explicitly set the oid we don't even need to look at lastInsertId
-					if(3 == $card['type_id']) {
-						$sql = 'INSERT INTO equipment_type_x_cards(equipment_type_id, card_id) VALUES (:equipment_type_id, :id)';
-						$query = $connection->prepare($sql);
-						$query->bindValue(':id', $card['id']);
-						$query->bindValue(':equipment_type_id', $card['equipment_type_id']);
-						if(!$query->execute()) {
-							$connection->rollBack();
-							header('HTTP/1.0 500 Internal Server Error');
-							//die($query->errorInfo()[2]);
-							die('We experienced issues communicating with the database');
+
+				if(2 < $access_level) { // admin
+					$sql = 'INSERT INTO cards VALUES(:id, :type_id)';
+					$query = $connection->prepare($sql);
+					$query->bindValue(':id', $card['id']);
+					$query->bindValue(':type_id', $card['type_id']);
+					$connection->beginTransaction();
+					if($query->execute()) {
+						// most drivers do not report the number of rows on an INSERT
+						// since we explicitly set the oid we don't even need to look at lastInsertId
+						if(3 == $card['type_id']) {
+							$sql = 'INSERT INTO equipment_type_x_cards(equipment_type_id, card_id) VALUES (:equipment_type_id, :id)';
+							$query = $connection->prepare($sql);
+							$query->bindValue(':id', $card['id']);
+							$query->bindValue(':equipment_type_id', $card['equipment_type_id']);
+							if(!$query->execute()) {
+								$connection->rollBack();
+								header('HTTP/1.0 500 Internal Server Error');
+								//die($query->errorInfo()[2]);
+								die('We experienced issues communicating with the database');
+							}
+						} elseif(4 == $card['type_id']) {
+							$sql = 'INSERT INTO users_x_cards(user_id, card_id) VALUES (:user_id, :id)';
+							$query = $connection->prepare($sql);
+							$query->bindValue(':id', $card['id']);
+							$query->bindValue(':user_id', $card['user_id']);
+							if(!$query->execute()) {
+								$connection->rollBack();
+								header('HTTP/1.0 500 Internal Server Error');
+								//die($query->errorInfo()[2]);
+								die('We experienced issues communicating with the database');
+							}
 						}
-					} elseif(4 == $card['type_id']) {
+
+						$connection->commit();
+						echo json_encode($card);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
+					} else {
+						$connection->rollBack();
+						header('HTTP/1.0 500 Internal Server Error');
+						//die($query->errorInfo()[2]);
+						die('We experienced issues communicating with the database');
+					}
+				} else { // not admin but trainer required :. trainer
+					// WARNING HARDCODED VALUE!!! 
+					if(4 != $card['type_id']) {
+						header('HTTP/1.0 403 Forbidden');
+						//die($query->errorInfo()[2]);
+						die('You have not been granted the privilege to create a card of the specified type');
+					}
+
+					$sql = 'INSERT INTO cards VALUES(:id, 4)';
+					$query = $connection->prepare($sql);
+					$query->bindValue(':id', $card['id']);
+					$connection->beginTransaction();
+					if($query->execute()) {
+						// most drivers do not report the number of rows on an INSERT
+						// since we explicitly set the oid we don't even need to look at lastInsertId
+						
 						$sql = 'INSERT INTO users_x_cards(user_id, card_id) VALUES (:user_id, :id)';
 						$query = $connection->prepare($sql);
 						$query->bindValue(':id', $card['id']);
@@ -259,20 +317,21 @@
 							//die($query->errorInfo()[2]);
 							die('We experienced issues communicating with the database');
 						}
-					}
 
-					$connection->commit();
-					echo json_encode($card);
-					if(JSON_ERROR_NONE != json_last_error()) {
+						$connection->commit();
+						echo json_encode($card);
+						if(JSON_ERROR_NONE != json_last_error()) {
+							header('HTTP/1.0 500 Internal Server Error');
+							die(json_last_error_msg());
+						}
+					} else {
+						$connection->rollBack();
 						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
+						//die($query->errorInfo()[2]);
+						die('We experienced issues communicating with the database');
 					}
-				} else {
-					$connection->rollBack();
-					header('HTTP/1.0 500 Internal Server Error');
-					//die($query->errorInfo()[2]);
-					die('We experienced issues communicating with the database');
 				}
+				
 			} else {
 				header('HTTP/1.0 400 Bad Request');
 				die(json_last_error_msg());

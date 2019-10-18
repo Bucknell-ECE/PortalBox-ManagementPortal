@@ -5,7 +5,15 @@
 <article>
 	<header>
 		<h1>Users</h1>
+		<div class="button-group">
+			<label for="filter-form-toggle"><i class="material-icons">search</i></label>
+		</div>
 	</header>
+	<input type="checkbox" id="filter-form-toggle" class="checkbox-hack" {{#search}}checked{{/search}} onclick="document.getElementById('name').focus()" />
+	<form class="advanced_search" onsubmit="return false;">
+		<label for="name">Name:</label>
+		<input name="name" id="name" onchange="moostaka.navigate('/users/search/' + this.value);" value="{{search}}" autocomplete="off" />
+	</form>
 	<table>
 		<thead>
 			<tr>
