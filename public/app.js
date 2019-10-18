@@ -461,7 +461,7 @@ function update_location(location, event) {
  *     use when filtering)
  */
 function list_log(search) {
-    if(1 > Object.keys(search).length) {
+    if(0 < Object.keys(search).length) {
         search.customized = true;
     } else {
         // we will inject a minimal search so we don't pull the entire log by default
