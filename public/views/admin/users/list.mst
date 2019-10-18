@@ -14,9 +14,6 @@
 	<form class="advanced_search" onsubmit="return false;">
 		<label for="name">Name:</label>
 		<input name="name" id="name" onchange="moostaka.navigate('/users/search/' + this.value);" value="{{search}}" autocomplete="off" />
-		<div class="button-group">
-			<button class="default" type="submit">Search</button>
-		</div>
 	</form>
 	<table>
 		<thead>

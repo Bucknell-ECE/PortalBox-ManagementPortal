@@ -454,10 +454,65 @@ function update_location(location, event) {
 }
 
 /**
+ * Retrieve the log and optionally filter it. By default, a filter is applied
+ * to limit the log to just the past week
+ * 
+ * @param {Object} search - a dictionary of filters (keys and the value to
+ *     use when filtering)
+ */
+function list_log(search) {
+    if(1 > Object.keys(search).length) {
+        search.customized = true;
+    } else {
+        // we will inject a minimal search so we don't pull the entire log by default
+        let oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        search["after"] = oneWeekAgo.toISOString();
+    }
+    let queryString = Object.keys(search).map(key => key + '=' + search[key]).join('&');
+
+    let p0 = fetch("/api/logs.php?" + queryString, {"credentials": "same-origin"}).then(response => {
+        if(response.ok) {
+            return response.json();
+        }
+
+        throw "API was unable to retrieve specified log segment";
+    });
+    let p1 = fetch("/api/equipment.php", {"credentials": "same-origin"}).then(response => {
+        if(response.ok) {
+            return response.json();
+        }
+
+        throw "API was unable to list equipment";
+    });
+    let p2 = fetch("/api/locations.php", {"credentials": "same-origin"}).then(response => {
+        if(response.ok) {
+            return response.json();
+        }
+
+        throw "API was unable to list locations";
+    });
+    
+    Promise.all([p0, p1, p2]).then(values => {
+        moostaka.render("#main", "admin/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "queryString":queryString}, {}, () => {
+            //fix up selects
+            if(search.hasOwnProperty("equipment_id")) {
+                document.getElementById("equipment_id").value = search.equipment_id;
+            }
+            if(search.hasOwnProperty("location_id")) {
+                document.getElementById("location_id").value = search.location_id;
+            }
+        });
+    }).catch(error => {
+        moostaka.render("#main", "error", {"error": error});
+    });
+}
+
+/**
  * Retrieves log as currently filtered in csv format and allows user
  * to save as a CSV file
  */
-function saveLog(search) {
+function save_log(search) {
     let url = '/api/logs.php?' + search;
 
     fetch(url, {
@@ -477,6 +532,30 @@ function saveLog(search) {
     }).catch(error => {
         moostaka.render("#main", "error", {"error": error});
     });
+}
+
+/**
+ * Called when the search form inputs change. Determines if the form represents
+ * a search and if so calls list_log to runthe search and display the results
+ * 
+ * @param {HTMLFormElement} search_form - the form encapsulating the inputs
+ *     which the user has used to indicate how they wishthe log to be searched/
+ *     filtered
+ */
+function search_log(search_form) {
+    // look at search params to insure we have a search
+    let search = {};
+    let searchParams = get_form_data(search_form);
+    let keys = Object.getOwnPropertyNames(searchParams);
+    for(let k of keys) {
+        if(0 < searchParams[k].length) {
+            search[k] = searchParams[k];
+        }
+    }
+    
+    if(0 < Object.keys(search).length) {
+        list_log(search);
+    }
 }
 
 /**
@@ -1088,59 +1167,7 @@ function init_routes_for_authenticated_admin() {
         });
     });
     moostaka.route("/logs", params => {
-        // get search params if any
-        let search = {};
-        let searchParams = (new URL(document.location)).searchParams;
-        for(let p of searchParams) {
-            if(0 < p[1].length) {
-                search[p[0]] = p[1];
-            }
-        }
-        if(0 < Object.keys(search).length) {
-            search.customized = true;
-        } else {
-            // we will inject a minimal search so we don't pull the entire log by default
-            let oneWeekAgo = new Date();
-            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            searchParams.append("after", oneWeekAgo.toISOString());
-        }
-        let queryString = searchParams.toString();
-
-        let p0 = fetch("/api/logs.php?" + queryString, {"credentials": "same-origin"}).then(response => {
-            if(response.ok) {
-                return response.json();
-            }
-
-            throw "API was unable to retrieve specified log segment";
-        });
-        let p1 = fetch("/api/equipment.php", {"credentials": "same-origin"}).then(response => {
-            if(response.ok) {
-                return response.json();
-            }
-
-            throw "API was unable to list equipment";
-        });
-        let p2 = fetch("/api/locations.php", {"credentials": "same-origin"}).then(response => {
-            if(response.ok) {
-                return response.json();
-            }
-
-            throw "API was unable to list locations";
-        });
-        
-        Promise.all([p0, p1, p2]).then(values => {
-            moostaka.render("#main", "admin/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "queryString":queryString}, {}, () => {
-                //fix up selects
-                if(search.hasOwnProperty("equipment_id")) {
-                    document.getElementById("equipment_id").value = search.equipment_id;
-                }
-                if(search.hasOwnProperty("location_id")) {
-                    document.getElementById("location_id").value = search.location_id;
-                }
-            });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        list_log({});
     });
 /*
     moostaka.route("/payments", params => {
