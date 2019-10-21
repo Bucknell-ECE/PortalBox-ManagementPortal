@@ -12,6 +12,11 @@
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
+	if((include_once '../lib/EncodeOutput.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+	}
+
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List
@@ -63,11 +68,7 @@
 						break;
 					case 'application/json':
 					default:
-						echo json_encode($events);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+						render_json($events);
 				}
 			} else {
 				header('HTTP/1.0 500 Internal Server Error');

@@ -48,6 +48,11 @@
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
+	if((include_once '../lib/EncodeOutput.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+	}
+
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
@@ -58,11 +63,7 @@
 				$query->bindValue(':id', $_GET['id']);
 				if($query->execute()) {
 					if($card = $query->fetch(\PDO::FETCH_ASSOC)) {
-						echo json_encode($card);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+						render_json($card);
 					} else {
 						header('HTTP/1.0 404 Not Found');
 						die('We have no record of that card');
@@ -92,11 +93,7 @@
 
 				if($query->execute()) {
 					$cards = $query->fetchAll(\PDO::FETCH_ASSOC);
-					echo json_encode($cards);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($cards);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -211,11 +208,7 @@
 							}
 
 							$connection->commit();
-							echo json_encode($card);
-							if(JSON_ERROR_NONE != json_last_error()) {
-								header('HTTP/1.0 500 Internal Server Error');
-								die(json_last_error_msg());
-							}
+							render_json($card);
 						} else {
 							$connection->rollBack();
 							header('HTTP/1.0 500 Internal Server Error');
@@ -280,11 +273,7 @@
 						}
 
 						$connection->commit();
-						echo json_encode($card);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+						render_json($card);
 					} else {
 						$connection->rollBack();
 						header('HTTP/1.0 500 Internal Server Error');
@@ -319,11 +308,7 @@
 						}
 
 						$connection->commit();
-						echo json_encode($card);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+						render_json($card);
 					} else {
 						$connection->rollBack();
 						header('HTTP/1.0 500 Internal Server Error');

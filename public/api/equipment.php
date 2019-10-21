@@ -80,6 +80,11 @@
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
+	if((include_once '../lib/EncodeOutput.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+	}
+
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
@@ -103,12 +108,10 @@
 						} else {
 							$equipment['in_service'] = false;
 						}
-						// join in cards
-						echo json_encode($equipment);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+
+						// TODO join in cards
+
+						render_json($equipment);
 					} else {
 						header('HTTP/1.0 404 Not Found');
 						die('We have no record of that equipment');
@@ -172,11 +175,7 @@
 						}
 					}
 					unset($e);
-					echo json_encode($equipment);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($equipment);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					die($query->errorInfo()[2]);
@@ -229,11 +228,7 @@
 					// We'll just return the equipment... but we'll update the value in the
 					// id field for consistency
 					$equipment['id'] = $_GET['id'];
-					echo json_encode($equipment);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($equipment);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -281,11 +276,7 @@
 					// most drivers do not report the number of rows on an INSERT
 					// We'll return the equipment after adding/overwriting an id field
 					$equipment['id'] = $connection->lastInsertId('equipment_id_seq');
-					echo json_encode($equipment);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($equipment);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					die($query->errorInfo()[2]);

@@ -57,6 +57,11 @@
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
+	if((include_once '../lib/EncodeOutput.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+	}
+
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
@@ -81,10 +86,21 @@
 							}
 
 							// join in cards
-							echo json_encode($user);
-							if(JSON_ERROR_NONE != json_last_error()) {
+							$sql = 'SELECT card_id FROM users_x_cards WHERE user_id = :id';
+							$query = $connection->prepare($sql);
+							$query->bindValue(':id', $_GET['id']);
+							if($query->execute()) {
+								if($cards = $query->fetchAll(\PDO::FETCH_ASSOC)) {
+									$user['cards'] = $cards;
+								} else { // having no cards is not an error
+									$user['cards'] = array();
+								}
+
+								render_json($user);
+							} else {
 								header('HTTP/1.0 500 Internal Server Error');
-								die(json_last_error_msg());
+								//die($query->errorInfo()[2]);
+								die('We experienced issues communicating with the database');
 							}
 						} else {
 							header('HTTP/1.0 500 Internal Server Error');
@@ -123,11 +139,7 @@
 				}
 				if($query->execute()) {
 					$users = $query->fetchAll(\PDO::FETCH_ASSOC);
-					echo json_encode($users);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($users);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -251,7 +263,7 @@
 						// user now in consistent state, commit and return
 						$connection->commit();
 
-						// Should return the user's authorizations... 
+						// Join in the user's authorizations... 
 						$sql = 'SELECT a.id, a.equipment_type_id, e.name as equipment_type FROM authorizations AS a INNER JOIN equipment_types AS e ON e.id = a.equipment_type_id WHERE a.user_id = :id ORDER BY e.id';
 						$query = $connection->prepare($sql);
 						$query->bindValue(':id', $_GET['id']);
@@ -261,12 +273,21 @@
 							} else { // having no authorizations is not an error
 								$user['authorizations'] = array();
 							}
-						} // failure here should not be reported as a failure though
-						echo json_encode($user);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+						} // failure here should not be reported as a failure
+
+						// Join in the user's cards
+						$sql = 'SELECT card_id FROM users_x_cards WHERE user_id = :id';
+						$query = $connection->prepare($sql);
+						$query->bindValue(':id', $_GET['id']);
+						if($query->execute()) {
+							if($cards = $query->fetchAll(\PDO::FETCH_ASSOC)) {
+								$user['cards'] = $cards;
+							} else { // having no cards is not an error
+								$user['cards'] = array();
+							}
+						} // failure here should not be reported as a failure
+
+						render_json($user);
 					} else {
 						$connection->rollBack();
 						header('HTTP/1.0 500 Internal Server Error');
@@ -379,12 +400,21 @@
 								} else { // having no authorizations is not an error
 									$user['authorizations'] = array();
 								}
-							} // failure here should not be reported as a failure though
-							echo json_encode($user);
-							if(JSON_ERROR_NONE != json_last_error()) {
-								header('HTTP/1.0 500 Internal Server Error');
-								die(json_last_error_msg());
-							}
+							} // failure here should not be reported as a failure
+
+							// Join in the user's cards
+							$sql = 'SELECT card_id FROM users_x_cards WHERE user_id = :id';
+							$query = $connection->prepare($sql);
+							$query->bindValue(':id', $_GET['id']);
+							if($query->execute()) {
+								if($cards = $query->fetchAll(\PDO::FETCH_ASSOC)) {
+									$user['cards'] = $cards;
+								} else { // having no cards is not an error
+									$user['cards'] = array();
+								}
+							} // failure here should not be reported as a failure
+
+							render_json($user);
 						} else {
 							header('HTTP/1.0 500 Internal Server Error');
 							//die($query->errorInfo()[2]);
@@ -467,13 +497,12 @@
 						}
 					}
 
+					// User does not have any cards
+					$user['cards'] = array();
+
 					// user now in consistent state, commit and return
 					$connection->commit();
-					echo json_encode($user);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($user);
 				} else {
 					$connection->rollBack();
 					header('HTTP/1.0 500 Internal Server Error');

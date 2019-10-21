@@ -12,6 +12,12 @@
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
+
+	if((include_once '../lib/EncodeOutput.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+	}
+
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':
 			$connection = DB::getConnection();
@@ -19,11 +25,7 @@
 			$query = $connection->prepare($sql);
 			if($query->execute()) {
 				$policies = $query->fetchAll(\PDO::FETCH_ASSOC);
-				echo json_encode($policies);
-				if(JSON_ERROR_NONE != json_last_error()) {
-					header('HTTP/1.0 500 Internal Server Error');
-					die(json_last_error_msg());
-				}
+				render_json($policies);
 			}
 			break;
 		default: // policies is read only

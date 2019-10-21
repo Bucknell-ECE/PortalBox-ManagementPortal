@@ -25,6 +25,12 @@
 			header('HTTP/1.0 500 Internal Server Error');
 			die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 		}
+
+		if((include_once '../lib/EncodeOutput.php') === FALSE) {
+			header('HTTP/1.0 500 Internal Server Error');
+			die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+		}
+
 		$connection = DB::getConnection();
 		$sql = 'SELECT * FROM users WHERE email = :email';
 		$query = $connection->prepare($sql);
@@ -38,22 +44,14 @@
 					if($success) {
 						// Successful login!!!
 						$_SESSION['user'] = $user;
-						echo json_encode($user);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+						render_json($user);
 					} else {
 						session_abort();
 						header('HTTP/1.0 500 Internal Server Error');
 						die('We were unable to start your session. Please ask your server administrator to investigate');
 					}
 				} else {
-					echo json_encode($user);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($user);
 				}
 			} else {
 				header('HTTP/1.0 403 Not Authorized');

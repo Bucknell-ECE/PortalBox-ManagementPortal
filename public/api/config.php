@@ -3,17 +3,18 @@
 	// authenticate as this is how we inject OAUTH API Keys etc. We want to
 	// restrict access to javascript that was served from this server though
 
+	if((include_once '../lib/EncodeOutput.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+	}
+
 	// load settings
 	$settings = parse_ini_file('../config/config.ini', TRUE);
 	if($settings != FALSE && array_key_exists('oauth', $settings)) {
 		switch($_SERVER['REQUEST_METHOD']) {
 			case 'GET':
 				// we only want to reply with oauth settings
-				echo json_encode($settings['oauth']);
-				if(JSON_ERROR_NONE != json_last_error()) {
-					header('HTTP/1.0 500 Internal Server Error');
-					die(json_last_error_msg());
-				}
+				render_json($settings['oauth']);
 				break;
 			default: // config is read only
 				header('HTTP/1.0 405 Method Not Allowed');

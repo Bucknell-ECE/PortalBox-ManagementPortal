@@ -36,6 +36,11 @@
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
+	if((include_once '../lib/EncodeOutput.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+	}
+
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
@@ -46,11 +51,7 @@
 				$query->bindValue(':id', $_GET['id']);
 				if($query->execute()) {
 					if($payment = $query->fetch(\PDO::FETCH_ASSOC)) {
-						echo json_encode($payment);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+						render_json($payment);
 					} else {
 						header('HTTP/1.0 404 Not Found');
 						die('We have no record of that payment');
@@ -89,11 +90,7 @@
 				}
 				if($query->execute()) {
 					$payments = $query->fetchAll(\PDO::FETCH_ASSOC);
-					echo json_encode($payments);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($payments);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -125,11 +122,7 @@
 					// We'll just return the equipment... but we'll update the value in the
 					// id field for consistency
 					$payment['id'] = $_GET['id'];
-					echo json_encode($payment);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($payment);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -156,11 +149,7 @@
 					// most drivers do not report the number of rows on an INSERT
 					// We'll return the location after adding/overwriting an id field
 					$payment['id'] = $connection->lastInsertId('payments_id_seq');
-					echo json_encode($payment);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($payment);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);

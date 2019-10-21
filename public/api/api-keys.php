@@ -37,6 +37,11 @@
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
+	if((include_once '../lib/EncodeOutput.php') === FALSE) {
+		header('HTTP/1.0 500 Internal Server Error');
+		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
+	}
+
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
@@ -47,11 +52,7 @@
 				$query->bindValue(':id', $_GET['id']);
 				if($query->execute()) {
 					if($api_key = $query->fetch(\PDO::FETCH_ASSOC)) {
-						echo json_encode($api_key);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+						render_json($api_key);
 					} else {
 						header('HTTP/1.0 404 Not Found');
 						die('We have no record of that api key');
@@ -67,11 +68,7 @@
 				$query = $connection->prepare($sql);
 				if($query->execute()) {
 					$api_keys = $query->fetchAll(\PDO::FETCH_ASSOC);
-					echo json_encode($api_keys);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($api_keys);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -112,11 +109,7 @@
 							$api_key['token'] = $row[0];
 						}
 					}
-					echo json_encode($api_key);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($api_key);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -145,11 +138,7 @@
 					// We'll return the api key after adding/overwriting an id field
 					$api_key['id'] = $connection->lastInsertId('api_keys_id_seq');
 					$api_key['token'] = $token;
-					echo json_encode($api_key);
-					if(JSON_ERROR_NONE != json_last_error()) {
-						header('HTTP/1.0 500 Internal Server Error');
-						die(json_last_error_msg());
-					}
+					render_json($api_key);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
 					//die($query->errorInfo()[2]);
@@ -176,11 +165,7 @@
 					$query = $connection->prepare($sql);
 					$query->bindValue(':id', $_GET['id']);
 					if($query->execute()) {
-						echo json_encode($api_key);
-						if(JSON_ERROR_NONE != json_last_error()) {
-							header('HTTP/1.0 500 Internal Server Error');
-							die(json_last_error_msg());
-						}
+						render_json($api_key);
 					}
 				} else {
 					header('HTTP/1.0 404 Not Found');
