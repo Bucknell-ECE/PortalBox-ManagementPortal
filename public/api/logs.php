@@ -21,7 +21,7 @@
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List
 			// Build our Query
-			$sql = 'SELECT l.id, l.time, et.name AS event_type, l.equipment_id, e.name AS equipment, l.card_id, u.name AS user FROM log AS l INNER JOIN event_types AS et ON et.id = l.event_type_id INNER JOIN equipment AS e ON l.equipment_id = e.id LEFT JOIN users_x_cards AS uxc ON l.card_id = uxc.card_id LEFT JOIN users AS u on u.id = uxc.user_id';
+			$sql = "SELECT l.id, l.time, et.name AS event_type, l.equipment_id, e.name AS equipment, l.card_id, CASE c.type_id WHEN 3 THEN 'Trainer' WHEN 4 THEN u.name ELSE NULL END as user FROM log AS l INNER JOIN event_types AS et ON et.id = l.event_type_id INNER JOIN equipment AS e ON l.equipment_id = e.id INNER JOIN cards AS c ON l.card_id = c.id LEFT JOIN users_x_cards AS uxc ON l.card_id = uxc.card_id LEFT JOIN users AS u ON u.id = uxc.user_id";
 
 			$where_clause_elements = array();
 			$parameters = array();
@@ -48,6 +48,7 @@
 				die('Our unfiltered logs can be very large. We therefore require API users to limit their log requests in some way');
 			}
 			$sql .= ' ORDER BY l.time DESC';
+			error_log($sql);
 			$connection = DB::getConnection();
 			$query = $connection->prepare($sql);
 
