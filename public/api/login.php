@@ -32,7 +32,7 @@
 		}
 
 		$connection = DB::getConnection();
-		$sql = 'SELECT * FROM users WHERE email = :email';
+		$sql = 'SELECT * FROM users WHERE email = :email AND is_active = 1';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':email', $response['email']);
 		if($query->execute()) {

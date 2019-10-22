@@ -16,6 +16,8 @@
 		<input type="text" name="name" id="name" required />
 		<label for="email">Email:</label>
 		<input type="text" name="email" id="email" required />
+		<label for="is_active">Active:</label>
+		<input type="checkbox" name="is_active" id="is_active" checked />
 		<label for="management_portal_access_level_id">Management Portal Access Level:</label>
 		<select name="management_portal_access_level_id" id="management_portal_access_level_id" required />
 			<option></option>

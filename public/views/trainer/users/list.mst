@@ -9,16 +9,17 @@
 			<label for="filter-form-toggle"><i class="material-icons">search</i></label>
 		</div>
 	</header>
-	<input type="checkbox" id="filter-form-toggle" class="checkbox-hack" {{#search}}checked{{/search}} onclick="document.getElementById('name').focus()" />
-	<form class="advanced_search" onsubmit="return false;">
+	{{#search}}<input type="checkbox" id="filter-form-toggle" class="checkbox-hack" {{#customized}}checked{{/customized}} onclick="document.getElementById('name').focus()" />
+	<form class="advanced_search" id="user_search_form" onsubmit="return false;">
+		{{#sort}}<input type="hidden" name="sort" value="{{.}}" />{{/sort}}
 		<label for="name">Name:</label>
-		<input name="name" id="name" onchange="moostaka.navigate('/users/search/' + this.value);" value="{{search}}" autocomplete="off" />
-	</form>
+		<input name="name" id="name" onchange="search_users(this.form, 'trainer')" value="{{name}}" autocomplete="off" />
+	</form>{{/search}}
 	<table>
 		<thead>
 			<tr>
-				<th>Name</th>
-				<th>Email</th>
+				<th><a href="#" onclick="sort_users('name', 'trainer');">Name</a></th>
+				<th><a href="#" onclick="sort_users('email', 'trainer');">Email</a></th>
 			</tr>
 		</thead>
 		<tbody>

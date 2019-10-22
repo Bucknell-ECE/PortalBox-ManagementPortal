@@ -641,38 +641,56 @@ function add_user(event) {
  * Render an optionally sorted list of users
  */
 function list_users(params, auth_level) {
-    let url = "/api/users.php";
-    let sort = "";
-    let search = "";
+    let url = "/api/users.php?";
 
-    if('sort' in params) {
-        if('name' == params.sort) {
-            url += '?sort=name';
-            sort = 'name';
-        }
-        if('email' == params.sort) {
-            url += '?sort=email';
-            sort = 'email';
-        }
-    }
+    let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
 
-    if('name' in params) {
-        url += '?search=';
-        url += encodeURIComponent(params.name);
-        search = params.name;
-    }
-
-    fetch(url, {"credentials": "same-origin"}).then(response => {
+    fetch(url + queryString, {"credentials": "same-origin"}).then(response => {
         if(response.ok) {
             return response.json();
         }
 
         throw "API was unable to list users";
     }).then(users => {
-        moostaka.render("#main", auth_level + "/users/list", {"users": users, "sort": sort, "search":search});
+        if(0 < Object.keys(params).length) {
+            params.customized = true;
+        }
+        moostaka.render("#main", auth_level + "/users/list", {"users": users, "search":params});
     }).catch(error => {
         moostaka.render("#main", "error", {"error": error});
     });
+}
+
+function search_users(search_form, auth_level) {
+    // look at search params to insure we have a search
+    let search = {};
+    let searchParams = get_form_data(search_form);
+    let keys = Object.getOwnPropertyNames(searchParams);
+    for(let k of keys) {
+        if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
+            search[k] = searchParams[k];
+        }
+    }
+
+    if(0 < Object.keys(search).length) {
+        list_users(search, auth_level);
+    }
+}
+
+function sort_users(sort_column, auth_level) {
+    let search_form = document.getElementById('user_search_form');
+    // look at search params to insure we have a search
+    let search = {};
+    let searchParams = get_form_data(search_form);
+    let keys = Object.getOwnPropertyNames(searchParams);
+    for(let k of keys) {
+        if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
+            search[k] = searchParams[k];
+        }
+    }
+
+    search.sort = sort_column;
+    list_users(search, auth_level);
 }
 
 /**
@@ -1228,8 +1246,6 @@ function init_routes_for_authenticated_admin() {
             moostaka.render("#main", "error", {"error": error});
         });
     });
-    moostaka.route("/users/sort/:sort", params => { list_users(params, "admin"); });
-    moostaka.route("/users/search/:name", params => { list_users(params, "admin"); });
     moostaka.route("/users/:id", params => {
         let p0 = fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
@@ -1367,8 +1383,6 @@ function init_routes_for_authenticated_trainer() {
         });
     });
     moostaka.route("/users", params => { list_users(params, "trainer"); });
-    moostaka.route("/users/sort/:sort", params => { list_users(params, "trainer"); });
-    moostaka.route("/users/search/:name", params => { list_users(params, "trainer"); });
     moostaka.route("/users/:id", params => {
         let p0 = fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {

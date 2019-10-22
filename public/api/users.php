@@ -37,6 +37,10 @@
 				die('We experienced issues communicating with the database');
 			}
 		}
+		if(!array_key_exists('is_active', $user) || !isset($user['is_active'])) {
+			header('HTTP/1.0 400 Bad Request');
+			die('You must specify whether the user is active');
+		}
 		if(array_key_exists('authorizations', $user) && !is_array($user['authorizations'])) {
 			header('HTTP/1.0 400 Bad Request');
 			die('You must specify the user\'s authorizations as an array');
@@ -69,11 +73,18 @@
 
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 				$connection = DB::getConnection();
-				$sql = 'SELECT u.id, u.name, u.email, u.management_portal_access_level_id, mpal.name AS management_portal_access_level FROM users AS u INNER JOIN management_portal_access_levels AS mpal ON mpal.id = u.management_portal_access_level_id WHERE u.id = :id';
+				$sql = 'SELECT u.id, u.name, u.email, u.is_active, u.management_portal_access_level_id, mpal.name AS management_portal_access_level FROM users AS u INNER JOIN management_portal_access_levels AS mpal ON mpal.id = u.management_portal_access_level_id WHERE u.id = :id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':id', $_GET['id']);
 				if($query->execute()) {
 					if($user = $query->fetch(\PDO::FETCH_ASSOC)) {
+						// recast is_active as a boolean
+						if($user['is_active']) {
+							$user['is_active'] = true;
+						} else {
+							$user['is_active'] = false;
+						}
+
 						// join in authorizations
 						$sql = 'SELECT a.id, a.equipment_type_id, e.name as equipment_type FROM authorizations AS a INNER JOIN equipment_types AS e ON e.id = a.equipment_type_id WHERE a.user_id = :id ORDER BY e.id';
 						$query = $connection->prepare($sql);
@@ -118,10 +129,24 @@
 				}
 			} else { // List
 				$connection = DB::getConnection();
-				$sql = 'SELECT id, name, email FROM users';
-				if(isset($_GET['search']) && !empty($_GET['search'])) {
-					$sql .= ' WHERE name LIKE :pattern';
+				$sql = 'SELECT u.id, u.name, u.email, u.is_active, mpal.name AS management_portal_access_level FROM users AS u INNER JOIN management_portal_access_levels AS mpal ON mpal.id = u.management_portal_access_level_id';
+
+				// prepare filtering
+				$where_clause_fragments = array();
+				if(isset($_GET['name']) && !empty($_GET['name'])) {
+					$where_clause_fragments[] = 'u.name LIKE :name';
 				}
+				if(isset($_GET['include_inactive']) && !empty($_GET['include_inactive'])) {
+					// do nothing i.e. do not filter for in service only
+				} else {
+					$where_clause_fragments[] = 'u.is_active = 1';
+				}
+				if(0 < count($where_clause_fragments)) {
+					$sql .= ' WHERE ';
+					$sql .= join(' AND ', $where_clause_fragments);
+				}
+
+				// prepare sorting
 				if(isset($_GET['sort']) && !empty($_GET['sort'])) {
 					$sort = strtolower($_GET['sort']);
 					switch($sort) {
@@ -133,12 +158,23 @@
 							break;
 					}
 				}
+
+				// execute query
 				$query = $connection->prepare($sql);
-				if(isset($_GET['search']) && !empty($_GET['search'])) {
-					$query->bindValue(':pattern', '%' . urldecode($_GET['search']) . '%');
+				if(isset($_GET['name']) && !empty($_GET['name'])) {
+					$query->bindValue(':name', '%' . urldecode($_GET['name']) . '%');
 				}
 				if($query->execute()) {
 					$users = $query->fetchAll(\PDO::FETCH_ASSOC);
+					// recast is_active as a boolean
+					foreach($users as &$u) {
+						if($u['is_active']) {
+							$u['is_active'] = true;
+						} else {
+							$u['is_active'] = false;
+						}
+					}
+					unset($u);
 					render_json($users);
 				} else {
 					header('HTTP/1.0 500 Internal Server Error');
@@ -175,12 +211,13 @@
 
 				// okay to save to DB
 				$connection = DB::getConnection();
-				$sql = 'UPDATE users SET name = :name, email = :email, management_portal_access_level_id = :management_portal_access_level_id WHERE id = :id';
+				$sql = 'UPDATE users SET name = :name, email = :email, is_active = :is_active, management_portal_access_level_id = :management_portal_access_level_id WHERE id = :id';
 				$query = $connection->prepare($sql);
-				$query->bindValue(':id', $_GET['id']);
+				$query->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
 				$query->bindValue(':name', $user['name']);
 				$query->bindValue(':email', $user['email']);
-				$query->bindValue(':management_portal_access_level_id', $user['management_portal_access_level_id']);
+				$query->bindValue(':is_active', $user['is_active'], PDO::PARAM_BOOL);
+				$query->bindValue(':management_portal_access_level_id', $user['management_portal_access_level_id'], PDO::PARAM_INT);
 				$connection->beginTransaction();
 				if($query->execute()) {
 					// most drivers do not report the number of rows on an UPDATE
@@ -458,11 +495,12 @@
 				}
 
 				// Should be safe to add user... (DB CONstraint will prevent race condition)
-				$sql = 'INSERT INTO users(name, email, management_portal_access_level_id) VALUES(:name, :email, :management_portal_access_level_id)';
+				$sql = 'INSERT INTO users(name, email, is_active, management_portal_access_level_id) VALUES(:name, :email, :is_active, :management_portal_access_level_id)';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':name', $user['name']);
 				$query->bindValue(':email', $user['email']);
-				$query->bindValue(':management_portal_access_level_id', $user['management_portal_access_level_id']);
+				$query->bindValue(':is_active', $user['is_active'], PDO::PARAM_BOOL);
+				$query->bindValue(':management_portal_access_level_id', $user['management_portal_access_level_id'], PDO::PARAM_INT);
 				$connection->beginTransaction();
 				if($query->execute()) {
 					// most drivers do not report the number of rows on an INSERT
