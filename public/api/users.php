@@ -73,7 +73,7 @@
 
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 				$connection = DB::getConnection();
-				$sql = 'SELECT u.id, u.name, u.email, u.is_active, u.management_portal_access_level_id, mpal.name AS management_portal_access_level FROM users AS u INNER JOIN management_portal_access_levels AS mpal ON mpal.id = u.management_portal_access_level_id WHERE u.id = :id';
+				$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.management_portal_access_level_id, mpal.name AS management_portal_access_level FROM users AS u INNER JOIN management_portal_access_levels AS mpal ON mpal.id = u.management_portal_access_level_id WHERE u.id = :id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':id', $_GET['id']);
 				if($query->execute()) {
@@ -128,6 +128,7 @@
 					die('We experienced issues communicating with the database');
 				}
 			} else { // List
+				// purposefully omitting comment from listing, though one can search on it
 				$connection = DB::getConnection();
 				$sql = 'SELECT u.id, u.name, u.email, u.is_active, mpal.name AS management_portal_access_level FROM users AS u INNER JOIN management_portal_access_levels AS mpal ON mpal.id = u.management_portal_access_level_id';
 
@@ -135,6 +136,9 @@
 				$where_clause_fragments = array();
 				if(isset($_GET['name']) && !empty($_GET['name'])) {
 					$where_clause_fragments[] = 'u.name LIKE :name';
+				}
+				if(isset($_GET['comment']) && !empty($_GET['comment'])) {
+					$where_clause_fragments[] = 'u.comment LIKE :comment';
 				}
 				if(isset($_GET['include_inactive']) && !empty($_GET['include_inactive'])) {
 					// do nothing i.e. do not filter for in service only
@@ -163,6 +167,9 @@
 				$query = $connection->prepare($sql);
 				if(isset($_GET['name']) && !empty($_GET['name'])) {
 					$query->bindValue(':name', '%' . urldecode($_GET['name']) . '%');
+				}
+				if(isset($_GET['comment']) && !empty($_GET['comment'])) {
+					$query->bindValue(':comment', '%' . urldecode($_GET['comment']) . '%');
 				}
 				if($query->execute()) {
 					$users = $query->fetchAll(\PDO::FETCH_ASSOC);
@@ -211,10 +218,15 @@
 
 				// okay to save to DB
 				$connection = DB::getConnection();
-				$sql = 'UPDATE users SET name = :name, email = :email, is_active = :is_active, management_portal_access_level_id = :management_portal_access_level_id WHERE id = :id';
+				$sql = 'UPDATE users SET name = :name, email = :email, comment = :comment, is_active = :is_active, management_portal_access_level_id = :management_portal_access_level_id WHERE id = :id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
 				$query->bindValue(':name', $user['name']);
+				if(array_key_exists('comment', $user) && !empty($user['comment'])) { // an optional, nullable field
+					$query->bindValue(':comment', htmlentities($user['comment']));
+				} else {
+					$query->bindValue(':comment', NULL, PDO::PARAM_NULL);
+				}
 				$query->bindValue(':email', $user['email']);
 				$query->bindValue(':is_active', $user['is_active'], PDO::PARAM_BOOL);
 				$query->bindValue(':management_portal_access_level_id', $user['management_portal_access_level_id'], PDO::PARAM_INT);
@@ -495,10 +507,15 @@
 				}
 
 				// Should be safe to add user... (DB CONstraint will prevent race condition)
-				$sql = 'INSERT INTO users(name, email, is_active, management_portal_access_level_id) VALUES(:name, :email, :is_active, :management_portal_access_level_id)';
+				$sql = 'INSERT INTO users(name, email, comment, is_active, management_portal_access_level_id) VALUES(:name, :email, :comment, :is_active, :management_portal_access_level_id)';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':name', $user['name']);
 				$query->bindValue(':email', $user['email']);
+				if(array_key_exists('comment', $user) && !empty($user['comment'])) { // an optional, nullable field
+					$query->bindValue(':comment', htmlentities($user['comment']));
+				} else {
+					$query->bindValue(':comment', NULL, PDO::PARAM_NULL);
+				}
 				$query->bindValue(':is_active', $user['is_active'], PDO::PARAM_BOOL);
 				$query->bindValue(':management_portal_access_level_id', $user['management_portal_access_level_id'], PDO::PARAM_INT);
 				$connection->beginTransaction();

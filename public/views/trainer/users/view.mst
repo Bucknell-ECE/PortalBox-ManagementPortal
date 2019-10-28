@@ -17,6 +17,8 @@
 		<dd>{{name}}</dd>
 		<dt>Email:</dt>
 		<dd><a href="mailto:{{email}}">{{email}}</a></dd>
+		<dt>Comment:</dt>
+		<dd>{{comment}}</dd>
 		<dt>Authorized for:</dt>
 		<dd>
 			{{#authorizations}}
@@ -41,7 +43,9 @@
 		<label for="name">Name:</label>
 		<input type="text" name="name" id="name" value="{{name}}" disabled />
 		<label for="email">Email:</label>
-		<input type="text" name="email" id="email" value="{{email}}" disabled />
+		<input type="email" name="email" id="email" value="{{email}}" disabled />
+		<label for="comment" style="align-self:baseline">Comment:</label>
+		<textarea name="comment" id="comment" disabled>{{comment}}</textarea>
 		<label for="authorizations" style="align-self:baseline">Authorizations:</label>
 		<fieldset id="authorizations">
 			{{#equipment_types}}<label><input type="checkbox" name="authorizations.{{id}}" id="authorizations.{{id}}" /> {{name}}</label>{{/equipment_types}}

@@ -15,6 +15,8 @@
 		{{#sort}}<input type="hidden" name="sort" value="{{.}}" />{{/sort}}
 		<label for="name">Name:</label>
 		<input name="name" id="name" onchange="search_users(this.form, 'admin')" value="{{name}}" autocomplete="off" />
+		<label for="comment">Comment:</label>
+		<input name="comment" id="comment" onchange="search_users(this.form, 'admin')" value="{{comment}}" autocomplete="off" />
 		<label for="include_inactive">Include Inactive:</label>
 		<input type="checkbox" name="include_inactive" id="include_inactive" onchange="search_users(this.form, 'admin')" {{#include_inactive}}checked {{/include_inactive}}/>
 	</form>{{/search}}

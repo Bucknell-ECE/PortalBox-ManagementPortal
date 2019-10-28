@@ -15,7 +15,9 @@
 		<label for="name">Name:</label>
 		<input type="text" name="name" id="name" required />
 		<label for="email">Email:</label>
-		<input type="text" name="email" id="email" required />
+		<input type="email" name="email" id="email" required />
+		<label for="comment">Comment:</label>
+		<textarea type="text" name="comment" id="comment">{{comment}}</textarea>
 		<label for="is_active">Active:</label>
 		<input type="checkbox" name="is_active" id="is_active" checked />
 		<label for="management_portal_access_level_id">Management Portal Access Level:</label>

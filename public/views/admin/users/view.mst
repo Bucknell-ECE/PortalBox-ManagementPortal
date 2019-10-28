@@ -22,6 +22,8 @@
 				<dd>{{name}}</dd>
 				<dt>Email:</dt>
 				<dd><a href="mailto:{{email}}">{{email}}</a></dd>
+				<dt>Comment:</dt>
+				<dd>{{comment}}</dd>
 				<dt>Active</dt>
 				<dd>{{#is_active}}<i class="material-icons">check_circle_outline</i>{{/is_active}}{{^is_active}}<i class="material-icons">highlight_off</i>{{/is_active}}</dd>
 				<dt>Management Portal Access:</dt>
@@ -76,7 +78,9 @@
 		<label for="name">Name:</label>
 		<input type="text" name="name" id="name" value="{{name}}" required />
 		<label for="email">Email:</label>
-		<input type="text" name="email" id="email" value="{{email}}" required />
+		<input type="email" name="email" id="email" value="{{email}}" required />
+		<label for="comment" style="align-self:baseline">Comment:</label>
+		<textarea type="text" name="comment" id="comment">{{comment}}</textarea>
 		<label for="is_active">Active:</label>
 		<input type="checkbox" name="is_active" id="is_active" {{#is_active}}checked {{/is_active}}/>
 		<label for="management_portal_access_level_id">Management Portal Access Level:</label>
