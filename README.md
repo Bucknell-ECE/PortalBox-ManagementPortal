@@ -18,15 +18,20 @@ Makerportal is known to work with:
 if you use a different configuration please create a pull request to let us know. Some example server configurations can be found in the `documentation/Example Server Configurations` directory.
 
 ## Configuration
-Configuration is handled with two files. The first, `public/config/config.ini` specifies the database connection parameters used by the webservice a.k.a REST API and the Google OAuth Client ID used for OAUTH2 authentication. The second `public/styles/palette.css` is used to set the site's color palette. Example configuration files are provided in the respective directories. To use the Bucknell color palette simply copy `public/styles/example-palette.css` to `public/styles/palette.css`. While copying `public/config/example-config.ini` to `public/config/config.ini` is the fastest way to get started, you will need to then edit `config.ini` providing your database connection parameters and API key.
+Configuration is primarily handled with two files. The first, `public/config/config.ini` specifies the database connection parameters used by the webservice a.k.a REST API and the Google OAuth Client ID used for OAUTH2 authentication. The second `public/styles/palette.css` is used to set the site's color palette. Example configuration files are provided in the respective directories. To use the Bucknell color palette simply copy `public/styles/example-palette.css` to `public/styles/palette.css`. While copying `public/config/example-config.ini` to `public/config/config.ini` is the fastest way to get started, you will need to then edit `config.ini` providing your database connection parameters and API key.
 
 *Note*: currently only Google is supported as as OAUTH provider and you will need to provide a public redirect url (no local only addresses like web.makerspace.local) for your web site when you generate an OAUTH Client ID. See also: https://developers.google.com/identity/protocols/OpenIDConnect
 
-*Note*: Some webservers strip the Authorization header from requests before sending them to PHP. As we process the Authorization header in PHP (see api/loging.php) you may need to allow the header through. If using WSGI with apache, you may be able to simply add this:
+*Note*: Some webservers strip the Authorization header from requests before sending them to PHP. As we process the Authorization header in PHP (see api/login.php) you may need to allow the header through. If using WSGI with apache, you may be able to simply add this:
 
 `WSGIPassAuthorization On`
 
-to your server config, virtual host, or public/.htaccess. If using mod_php you will need to insure that your server config or virtual server config include a `<Directory ...>` element for the public directory which includes an `AllowOverride` rule with the value of `All` or a list including `AuthConfig`. Other configurations may also work but are untested. 
+to your server config, virtual host, or public/.htaccess. If using mod_php you will need to insure that your server config or virtual server config include a `<Directory ...>` element for the public directory which includes an `AllowOverride` rule with the value of `All` or a list including `AuthConfig`. Other configurations may also work see also `documentation/Example Server Configurations`
+
+### Advanced Configuration
+Occasionally, it may be necessary to provide a helper function for PHP. We support this through the use of php files placed in `lib/extensions`. Files should be named `ext_${function_name}.php` e.g. `ext_validate_email.php` and contain a single function with the name ${function_name} and conform to the signature documented below. Supported extensions include:
+
+- validate_email - Provides for custom validation of email addresses. It take one string parameter, the email address to validate and returns the boolean constant FALSE if the email address could not be mapped to a valid email address otherwise it returns a string representing the email address to store in the database which may not be the same as the input email address.
 
 ## Installation
 1) Clone this repository somewhere convenient. This will henceforth be referred to as ${PROJECT_DIRECTORY}.

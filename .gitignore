@@ -4,3 +4,6 @@
 
 # third party libraries... we manage these with yarn
 /public/js
+
+# site specific extensions should not be tracked
+/public/lib/extensions

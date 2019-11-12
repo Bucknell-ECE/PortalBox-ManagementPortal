@@ -5,7 +5,9 @@
 	 * but if a check fails; the proper HTTP response is emitted and execution
 	 * is halted.
 	 */
-	function validate($user) {
+	function validate(&$user) {
+		// do not warn if include fails
+		@include_once('../lib/extensions/ext_validate_email.php');
 		if(!is_array($user)) {
 			header('HTTP/1.0 500 Internal Server Error');
 			die('We seem to have encountered an unexpected difficulty. Please ask your server administrator to investigate');
@@ -17,6 +19,17 @@
 		if(!array_key_exists('email', $user) || empty($user['email'])) {
 			header('HTTP/1.0 400 Bad Request');
 			die('You must specify the user\'s email');
+		} else {
+			if(function_exists('ext_validate_email')) {
+				$email = ext_validate_email($user['email']);
+				if(FALSE === $email) {
+					header('HTTP/1.0 400 Bad Request');
+					die('You must specify a valid email for the user');
+				} else {
+					// "return" possibly modified value through pass by reference mechanism
+					$user['email'] = $email;
+				}
+			}
 		}
 		if(!array_key_exists('management_portal_access_level_id', $user) || empty($user['management_portal_access_level_id'])) {
 			header('HTTP/1.0 400 Bad Request');
