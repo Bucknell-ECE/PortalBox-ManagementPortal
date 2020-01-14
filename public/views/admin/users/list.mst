@@ -38,7 +38,7 @@
 				<td>{{management_portal_access_level}}</td>
 			</tr>
 			{{/users}}
-			{{^users}}<tr><td colspan="2">No users found. <a href="/locations/add">Add one now?</a></td></tr>{{/users}}
+			{{^users}}<tr><td colspan="2">No users found. <a href="/users/add">Add one now?</a></td></tr>{{/users}}
 		</tbody>
 	</table>
 </article>
