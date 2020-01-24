@@ -779,7 +779,7 @@ function init_routes_for_authenticated_admin() {
 
             throw "API was unable to list equipment types";
         });
-        let p2 = fetch("/api/users.php", {"credentials": "same-origin"}).then(response => {
+        let p2 = fetch("/api/users.php?sort=name", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
             }
@@ -1340,7 +1340,7 @@ function init_routes_for_authenticated_trainer() {
     });
     moostaka.route("/cards", params => { list_cards(params, "trainer"); });
     moostaka.route("/cards/add", _params => {
-        fetch("/api/users.php", {"credentials": "same-origin"}).then(response => {
+        fetch("/api/users.php?sort=name", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
             }
