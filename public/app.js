@@ -1287,7 +1287,7 @@ function init_routes_for_authenticated_admin() {
 
             let total_charges = values[1].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
             let total_payments = values[2].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
-            let balance = total_payments - total_charges;
+            let balance = Number(Math.round((total_payments - total_charges)+'e2')+'e-2');
 
             moostaka.render("#main", "admin/users/view", {
                 "balance": balance,
