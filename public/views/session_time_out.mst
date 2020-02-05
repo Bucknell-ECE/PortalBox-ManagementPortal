@@ -1,0 +1,3 @@
+<h1>Session Time Out</h1>
+<p>We're sorry your session appears to have timed out. Please login to continue.</p>
+<p><button id="google-sign-in-button" onclick="hello('google').login()"><img src="/images/Google_G_logo.svg"><span>Sign in with Google</span></button></p>

@@ -1,5 +1,32 @@
+/**
+ * SessionTimeOutError can be thrown when the API session times out. I.e. in
+ * response to HTTP 403 Status
+ */
+class SessionTimeOutError extends Error {
+	constructor(message) {
+		super(message);
+		this.name = 'SessionTimeOutError';
+	}
+}
 
+/** A reference to the SPA router */
 var moostaka = null;
+
+/**
+ * handleError takes action based on the error reported.
+ * 
+ * @param {*} error the error beign reported tyically from the fetch APi but
+ *		could also be a {string} message to report to the user  
+ */
+function handleError(error) {
+	if(error instanceof SessionTimeOutError) {
+		moostaka.render("#main", "session_time_out");
+		moostaka.render("#page-menu", "unauthenticated/menu");
+	} else {
+		moostaka.render("#main", "error", {"error": error});
+	}
+}
+
 /**
  * While an end point exists for card_type, the types are integral
  * to the functioning of the Portal Box application, and would need
@@ -135,17 +162,23 @@ function add_api_key(event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save new API key";
     }).then(_data => {
         moostaka.navigate("/api-keys");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
+/**
+ * Callback that handles deleting an api key from the backend. Bound to the
+ * delete button in the View API Key view [views/admin/api-keys/view.mst] 
+ * 
+ * @param {string} id - the numeric id as a tring of the key to delete
+ */
 function delete_api_key(id) {
     if(window.confirm("Are you sure you want to delete the API key")) { 
         fetch("/api/api-keys.php?id=" + id, {
@@ -154,12 +187,12 @@ function delete_api_key(id) {
         }).then(response => {
             if(response.ok) {
                 moostaka.navigate("/api-keys");
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to save new API key";
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     }
 }
 
@@ -181,15 +214,15 @@ function update_api_key(key, event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save API key";
     }).then(_data => {
         moostaka.navigate("/api-keys");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -210,15 +243,15 @@ function add_card(event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save new card";
     }).then(_data => {
         moostaka.navigate("/cards");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 function list_cards(params, auth_level) {
@@ -232,14 +265,14 @@ function list_cards(params, auth_level) {
     fetch(url, {"credentials": "same-origin"}).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to list cards";
     }).then(cards => {
         moostaka.render("#main", auth_level + "/cards/list", {"cards": cards});
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -260,15 +293,15 @@ function update_card(card, event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save card";
     }).then(_data => {
         moostaka.navigate("/cards");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -289,15 +322,15 @@ function update_charge(charge, event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save charge";
     }).then(_data => {
         moostaka.navigate("/charges");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -318,15 +351,15 @@ function add_equipment(event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save new equipment";
     }).then(_data => {
         moostaka.navigate("/equipment");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -347,15 +380,15 @@ function update_equipment(equipment, event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save equipment";
     }).then(_data => {
         moostaka.navigate("/equipment");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -376,15 +409,15 @@ function add_equipment_type(event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save new equipment type";
     }).then(_data => {
         moostaka.navigate("/equipment-types");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -405,15 +438,15 @@ function update_equipment_type(type, event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save equipment type";
     }).then(_data => {
         moostaka.navigate("/equipment-types");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -434,15 +467,15 @@ function add_location(event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save new location";
     }).then(_data => {
         moostaka.navigate("/locations");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -463,15 +496,15 @@ function update_location(location, event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save location";
     }).then(_data => {
         moostaka.navigate("/locations");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -495,21 +528,27 @@ function list_log(search) {
     let p0 = fetch("/api/logs.php?" + queryString, {"credentials": "same-origin"}).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to retrieve specified log segment";
     });
     let p1 = fetch("/api/equipment.php", {"credentials": "same-origin"}).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to list equipment";
     });
     let p2 = fetch("/api/locations.php", {"credentials": "same-origin"}).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to list locations";
     });
@@ -524,9 +563,7 @@ function list_log(search) {
                 document.getElementById("location_id").value = search.location_id;
             }
         });
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -544,15 +581,15 @@ function save_log(search) {
     }).then(response => {
         if(response.ok) {
             return response.text();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to create report from log";
     }).then(data => {
         let blob = new Blob([data], {type: "text/csv;charset=utf-8"});
         saveAs(blob, "log.csv");    // provided by Eli Grey's FileSaver.js
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -597,15 +634,15 @@ function add_payment(event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save new payment";
     }).then(data => {
         moostaka.navigate("/users/" + data.user_id);
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -626,15 +663,15 @@ function add_user(event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save new user";
     }).then(_data => {
         moostaka.navigate("/users");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -648,7 +685,9 @@ function list_users(params, auth_level) {
     fetch(url + queryString, {"credentials": "same-origin"}).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to list users";
     }).then(users => {
@@ -656,9 +695,7 @@ function list_users(params, auth_level) {
             params.customized = true;
         }
         moostaka.render("#main", auth_level + "/users/list", {"users": users, "search":params});
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 function search_users(search_form, auth_level) {
@@ -711,15 +748,15 @@ function update_user(user, event) {
     }).then(response => {
         if(response.ok) {
             return response.json();
-        }
+        } else if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
 
         throw "API was unable to save user";
     }).then(_data => {
         moostaka.navigate("/users");
         // notify user of success
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 }
 
 /**
@@ -738,14 +775,14 @@ function init_routes_for_authenticated_admin() {
         fetch("/api/api-keys.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list api keys";
         }).then(keys => {
             moostaka.render("#main", "admin/api-keys/list", {"keys": keys});
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/api-keys/add", params => {
         moostaka.render("#main", "admin/api-keys/add", {}, {}, () => {
@@ -757,7 +794,9 @@ function init_routes_for_authenticated_admin() {
         fetch("/api/api-keys.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find api key: " + params.id;
         }).then(key => {
@@ -765,9 +804,7 @@ function init_routes_for_authenticated_admin() {
                 let form = document.getElementById("edit-api-key-form");
                 form.addEventListener("submit", (e) => { update_api_key(key, e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/cards", params => { list_cards(params, "admin"); });
     moostaka.route("/cards/add", params => {
@@ -775,14 +812,18 @@ function init_routes_for_authenticated_admin() {
         let p1 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment types";
         });
         let p2 = fetch("/api/users.php?sort=name", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list users";
         });
@@ -852,30 +893,34 @@ function init_routes_for_authenticated_admin() {
                     }
                 });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/cards/:id", params => {
         let p0 = new Promise((resolve, reject) => { resolve(card_types); });
         let p1 = fetch("/api/cards.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find card: " + params.id;
         });
         let p2 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment types";
         });
         let p3 = fetch("/api/users.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list users";
         });
@@ -956,9 +1001,7 @@ function init_routes_for_authenticated_admin() {
                     }
                 });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
 //    moostaka.route("/cards/search/:card_id", params => { list_cards(params, "admin"); });
     moostaka.route("/charges", params => {
@@ -982,37 +1025,42 @@ function init_routes_for_authenticated_admin() {
         let p0 = fetch("/api/charges.php?" + searchParams.toString(), {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list charges";
         });
         let p1 = fetch("/api/equipment.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment";
         });
         let p2 = fetch("/api/users.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list users";
         });
         
         Promise.all([p0, p1, p2]).then(values => {
             moostaka.render("#main", "admin/charges/list", {"charges":values[0], "equipment":values[1], "search":search, "users":values[2]});
-        }).catch(error => {
-            console.log(error);
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/charges/:id", params => {
         fetch("/api/charges.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find charge: " + params.id;
         }).then(charge => {
@@ -1021,9 +1069,7 @@ function init_routes_for_authenticated_admin() {
                 let form = document.getElementById("edit-charge-form");
                 form.addEventListener("submit", (e) => { update_charge(charge, e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/equipment", params => {
         // get search params if any
@@ -1045,27 +1091,31 @@ function init_routes_for_authenticated_admin() {
         fetch("/api/equipment.php?" + searchParams.toString(), {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment";
         }).then(equipment => {
             moostaka.render("#main", "admin/equipment/list", {"equipment": equipment, "search":search});
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/equipment/add", params => {
         let p1 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment types";
         });
         let p2 = fetch("/api/locations.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list locations";
         });
@@ -1075,29 +1125,33 @@ function init_routes_for_authenticated_admin() {
                 let form = document.getElementById("add-equipment-form");
                 form.addEventListener("submit", (e) => { add_equipment(e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/equipment/:id", params => {
         let p0 = fetch("/api/equipment.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find equipment: " + params.id;
         });
         let p1 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment types";
         });
         let p2 = fetch("/api/locations.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list locations";
         });
@@ -1109,23 +1163,21 @@ function init_routes_for_authenticated_admin() {
                 let form = document.getElementById("edit-equipment-form");
                 form.addEventListener("submit", (e) => { update_equipment(values[0], e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/equipment-types", params => {
         fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment types";
         }).then(types => {
             console.log(types);
             moostaka.render("#main", "admin/equipment-types/list", {"types": types});
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/equipment-types/add", params => {
         moostaka.render("#main", "admin/equipment-types/add", {"charge_policies":charge_policies}, {}, () => {
@@ -1137,7 +1189,9 @@ function init_routes_for_authenticated_admin() {
         fetch("/api/equipment-types.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find equipment type: " + params.id;
         }).then(type => {
@@ -1146,22 +1200,20 @@ function init_routes_for_authenticated_admin() {
                 let form = document.getElementById("edit-equipment-type-form");
                 form.addEventListener("submit", (e) => { update_equipment_type(type, e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/locations", params => {
         fetch("/api/locations.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list locations";
         }).then(locations => {
             moostaka.render("#main", "admin/locations/list", {"locations": locations});
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/locations/add", params => {
         moostaka.render("#main", "admin/locations/add", {}, {}, () => {
@@ -1173,14 +1225,18 @@ function init_routes_for_authenticated_admin() {
         let p0 = fetch("/api/locations.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find location: " + params.id;
         });
         let p1 = fetch("/api/equipment.php?location_id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment";
         });
@@ -1190,9 +1246,7 @@ function init_routes_for_authenticated_admin() {
                 let form = document.getElementById("edit-location-form");
                 form.addEventListener("submit", (e) => { update_location(location, e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/logs", params => {
         list_log({});
@@ -1202,21 +1256,23 @@ function init_routes_for_authenticated_admin() {
         fetch("/api/payments.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list payments";
         }).then(payments => {
             console.log(payments);
             moostaka.render("#main", "admin/payments/list", {"payments": payments});
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/payments/add", params => {
         fetch("/api/users.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list users";
         }).then(users => {
@@ -1234,7 +1290,9 @@ function init_routes_for_authenticated_admin() {
         fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment types";
         }).then(equipment_types => {
@@ -1242,36 +1300,42 @@ function init_routes_for_authenticated_admin() {
                 let form = document.getElementById("add-user-form");
                 form.addEventListener("submit", (e) => { add_user(e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/users/:id", params => {
         let p0 = fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find user: " + params.id;
         });
         let p1 = fetch("/api/charges.php?user_id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list user's charges";
         });
         let p2 = fetch("/api/payments.php?user_id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list user's payments";
         });
         let p3 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment types";
         });
@@ -1304,15 +1368,15 @@ function init_routes_for_authenticated_admin() {
                 let form = document.getElementById("edit-user-form");
                 form.addEventListener("submit", (e) => { update_user(user, e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/users/:id/add_payment", params => {
         fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find user: " + params.id;
         }).then(user => {
@@ -1322,7 +1386,7 @@ function init_routes_for_authenticated_admin() {
                 let now = new Date();
                 document.getElementById("time").value = now.toISOString().slice(0,10);
             });
-        });
+        }).catch(handleError);
     });
 }
 
@@ -1343,7 +1407,9 @@ function init_routes_for_authenticated_trainer() {
         fetch("/api/users.php?sort=name", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list users";
         }).then(users => {
@@ -1351,50 +1417,52 @@ function init_routes_for_authenticated_trainer() {
                 let form = document.getElementById("add-card-form");
                 form.addEventListener("submit", (e) => { add_card(e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/cards/:id", params => {
         fetch("/api/cards.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find card: " + params.id;
         }).then(card => {
             moostaka.render("#main", "trainer/cards/view", {"card": card});
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
 //    moostaka.route("/cards/search/:card_id", params => { list_cards(params, "trainer"); });
     moostaka.route("/equipment", params => {
         fetch("/api/equipment.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment";
         }).then(equipment => {
             moostaka.render("#main", "trainer/equipment/list", {"equipment": equipment});
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
     moostaka.route("/users", params => { list_users(params, "trainer"); });
     moostaka.route("/users/:id", params => {
         let p0 = fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to find user: " + params.id;
         });
         let p1 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
-            }
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
             throw "API was unable to list equipment types";
         });
@@ -1409,9 +1477,7 @@ function init_routes_for_authenticated_trainer() {
                 let form = document.getElementById("edit-user-form");
                 form.addEventListener("submit", (e) => { update_user(user, e); });
             });
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
 }
 
@@ -1423,15 +1489,12 @@ function init_routes_for_unauthenticated_user() {
         fetch("/api/equipment.php").then(response => {
             if(response.ok) {
                 return response.json();
-            }
+			}
 
             throw "API was unable to list equipment";
         }).then(equipment => {
             moostaka.render("#main", "unauthenticated/availability", {"equipment": equipment});
-        }).catch(error => {
-            console.log(error);
-            moostaka.render("#main", "error", {"error": error});
-        });
+        }).catch(handleError);
     });
 }
 
@@ -1468,9 +1531,7 @@ hello.on("auth.login", auth => {
                     moostaka.render("#main", "error", {"error": "You are not permitted to use this system"});
             }
             
-        }).catch(error => {
-            moostaka.render("#main", "error", {"error": "You are not permitted to use this system"});
-        });
+        }).catch(handleError);
     } else {
         moostaka.render("#main", "login", {"error": "You did not successfully authenticate with our OAuth2 partner"});
     }
@@ -1513,10 +1574,8 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             // start unauthenticated session
             init_routes_for_unauthenticated_user();
-            moostaka.render("#page-menu", "unauthenticated/menu", {});
+            moostaka.render("#page-menu", "unauthenticated/menu");
             moostaka.navigate(location.pathname);
         }
-    }).catch(error => {
-        moostaka.render("#main", "error", {"error": error});
-    });
+    }).catch(handleError);
 });
