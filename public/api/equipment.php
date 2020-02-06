@@ -93,7 +93,7 @@
 				require_authorization('admin');
 
 				$connection = DB::getConnection();
-				$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
+				$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':id', $_GET['id']);
 				if($query->execute()) {
@@ -108,6 +108,8 @@
 						} else {
 							$equipment['in_service'] = false;
 						}
+
+						$equipment['service_minutes'] = intval($equipment['service_minutes']);
 
 						// TODO join in cards
 
@@ -125,7 +127,7 @@
 				$connection = DB::getConnection();
 				$sql = '';
 				if(is_user_authenticated()) {
-					$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
+					$sql = 'SELECT e.id, e.name, e.type_id, t.name AS type, e.mac_address, e.location_id, l.name AS location, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
 				} else {
 					$sql = 'SELECT e.id, e.name, t.name AS type, l.name AS location, iu.equipment_id IS NOT NULL AS in_use FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
 				}
@@ -172,6 +174,8 @@
 							} else {
 								$e['in_service'] = false;
 							}
+
+							$e['service_minutes'] = intval($e['service_minutes']);
 						}
 					}
 					unset($e);

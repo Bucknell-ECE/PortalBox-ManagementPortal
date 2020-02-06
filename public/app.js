@@ -1157,7 +1157,9 @@ function init_routes_for_authenticated_admin() {
         });
 
         Promise.all([p0, p1, p2]).then(values => {
-            moostaka.render("#main", "admin/equipment/view", {"equipment": values[0], "types": values[1], "locations": values[2]}, {}, () => {
+			let equipment = values[0];
+			equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
+            moostaka.render("#main", "admin/equipment/view", {"equipment": equipment, "types": values[1], "locations": values[2]}, {}, () => {
                 document.getElementById("type_id").value = values[0].type_id;
                 document.getElementById("location_id").value = values[0].location_id;
                 let form = document.getElementById("edit-equipment-form");
