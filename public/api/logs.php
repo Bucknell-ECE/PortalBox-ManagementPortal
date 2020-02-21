@@ -48,7 +48,6 @@
 				die('Our unfiltered logs can be very large. We therefore require API users to limit their log requests in some way');
 			}
 			$sql .= ' ORDER BY l.time DESC';
-			error_log($sql);
 			$connection = DB::getConnection();
 			$query = $connection->prepare($sql);
 
