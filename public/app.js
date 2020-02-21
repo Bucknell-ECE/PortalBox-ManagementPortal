@@ -1,32 +1,4 @@
-/**
- * SessionTimeOutError can be thrown when the API session times out. I.e. in
- * response to HTTP 403 Status
- */
-class SessionTimeOutError extends Error {
-	constructor(message) {
-		super(message);
-		this.name = 'SessionTimeOutError';
-	}
-}
-
-/** A reference to the SPA router */
-var moostaka = null;
-
-/**
- * handleError takes action based on the error reported.
- * 
- * @param {*} error the error beign reported tyically from the fetch APi but
- *		could also be a {string} message to report to the user  
- */
-function handleError(error) {
-	if(error instanceof SessionTimeOutError) {
-		moostaka.render("#main", "session_time_out");
-		moostaka.render("#page-menu", "unauthenticated/menu");
-	} else {
-		moostaka.render("#main", "error", {"error": error});
-	}
-}
-
+// CONSTANTS
 /**
  * While an end point exists for card_type, the types are integral
  * to the functioning of the Portal Box application, and would need
@@ -71,7 +43,7 @@ var charge_policies = [
 var management_portal_access_levels = [
     {
         "id": 1,
-        "name":"No Access"
+        "name":"User"
     },
     {
         "id": 2,
@@ -82,6 +54,41 @@ var management_portal_access_levels = [
         "name":"Admin"
     },
 ];
+
+// MODEL
+/** A reference to the SPA router */
+var moostaka = null;
+
+/** the id of the current user */
+var uid = -1;
+
+// PRIVATE DATA TYPES
+/**
+ * SessionTimeOutError can be thrown when the API session times out. I.e. in
+ * response to HTTP 403 Status
+ */
+class SessionTimeOutError extends Error {
+	constructor(message) {
+		super(message);
+		this.name = 'SessionTimeOutError';
+	}
+}
+
+// UTILITY FUNCTIONS
+/**
+ * handleError takes action based on the error reported.
+ * 
+ * @param {*} error the error beign reported tyically from the fetch APi but
+ *		could also be a {string} message to report to the user  
+ */
+function handleError(error) {
+	if(error instanceof SessionTimeOutError) {
+		moostaka.render("#main", "session_time_out");
+		moostaka.render("#page-menu", "unauthenticated/menu");
+	} else {
+		moostaka.render("#main", "error", {"error": error});
+	}
+}
 
 /**
  * While Moostaka is pretty great; simple, open source, has made
@@ -1286,7 +1293,75 @@ function init_routes_for_authenticated_admin() {
             });
         });
     });
-*/
+*/	
+	moostaka.route("/profile", params => {
+		let p0 = fetch("/api/users.php?id=" + uid, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+			throw "API was unable to find user: " + uid;
+		});
+		let p1 = fetch("/api/charges.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+			throw "API was unable to list your charges";
+		});
+		let p2 = fetch("/api/payments.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+			throw "API was unable to list your payments";
+		});
+		let p3 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+			throw "API was unable to list equipment types";
+		});
+
+		Promise.all([p0, p1, p2, p3]).then(values => {
+			let user = values[0];
+			let ledger = values[1].concat(values[2]).map(e => {
+				e.ts = new Date(e.time);
+				return e;
+			}).sort((a,b) => {
+				return a.ts - b.ts;
+			});
+
+			let total_charges = values[1].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+			let total_payments = values[2].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+			let balance = Number(Math.round((total_payments - total_charges)+'e2')+'e-2');
+
+			moostaka.render("#main", "user/profile", {
+				"balance": balance,
+				"equipment_types": values[3],
+				"ledger": ledger,
+				"management_portal_access_levels": management_portal_access_levels,
+				"user": user
+			}, {}, () => {
+				document.getElementById("management_portal_access_level_id").value = user.management_portal_access_level_id;
+				for(let i = 0, l = user.authorizations.length; i < l; i++) {
+					let a = user.authorizations[i];
+					document.getElementById("authorizations." + a.equipment_type_id).checked = true;
+				}
+				let form = document.getElementById("edit-user-form");
+				form.addEventListener("submit", (e) => { update_user(user, e); });
+			});
+		}).catch(handleError);
+	});
     moostaka.route("/users", params => { list_users(params, "admin"); });
     moostaka.route("/users/add", params => {
         fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
@@ -1448,7 +1523,75 @@ function init_routes_for_authenticated_trainer() {
             moostaka.render("#main", "trainer/equipment/list", {"equipment": equipment});
         }).catch(handleError);
     });
-    moostaka.route("/users", params => { list_users(params, "trainer"); });
+	moostaka.route("/profile", params => {
+        let p0 = fetch("/api/users.php?id=" + uid, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+            throw "API was unable to find user: " + uid;
+        });
+        let p1 = fetch("/api/charges.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+            throw "API was unable to list your charges";
+        });
+        let p2 = fetch("/api/payments.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+            throw "API was unable to list your payments";
+        });
+        let p3 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+            throw "API was unable to list equipment types";
+        });
+
+        Promise.all([p0, p1, p2, p3]).then(values => {
+            let user = values[0];
+            let ledger = values[1].concat(values[2]).map(e => {
+                e.ts = new Date(e.time);
+                return e;
+            }).sort((a,b) => {
+                return a.ts - b.ts;
+            });
+
+            let total_charges = values[1].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+            let total_payments = values[2].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+            let balance = Number(Math.round((total_payments - total_charges)+'e2')+'e-2');
+
+            moostaka.render("#main", "user/profile", {
+                "balance": balance,
+                "equipment_types": values[3],
+                "ledger": ledger,
+                "management_portal_access_levels": management_portal_access_levels,
+                "user": user
+            }, {}, () => {
+                document.getElementById("management_portal_access_level_id").value = user.management_portal_access_level_id;
+                for(let i = 0, l = user.authorizations.length; i < l; i++) {
+                    let a = user.authorizations[i];
+                    document.getElementById("authorizations." + a.equipment_type_id).checked = true;
+                }
+                let form = document.getElementById("edit-user-form");
+                form.addEventListener("submit", (e) => { update_user(user, e); });
+            });
+        }).catch(handleError);
+	});
+	moostaka.route("/users", params => { list_users(params, "trainer"); });
     moostaka.route("/users/:id", params => {
         let p0 = fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
@@ -1480,7 +1623,99 @@ function init_routes_for_authenticated_trainer() {
                 form.addEventListener("submit", (e) => { update_user(user, e); });
             });
         }).catch(handleError);
+	});
+}
+
+/**
+ * Helper to set up the routes for our authenticated user
+ * Much of the application logic is in anonmyous functions used
+ * here. Possible refactor target in the future
+ */
+function init_routes_for_authenticated_user() {
+    moostaka.route("/", params => {
+        fetch("/api/equipment.php", {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+            throw "API was unable to list equipment";
+        }).then(equipment => {
+            moostaka.render("#main", "user/availability", {"equipment": equipment});
+        }).catch(handleError);
     });
+    moostaka.route("/logout", _params => {
+        hello("google").logout();
+    });
+	moostaka.route("/profile", params => {
+        let p0 = fetch("/api/users.php?id=" + uid, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+            throw "API was unable to find user: " + uid;
+        });
+        let p1 = fetch("/api/charges.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+            throw "API was unable to list your charges";
+        });
+        let p2 = fetch("/api/payments.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+            throw "API was unable to list your payments";
+        });
+        let p3 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+            throw "API was unable to list equipment types";
+        });
+
+        Promise.all([p0, p1, p2, p3]).then(values => {
+            let user = values[0];
+            let ledger = values[1].concat(values[2]).map(e => {
+                e.ts = new Date(e.time);
+                return e;
+            }).sort((a,b) => {
+                return a.ts - b.ts;
+            });
+
+            let total_charges = values[1].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+            let total_payments = values[2].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+            let balance = Number(Math.round((total_payments - total_charges)+'e2')+'e-2');
+
+            moostaka.render("#main", "user/profile", {
+                "balance": balance,
+                "equipment_types": values[3],
+                "ledger": ledger,
+                "management_portal_access_levels": management_portal_access_levels,
+                "user": user
+            }, {}, () => {
+                document.getElementById("management_portal_access_level_id").value = user.management_portal_access_level_id;
+                for(let i = 0, l = user.authorizations.length; i < l; i++) {
+                    let a = user.authorizations[i];
+                    document.getElementById("authorizations." + a.equipment_type_id).checked = true;
+                }
+                let form = document.getElementById("edit-user-form");
+                form.addEventListener("submit", (e) => { update_user(user, e); });
+            });
+        }).catch(handleError);
+	});
 }
 
 /**
@@ -1508,9 +1743,12 @@ hello.on("auth.login", auth => {
             if(response.ok) {
                 return response.json();
             } else {
-                throw response.statusText + ": " + response.text();
+				response.text().then(text => {
+					throw response.statusText + ": " + text;
+				});
             }
         }).then(user => {
+			uid = user.id;
             switch(user.management_portal_access_level_id) {
                 case "3": // admin
                     moostaka.flush();
@@ -1527,12 +1765,19 @@ hello.on("auth.login", auth => {
                     hello(auth.network).api("me").then(params => {
                         moostaka.render("#page-menu", "trainer/menu", params);
                     });
+					break;
+				case "1": // user
+                    moostaka.flush();
+                    init_routes_for_authenticated_user();
+                    moostaka.navigate(location.pathname); // need to explicitly update content
+                    hello(auth.network).api("me").then(params => {
+                        moostaka.render("#page-menu", "user/menu", params);
+                    });
                     break;
                 default:
                     console.log("Unknown authorization level");
                     moostaka.render("#main", "error", {"error": "You are not permitted to use this system"});
             }
-            
         }).catch(handleError);
     } else {
         moostaka.render("#main", "login", {"error": "You did not successfully authenticate with our OAuth2 partner"});
@@ -1540,7 +1785,8 @@ hello.on("auth.login", auth => {
 });
 hello.on("auth.logout", () => {
     // drop priveleges and transition to unauthenticated session
-    // delete api session cookie
+	// delete api session cookie
+	uid = -1;
     document.getElementById("page-menu").innerHTML = "";
     moostaka.flush();
     init_routes_for_unauthenticated_user();

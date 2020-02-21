@@ -82,9 +82,10 @@
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
-			require_authorization('trainer');
-
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
+				if($_GET['id'] != SecurityContext::getContext()->authorized_user_id) {	// allow users to view own profile
+					require_authorization('trainer');
+				} 
 				$connection = DB::getConnection();
 				$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.management_portal_access_level_id, mpal.name AS management_portal_access_level FROM users AS u INNER JOIN management_portal_access_levels AS mpal ON mpal.id = u.management_portal_access_level_id WHERE u.id = :id';
 				$query = $connection->prepare($sql);
@@ -141,6 +142,8 @@
 					die('We experienced issues communicating with the database');
 				}
 			} else { // List
+				require_authorization('trainer');
+
 				// purposefully omitting comment from listing, though one can search on it
 				$connection = DB::getConnection();
 				$sql = 'SELECT u.id, u.name, u.email, u.is_active, mpal.name AS management_portal_access_level FROM users AS u INNER JOIN management_portal_access_levels AS mpal ON mpal.id = u.management_portal_access_level_id';

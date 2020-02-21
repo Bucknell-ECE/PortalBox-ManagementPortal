@@ -5,6 +5,8 @@
 <div id="menu">
 	<label for="menu-toggle" class="scrim"></label>
 	<ul>
-		<li><a href="/logout">Signout</a></li>
+		<li><a href="/profile"><i class="material-icons">person</i> Profile</a></li>
+		<li><hr></li>
+		<li><a href="/logout"><i class="material-icons">exit_to_app</i> Signout</a></li>
 	</ul>
 </div>

@@ -37,8 +37,7 @@
 		$query->bindValue(':email', $response['email']);
 		if($query->execute()) {
 			$user = $query->fetch(\PDO::FETCH_ASSOC);
-			// warning hardcoded value... management portal access level 1 := no access
-			if($user && 1 < $user['management_portal_access_level_id']) {
+			if($user) {
 				if(session_status() !== PHP_SESSION_ACTIVE) {
 					$success = session_start();
 					if($success) {

@@ -78,15 +78,17 @@ tfoot { border-top: solid thin var(--accent-color) }
 .checkbox-hack:checked + form.advanced_search { display:grid; }
 
 /* menu revealed by clicking user image */
+#menu hr { border: 0; border-bottom:1px dashed var(--text-primary-color); }
 #menu > ul {
 	position:absolute; top:75%; right:1.5em;
 	background:white; color:var(--text-primary-color);;
 	box-shadow:0 1px 3px var(--shadow-color);
-	padding:0.25em; list-style-type:none; text-indent:0;
+	padding:0.4em; list-style-type:none; text-indent:0;
 	display:none;
 	border-radius:0.25em;
 }
-#menu ul a, #menu ul a.active, #menu ul a.visited { color:var(--text-primary-color); }
+#menu ul a, #menu ul a.active, #menu ul a.visited { color:var(--text-primary-color); text-decoration:none }
+#menu .material-icons { vertical-align:bottom; font-size:1.25em; }
 #menu > ul:before {
 	content:"";
 	position:absolute; top:-0.5em; right:0.5em;

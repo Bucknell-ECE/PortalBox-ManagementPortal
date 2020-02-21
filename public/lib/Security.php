@@ -3,9 +3,11 @@
 		private static $context;	/** The singelton instance */
 
 		public $authorization_level;
+		public $authorized_user_id;
 
 		private function __construct() {
-			$authorization_level = -1;
+			$this->authorization_level = -1;
+			$this->authorized_user_id = -1;
 		}
 
 		public static function getContext() {
@@ -62,17 +64,14 @@
 			$success = session_start();
 			if(!$success) {
 				session_abort();
-			} else {
-				if(array_key_exists('user', $_SESSION)) {
-					SecurityContext::getContext()->authorization_level = $_SESSION['user']['management_portal_access_level_id'];
-					return true;
-				}
+				return false;	// just in case session_abort fails to shutdown thread
 			}
-		} else {
-			if(array_key_exists('user', $_SESSION)) {
-				SecurityContext::getContext()->authorization_level = $_SESSION['user']['management_portal_access_level_id'];
-				return true;
-			}
+		}
+
+		if(array_key_exists('user', $_SESSION)) {
+			SecurityContext::getContext()->authorization_level = $_SESSION['user']['management_portal_access_level_id'];
+			SecurityContext::getContext()->authorized_user_id = $_SESSION['user']['id'];
+			return true;
 		}
 
 		return false;
@@ -85,7 +84,7 @@
 	 * @return (int) - one of the enumerated values:
 	 * 		3 - if the user is an admin
 	 * 		2 - if the user is a trainer
-	 * 		1 - if the user has no priveleges
+	 * 		1 - if the user has no priveleges beyond their own data
 	 * 		0 - if there is no authenticated user
 	 */
 	function get_user_authorization_level() {

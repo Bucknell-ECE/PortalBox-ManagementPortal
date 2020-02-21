@@ -24,11 +24,12 @@
 	}
 
 	// check authentication/authorization
+	// users, trainers and admins can use this endpoint, we'll have to check authorization in each method
 	if((include_once '../lib/Security.php') === FALSE) {
 		header('HTTP/1.0 500 Internal Server Error');
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
-	require_authorization('admin');
+	require_authentication();
 
 	// only authorized users should reach this point
 	if((include_once '../lib/Database.php') === FALSE) {
@@ -45,6 +46,8 @@
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
+				require_authorization('admin');
+
 				$connection = DB::getConnection();
 				$sql = 'SELECT c.id, c.user_id, u.name AS user, u.email, c.equipment_id, e.name AS equipment, c.time, c.amount, c.charge_policy_id, cp.name AS charge_policy, c.charge_rate, c.charged_time FROM charges AS c INNER JOIN charge_policies AS cp ON cp.id = c.charge_policy_id INNER JOIN equipment AS e ON e.id = c.equipment_id INNER JOIN users AS u on u.id = c.user_id WHERE c.id = :id';
 				$query = $connection->prepare($sql);
@@ -62,6 +65,10 @@
 					die('We experienced issues communicating with the database');
 				}
 			} else { // List
+				if(!isset($_GET['user_id']) || empty($_GET['user_id']) || $_GET['user_id'] != SecurityContext::getContext()->authorized_user_id) {	// allow users to view own profile
+					require_authorization('admin');
+				}
+
 				$connection = DB::getConnection();
 				$sql = 'SELECT c.id, c.user_id, u.name AS user, u.email, c.equipment_id, e.name AS equipment, c.time, c.amount, c.charge_policy_id, cp.name AS charge_policy, c.charge_rate, c.charged_time FROM charges AS c INNER JOIN charge_policies AS cp ON cp.id = c.charge_policy_id INNER JOIN equipment AS e ON e.id = c.equipment_id INNER JOIN users AS u on u.id = c.user_id';
 
@@ -103,6 +110,8 @@
 			}
 			break;
 		case 'POST':	// Update
+			require_authorization('admin');
+
 			// validate that we have an oid
 			if(!isset($_GET['id']) || empty($_GET['id'])) {
 				header('HTTP/1.0 400 Bad Request');

@@ -1,0 +1,24 @@
+<article>
+	<header>
+		<h1>Equipment Availability</h1>
+	</header>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Type</th>
+				<th>Location</th>
+				<th>Available</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#equipment}}<tr>
+				<td>{{name}}</td>
+				<td>{{type}}</td>
+				<td>{{location}}</td>
+				<td class="center">{{#in_use}}<i class="material-icons">highlight_off</i>{{/in_use}}{{^in_use}}<i class="material-icons">check_circle_outline</i>{{/in_use}}</td>
+			</tr>{{/equipment}}
+			{{^equipment}}<tr><td colspan="3">No equipment found.</td></tr>{{/equipment}}
+		</tbody>
+	</table>
+</article>

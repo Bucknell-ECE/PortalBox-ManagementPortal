@@ -35,7 +35,7 @@
 	}
 
 	// check authentication
-	// trainers and admins can use this endpoint, we'll have to check authorization in each method
+	// users, trainers and admins can use this endpoint, we'll have to check authorization in each method
 	if((include_once '../lib/Security.php') === FALSE) {
 		header('HTTP/1.0 500 Internal Server Error');
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
@@ -56,8 +56,8 @@
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
-			require_authorization('trainer');
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
+				require_authorization('trainer');
 				$connection = DB::getConnection();
 				$sql = 'SELECT et.id, et.name, et.requires_training, et.charge_policy_id, cp.name AS charge_policy, et.charge_rate FROM equipment_types AS et INNER JOIN charge_policies AS cp ON cp.id = et.charge_policy_id WHERE et.id = :id';
 				$query = $connection->prepare($sql);
