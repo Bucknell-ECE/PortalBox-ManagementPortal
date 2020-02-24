@@ -653,6 +653,20 @@ function add_payment(event) {
 }
 
 /**
+ * Callback that handles confirming a payment. Bound to the form.submit()
+ * in moostaka.render() for the view
+ */
+function confirm_payment(event) {
+	event.preventDefault();
+	let payment = get_form_data(event.target);
+
+	moostaka.render("#main", "admin/users/confirm_payment", {"payment": payment}, {}, () => {
+		let form = document.getElementById("confirm-payment-form");
+		form.addEventListener("submit", (e) => { add_payment(e); });
+	});
+}
+
+/**
  * Callback that handles adding a user to the backend. Bound
  * to the form.submit() in moostaka.render() for the view
  */
@@ -1459,7 +1473,7 @@ function init_routes_for_authenticated_admin() {
         }).then(user => {
             moostaka.render("#main", "admin/users/add_payment", {"user": user}, {}, () => {
                 let form = document.getElementById("add-payment-form");
-                form.addEventListener("submit", (e) => { add_payment(e); });
+                form.addEventListener("submit", (e) => { confirm_payment(e); });
                 let now = new Date();
                 document.getElementById("time").value = now.toISOString().slice(0,10);
             });

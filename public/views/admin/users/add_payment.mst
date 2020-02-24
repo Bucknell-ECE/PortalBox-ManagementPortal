@@ -9,8 +9,8 @@
 	<header>
 		<h1>Add Payment</h1>
 		<div class="button-group">
-			<a href="/payments">Cancel</a>
-			<button form="add-payment-form" type="submit" class="default">Save</a>
+			<a href="/users/{{id}}">Cancel</a>
+			<button form="add-payment-form" type="submit" class="default">Confirm</a>
 		</div>
 	</header>
 	<form id="add-payment-form">
