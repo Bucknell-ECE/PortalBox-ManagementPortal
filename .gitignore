@@ -1,4 +1,5 @@
 # keep config files out
+/config/config.ini
 /public/config/config.ini
 /public/styles/palette.css
 
@@ -7,3 +8,5 @@
 
 # site specific extensions should not be tracked
 /public/lib/extensions
+
+/vendor/
