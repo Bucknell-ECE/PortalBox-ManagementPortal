@@ -10,13 +10,7 @@ namespace Bucknell\Portalbox\Entity;
  * 
  * @package Bucknell\Portalbox\Entity
  */
-class Role {
-	/**
-	 * The unique id for this role
-	 *
-	 * @var int
-	 */
-	private $id;
+class Role extends AbstractEntity {
 
 	/**
 	 * The name of this role
@@ -45,26 +39,6 @@ class Role {
 	 * @var array<int>|null
 	 */
 	private $permissions;
-
-	/**
-	 * Get the unique id of this role
-	 *
-	 * @return int - the unique id of the role
-	 */
-	public function id() : int {
-		return $this->id;
-	}
-
-	/**
-	 * Set the unique id of this role
-	 *
-	 * @param int id - the unique id for this role
-	 * @return Role - returns this in order to support fluent syntax.
-	 */
-	public function set_id(int $id) : Role {
-		$this->id = $id;
-		return $this;
-	}
 
 	/**
 	 * Get the name of this role

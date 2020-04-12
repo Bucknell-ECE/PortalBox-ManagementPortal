@@ -10,13 +10,7 @@ namespace Bucknell\Portalbox\Entity;
  * 
  * @package Bucknell\Portalbox\Entity
  */
-class User {
-	/**
-	 * The unique id for this user
-	 *
-	 * @var int
-	 */
-	private $id;
+class User extends AbstractEntity {
 
 	/**
 	 * This user's name
@@ -62,26 +56,6 @@ class User {
 	 * @var bool
 	 */
 	private $is_active;
-
-	/**
-	 * Get the id of this user
-	 *
-	 * @return int - the id of the user
-	 */
-	public function id() : int {
-		return $this->id;
-	}
-
-	/**
-	 * Set the unique id of this user
-	 *
-	 * @param int id - the unique id for this user
-	 * @return User - returns this in order to support fluent syntax.
-	 */
-	public function set_id(int $id) : User {
-		$this->id = $id;
-		return $this;
-	}
 
 	/**
 	 * Get the name of this user

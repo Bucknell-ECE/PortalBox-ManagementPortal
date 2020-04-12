@@ -19,9 +19,9 @@ class UserModel extends AbstractModel {
 	 *
 	 * @param User user - the user to save to the database
 	 * @throws DatabaseException - when the database can not be queried
-	 * @return User|null - the user or null if the user could not be found
+	 * @return User|null - the user or null if the user could not be saved
 	 */
-	public function create(User $user) : User {
+	public function create(User $user) : ?User {
 		$connection = $this->connection();
 		$sql = 'INSERT INTO users (name, email, comment, role_id, is_active) VALUES (:name, :email, :comment, :role_id, :is_active)';
 		$query = $connection->prepare($sql);
@@ -29,8 +29,8 @@ class UserModel extends AbstractModel {
 		$query->bindValue(':name', $user->name());
 		$query->bindValue(':email', $user->email());
 		$query->bindValue(':comment', $user->comment());
-		$query->bindValue(':is_active', $user->is_active());
-		$query->bindValue(':role_id', $user->role()->id());
+		$query->bindValue(':is_active', $user->is_active(), PDO::PARAM_BOOL);
+		$query->bindValue(':role_id', $user->role()->id(), PDO::PARAM_INT);
 
 		if($query->execute()) {
 			return $user->set_id($connection->lastInsertId('users_id_seq'));
@@ -50,7 +50,7 @@ class UserModel extends AbstractModel {
 		$connection = $this->connection();
 		$sql = 'SELECT id, name, email, comment, is_active, role_id FROM users WHERE id = :id';
 		$query = $connection->prepare($sql);
-		$query->bindValue(':id', $id);
+		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
 				return (new PDOAwareUser($this->connection()))
@@ -64,7 +64,7 @@ class UserModel extends AbstractModel {
 				return null;
 			}
 		} else {
-			throw new DatabaseException();
+			throw new DatabaseException($connection->errorInfo()[2]);
 		}
 	}
 
@@ -75,16 +75,16 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be found
 	 */
-	public function delete(int $id) : User {
+	public function delete(int $id) : ?User {
 		$user = $this->read($id);
 
 		if(NULL !== $user) {
 			$connection = $this->connection();
 			$sql = 'DELETE FROM users WHERE id = :id';
 			$query = $connection->prepare($sql);
-			$query->bindValue(':id', $id);
+			$query->bindValue(':id', $id, PDO::PARAM_INT);
 			if(!$query->execute()) {
-				throw new DatabaseException();
+				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
 
