@@ -15,9 +15,10 @@ final class RoleModelTest extends TestCase {
 	 */
 	private $dbh;
 
-	public function setup(): void {
+	public function setUp(): void {
 		parent::setUp();
 		$this->dbh = Config::config()->connection();
+		$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	}
 
 	public function testModel(): void {
@@ -50,6 +51,7 @@ final class RoleModelTest extends TestCase {
 
 		$role_as_deleted = $model->delete($role_id);
 
+		self::assertNotNull($role_as_deleted);
 		self::assertEquals($role_id, $role_as_deleted->id());
 		self::assertEquals($name, $role_as_deleted->name());
 		self::assertEquals($is_system_role, $role_as_deleted->is_system_role());

@@ -15,9 +15,10 @@ final class LocationModelTest extends TestCase {
 	 */
 	private $dbh;
 
-	public function setup(): void {
+	public function setUp(): void {
 		parent::setUp();
 		$this->dbh = Config::config()->connection();
+		$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	}
 
 	public function testModel(): void {
@@ -51,6 +52,7 @@ final class LocationModelTest extends TestCase {
 
 		$location_as_deleted = $model->delete($location_id);
 
+		self::assertNotNull($location_as_deleted);
 		self::assertEquals($location_id, $location_as_deleted->id());
 		self::assertEquals($name, $location_as_deleted->name());
 

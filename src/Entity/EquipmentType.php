@@ -91,10 +91,10 @@ class EquipmentType extends AbstractEntity {
 	/**
 	 * Set the charge rate of this equipment type
 	 *
-	 * @param string charge_rate - the charge rate for this equipment type
+	 * @param string|null charge_rate - the charge rate for this equipment type
 	 * @return EquipmentType - returns this in order to support fluent syntax.
 	 */
-	public function set_charge_rate(string $charge_rate) : EquipmentType {
+	public function set_charge_rate(?string $charge_rate) : EquipmentType {
 		$this->charge_rate = $charge_rate;
 		return $this;
 	}

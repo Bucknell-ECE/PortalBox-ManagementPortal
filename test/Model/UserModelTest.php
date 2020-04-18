@@ -16,9 +16,10 @@ final class UserModelTest extends TestCase {
 	 */
 	private $dbh;
 
-	public function setup(): void {
+	public function setUp(): void {
 		parent::setUp();
 		$this->dbh = Config::config()->connection();
+		$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	}
 
 	public function testModel(): void {
@@ -84,6 +85,7 @@ final class UserModelTest extends TestCase {
 
 		$user_as_deleted = $model->delete($user_id);
 
+		self::assertNotNull($user_as_deleted);
 		self::assertEquals($user_id, $user_as_deleted->id());
 		self::assertEquals($name, $user_as_deleted->name());
 		self::assertEquals($email, $user_as_deleted->email());
