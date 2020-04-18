@@ -1,17 +1,17 @@
 <?php
 
-namespace Bucknell\Portalbox\Model;
+namespace Portalbox\Model;
 
-use Bucknell\Portalbox\Entity\Role;
-use Bucknell\Portalbox\Model\Entity\Role as PDOAwareRole;
-use Bucknell\Portalbox\Exception\DatabaseException;
+use Portalbox\Entity\Role;
+use Portalbox\Model\Entity\Role as PDOAwareRole;
+use Portalbox\Exception\DatabaseException;
 
 use PDO;
 
 /**
  * RoleModel is our bridge between the database and higher level Entities.
  * 
- * @package Bucknell\Portalbox\Model
+ * @package Portalbox\Model
  */
 class RoleModel extends AbstractModel {
 	/**
@@ -30,11 +30,36 @@ class RoleModel extends AbstractModel {
 		$query->bindValue(':is_system_role', $role->is_system_role(), PDO::PARAM_BOOL);
 		$query->bindValue(':description', $role->description());
 
-		if($query->execute()) {
-			return $role->set_id($connection->lastInsertId('roles_id_seq'));
+		if($connection->beginTransaction()) {
+			if($query->execute()) {
+				// Add in permissions
+				$role_id = $connection->lastInsertId('roles_id_seq');
+	
+				$permissions = $role->permissions();
+	
+				$sql = 'INSERT INTO roles_x_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)';
+				$query = $connection->prepare($sql);
+	
+				foreach($permissions as $permission_id) {
+					$query->bindValue(':role_id', $role_id, PDO::PARAM_INT);
+					$query->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
+					if(!$query->execute()) {
+						// cancel transaction
+						$connection->rollBack();
+						return null;
+					}
+				}
+
+				// all good :. commit
+				$connection->commit();
+				return $role->set_id($role_id);
+			} else {
+				throw new DatabaseException($connection->errorInfo()[2]);
+			}
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
+		
 	}
 
 	/**
@@ -58,6 +83,75 @@ class RoleModel extends AbstractModel {
 					->set_description($data['description']);
 			} else {
 				return null;
+			}
+		} else {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+	}
+
+	/**
+	 *  Save a modified Role to the database
+	 *
+	 * @param Role role - the role to save to the database
+	 * @throws DatabaseException - when the database can not be queried
+	 * @return Role|null - the role or null if the role could not be saved
+	 */
+	public function update(Role $role) : Role {
+		$role_id = $role->id();
+		$old_permissions = $this->read($role_id)->permissions();
+
+		$connection = $this->connection();
+		$sql = 'UPDATE roles SET name = :name, is_system_role = :is_system_role, description = :description WHERE id = :id';
+		$query = $connection->prepare($sql);
+
+		$query->bindValue(':id', $role_id, PDO::PARAM_INT);
+		$query->bindValue(':name', $role->name());
+		$query->bindValue(':is_system_role', $role->is_system_role(), PDO::PARAM_BOOL);
+		$query->bindValue(':description', $role->description());
+
+		if($connection->beginTransaction()) {
+			if($query->execute()) {
+				// Permissions... There are three cases:
+				//	1) Permissions which were removed -> delete
+				//	2) Permissions which were added -> insert
+				//	3) Permissions which were not changed -> do nothing
+
+				$permissions = $role->permissions();
+				$unchanged_permissions = array_intersect($old_permissions, $permissions);
+				$added_permissions = array_diff($permissions, $unchanged_permissions);
+				$removed_permissions = array_diff($old_permissions, $unchanged_permissions);
+	
+				$sql = 'INSERT INTO roles_x_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)';
+				$query = $connection->prepare($sql);
+	
+				foreach($added_permissions as $permission_id) {
+					$query->bindValue(':role_id', $role_id, PDO::PARAM_INT);
+					$query->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
+					if(!$query->execute()) {
+						// cancel transaction
+						$connection->rollBack();
+						return null;
+					}
+				}
+
+				$sql = 'DELETE FROM roles_x_permissions WHERE role_id = :role_id AND permission_id = :permission_id';
+				$query = $connection->prepare($sql);
+
+				foreach($added_permissions as $permission_id) {
+					$query->bindValue(':role_id', $role_id, PDO::PARAM_INT);
+					$query->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
+					if(!$query->execute()) {
+						// cancel transaction
+						$connection->rollBack();
+						return null;
+					}
+				}
+
+				// all good :. commit
+				$connection->commit();
+				return $role;
+			} else {
+				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);

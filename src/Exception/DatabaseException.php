@@ -1,6 +1,6 @@
 <?php
 
-namespace Bucknell\Portalbox\Exception;
+namespace Portalbox\Exception;
 
 use Exception;
 

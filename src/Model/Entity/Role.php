@@ -1,8 +1,8 @@
 <?php
 
-namespace Bucknell\Portalbox\Model\Entity;
+namespace Portalbox\Model\Entity;
 
-use Bucknell\Portalbox\Entity\Role as AbstractRole;
+use Portalbox\Entity\Role as AbstractRole;
 use PDO;
 
 class Role extends AbstractRole {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Bucknell\Portalbox\Model;
+namespace Portalbox\Model;
 
 use PDO;
 
 /**
  * Abstract model is the common foundation on which our object models are built.
  * 
- * @package Bucknell\Portalbox\Model
+ * @package Portalbox\Model
  */
 class AbstractModel {
 	/**

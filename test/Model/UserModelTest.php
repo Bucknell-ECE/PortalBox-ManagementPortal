@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-use Bucknell\Portalbox\Config;
-use Bucknell\Portalbox\Entity\Role;
-use Bucknell\Portalbox\Entity\User;
-use Bucknell\Portalbox\Model\UserModel;
+use Portalbox\Config;
+use Portalbox\Entity\Role;
+use Portalbox\Entity\User;
+use Portalbox\Model\UserModel;
 
 final class UserModelTest extends TestCase {
 	/**
@@ -30,7 +30,7 @@ final class UserModelTest extends TestCase {
 			->set_id($role_id);
 
 		$name = 'Tom Egan';
-		$email = 'tom@tomegan.tech';
+		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
 		$active = TRUE;
 
@@ -49,6 +49,7 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($email, $user_as_created->email());
 		self::assertEquals($comment, $user_as_created->comment());
 		self::assertEquals($active, $user_as_created->is_active());
+		self::assertEquals($role_id, $user_as_created->role()->id());
 
 		$user_as_found = $model->read($user_id);
 
@@ -58,6 +59,28 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($email, $user_as_found->email());
 		self::assertEquals($comment, $user_as_found->comment());
 		self::assertEquals($active, $user_as_found->is_active());
+		self::assertEquals($role_id, $user_as_found->role()->id());
+
+		$name = 'Matt Lamparter';
+		$email = 'matt@ficticious.tld';
+		$comment = 'Test Hominid';
+		$active = FALSE;
+
+		$user_as_found
+			->set_name($name)
+			->set_email($email)
+			->set_comment($comment)
+			->set_is_active($active);
+
+		$user_as_modified = $model->update($user_as_found);
+
+		self::assertNotNull($user_as_modified);
+		self::assertEquals($user_id, $user_as_modified->id());
+		self::assertEquals($name, $user_as_modified->name());
+		self::assertEquals($email, $user_as_modified->email());
+		self::assertEquals($comment, $user_as_modified->comment());
+		self::assertEquals($active, $user_as_modified->is_active());
+		self::assertEquals($role_id, $user_as_modified->role()->id());
 
 		$user_as_deleted = $model->delete($user_id);
 
@@ -66,6 +89,7 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($email, $user_as_deleted->email());
 		self::assertEquals($comment, $user_as_deleted->comment());
 		self::assertEquals($active, $user_as_deleted->is_active());
+		self::assertEquals($role_id, $user_as_deleted->role()->id());
 
 		$user_as_not_found = $model->read($user_id);
 

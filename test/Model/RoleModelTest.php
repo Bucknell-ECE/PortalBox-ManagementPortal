@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-use Bucknell\Portalbox\Config;
-use Bucknell\Portalbox\Entity\Role;
-use Bucknell\Portalbox\Model\RoleModel;
+use Portalbox\Config;
+use Portalbox\Entity\Role;
+use Portalbox\Model\RoleModel;
 
 final class RoleModelTest extends TestCase {
 	/**

@@ -1,11 +1,11 @@
 <?php
 
-namespace Bucknell\Portalbox\Entity;
+namespace Portalbox\Entity;
 
 /**
  * Permission represents a permission which a particular role may have
  * 
- * @package Bucknell\Portalbox\Entity
+ * @package Portalbox\Entity
  */
 class Permission {
 	/** Users with this permission can create API keys */

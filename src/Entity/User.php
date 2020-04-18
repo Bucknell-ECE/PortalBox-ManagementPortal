@@ -1,6 +1,6 @@
 <?php
 
-namespace Bucknell\Portalbox\Entity;
+namespace Portalbox\Entity;
 
 /**
  * User represents a User in the system.
@@ -8,7 +8,7 @@ namespace Bucknell\Portalbox\Entity;
  *	Typically this class is used by requesting the authenticated user instance
  *	from the Session which will be an instance of this class
  * 
- * @package Bucknell\Portalbox\Entity
+ * @package Portalbox\Entity
  */
 class User extends AbstractEntity {
 
@@ -17,35 +17,35 @@ class User extends AbstractEntity {
 	 *
 	 * @var string
 	 */
-	private $name;
+	protected $name;
 
 	/**
 	 * This user's email address
 	 *
 	 * @var string
 	 */
-	private $email;
+	protected $email;
 
 	/**
 	 * A comment about the user
 	 *
 	 * @var string|null
 	 */
-	private $comment;
+	protected $comment;
 
 	/**
 	 * The role id for this user
 	 *
 	 * @var int
 	 */
-	private $role_id;
+	protected $role_id;
 
 	/**
 	 * The role of the user
 	 * 
 	 * @var Role|null
 	 */
-	private $role;
+	protected $role;
 
 	/**
 	 * Whether this user is active ie can login
@@ -55,7 +55,7 @@ class User extends AbstractEntity {
 	 *
 	 * @var bool
 	 */
-	private $is_active;
+	protected $is_active;
 
 	/**
 	 * Get the name of this user
@@ -122,7 +122,7 @@ class User extends AbstractEntity {
 	 *
 	 * @return int - the user's role id
 	 */
-	public function role_id() : id {
+	public function role_id() : int {
 		return $this->role_id;
 	}
 

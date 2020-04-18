@@ -1,6 +1,6 @@
 <?php
 
-namespace Bucknell\Portalbox\Entity;
+namespace Portalbox\Entity;
 
 /**
  * User represents a User in the system.
@@ -8,7 +8,7 @@ namespace Bucknell\Portalbox\Entity;
  *	Typically this class is used by requesting the authenticated user instance
  *	from the Session which will be an instance of this class
  * 
- * @package Bucknell\Portalbox\Entity
+ * @package Portalbox\Entity
  */
 class AbstractEntity {
 	/**
@@ -16,7 +16,7 @@ class AbstractEntity {
 	 *
 	 * @var int
 	 */
-	private $id;
+	protected $id;
 
 	/**
 	 * Get the id of this entity

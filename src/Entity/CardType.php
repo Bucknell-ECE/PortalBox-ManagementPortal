@@ -1,12 +1,12 @@
 <?php
 
-namespace Bucknell\Portalbox\Entity;
+namespace Portalbox\Entity;
 
 /**
  * CardType represents the kind of an equipment activation card... the IoT
  * application decides what to do based on CardType when presented with a card.
  * 
- * @package Bucknell\Portalbox\Entity
+ * @package Portalbox\Entity
  */
 class CardType {
 	/** This card type can be used to shutdown Portalboxes */

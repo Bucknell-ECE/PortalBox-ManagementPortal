@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
-use Bucknell\Portalbox\Entity\Role;
+use Portalbox\Entity\Role;
 
 final class RoleTest extends TestCase {
 	public function testAgreement(): void {

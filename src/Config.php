@@ -1,6 +1,6 @@
 <?php
 
-namespace Bucknell\Portalbox;
+namespace Portalbox;
 
 use PDO;
 

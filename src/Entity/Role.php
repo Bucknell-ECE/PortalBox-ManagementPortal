@@ -1,6 +1,6 @@
 <?php
 
-namespace Bucknell\Portalbox\Entity;
+namespace Portalbox\Entity;
 
 /**
  * Role represents an assignable group of permissions.
@@ -8,7 +8,7 @@ namespace Bucknell\Portalbox\Entity;
  * Every user is assigned a role and thus has a set of permissions restricting
  * what they can do in the web portal.
  * 
- * @package Bucknell\Portalbox\Entity
+ * @package Portalbox\Entity
  */
 class Role extends AbstractEntity {
 
@@ -17,28 +17,28 @@ class Role extends AbstractEntity {
 	 *
 	 * @var string
 	 */
-	private $name;
+	protected $name;
 
 	/**
 	 * A flag indicating if this role is a system defined/required role
 	 *
 	 * @var bool
 	 */
-	private $is_system_role;
+	protected $is_system_role;
 
 	/**
 	 * A human readable description of this role
 	 *
 	 * @var string
 	 */
-	private $description;
+	protected $description;
 
 	/**
 	 * A list of permissions assigned to this role
 	 *
 	 * @var array<int>|null
 	 */
-	private $permissions;
+	protected $permissions;
 
 	/**
 	 * Get the name of this role
@@ -106,6 +106,9 @@ class Role extends AbstractEntity {
 	 * @return array<int> - the list of the role's permissions
 	 */
 	public function permissions() : array {
+		if(NULL === $this->permissions) {
+			return array();
+		}
 		return $this->permissions;
 	}
 
