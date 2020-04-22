@@ -15,12 +15,6 @@ use Portalbox\Model\LocationModel;
 
 final class EquipmentModelTest extends TestCase {
 	/**
-	 * A database connection
-	 * @var PDO
-	 */
-	private $dbh;
-
-	/**
 	 * A location that exists in the db
 	 */
 	private $location;
@@ -30,13 +24,18 @@ final class EquipmentModelTest extends TestCase {
 	 */
 	private $type;
 
+	/**
+	 * The configuration
+	 * @var Config
+	 */
+	private $config;
+
 	public function setUp(): void {
 		parent::setUp();
-		$this->dbh = Config::config()->connection();
-		$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->config = Config::config();
 
 		// provision a location in the db
-		$model = new LocationModel($this->dbh);
+		$model = new LocationModel($this->config);
 
 		$name = 'Robotics Shop';
 
@@ -46,7 +45,7 @@ final class EquipmentModelTest extends TestCase {
 		$this->location = $model->create($location);
 
 		// provision an equipment type in the db
-		$model = new EquipmentTypeModel($this->dbh);
+		$model = new EquipmentTypeModel($this->config);
 
 		$name = 'Floodlight';
 		$requires_training = FALSE;
@@ -62,16 +61,16 @@ final class EquipmentModelTest extends TestCase {
 
 	public function tearDown() : void {
 		// deprovision a location in the db
-		$model = new LocationModel($this->dbh);
+		$model = new LocationModel($this->config);
 		$model->delete($this->location->id());
 
 		// deprovision an equipment type in the db
-		$model = new EquipmentTypeModel($this->dbh);
+		$model = new EquipmentTypeModel($this->config);
 		$model->delete($this->type->id());
 	}
 
 	public function testModel(): void {
-		$model = new EquipmentModel($this->dbh);
+		$model = new EquipmentModel($this->config);
 
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789AB';

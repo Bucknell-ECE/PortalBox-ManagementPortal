@@ -2,7 +2,7 @@
 
 namespace Portalbox\Model;
 
-use PDO;
+use Portalbox\Config;
 
 /**
  * Abstract model is the common foundation on which our object models are built.
@@ -11,34 +11,34 @@ use PDO;
  */
 class AbstractModel {
 	/**
-	 * An open connection to the database
+	 * The configuration to use
 	 * 
-	 * @var PDO
+	 * @var Config
 	 */
-	private $connection;
+	private $configuration;
 
 	/**
-	 * @param PDO connection - an open connection to the database
+	 * @param Config configuration - the configuration to use
 	 */
-	public function __construct(PDO $connection) {
-		$this->set_connection($connection);
+	public function __construct(Config $configuration) {
+		$this->set_configuration($configuration);
 	}
 
 	/**
-	 * Get the connection
+	 * Get the configuration to use
 	 *
-	 * @return PDO - an open connection to the database
+	 * @return Config - the configuration to use
 	 */
-	public function connection() : PDO {
-		return $this->connection;
+	public function configuration() : Config {
+		return $this->configuration;
 	}
 
 	/**
-	 * Set the connection
+	 * Set the configuration to use
 	 *
-	 * @param PDO connection - an open connection to the database
+	 * @param Config configuration - the configuration to use
 	 */
-	public function set_connection(PDO $connection) {
-		$this->connection = $connection;
+	public function set_configuration(Config $configuration) {
+		$this->configuration = $configuration;
 	}
 }

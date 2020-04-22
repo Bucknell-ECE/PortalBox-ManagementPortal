@@ -3,7 +3,6 @@
 namespace Portalbox\Model;
 
 use Portalbox\Entity\Role;
-use Portalbox\Model\Entity\Role as PDOAwareRole;
 use Portalbox\Exception\DatabaseException;
 
 use PDO;
@@ -22,7 +21,7 @@ class RoleModel extends AbstractModel {
 	 * @return Role|null - the role or null if the role could not be saved
 	 */
 	public function create(Role $role) : ?Role {
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO roles (name, is_system_role, description) VALUES (:name, :is_system_role, :description)';
 		$query = $connection->prepare($sql);
 
@@ -70,17 +69,27 @@ class RoleModel extends AbstractModel {
 	 * @return Role|null - the role or null if the role could not be found
 	 */
 	public function read(int $id) : ?Role {
-		$connection = $this->connection();
+		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, is_system_role, description FROM roles WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return (new PDOAwareRole($this->connection()))
+				$role = (new Role())
 					->set_id($data['id'])
 					->set_name($data['name'])
 					->set_is_system_role($data['is_system_role'])
 					->set_description($data['description']);
+				
+				$sql = 'SELECT permission_id FROM roles_x_permissions WHERE role_id = :role_id';
+				$query = $connection->prepare($sql);
+				$query->bindValue(':role_id', $data['id'], PDO::PARAM_INT);
+				if($query->execute()) {
+					return $role->set_permissions($query->fetchAll(PDO::FETCH_COLUMN));
+				}
+
+				// throw exception?
+				return null;
 			} else {
 				return null;
 			}
@@ -100,7 +109,7 @@ class RoleModel extends AbstractModel {
 		$role_id = $role->id();
 		$old_permissions = $this->read($role_id)->permissions();
 
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE roles SET name = :name, is_system_role = :is_system_role, description = :description WHERE id = :id';
 		$query = $connection->prepare($sql);
 
@@ -174,7 +183,7 @@ class RoleModel extends AbstractModel {
 				return NULL;
 			}
 
-			$connection = $this->connection();
+			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM roles WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);

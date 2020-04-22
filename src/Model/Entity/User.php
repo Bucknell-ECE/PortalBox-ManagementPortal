@@ -2,42 +2,42 @@
 
 namespace Portalbox\Model\Entity;
 
+use Portalbox\Config;
 use Portalbox\Entity\User as AbstractUser;
 use Portalbox\Entity\Role;
 use Portalbox\Model\RoleModel;
-use PDO;
 
 class User extends AbstractUser {
 	/**
-	 * An open connection to the database
+	 * The configuration to use
 	 * 
-	 * @var PDO
+	 * @var Config
 	 */
-	private $connection;
+	private $configuration;
 
 	/**
-	 * @param PDO connection - an open connection to the database
+	 * @param Config configuration - the configuration to use
 	 */
-	public function __construct(PDO $connection) {
-		$this->set_connection($connection);
+	public function __construct(Config $configuration) {
+		$this->set_configuration($configuration);
 	}
 
 	/**
-	 * Get the connection
+	 * Get the configuration to use
 	 *
-	 * @return PDO - an open connection to the database
+	 * @return Config - the configuration to use
 	 */
-	public function connection() : PDO {
-		return $this->connection;
+	public function configuration() : Config {
+		return $this->configuration;
 	}
 
 	/**
-	 * Set the connection
+	 * Set the configuration to use
 	 *
-	 * @param PDO connection - an open connection to the database
+	 * @param Config configuration - the configuration to use
 	 */
-	public function set_connection(PDO $connection) {
-		$this->connection = $connection;
+	public function set_configuration(Config $configuration) {
+		$this->configuration = $configuration;
 	}
 
 	/**
@@ -47,7 +47,7 @@ class User extends AbstractUser {
 	 */
 	public function role() : ?Role {
 		if(NULL === $this->role) {
-			$this->role = (new RoleModel($this->connection()))->read($this->role_id());
+			$this->role = (new RoleModel($this->configuration()))->read($this->role_id());
 		}
 
 		return $this->role;

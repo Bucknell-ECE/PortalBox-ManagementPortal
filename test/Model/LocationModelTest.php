@@ -10,19 +10,18 @@ use Portalbox\Model\LocationModel;
 
 final class LocationModelTest extends TestCase {
 	/**
-	 * A database connection
-	 * @var PDO
+	 * The configuration
+	 * @var Config
 	 */
-	private $dbh;
+	private $config;
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->dbh = Config::config()->connection();
-		$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->config = Config::config();
 	}
 
 	public function testModel(): void {
-		$model = new LocationModel($this->dbh);
+		$model = new LocationModel($this->config);
 
 		$name = 'Robotics Shop';
 

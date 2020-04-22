@@ -58,6 +58,13 @@ class User extends AbstractEntity {
 	protected $is_active;
 
 	/**
+	 * A list of equipment type ids the user is authorized for
+	 *
+	 * @var array<int>|null
+	 */
+	protected $authorizations;
+
+	/**
 	 * Get the name of this user
 	 *
 	 * @return string - the name of the user
@@ -181,6 +188,29 @@ class User extends AbstractEntity {
 	 */
 	public function set_is_active(bool $is_active) : User {
 		$this->is_active = $is_active;
+		return $this;
+	}
+
+	/**
+	 * Get the authorizations for this user
+	 *
+	 * @return array<int> - the list of the user's authorizations
+	 */
+	public function authorizations() : array {
+		if(NULL === $this->authorizations) {
+			return array();
+		}
+		return $this->authorizations;
+	}
+
+	/**
+	 * Set the authorizations for this user
+	 *
+	 * @param array<int> authorizations - the authorizations for this user
+	 * @return User - returns this in order to support fluent syntax.
+	 */
+	public function set_authorizations(array $authorizations) : User {
+		$this->authorizations = $authorizations;
 		return $this;
 	}
 }

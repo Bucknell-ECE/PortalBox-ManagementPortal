@@ -22,7 +22,7 @@ class EquipmentModel extends AbstractModel {
 	 * @return Equipment|null - the equipment or null if the eqipment could not be saved
 	 */
 	public function create(Equipment $equipment) : ?Equipment {
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO equipment (name, type_id, mac_address, location_id, timeout, in_service, service_minutes) VALUES (:name, :type_id, :mac_address, :location_id, :timeout, :in_service, :service_minutes)';
 		$query = $connection->prepare($sql);
 
@@ -49,13 +49,13 @@ class EquipmentModel extends AbstractModel {
 	 * @return Equipment|null - the equipment or null if the equipment could not be found
 	 */
 	public function read(int $id) : ?Equipment {
-		$connection = $this->connection();
+		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, type_id, mac_address, location_id, timeout, in_service, service_minutes FROM equipment WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return (new PDOAwareEquipment($this->connection()))
+				return (new PDOAwareEquipment($this->configuration()))
 					->set_id($data['id'])
 					->set_name($data['name'])
 					->set_type_id($data['type_id'])
@@ -80,7 +80,7 @@ class EquipmentModel extends AbstractModel {
 	 * @return Equipment|null - the equipment or null if the equipment could not be saved
 	 */
 	public function update(Equipment $equipment) : ?Equipment {
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE equipment SET name = :name, type_id = :type_id, mac_address = :mac_address, location_id = :location_id, timeout = :timeout, in_service = :in_service, service_minutes = :service_minutes WHERE id = :id';
 		$query = $connection->prepare($sql);
 
@@ -94,7 +94,7 @@ class EquipmentModel extends AbstractModel {
 		$query->bindValue(':service_minutes', $equipment->service_minutes(), PDO::PARAM_INT);
 
 		if($query->execute()) {
-			$equipment = (new PDOAwareEquipment($this->connection()))
+			$equipment = (new PDOAwareEquipment($this->configuration()))
 				->set_id($equipment->id())
 				->set_name($equipment->name())
 				->set_type_id($equipment->type_id())
@@ -121,7 +121,7 @@ class EquipmentModel extends AbstractModel {
 		$equipment = $this->read($id);
 
 		if(NULL !== $equipment) {
-			$connection = $this->connection();
+			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM equipment WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);

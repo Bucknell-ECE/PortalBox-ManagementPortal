@@ -2,44 +2,44 @@
 
 namespace Portalbox\Model\Entity;
 
+use Portalbox\Config;
 use Portalbox\Entity\Equipment as AbstractEquipment;
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Location;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
-use PDO;
 
 class Equipment extends AbstractEquipment {
 	/**
-	 * An open connection to the database
+	 * The configuration to use
 	 * 
-	 * @var PDO
+	 * @var Config
 	 */
-	private $connection;
+	private $configuration;
 
 	/**
-	 * @param PDO connection - an open connection to the database
+	 * @param Config configuration - the configuration to use
 	 */
-	public function __construct(PDO $connection) {
-		$this->set_connection($connection);
+	public function __construct(Config $configuration) {
+		$this->set_configuration($configuration);
 	}
 
 	/**
-	 * Get the connection
+	 * Get the configuration to use
 	 *
-	 * @return PDO - an open connection to the database
+	 * @return Config - the configuration to use
 	 */
-	public function connection() : PDO {
-		return $this->connection;
+	public function configuration() : Config {
+		return $this->configuration;
 	}
 
 	/**
-	 * Set the connection
+	 * Set the configuration to use
 	 *
-	 * @param PDO connection - an open connection to the database
+	 * @param Config configuration - the configuration to use
 	 */
-	public function set_connection(PDO $connection) {
-		$this->connection = $connection;
+	public function set_configuration(Config $configuration) {
+		$this->configuration = $configuration;
 	}
 
 	/**
@@ -49,7 +49,7 @@ class Equipment extends AbstractEquipment {
 	 */
 	public function type() : ?EquipmentType {
 		if(NULL === $this->type) {
-			$this->type = (new EquipmentTypeModel($this->connection()))->read($this->type_id());
+			$this->type = (new EquipmentTypeModel($this->configuration()))->read($this->type_id());
 		}
 
 		return $this->type;
@@ -62,7 +62,7 @@ class Equipment extends AbstractEquipment {
 	 */
 	public function Location() : ?Location {
 		if(NULL === $this->location) {
-			$this->location = (new LocationModel($this->connection()))->read($this->location_id());
+			$this->location = (new LocationModel($this->configuration()))->read($this->location_id());
 		}
 
 		return $this->location;

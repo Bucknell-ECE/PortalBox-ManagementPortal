@@ -15,6 +15,9 @@ class Config {
 
 	/** Cached configuration data */
 	private $settings;
+
+	/** Cached DB connection */
+	private $connection;
 	
 	/**
 	 *	__construct - reads the specified config file or if one is not specified
@@ -51,7 +54,7 @@ class Config {
 	 *		contain the necessary configuration parameters
 	 * @return PDO - a connection to the database
 	 */
-	public function connection() : PDO {
+	private function connection() : PDO {
 		$connection = null;
 
 		if(FALSE != $this->settings && array_key_exists('database', $this->settings)) {
@@ -62,5 +65,41 @@ class Config {
 		}
 
 		throw new InvalidConfigurationException();
+	}
+
+	/**
+	 * Get a database connection using the configured connection params
+	 * that can write (INSERT, UPDATE, DELETE) to the db
+	 * 
+	 * In a scaled out deployment it may be necessary to have replication
+	 * slaves take some of the load. They can easily take read load without
+	 * a complicated replication setup. By using this method to get a writable
+	 * connection only when necessary we position ourselves to implement such a
+	 * scale out in the future if needed.
+	 *
+	 * @throws InvalidConfigurationException if the configuration does not
+	 *		contain the necessary configuration parameters
+	 * @return PDO - a connection to the database
+	 */
+	public function writable_db_connection() : PDO {
+		return $this->connection();
+	}
+
+	/**
+	 * Get a database connection using the configured connection params
+	 * that can only read from the db
+	 * 
+	 * In a scaled out deployment it may be necessary to have replication
+	 * slaves take some of the load. They can easily take read load without
+	 * a complicated replication setup. By using this method to get a read only
+	 * connection whenever possible we position ourselves to implement such a
+	 * scale out in the future if needed.
+	 *
+	 * @throws InvalidConfigurationException if the configuration does not
+	 *		contain the necessary configuration parameters
+	 * @return PDO - a connection to the database
+	 */
+	public function readonly_db_connection() : PDO {
+		return $this->connection();
 	}
 }

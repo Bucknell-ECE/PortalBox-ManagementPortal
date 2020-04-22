@@ -21,7 +21,7 @@ class LocationModel extends AbstractModel {
 	 * @return Location|null - the location or null if the location could not be saved
 	 */
 	public function create(Location $location) : ?Location {
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO locations (name) VALUES (:name)';
 		$query = $connection->prepare($sql);
 
@@ -42,13 +42,13 @@ class LocationModel extends AbstractModel {
 	 * @return Location|null - the location or null if the location could not be found
 	 */
 	public function read(int $id) : ?Location {
-		$connection = $this->connection();
+		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name FROM locations WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return (new Location($this->connection()))
+				return (new Location())
 					->set_id($data['id'])
 					->set_name($data['name']);
 			} else {
@@ -67,7 +67,7 @@ class LocationModel extends AbstractModel {
 	 * @return Location|null - the location or null if the location could not be saved
 	 */
 	public function update(Location $location) : ?Location {
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE locations SET name = :name WHERE id = :id';
 		$query = $connection->prepare($sql);
 
@@ -92,7 +92,7 @@ class LocationModel extends AbstractModel {
 		$location = $this->read($id);
 
 		if(NULL !== $location) {
-			$connection = $this->connection();
+			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM locations WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);

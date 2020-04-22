@@ -118,7 +118,7 @@ class Role extends AbstractEntity {
 	 * @param array<int> permissions - the permissions for this role
 	 * @return Role - returns this in order to support fluent syntax.
 	 */
-	public function set_permissions(int $id) : Role {
+	public function set_permissions(array $permissions) : Role {
 		$this->permissions = $permissions;
 		return $this;
 	}

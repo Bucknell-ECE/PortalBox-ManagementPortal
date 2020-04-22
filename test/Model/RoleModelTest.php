@@ -9,20 +9,19 @@ use Portalbox\Entity\Role;
 use Portalbox\Model\RoleModel;
 
 final class RoleModelTest extends TestCase {
-	/**
-	 * A database connection
-	 * @var PDO
+/**
+	 * The configuration
+	 * @var Config
 	 */
-	private $dbh;
+	private $config;
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->dbh = Config::config()->connection();
-		$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->config = Config::config();
 	}
 
 	public function testModel(): void {
-		$model = new RoleModel($this->dbh);
+		$model = new RoleModel($this->config);
 
 		$name = 'Test Role';
 		$is_system_role = FALSE;

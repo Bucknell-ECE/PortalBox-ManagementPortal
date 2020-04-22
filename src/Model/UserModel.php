@@ -22,7 +22,7 @@ class UserModel extends AbstractModel {
 	 * @return User|null - the user or null if the user could not be saved
 	 */
 	public function create(User $user) : ?User {
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO users (name, email, comment, role_id, is_active) VALUES (:name, :email, :comment, :role_id, :is_active)';
 		$query = $connection->prepare($sql);
 
@@ -47,13 +47,13 @@ class UserModel extends AbstractModel {
 	 * @return User|null - the user or null if the user could not be found
 	 */
 	public function read(int $id) : ?User {
-		$connection = $this->connection();
+		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, email, comment, is_active, role_id FROM users WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return (new PDOAwareUser($this->connection()))
+				return (new PDOAwareUser($this->configuration()))
 					->set_id($data['id'])
 					->set_name($data['name'])
 					->set_email($data['email'])
@@ -76,7 +76,7 @@ class UserModel extends AbstractModel {
 	 * @return User|null - the user or null if the user could not be saved
 	 */
 	public function update(User $user) : ?User {
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE users SET name = :name, email = :email, comment = :comment, role_id = :role_id, is_active = :is_active WHERE id = :id';
 		$query = $connection->prepare($sql);
 
@@ -88,7 +88,7 @@ class UserModel extends AbstractModel {
 		$query->bindValue(':role_id', $user->role()->id(), PDO::PARAM_INT);
 
 		if($query->execute()) {
-			$user = (new PDOAwareUser($this->connection()))
+			$user = (new PDOAwareUser($this->configuration()))
 				->set_id($user->id())
 				->set_name($user->name())
 				->set_email($user->email())
@@ -113,7 +113,7 @@ class UserModel extends AbstractModel {
 		$user = $this->read($id);
 
 		if(NULL !== $user) {
-			$connection = $this->connection();
+			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM users WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);

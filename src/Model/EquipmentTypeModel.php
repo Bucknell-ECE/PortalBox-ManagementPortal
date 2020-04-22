@@ -21,7 +21,7 @@ class EquipmentTypeModel extends AbstractModel {
 	 * @return EquipmentType|null - the equipment type or null if the type could not be saved
 	 */
 	public function create(EquipmentType $type) : ?EquipmentType {
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO equipment_types (name, requires_training, charge_rate, charge_policy_id) VALUES (:name, :requires_training, :charge_rate, :charge_policy_id)';
 		$query = $connection->prepare($sql);
 
@@ -45,13 +45,13 @@ class EquipmentTypeModel extends AbstractModel {
 	 * @return EquipmentType|null - the equipment type or null if the type could not be found
 	 */
 	public function read(int $id) : ?EquipmentType {
-		$connection = $this->connection();
+		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, requires_training, charge_rate, charge_policy_id FROM equipment_types WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return (new EquipmentType($this->connection()))
+				return (new EquipmentType())
 					->set_id($data['id'])
 					->set_name($data['name'])
 					->set_requires_training($data['requires_training'])
@@ -73,7 +73,7 @@ class EquipmentTypeModel extends AbstractModel {
 	 * @return EquipmentType|null - the equipment type or null if the equipment type could not be saved
 	 */
 	public function update(EquipmentType $type) : ?EquipmentType {
-		$connection = $this->connection();
+		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE equipment_types SET name = :name, requires_training = :requires_training, charge_rate = :charge_rate, charge_policy_id = :charge_policy_id WHERE id = :id';
 		$query = $connection->prepare($sql);
 
@@ -101,7 +101,7 @@ class EquipmentTypeModel extends AbstractModel {
 		$type = $this->read($id);
 
 		if(NULL !== $type) {
-			$connection = $this->connection();
+			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM equipment_types WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);

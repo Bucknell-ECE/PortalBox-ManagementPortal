@@ -11,19 +11,18 @@ use Portalbox\Model\EquipmentTypeModel;
 
 final class EquipmentTypeModelTest extends TestCase {
 	/**
-	 * A database connection
-	 * @var PDO
+	 * The configuration
+	 * @var Config
 	 */
-	private $dbh;
+	private $config;
 
 	public function setUp(): void {
 		parent::setUp();
-		$this->dbh = Config::config()->connection();
-		$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		$this->config = Config::config();
 	}
 
 	public function testModel(): void {
-		$model = new EquipmentTypeModel($this->dbh);
+		$model = new EquipmentTypeModel($this->config);
 
 		$name = 'ceramics printer';
 		$requires_training = TRUE;
