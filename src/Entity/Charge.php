@@ -175,7 +175,7 @@ class Charge extends AbstractEntity {
 	 * @param string charge_rate - the charge rate in effect during the creation of the Charge
 	 * @return Charge - returns this in order to support fluent syntax.
 	 */
-	public function set_charge_rate(int $charge_rate) : Charge {
+	public function set_charge_rate(string $charge_rate) : Charge {
 		$this->charge_rate = $charge_rate;
 		return $this;
 	}

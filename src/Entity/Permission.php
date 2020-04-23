@@ -2,6 +2,8 @@
 
 namespace Portalbox\Entity;
 
+use ReflectionClass;
+
 /**
  * Permission represents a permission which a particular role may have
  * 
@@ -275,4 +277,18 @@ class Permission {
 	/** Users with this permission can read their own user record */
 	const READ_OWN_USER = 1206;
 
+	/**
+	 * Determine if the permission is valid
+	 *
+	 * @param int permission - the permission to check
+	 * @return bool - true iff the permission is valid
+	 */
+	public static function is_valid(int $permission) {
+		$valid_values = array_values((new ReflectionClass(get_class()))->getConstants());
+		if(in_array($permission, $valid_values)) {
+			return true;
+		}
+
+		return false;
+	}
 }

@@ -2,6 +2,8 @@
 
 namespace Portalbox\Entity;
 
+use InvalidArgumentException;
+
 /**
  * Role represents an assignable group of permissions.
  * 
@@ -113,12 +115,41 @@ class Role extends AbstractEntity {
 	}
 
 	/**
+	 * Add a permission to this role
+	 *
+	 * @param int permission - the permission to add to this role
+	 * @throws InvalidArgumentException if the specified permission is not one of the
+	 *             public constants from Permission
+	 * @return Role - returns this in order to support fluent syntax.
+	 */
+	public function add_permission(int $permission) : Role {
+		if(Permission::is_valid($permission)) {
+			if(NULL === $this->permissions) {
+				$this->permissions = [$permission];
+			} else {
+				$this->permissions[] = $permission;
+			}
+			return $this;
+		}
+
+		throw new InvalidArgumentException('permission must be one of the public constants from Permission');
+	}
+
+	/**
 	 * Set the permissions for this role
 	 *
 	 * @param array<int> permissions - the permissions for this role
+	 * @throws InvalidArgumentException if any of the  specified permission are
+	 *             not not one of the public constants from Permission
 	 * @return Role - returns this in order to support fluent syntax.
 	 */
 	public function set_permissions(array $permissions) : Role {
+		foreach($permissions as $permission) {
+			if(!Permission::is_valid($permission)) {
+				throw new InvalidArgumentException('permission must be one of the public constants from Permission');
+			}
+		}
+
 		$this->permissions = $permissions;
 		return $this;
 	}

@@ -2,6 +2,8 @@
 
 namespace Portalbox\Entity;
 
+use ReflectionClass;
+
 /**
  * CardType represents the kind of an equipment activation card... the IoT
  * application decides what to do based on CardType when presented with a card.
@@ -23,4 +25,19 @@ class CardType {
 
 	/** This card type is issued to users so they may activate a Portalbox */
 	const USER = 4;
+
+	/**
+	 * Determine if the card type is valid
+	 *
+	 * @param int type - the type to check
+	 * @return bool - true iff the type is valid
+	 */
+	public static function is_valid(int $type) {
+		$valid_values = array_values((new ReflectionClass(get_class()))->getConstants());
+		if(in_array($type, $valid_values)) {
+			return true;
+		}
+
+		return false;
+	}
 }

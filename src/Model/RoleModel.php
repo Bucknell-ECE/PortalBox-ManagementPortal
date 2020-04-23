@@ -53,6 +53,9 @@ class RoleModel extends AbstractModel {
 				$connection->commit();
 				return $role->set_id($role_id);
 			} else {
+				$connection->rollBack();	// This is unlikely to succeed but
+											// in case it does the transaction
+											// lock is released which is a good thing
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		} else {

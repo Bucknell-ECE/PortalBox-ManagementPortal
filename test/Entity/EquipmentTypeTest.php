@@ -28,4 +28,10 @@ final class EquipmentTypeTest extends TestCase {
 		self::assertEquals($charge_rate, $type->charge_rate());
 		self::assertEquals($charge_policy_id, $type->charge_policy_id());
 	}
+
+	public function testInvalidChargePolicyTriggersException(): void {
+		$this->expectException(InvalidArgumentException::class);
+
+		$card = (new EquipmentType())->set_charge_policy_id(-1);
+	}
 }

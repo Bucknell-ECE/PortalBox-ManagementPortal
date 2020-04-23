@@ -2,7 +2,8 @@
 
 namespace Portalbox\Entity;
 
-use RangeException;
+use InvalidArgumentException;
+use ReflectionClass;
 
 /**
  * Equipment Type binds policy to equipment of the same type
@@ -114,8 +115,8 @@ class EquipmentType extends AbstractEntity {
 	 *
 	 * @param int charge_policy_id - the charge policy type for this equipment
 	 *             type. Must be one of the public constants in ChargePolicy
-	 * @throws RangeException if the specified id is not one of the public
-	 *             constants from ChargePolicy
+	 * @throws InvalidArgumentException if the specified id is not one of the
+	 *             public constants from ChargePolicy
 	 * @return EquipmentType - returns this in order to support fluent syntax.
 	 */
 	public function set_charge_policy_id(int $charge_policy_id) : EquipmentType {
@@ -124,7 +125,7 @@ class EquipmentType extends AbstractEntity {
 			return $this;
 		}
 		
-		throw new RangeException("charge_policy_id must be one of the public constants from ChargePolicy");
+		throw new InvalidArgumentException("charge_policy_id must be one of the public constants from ChargePolicy");
 	}
 
 }
