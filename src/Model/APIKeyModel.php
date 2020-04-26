@@ -4,6 +4,7 @@ namespace Portalbox\Model;
 
 use Portalbox\Entity\APIKey;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Query\APIKeyQuery;
 
 use PDO;
 
@@ -23,12 +24,12 @@ class APIKeyModel extends AbstractModel {
 	public function create(APIKey $key) : ?APIKey {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO api_keys (name, token) VALUES (:name, :token)';
-		$query = $connection->prepare($sql);
+		$statement = $connection->prepare($sql);
 
-		$query->bindValue(':name', $key->name());
-		$query->bindValue(':token', $key->token());
+		$statement->bindValue(':name', $key->name());
+		$statement->bindValue(':token', $key->token());
 
-		if($query->execute()) {
+		if($statement->execute()) {
 			return $key->set_id($connection->lastInsertId('api_keys_id_seq'));
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -45,14 +46,11 @@ class APIKeyModel extends AbstractModel {
 	public function read(int $id) : ?APIKey {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, token FROM api_keys WHERE id = :id';
-		$query = $connection->prepare($sql);
-		$query->bindValue(':id', $id, PDO::PARAM_INT);
-		if($query->execute()) {
-			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return (new APIKey())
-					->set_id($data['id'])
-					->set_name($data['name'])
-					->set_token($data['token']);
+		$statement = $connection->prepare($sql);
+		$statement->bindValue(':id', $id, PDO::PARAM_INT);
+		if($statement->execute()) {
+			if($data = $statement->fetch(PDO::FETCH_ASSOC)) {
+				return $this->buildAPIKeyFromArray($data);
 			} else {
 				return null;
 			}
@@ -71,13 +69,13 @@ class APIKeyModel extends AbstractModel {
 	public function update(APIKey $key) : ?APIKey {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE api_keys SET name = :name, token = :token WHERE id = :id';
-		$query = $connection->prepare($sql);
+		$statement = $connection->prepare($sql);
 
-		$query->bindValue(':id', $key->id(), PDO::PARAM_INT);
-		$query->bindValue(':name', $key->name());
-		$query->bindValue(':token', $key->token());
+		$statement->bindValue(':id', $key->id(), PDO::PARAM_INT);
+		$statement->bindValue(':name', $key->name());
+		$statement->bindValue(':token', $key->token());
 
-		if($query->execute()) {
+		if($statement->execute()) {
 			return $key;
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -97,13 +95,58 @@ class APIKeyModel extends AbstractModel {
 		if(NULL !== $key) {
 			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM api_keys WHERE id = :id';
-			$query = $connection->prepare($sql);
-			$query->bindValue(':id', $id, PDO::PARAM_INT);
-			if(!$query->execute()) {
+			$statement = $connection->prepare($sql);
+			$statement->bindValue(':id', $id, PDO::PARAM_INT);
+			if(!$statement->execute()) {
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
 
 		return $key;
+	}
+
+	/**
+	 * Search for an APIKey or APIKeys
+	 * 
+	 * @param APIKeyQuery query - the search query to perform
+	 * @throws DatabaseException - when the database can not be queried
+	 * @return APIKey[]|null - a list of api keys which match the search query
+	 */
+	public function search(APIKeyQuery $query) : ?array {
+		if(NULL === $query->token()) {
+			// no query... bail
+			return NULL;
+		}
+
+		$connection = $this->configuration()->readonly_db_connection();
+		$sql = 'SELECT id, name, token FROM api_keys WHERE token = :token';
+		$statement = $connection->prepare($sql);
+		$statement->bindValue(':token', $query->token());
+		if($statement->execute()) {
+			if($data = $statement->fetchAll(PDO::FETCH_ASSOC)) {
+				return $this->buildAPIKeysFromArrays($data);
+			} else {
+				return null;
+			}
+		} else {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+	}
+
+	private function buildAPIKeyFromArray(array $data) : APIKey {
+		return (new APIKey())
+			->set_id($data['id'])
+			->set_name($data['name'])
+			->set_token($data['token']);
+	}
+
+	private function buildAPIKeysFromArrays(array $data) : array {
+		$keys = array();
+
+		foreach($data as $datum) {
+			$keys[] = $this->buildAPIKeyFromArray($datum);
+		}
+
+		return $keys;
 	}
 }

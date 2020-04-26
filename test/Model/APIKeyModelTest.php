@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Entity\APIKey;
 use Portalbox\Model\APIKeyModel;
+use Portalbox\Query\APIKeyQuery;
 
 final class APIKeyModelTest extends TestCase {
 	/**
@@ -53,6 +54,15 @@ final class APIKeyModelTest extends TestCase {
 		self::assertEquals($key_id, $key_as_modified->id());
 		self::assertEquals($name, $key_as_modified->name());
 		self::assertEquals($token, $key_as_modified->token());
+
+		$query = (new APIKeyQuery)->set_token($token);
+		$keys_as_found = $model->search($query);
+		self::assertNotNull($keys_as_found);
+		self::assertIsIterable($keys_as_found);
+		self::assertCount(1, $keys_as_found);
+		self::assertEquals($key_id, $keys_as_found[0]->id());
+		self::assertEquals($name, $keys_as_found[0]->name());
+		self::assertEquals($token, $keys_as_found[0]->token());
 
 		$key_as_deleted = $model->delete($key_id);
 

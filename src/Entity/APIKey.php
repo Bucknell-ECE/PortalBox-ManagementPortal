@@ -4,7 +4,7 @@ namespace Portalbox\Entity;
 
 /**
  * APIKey represents a token that can be used to authenticate to the REST API
- * without establishing a Session
+ * without establishing a User Session
  * 
  * @package Portalbox\Entity
  */
@@ -19,7 +19,7 @@ class APIKey extends AbstractEntity {
 
 	/**
 	 * The token that can be presented to authenticate to the API in the
-	 * absence of a Session
+	 * absence of a User Session
 	 *
 	 * @var string
 	 */

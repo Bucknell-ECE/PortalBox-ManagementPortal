@@ -8,6 +8,7 @@ use Portalbox\Config;
 use Portalbox\Entity\Role;
 use Portalbox\Entity\User;
 use Portalbox\Model\UserModel;
+use Portalbox\Query\UserQuery;
 
 final class UserModelTest extends TestCase {
 /**
@@ -81,6 +82,17 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($comment, $user_as_modified->comment());
 		self::assertEquals($active, $user_as_modified->is_active());
 		self::assertEquals($role_id, $user_as_modified->role()->id());
+
+		$query = (new UserQuery)->set_email($email);
+		$users_as_found = $model->search($query);
+		self::assertNotNull($users_as_found);
+		self::assertIsIterable($users_as_found);
+		self::assertCount(1, $users_as_found);
+		self::assertEquals($user_id, $users_as_found[0]->id());
+		self::assertEquals($name, $users_as_found[0]->name());
+		self::assertEquals($comment, $users_as_found[0]->comment());
+		self::assertEquals($active, $users_as_found[0]->is_active());
+		self::assertEquals($role_id, $users_as_found[0]->role()->id());
 
 		$user_as_deleted = $model->delete($user_id);
 
