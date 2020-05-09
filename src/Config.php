@@ -3,13 +3,15 @@
 namespace Portalbox;
 
 use PDO;
+use Portalbox\Exception\InvalidConfigurationException;
+use Portalbox\Transform\RESTSerializable;
 
 /**
  * Application Configuration by nature is a weird singleton. There can be
- * only the one configuration and there is a significant penalty to reading
- * the configuration so we'll make the configuration a singleton
+ * only the one configuration and there is a penalty to reading the
+ * configuration so we make the configuration a singleton
  */
-class Config {
+class Config implements RESTSerializable {
 	/** The singelton instance */
 	private static $instance;
 
@@ -20,22 +22,27 @@ class Config {
 	private $connection;
 	
 	/**
-	 *	__construct - reads the specified config file or if one is not specified
-		*		looks for a file named 'config.ini' in the include path. Using the
-		*		settings in the config file it then creates a PDO database instance
-		*
-		*	@param file - the name of the config file to read. defaults to
-		*		'core/config.ini'
-		*
-		*	@sideeffect - if the config file can not be found and read, script
-		*		execution will end abnormally
-		*/
-	public function __construct($file = 'config/config.ini') {
-		$this->settings = parse_ini_file($file, TRUE);
+	 * __construct - reads the specified config file or if one is not specified
+	*     looks for a file named 'config.ini' in the include path. Using the
+	*     settings in the config file it then creates a PDO database instance
+	*
+	* @param file - the name of the config file to read. Defaults to
+	*     '../config/config.ini' ie a fle named 'config.ini' in a directory
+	*     named 'config' in thesame directory as src.
+	*
+	* @sideeffect - if the config file can not be found and read, script
+	*     execution will end abnormally
+	*/
+	public function __construct($file = '../config/config.ini') {
+		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR . $file);
+		$this->settings = parse_ini_file($path, TRUE);
 	}
 	
 	/**
 	 * config - accessor to the configuration singleton
+	 *
+	 * @param file - the name of the config file to read. Defaults to
+	 *     '../config/config.ini'
 	 *
 	 * @return Config - the singleton configuration
 	 */
@@ -101,5 +108,11 @@ class Config {
 	 */
 	public function readonly_db_connection() : PDO {
 		return $this->connection();
+	}
+
+	public function rest_serialize(bool $traverse = false) {
+		if(FALSE != $this->settings && array_key_exists('oauth', $this->settings)) {
+			return $this->settings['oauth'];
+		}
 	}
 }

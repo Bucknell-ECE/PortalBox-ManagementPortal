@@ -2,12 +2,14 @@
 
 namespace Portalbox\Entity;
 
+use Portalbox\Transform\RESTSerializable;
+
 /**
  * Equipment represents a machine connected to a Portalbox.
  * 
  * @package Portalbox\Entity
  */
-class Equipment extends AbstractEntity {
+class Equipment extends AbstractEntity implements RESTSerializable {
 
 	/**
 	 * This user's name
@@ -65,6 +67,13 @@ class Equipment extends AbstractEntity {
 	 * @var bool
 	 */
 	protected $is_in_service;
+
+	/**
+	 * Whether the equipment is in use
+	 *
+	 * @var bool
+	 */
+	protected $is_in_use;
 
 	/**
 	 * The time this equipment has been activated
@@ -248,6 +257,26 @@ class Equipment extends AbstractEntity {
 	}
 
 	/**
+	 * Get whether the equipment is in use
+	 *
+	 * @return bool - whether the equipment is in use
+	 */
+	public function is_in_use() : bool {
+		return $this->is_in_use;
+	}
+
+	/**
+	 * Set whether the equipment is in use
+	 *
+	 * @param bool is_in_use - whether the equipment is in use
+	 * @return Equipment - returns this in order to support fluent syntax.
+	 */
+	public function set_is_in_use(bool $is_in_use) : Equipment {
+		$this->is_in_use = $is_in_use;
+		return $this;
+	}
+
+	/**
 	 * Get the equipment's service minutes
 	 *
 	 * @return int - the equipment's service minutes
@@ -265,5 +294,34 @@ class Equipment extends AbstractEntity {
 	public function set_service_minutes(int $service_minutes) : Equipment {
 		$this->service_minutes = $service_minutes;
 		return $this;
+	}
+
+	public function rest_serialize(bool $traverse = false) {
+		if($traverse) {
+			return [
+				'id' => $this->id(),
+				'name' => $this->name(),
+				'type_id' => $this->type_id(),
+				'type' => $this->type()->name(),
+				'mac_address' => $this->mac_address(),
+				'location_id' => $this->location_id(),
+				'location' => $this->location()->name(),
+				'timeout' => $this->timeout(),
+				'in_service' => $this->is_in_service(),
+				'in_use' => $this->is_in_use(),
+				'service_minutes' => $this->service_minutes()
+			];
+		} else {
+			return [
+				'id' => $this->id(),
+				'name' => $this->name(),
+				'type' => $this->type()->name(),
+				'mac_address' => $this->mac_address(),
+				'location' => $this->location()->name(),
+				'timeout' => $this->timeout(),
+				'in_service' => $this->is_in_service(),
+				'service_minutes' => $this->service_minutes()
+			];
+		}
 	}
 }

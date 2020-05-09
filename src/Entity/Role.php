@@ -4,6 +4,8 @@ namespace Portalbox\Entity;
 
 use InvalidArgumentException;
 
+use Portalbox\Transform\RESTSerializable;
+
 /**
  * Role represents an assignable group of permissions.
  * 
@@ -12,7 +14,7 @@ use InvalidArgumentException;
  * 
  * @package Portalbox\Entity
  */
-class Role extends AbstractEntity {
+class Role extends AbstractEntity implements RESTSerializable {
 
 	/**
 	 * The name of this role
@@ -165,6 +167,25 @@ class Role extends AbstractEntity {
 			return in_array($permission, $this->permissions, TRUE);
 		} else {
 			return FALSE;
+		}
+	}
+
+	public function rest_serialize(bool $traverse = false) {
+		if($traverse) {
+			return [
+				'id' => $this->id(),
+				'name' => $this->name(),
+				'system_role' => $this->is_system_role(),
+				'description' => $this->description(),
+				'permissions' => $this->permissions()
+			];
+		} else {
+			return [
+				'id' => $this->id(),
+				'name' => $this->name(),
+				'system_role' => $this->is_system_role(),
+				'description' => $this->description()
+			];
 		}
 	}
 }

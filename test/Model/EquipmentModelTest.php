@@ -12,6 +12,7 @@ use Portalbox\Entity\Location;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
+use Portalbox\Query\EquipmentQuery;
 
 final class EquipmentModelTest extends TestCase {
 	/**
@@ -69,7 +70,7 @@ final class EquipmentModelTest extends TestCase {
 		$model->delete($this->type->id());
 	}
 
-	public function testModel(): void {
+	public function testCRUD(): void {
 		$model = new EquipmentModel($this->config);
 
 		$name = '1000W Floodlight';
@@ -151,5 +152,49 @@ final class EquipmentModelTest extends TestCase {
 		$equipment_as_not_found = $model->read($equipment_id);
 
 		self::assertNull($equipment_as_not_found);
+	}
+
+	public function testSearch(): void {
+		$model = new EquipmentModel($this->config);
+
+		$name = '1000W Floodlight';
+		$mac_address = '0123456789AB';
+		$timeout = 0;
+		$is_in_service = TRUE;
+		$service_minutes = 500;
+
+		$equipment = (new Equipment())
+			->set_name($name)
+			->set_type($this->type)
+			->set_location($this->location)
+			->set_mac_address($mac_address)
+			->set_timeout($timeout)
+			->set_is_in_service($is_in_service)
+			->set_service_minutes($service_minutes);
+
+		$equipment_id = ($model->create($equipment))->id();
+
+		$query = new EquipmentQuery();	// get all in_service
+		$all_in_service_equipment = $model->search($query);
+
+		self::assertIsArray($all_in_service_equipment);
+		self::assertNotEmpty($all_in_service_equipment);
+		self::assertContainsOnlyInstancesOf(Equipment::class, $all_in_service_equipment);
+
+		$query = (new EquipmentQuery())->set_location($this->location->name());	// get all located in location
+		$all_equipment_in_location = $model->search($query);
+
+		self::assertIsArray($all_equipment_in_location);
+		self::assertNotEmpty($all_equipment_in_location);
+		self::assertContainsOnlyInstancesOf(Equipment::class, $all_equipment_in_location);
+
+		// $query = (new EquipmentQuery())->set_location('Deep Space');	// get all located in space
+		// $all_equipment_in_space = $model->search($query);
+
+		// self::assertIsArray($all_equipment_in_space);
+		// self::assertEmpty($all_equipment_in_space);
+		// self::assertContainsOnlyInstancesOf(Equipment::class, $all_equipment_in_space);
+
+		$equipment_as_deleted = $model->delete($equipment_id);
 	}
 }

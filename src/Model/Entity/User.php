@@ -16,6 +16,13 @@ class User extends AbstractUser {
 	private $configuration;
 
 	/**
+	 * The name of this user's role
+	 *
+	 * @var string
+	 */
+	private $role_name;
+
+	/**
 	 * @param Config configuration - the configuration to use
 	 */
 	public function __construct(Config $configuration) {
@@ -38,6 +45,25 @@ class User extends AbstractUser {
 	 */
 	public function set_configuration(Config $configuration) {
 		$this->configuration = $configuration;
+	}
+
+	/**
+	 * Get the user's role's name
+	 * 
+	 * @return string - the name of the user's role
+	 */
+	public function role_name() : string {
+		return $this->role_name;
+	}
+
+	/**
+	 * Set the user's role's name
+	 * 
+	 * @param string name - the name of the user's role
+	 */
+	public function set_role_name(string $name) : User {
+		$this->role_name = $name;
+		return $this;
 	}
 
 	/**

@@ -68,10 +68,10 @@ var uid = -1;
  * response to HTTP 403 Status
  */
 class SessionTimeOutError extends Error {
-	constructor(message) {
-		super(message);
-		this.name = 'SessionTimeOutError';
-	}
+    constructor(message) {
+        super(message);
+        this.name = 'SessionTimeOutError';
+    }
 }
 
 // UTILITY FUNCTIONS
@@ -79,15 +79,15 @@ class SessionTimeOutError extends Error {
  * handleError takes action based on the error reported.
  * 
  * @param {*} error the error beign reported tyically from the fetch APi but
- *		could also be a {string} message to report to the user  
+ *        could also be a {string} message to report to the user  
  */
 function handleError(error) {
-	if(error instanceof SessionTimeOutError) {
-		moostaka.render("#main", "session_time_out");
-		moostaka.render("#page-menu", "unauthenticated/menu");
-	} else {
-		moostaka.render("#main", "error", {"error": error});
-	}
+    if(error instanceof SessionTimeOutError) {
+        moostaka.render("#main", "session_time_out");
+        moostaka.render("#page-menu", "unauthenticated/menu");
+    } else {
+        moostaka.render("#main", "error", {"error": error});
+    }
 }
 
 /**
@@ -170,8 +170,8 @@ function add_api_key(event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save new API key";
     }).then(_data => {
@@ -195,8 +195,8 @@ function delete_api_key(id) {
             if(response.ok) {
                 moostaka.navigate("/api-keys");
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to save new API key";
         }).catch(handleError);
@@ -222,8 +222,8 @@ function update_api_key(key, event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save API key";
     }).then(_data => {
@@ -251,8 +251,8 @@ function add_card(event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save new card";
     }).then(_data => {
@@ -273,8 +273,8 @@ function list_cards(params, auth_level) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to list cards";
     }).then(cards => {
@@ -301,8 +301,8 @@ function update_card(card, event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save card";
     }).then(_data => {
@@ -330,8 +330,8 @@ function update_charge(charge, event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save charge";
     }).then(_data => {
@@ -359,8 +359,8 @@ function add_equipment(event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save new equipment";
     }).then(_data => {
@@ -388,8 +388,8 @@ function update_equipment(equipment, event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save equipment";
     }).then(_data => {
@@ -417,8 +417,8 @@ function add_equipment_type(event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save new equipment type";
     }).then(_data => {
@@ -446,8 +446,8 @@ function update_equipment_type(type, event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save equipment type";
     }).then(_data => {
@@ -475,8 +475,8 @@ function add_location(event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save new location";
     }).then(_data => {
@@ -504,8 +504,8 @@ function update_location(location, event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save location";
     }).then(_data => {
@@ -536,8 +536,8 @@ function list_log(search) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to retrieve specified log segment";
     });
@@ -545,8 +545,8 @@ function list_log(search) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to list equipment";
     });
@@ -554,8 +554,8 @@ function list_log(search) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to list locations";
     });
@@ -589,8 +589,8 @@ function save_log(search) {
         if(response.ok) {
             return response.text();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to create report from log";
     }).then(data => {
@@ -642,8 +642,8 @@ function add_payment(event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save new payment";
     }).then(data => {
@@ -657,13 +657,13 @@ function add_payment(event) {
  * in moostaka.render() for the view
  */
 function confirm_payment(event) {
-	event.preventDefault();
-	let payment = get_form_data(event.target);
+    event.preventDefault();
+    let payment = get_form_data(event.target);
 
-	moostaka.render("#main", "admin/users/confirm_payment", {"payment": payment}, {}, () => {
-		let form = document.getElementById("confirm-payment-form");
-		form.addEventListener("submit", (e) => { add_payment(e); });
-	});
+    moostaka.render("#main", "admin/users/confirm_payment", {"payment": payment}, {}, () => {
+        let form = document.getElementById("confirm-payment-form");
+        form.addEventListener("submit", (e) => { add_payment(e); });
+    });
 }
 
 /**
@@ -685,8 +685,8 @@ function add_user(event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save new user";
     }).then(_data => {
@@ -707,8 +707,8 @@ function list_users(params, auth_level) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to list users";
     }).then(users => {
@@ -770,8 +770,8 @@ function update_user(user, event) {
         if(response.ok) {
             return response.json();
         } else if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
+            throw new SessionTimeOutError();
+        }
 
         throw "API was unable to save user";
     }).then(_data => {
@@ -797,8 +797,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list api keys";
         }).then(keys => {
@@ -816,8 +816,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find api key: " + params.id;
         }).then(key => {
@@ -834,8 +834,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         });
@@ -843,8 +843,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list users";
         });
@@ -875,7 +875,7 @@ function init_routes_for_authenticated_admin() {
                     let user_selector_label = document.getElementById("user_id_label");
                     let user_selector = document.getElementById("user_id");
                     switch(event.target.value) {
-                        case "1":	// intentional fallthrough
+                        case "1":    // intentional fallthrough
                         case "2":
                             // hide and disable the equipment type and user selectors
                             equipment_type_selector_label.style.display = "none";
@@ -922,8 +922,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find card: " + params.id;
         });
@@ -931,8 +931,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         });
@@ -940,8 +940,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list users";
         });
@@ -983,7 +983,7 @@ function init_routes_for_authenticated_admin() {
                     let user_selector_label = document.getElementById("user_id_label");
                     let user_selector = document.getElementById("user_id");
                     switch(event.target.value) {
-                        case "1":	// intentional fallthrough
+                        case "1":    // intentional fallthrough
                         case "2":
                             // hide and disable the equipment type and user selectors
                             equipment_type_selector_label.style.display = "none";
@@ -1047,8 +1047,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list charges";
         });
@@ -1056,8 +1056,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment";
         });
@@ -1065,8 +1065,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list users";
         });
@@ -1080,8 +1080,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find charge: " + params.id;
         }).then(charge => {
@@ -1113,8 +1113,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment";
         }).then(equipment => {
@@ -1126,8 +1126,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         });
@@ -1135,8 +1135,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list locations";
         });
@@ -1153,8 +1153,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find equipment: " + params.id;
         });
@@ -1162,8 +1162,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         });
@@ -1171,15 +1171,15 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list locations";
         });
 
         Promise.all([p0, p1, p2]).then(values => {
-			let equipment = values[0];
-			equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
+            let equipment = values[0];
+            equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
             moostaka.render("#main", "admin/equipment/view", {"equipment": equipment, "types": values[1], "locations": values[2]}, {}, () => {
                 document.getElementById("type_id").value = values[0].type_id;
                 document.getElementById("location_id").value = values[0].location_id;
@@ -1193,8 +1193,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         }).then(types => {
@@ -1213,8 +1213,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find equipment type: " + params.id;
         }).then(type => {
@@ -1230,8 +1230,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list locations";
         }).then(locations => {
@@ -1249,8 +1249,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find location: " + params.id;
         });
@@ -1258,8 +1258,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment";
         });
@@ -1280,8 +1280,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list payments";
         }).then(payments => {
@@ -1294,8 +1294,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list users";
         }).then(users => {
@@ -1307,83 +1307,83 @@ function init_routes_for_authenticated_admin() {
             });
         });
     });
-*/	
-	moostaka.route("/profile", params => {
-		let p0 = fetch("/api/users.php?id=" + uid, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+*/    
+    moostaka.route("/profile", params => {
+        let p0 = fetch("/api/users.php?id=" + uid, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+                throw new SessionTimeOutError();
+            }
 
-			throw "API was unable to find user: " + uid;
-		});
-		let p1 = fetch("/api/charges.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+            throw "API was unable to find user: " + uid;
+        });
+        let p1 = fetch("/api/charges.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+                throw new SessionTimeOutError();
+            }
 
-			throw "API was unable to list your charges";
-		});
-		let p2 = fetch("/api/payments.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+            throw "API was unable to list your charges";
+        });
+        let p2 = fetch("/api/payments.php?user_id=" + uid, {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+                throw new SessionTimeOutError();
+            }
 
-			throw "API was unable to list your payments";
-		});
-		let p3 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+            throw "API was unable to list your payments";
+        });
+        let p3 = fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
+            if(response.ok) {
+                return response.json();
+            } else if(403 == response.status) {
+                throw new SessionTimeOutError();
+            }
 
-			throw "API was unable to list equipment types";
-		});
+            throw "API was unable to list equipment types";
+        });
 
-		Promise.all([p0, p1, p2, p3]).then(values => {
-			let user = values[0];
-			let ledger = values[1].concat(values[2]).map(e => {
-				e.ts = new Date(e.time);
-				return e;
-			}).sort((a,b) => {
-				return a.ts - b.ts;
-			});
+        Promise.all([p0, p1, p2, p3]).then(values => {
+            let user = values[0];
+            let ledger = values[1].concat(values[2]).map(e => {
+                e.ts = new Date(e.time);
+                return e;
+            }).sort((a,b) => {
+                return a.ts - b.ts;
+            });
 
-			let total_charges = values[1].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
-			let total_payments = values[2].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
-			let balance = Number(Math.round((total_payments - total_charges)+'e2')+'e-2');
+            let total_charges = values[1].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+            let total_payments = values[2].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+            let balance = Number(Math.round((total_payments - total_charges)+'e2')+'e-2');
 
-			moostaka.render("#main", "user/profile", {
-				"balance": balance,
-				"equipment_types": values[3],
-				"ledger": ledger,
-				"management_portal_access_levels": management_portal_access_levels,
-				"user": user
-			}, {}, () => {
-				document.getElementById("management_portal_access_level_id").value = user.management_portal_access_level_id;
-				for(let i = 0, l = user.authorizations.length; i < l; i++) {
-					let a = user.authorizations[i];
-					document.getElementById("authorizations." + a.equipment_type_id).checked = true;
-				}
-				let form = document.getElementById("edit-user-form");
-				form.addEventListener("submit", (e) => { update_user(user, e); });
-			});
-		}).catch(handleError);
-	});
+            moostaka.render("#main", "user/profile", {
+                "balance": balance,
+                "equipment_types": values[3],
+                "ledger": ledger,
+                "management_portal_access_levels": management_portal_access_levels,
+                "user": user
+            }, {}, () => {
+                document.getElementById("management_portal_access_level_id").value = user.management_portal_access_level_id;
+                for(let i = 0, l = user.authorizations.length; i < l; i++) {
+                    let a = user.authorizations[i];
+                    document.getElementById("authorizations." + a.equipment_type_id).checked = true;
+                }
+                let form = document.getElementById("edit-user-form");
+                form.addEventListener("submit", (e) => { update_user(user, e); });
+            });
+        }).catch(handleError);
+    });
     moostaka.route("/users", params => { list_users(params, "admin"); });
     moostaka.route("/users/add", params => {
         fetch("/api/equipment-types.php", {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         }).then(equipment_types => {
@@ -1398,8 +1398,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find user: " + params.id;
         });
@@ -1407,8 +1407,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list user's charges";
         });
@@ -1416,8 +1416,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list user's payments";
         });
@@ -1425,8 +1425,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         });
@@ -1466,8 +1466,8 @@ function init_routes_for_authenticated_admin() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find user: " + params.id;
         }).then(user => {
@@ -1499,8 +1499,8 @@ function init_routes_for_authenticated_trainer() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list users";
         }).then(users => {
@@ -1515,8 +1515,8 @@ function init_routes_for_authenticated_trainer() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find card: " + params.id;
         }).then(card => {
@@ -1529,21 +1529,21 @@ function init_routes_for_authenticated_trainer() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment";
         }).then(equipment => {
             moostaka.render("#main", "trainer/equipment/list", {"equipment": equipment});
         }).catch(handleError);
     });
-	moostaka.route("/profile", params => {
+    moostaka.route("/profile", params => {
         let p0 = fetch("/api/users.php?id=" + uid, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find user: " + uid;
         });
@@ -1551,8 +1551,8 @@ function init_routes_for_authenticated_trainer() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list your charges";
         });
@@ -1560,8 +1560,8 @@ function init_routes_for_authenticated_trainer() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list your payments";
         });
@@ -1569,8 +1569,8 @@ function init_routes_for_authenticated_trainer() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         });
@@ -1604,15 +1604,15 @@ function init_routes_for_authenticated_trainer() {
                 form.addEventListener("submit", (e) => { update_user(user, e); });
             });
         }).catch(handleError);
-	});
-	moostaka.route("/users", params => { list_users(params, "trainer"); });
+    });
+    moostaka.route("/users", params => { list_users(params, "trainer"); });
     moostaka.route("/users/:id", params => {
         let p0 = fetch("/api/users.php?id=" + params.id, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find user: " + params.id;
         });
@@ -1620,8 +1620,8 @@ function init_routes_for_authenticated_trainer() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         });
@@ -1637,7 +1637,7 @@ function init_routes_for_authenticated_trainer() {
                 form.addEventListener("submit", (e) => { update_user(user, e); });
             });
         }).catch(handleError);
-	});
+    });
 }
 
 /**
@@ -1651,8 +1651,8 @@ function init_routes_for_authenticated_user() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment";
         }).then(equipment => {
@@ -1662,13 +1662,13 @@ function init_routes_for_authenticated_user() {
     moostaka.route("/logout", _params => {
         hello("google").logout();
     });
-	moostaka.route("/profile", params => {
+    moostaka.route("/profile", params => {
         let p0 = fetch("/api/users.php?id=" + uid, {"credentials": "same-origin"}).then(response => {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to find user: " + uid;
         });
@@ -1676,8 +1676,8 @@ function init_routes_for_authenticated_user() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list your charges";
         });
@@ -1685,8 +1685,8 @@ function init_routes_for_authenticated_user() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list your payments";
         });
@@ -1694,8 +1694,8 @@ function init_routes_for_authenticated_user() {
             if(response.ok) {
                 return response.json();
             } else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+                throw new SessionTimeOutError();
+            }
 
             throw "API was unable to list equipment types";
         });
@@ -1729,7 +1729,7 @@ function init_routes_for_authenticated_user() {
                 form.addEventListener("submit", (e) => { update_user(user, e); });
             });
         }).catch(handleError);
-	});
+    });
 }
 
 /**
@@ -1740,7 +1740,7 @@ function init_routes_for_unauthenticated_user() {
         fetch("/api/equipment.php").then(response => {
             if(response.ok) {
                 return response.json();
-			}
+            }
 
             throw "API was unable to list equipment";
         }).then(equipment => {
@@ -1757,12 +1757,12 @@ hello.on("auth.login", auth => {
             if(response.ok) {
                 return response.json();
             } else {
-				response.text().then(text => {
-					throw response.statusText + ": " + text;
-				});
+                response.text().then(text => {
+                    throw response.statusText + ": " + text;
+                });
             }
         }).then(user => {
-			uid = user.id;
+            uid = user.id;
             switch(user.management_portal_access_level_id) {
                 case "3": // admin
                     moostaka.flush();
@@ -1779,8 +1779,8 @@ hello.on("auth.login", auth => {
                     hello(auth.network).api("me").then(params => {
                         moostaka.render("#page-menu", "trainer/menu", params);
                     });
-					break;
-				case "1": // user
+                    break;
+                case "1": // user
                     moostaka.flush();
                     init_routes_for_authenticated_user();
                     moostaka.navigate(location.pathname); // need to explicitly update content
@@ -1799,8 +1799,8 @@ hello.on("auth.login", auth => {
 });
 hello.on("auth.logout", () => {
     // drop priveleges and transition to unauthenticated session
-	// delete api session cookie
-	uid = -1;
+    // delete api session cookie
+    uid = -1;
     document.getElementById("page-menu").innerHTML = "";
     moostaka.flush();
     init_routes_for_unauthenticated_user();

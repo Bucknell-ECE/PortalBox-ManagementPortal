@@ -1,12 +1,12 @@
 # keep config files out
 /config/config.ini
-/public/config/config.ini
 /public/styles/palette.css
 
 # third party libraries... we manage these with yarn
 /public/js
 
+# third party libraries used only for testing... we manage these with composer
+/vendor/
+
 # site specific extensions should not be tracked
 /public/lib/extensions
-
-/vendor/

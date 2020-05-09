@@ -49,7 +49,7 @@ class UserModel extends AbstractModel {
 	 */
 	public function read(int $id) : ?User {
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT id, name, email, comment, is_active, role_id FROM users WHERE id = :id';
+		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id WHERE u.id = :id';
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':id', $id, PDO::PARAM_INT);
 		if($statement->execute()) {
@@ -113,6 +113,7 @@ class UserModel extends AbstractModel {
 			$statement = $connection->prepare($sql);
 			$statement->bindValue(':id', $id, PDO::PARAM_INT);
 			if(!$statement->execute()) {
+				print_r($connection->errorCode());
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
@@ -134,7 +135,7 @@ class UserModel extends AbstractModel {
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT id, name, email, comment, is_active, role_id FROM users WHERE email = :email';
+		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id WHERE u.email = :email';
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':email', $query->email());
 		if($statement->execute()) {
@@ -155,7 +156,8 @@ class UserModel extends AbstractModel {
 					->set_email($data['email'])
 					->set_comment($data['comment'])
 					->set_is_active($data['is_active'])
-					->set_role_id($data['role_id']);
+					->set_role_id($data['role_id'])
+					->set_role_name($data['role']);
 	}
 
 	private function buildUsersFromArrays(array $data) : array {

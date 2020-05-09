@@ -13,7 +13,7 @@ final class EquipmentTest extends TestCase {
 	public function testAgreement(): void {
 		$type_id = 7;
 		$type_name = 'Vinyl Cutter';
-		$requires_training = TRUE;
+		$requires_training = true;
 		$charge_policy_id = ChargePolicy::NO_CHARGE;
 
 		$type = (new EquipmentType())
@@ -34,7 +34,8 @@ final class EquipmentTest extends TestCase {
 		$name = 'Roland Cutmaster 1000';
 		$mac_address = '0123456789AB';
 		$timeout = 0;
-		$is_in_service = TRUE;
+		$is_in_service = true;
+		$is_in_use = false;
 		$service_minutes = 500;
 
 		$equipment = (new Equipment())
@@ -45,6 +46,7 @@ final class EquipmentTest extends TestCase {
 			->set_mac_address($mac_address)
 			->set_timeout($timeout)
 			->set_is_in_service($is_in_service)
+			->set_is_in_use($is_in_use)
 			->set_service_minutes($service_minutes);
 
 		self::assertEquals($id, $equipment->id());
@@ -56,6 +58,7 @@ final class EquipmentTest extends TestCase {
 		self::assertEquals($mac_address, $equipment->mac_address());
 		self::assertEquals($timeout, $equipment->timeout());
 		self::assertEquals($is_in_service, $equipment->is_in_service());
+		self::assertEquals($is_in_use, $equipment->is_in_use());
 		self::assertEquals($service_minutes, $equipment->service_minutes());
 	}
 }

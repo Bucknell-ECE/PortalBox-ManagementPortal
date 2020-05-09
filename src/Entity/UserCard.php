@@ -55,12 +55,12 @@ class UserCard extends AbstractEntity implements Card {
 	}
 
 	/**
-	 * Set the type of equipment this card can activate for training
+	 * Set the user to whom this card was issued
 	 *
-	 * @param User|null type - user to whom this card was issued
+	 * @param User|null user - user to whom this card was issued
 	 * @return UserCard - returns this in order to support fluent syntax.
 	 */
-	public function set_type(?User $user) : UserCard {
+	public function set_user(?User $user) : UserCard {
 		$this->user = $user;
 		if(NULL === $user) {
 			$this->user_id = -1;
