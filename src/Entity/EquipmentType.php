@@ -100,7 +100,7 @@ class EquipmentType extends AbstractEntity {
 	 * @return EquipmentType - returns this in order to support fluent syntax.
 	 */
 	public function set_charge_rate(?string $charge_rate) : EquipmentType {
-		if(NULL === $charge_rate || 0 < strlen($name)) {
+		if(NULL === $charge_rate || 0 < strlen($charge_rate)) {
 			$this->charge_rate = $charge_rate;
 			return $this;
 		}

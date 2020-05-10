@@ -2,6 +2,8 @@
 
 namespace Portalbox;
 
+use InvalidArgumentException;
+
 use Portalbox\Transform\NullOutputTransformer;
 use Portalbox\Transform\OutputTransformer;
 
@@ -32,7 +34,9 @@ class ResponseHandler {
 			$transformer = new NullOutputTransformer();
 		}
 
-		if(is_array($data)) {
+		if(NULL === $data) {
+			throw new InvalidArgumentException('Unable to transform NULL value into response data');
+		} else if(is_array($data)) {
 			self::render_list_response($transformer, $data);
 		} else {
 			self::render_entity_response($transformer, $data);

@@ -83,6 +83,13 @@ class Equipment extends AbstractEntity {
 	protected $service_minutes;
 
 	/**
+	 * __construct - create a new defaulted instance
+	 */
+	public function __construct() {
+		$this->set_service_minutes(0);
+	}
+
+	/**
 	 * Get the name of this equipment
 	 *
 	 * @return string - the name of the equipment
@@ -139,17 +146,12 @@ class Equipment extends AbstractEntity {
 	/**
 	 * Set the equipment's type
 	 *
-	 * @param EquipmentType|null type - the type for the equipment
+	 * @param EquipmentType type - the type for the equipment
 	 * @return Equipment - returns this in order to support fluent syntax.
 	 */
-	public function set_type(?EquipmentType $type) : Equipment {
+	public function set_type(EquipmentType $type) : Equipment {
 		$this->type = $type;
-		if(NULL === $type) {
-			$this->type_id = -1;
-		} else {
-			$this->type_id = $type->id();
-		}
-
+		$this->type_id = $type->id();
 		return $this;
 	}
 
@@ -210,17 +212,12 @@ class Equipment extends AbstractEntity {
 	/**
 	 * Set the equipment's location
 	 *
-	 * @param Location|null location - the location for the equipment
+	 * @param Location location - the location for the equipment
 	 * @return Equipment - returns this in order to support fluent syntax.
 	 */
-	public function set_location(?Location $location) : Equipment {
+	public function set_location(Location $location) : Equipment {
 		$this->location = $location;
-		if(NULL === $location) {
-			$this->location_id = -1;
-		} else {
-			$this->location_id = $location->id();
-		}
-
+		$this->location_id = $location->id();
 		return $this;
 	}
 

@@ -22,16 +22,16 @@ class Config {
 	
 	/**
 	 * __construct - reads the specified config file or if one is not specified
-	*     looks for a file named 'config.ini' in the include path. Using the
-	*     settings in the config file it then creates a PDO database instance
-	*
-	* @param file - the name of the config file to read. Defaults to
-	*     '../config/config.ini' ie a fle named 'config.ini' in a directory
-	*     named 'config' in thesame directory as src.
-	*
-	* @sideeffect - if the config file can not be found and read, script
-	*     execution will end abnormally
-	*/
+	 *     looks for a file named 'config.ini' in the include path. Using the
+	 *     settings in the config file it then creates a PDO database instance
+	 *
+	 * @param file - the name of the config file to read. Defaults to
+	 *     '../config/config.ini' ie a fle named 'config.ini' in a directory
+	 *     named 'config' in thesame directory as src.
+	 *
+	 * @sideeffect - if the config file can not be found and read, script
+	 *     execution will end abnormally
+	 */
 	public function __construct($file = '../config/config.ini') {
 		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR . $file);
 		$this->settings = parse_ini_file($path, TRUE);

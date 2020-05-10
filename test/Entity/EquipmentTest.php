@@ -32,7 +32,7 @@ final class EquipmentTest extends TestCase {
 
 		$id = 42;
 		$name = 'Roland Cutmaster 1000';
-		$mac_address = '0123456789AB';
+		$mac_address = '0123456789ab';
 		$timeout = 0;
 		$is_in_service = true;
 		$is_in_use = false;

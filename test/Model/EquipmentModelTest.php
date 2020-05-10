@@ -74,7 +74,7 @@ final class EquipmentModelTest extends TestCase {
 		$model = new EquipmentModel($this->config);
 
 		$name = '1000W Floodlight';
-		$mac_address = '0123456789AB';
+		$mac_address = '0123456789ab';
 		$timeout = 0;
 		$is_in_service = TRUE;
 		$service_minutes = 500;
@@ -113,7 +113,7 @@ final class EquipmentModelTest extends TestCase {
 		self::assertEquals($service_minutes, $equipment_as_found->service_minutes());
 
 		$name = '2000W Floodlight';
-		$mac_address = 'CDEF456789AB';
+		$mac_address = 'cdef456789ab';
 		$timeout = 120;
 		$is_in_service = FALSE;
 		$service_minutes = 700;

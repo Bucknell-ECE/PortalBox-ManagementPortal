@@ -37,7 +37,9 @@ class EquipmentModel extends AbstractModel {
 		$query->bindValue(':service_minutes', $equipment->service_minutes(), PDO::PARAM_INT);
 
 		if($query->execute()) {
-			return $equipment->set_id($connection->lastInsertId('equipment_id_seq'));
+			return $equipment
+					->set_id($connection->lastInsertId('equipment_id_seq'))
+					->set_is_in_use(false);
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
@@ -98,6 +100,22 @@ class EquipmentModel extends AbstractModel {
 				->set_is_in_service($equipment->is_in_service())
 				->set_service_minutes($equipment->service_minutes());
 			
+			// fill in readonly fields...
+			$sql = 'SELECT iu.equipment_id IS NOT NULL AS in_use, e.service_minutes FROM equipment AS e LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
+			$query = $connection->prepare($sql);
+			$query->bindValue(':id', $equipment->id(), PDO::PARAM_INT);
+			if($query->execute()) {
+				if($data = $query->fetch(PDO::FETCH_ASSOC)) {
+					$equipment
+						->set_is_in_use($data['in_use'])
+						->set_service_minutes($data['service_minutes']);
+				} else {
+					return null;
+				}
+			} else {
+				throw new DatabaseException($connection->errorInfo()[2]);
+			}
+
 			return $equipment;
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -173,23 +191,10 @@ class EquipmentModel extends AbstractModel {
 		if(NULL !== $query->type()) {
 			$statement->bindValue(':type', $query->type());
 		}
-		// if($query->execute()) {
-		// 	$equipment = $query->fetchAll(\PDO::FETCH_ASSOC);
-		// 	foreach($equipment as &$e) {
-		// 		if($e['in_use']) {
-		// 			$e['in_use'] = true;
-		// 		} else {
-		// 			$e['in_use'] = false;
-		// 		}
-		// 		if(is_user_authenticated()) {
-		// 			...
-
-		// 			$e['service_minutes'] = intval($e['service_minutes']);
-		// 		}
-		// 	}
 
 		if($statement->execute()) {
-			if($data = $statement->fetchAll(PDO::FETCH_ASSOC)) {
+			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(FALSE !== $data) {
 				return $this->buildEquipmentFromArrays($data);
 			} else {
 				return null;

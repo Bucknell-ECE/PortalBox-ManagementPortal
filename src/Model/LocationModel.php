@@ -103,7 +103,7 @@ class LocationModel extends AbstractModel {
 	}
 
 	/**
-	 * Search for Locations
+	 * Search for locations
 	 * 
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location[]|null - a list of locations
@@ -115,7 +115,8 @@ class LocationModel extends AbstractModel {
 		$sql = 'SELECT id, name FROM locations';
 		$statement = $connection->prepare($sql);
 		if($statement->execute()) {
-			if($data = $statement->fetchAll(PDO::FETCH_ASSOC)) {
+			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(FALSE !== $data) {
 				return $this->buildLocationsFromArrays($data);
 			} else {
 				return null;

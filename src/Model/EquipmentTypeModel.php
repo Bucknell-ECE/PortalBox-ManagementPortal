@@ -109,7 +109,7 @@ class EquipmentTypeModel extends AbstractModel {
 	}
 
 	/**
-	 * Search for Locations
+	 * Search for equipment types
 	 * 
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location[]|null - a list of locations
@@ -120,7 +120,8 @@ class EquipmentTypeModel extends AbstractModel {
 		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate FROM equipment_types';
 		$statement = $connection->prepare($sql);
 		if($statement->execute()) {
-			if($data = $statement->fetchAll(PDO::FETCH_ASSOC)) {
+			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(FALSE !== $data) {
 				return $this->buildEquipmentTypesFromArrays($data);
 			} else {
 				return null;

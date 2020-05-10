@@ -123,7 +123,8 @@ class APIKeyModel extends AbstractModel {
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':token', $query->token());
 		if($statement->execute()) {
-			if($data = $statement->fetchAll(PDO::FETCH_ASSOC)) {
+			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(FALSE !== $data) {
 				return $this->buildAPIKeysFromArrays($data);
 			} else {
 				return null;

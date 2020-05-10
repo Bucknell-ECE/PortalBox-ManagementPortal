@@ -139,7 +139,8 @@ class UserModel extends AbstractModel {
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':email', $query->email());
 		if($statement->execute()) {
-			if($data = $statement->fetchAll(PDO::FETCH_ASSOC)) {
+			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(FALSE !== $data) {
 				return $this->buildUsersFromArrays($data);
 			} else {
 				return null;
