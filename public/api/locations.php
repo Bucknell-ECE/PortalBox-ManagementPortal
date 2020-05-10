@@ -18,7 +18,7 @@ use Portalbox\Transform\LocationTransformer;
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-			// check authentication
+			// check authorization
 			Session::require_authorization(Permission::READ_LOCATION);
 
 			try {
@@ -36,9 +36,12 @@ switch($_SERVER['REQUEST_METHOD']) {
 				die('We experienced issues communicating with the database');
 			}
 		} else { // List
+			// check authorization
+			Session::require_authorization(Permission::LIST_LOCATIONS);
+
 			try {
 				$model = new LocationModel(Config::config());
-				$locations = $model->search($query);
+				$locations = $model->search();
 				$transformer = new LocationTransformer();
 				ResponseHandler::render($locations, $transformer);
 			} catch(Exception $e) {
@@ -53,6 +56,9 @@ switch($_SERVER['REQUEST_METHOD']) {
 			header('HTTP/1.0 400 Bad Request');
 			die('You must specify the location to modify via the id param');
 		}
+
+		// check authorization
+		Session::require_authorization(Permission::MODIFY_LOCATION);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -73,6 +79,9 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		break;
 	case 'PUT':		// Create
+		// check authorization
+		Session::require_authorization(Permission::CREATE_LOCATION);
+
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
 			try {

@@ -51,12 +51,7 @@ class EquipmentTypeModel extends AbstractModel {
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return (new EquipmentType())
-					->set_id($data['id'])
-					->set_name($data['name'])
-					->set_requires_training($data['requires_training'])
-					->set_charge_rate($data['charge_rate'])
-					->set_charge_policy_id($data['charge_policy_id']);
+				return $this->buildEquipmentTypeFromArray($data);
 			} else {
 				return null;
 			}
@@ -111,5 +106,46 @@ class EquipmentTypeModel extends AbstractModel {
 		}
 
 		return $type;
+	}
+
+	/**
+	 * Search for Locations
+	 * 
+	 * @throws DatabaseException - when the database can not be queried
+	 * @return Location[]|null - a list of locations
+	 */
+	public function search() : ?array {
+
+		$connection = $this->configuration()->readonly_db_connection();
+		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate FROM equipment_types';
+		$statement = $connection->prepare($sql);
+		if($statement->execute()) {
+			if($data = $statement->fetchAll(PDO::FETCH_ASSOC)) {
+				return $this->buildEquipmentTypesFromArrays($data);
+			} else {
+				return null;
+			}
+		} else {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+	}
+
+	private function buildEquipmentTypeFromArray(array $data) : EquipmentType {
+		return (new EquipmentType())
+					->set_id($data['id'])
+					->set_name($data['name'])
+					->set_requires_training($data['requires_training'])
+					->set_charge_rate($data['charge_rate'])
+					->set_charge_policy_id($data['charge_policy_id']);
+	}
+
+	private function buildEquipmentTypesFromArrays(array $data) : array {
+		$locations = array();
+
+		foreach($data as $datum) {
+			$locations[] = $this->buildEquipmentTypeFromArray($datum);
+		}
+
+		return $locations;
 	}
 }

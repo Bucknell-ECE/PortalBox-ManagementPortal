@@ -2,20 +2,24 @@
 
 namespace Portalbox\Transform;
 
-use Portalbox\Entity\Location;
+use Portalbox\Entity\EquipmentType;
 
 /**
- * LocationTransformer is our bridge between dictionary resprsentations and
- * Locaton entity instances.
+ * EquipmentTypeTransformer is our bridge between dictionary resprsentations
+ * and EquipmentType entity instances.
  * 
  * @package Portalbox\Transform
  */
-class LocationTransformer implements InputTransformer, OutputTransformer {
+class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 	/**
 	 * TBD
 	 */
-	public function deserialize(array $data) : Location {
-		return (new Location())->set_name($data['name']);
+	public function deserialize(array $data) : EquipmentType {
+		return (new EquipmentType())
+			->set_name($data['name'])
+			->set_requires_training($data['requires_training'])
+			->set_charge_rate($data['charge_rate'])
+			->set_charge_policy_id($data['charge_policy_id']);
 	}
 
 	/**
@@ -32,12 +36,19 @@ class LocationTransformer implements InputTransformer, OutputTransformer {
 		if($traverse) {
 			return [
 				'id' => $data->id(),
-				'name' => $data->name()
+				'name' => $data->name(),
+				'requires_training' => $data->requires_training(),
+				'charge_rate' => $data->charge_rate(),
+				'charge_policy_id' => $data->charge_policy_id(),
+				'charge_policy' => $data->charge_policy()
 			];
 		} else {
 			return [
 				'id' => $data->id(),
-				'name' => $data->name()
+				'name' => $data->name(),
+				'requires_training' => $data->requires_training(),
+				'charge_rate' => $data->charge_rate(),
+				'charge_policy' => $data->charge_policy()
 			];
 		}
 	}
@@ -50,6 +61,6 @@ class LocationTransformer implements InputTransformer, OutputTransformer {
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {
-		return ['id', 'Name'];
+		return ['id', 'Name', 'Requires Training', 'Charge Rate', 'Charge Policy'];
 	}
 }

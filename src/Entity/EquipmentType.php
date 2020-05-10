@@ -56,8 +56,12 @@ class EquipmentType extends AbstractEntity {
 	 * @return EquipmentType - returns this in order to support fluent syntax.
 	 */
 	public function set_name(string $name) : EquipmentType {
-		$this->name = $name;
-		return $this;
+		if(0 < strlen($name)) {
+			$this->name = $name;
+			return $this;
+		}
+
+		throw new InvalidArgumentException('You must specify the equipment type\'s name');
 	}
 
 	/**
@@ -96,8 +100,12 @@ class EquipmentType extends AbstractEntity {
 	 * @return EquipmentType - returns this in order to support fluent syntax.
 	 */
 	public function set_charge_rate(?string $charge_rate) : EquipmentType {
-		$this->charge_rate = $charge_rate;
-		return $this;
+		if(NULL === $charge_rate || 0 < strlen($name)) {
+			$this->charge_rate = $charge_rate;
+			return $this;
+		}
+
+		throw new InvalidArgumentException('Charge rate must be a decimal number');
 	}
 
 	/**
@@ -108,6 +116,15 @@ class EquipmentType extends AbstractEntity {
 	 */
 	public function charge_policy_id() : int {
 		return $this->charge_policy_id;
+	}
+
+	/**
+	 * Get the charge policy for this equipment type
+	 *
+	 * @return string - name for the charge policy
+	 */
+	public function charge_policy() : string {
+		return ChargePolicy::name_for_policy($this->charge_policy_id);
 	}
 
 	/**
