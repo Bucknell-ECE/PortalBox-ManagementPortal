@@ -48,9 +48,7 @@ class LocationModel extends AbstractModel {
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return (new Location())
-					->set_id($data['id'])
-					->set_name($data['name']);
+				return $this->buildLocationFromArray($data);
 			} else {
 				return null;
 			}
@@ -102,5 +100,44 @@ class LocationModel extends AbstractModel {
 		}
 
 		return $location;
+	}
+
+	/**
+	 * Search for Locations
+	 * 
+	 * @throws DatabaseException - when the database can not be queried
+	 * @return Location[]|null - a list of locations
+	 */
+	public function search() : ?array {
+
+		$connection = $this->configuration()->readonly_db_connection();
+
+		$sql = 'SELECT id, name FROM locations';
+		$statement = $connection->prepare($sql);
+		if($statement->execute()) {
+			if($data = $statement->fetchAll(PDO::FETCH_ASSOC)) {
+				return $this->buildLocationsFromArrays($data);
+			} else {
+				return null;
+			}
+		} else {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+	}
+
+	private function buildLocationFromArray(array $data) : Location {
+		return (new Location())
+					->set_id($data['id'])
+					->set_name($data['name']);
+	}
+
+	private function buildLocationsFromArrays(array $data) : array {
+		$locations = array();
+
+		foreach($data as $datum) {
+			$locations[] = $this->buildLocationFromArray($datum);
+		}
+
+		return $locations;
 	}
 }

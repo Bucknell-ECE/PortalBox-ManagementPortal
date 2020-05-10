@@ -6,12 +6,15 @@
 require '../../src/autoload.php';
 
 use Portalbox\Config;
-use Portalbox\Transform\OutputTransformer;
+use Portalbox\ResponseHandler;
+
+use Portalbox\Transform\ConfigOutputTransformer;
 
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':
 		try {
-			OutputTransformer::render_response(Config::config());
+			$transformer = new ConfigOutputTransformer();
+			ResponseHandler::render(Config::config(), $transformer);
 		} catch(Exception $e) {
 			http_response_code(500);
 			die('Unable to read settings from config file.');

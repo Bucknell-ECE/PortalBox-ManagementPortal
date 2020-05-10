@@ -15,6 +15,7 @@ use PDO;
  * @package Portalbox\Model
  */
 class EquipmentModel extends AbstractModel {
+
 	/**
 	 * Save a newly created Equipment to the database
 	 *
@@ -127,7 +128,7 @@ class EquipmentModel extends AbstractModel {
 	}
 
 	/**
-	 * Search for a User or Users
+	 * Search for Equipment
 	 * 
 	 * @param EquipmentQuery query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried

@@ -14,9 +14,13 @@
 require '../../src/autoload.php';
 
 use Portalbox\Config;
+use Portalbox\ResponseHandler;
+
 use Portalbox\Model\UserModel;
+
 use Portalbox\Query\UserQuery;
-use Portalbox\Transform\OutputTransformer;
+
+use Portalbox\Transform\UserTransformer;
 
 // Step 1 check for AUTHORIZATION header
 if(!array_key_exists('HTTP_AUTHORIZATION', $_SERVER)) {
@@ -50,14 +54,16 @@ if(array_key_exists('error_description', $response)) {
 			$success = session_start();
 			if($success) {
 				$_SESSION['user_id'] = $users[0]->id();
-				OutputTransformer::render_response($users[0]);
+				$transformer = new UserTransformer();
+				ResponseHandler::render($users[0], $transformer);
 			} else {
 				session_abort(); 
 				http_response_code(500);
 				die('We were unable to start your session. Please ask your server administrator to investigate');
 			}
 		} else {
-			OutputTransformer::render_response($users[0]);
+			$transformer = new UserTransformer();
+			ResponseHandler::render($users[0], $transformer);
 		}
 	} else {
 		http_response_code(403);

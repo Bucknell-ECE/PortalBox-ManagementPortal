@@ -4,14 +4,13 @@ namespace Portalbox;
 
 use PDO;
 use Portalbox\Exception\InvalidConfigurationException;
-use Portalbox\Transform\RESTSerializable;
 
 /**
  * Application Configuration by nature is a weird singleton. There can be
  * only the one configuration and there is a penalty to reading the
  * configuration so we make the configuration a singleton
  */
-class Config implements RESTSerializable {
+class Config {
 	/** The singelton instance */
 	private static $instance;
 
@@ -110,9 +109,15 @@ class Config implements RESTSerializable {
 		return $this->connection();
 	}
 
-	public function rest_serialize(bool $traverse = false) {
+	/**
+	 * Get the settings for the web ui
+	 *
+	 */
+	public function web_ui_settings() : array {
 		if(FALSE != $this->settings && array_key_exists('oauth', $this->settings)) {
 			return $this->settings['oauth'];
 		}
+
+		// should toss exception?
 	}
 }

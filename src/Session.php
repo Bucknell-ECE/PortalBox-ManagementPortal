@@ -85,8 +85,8 @@ class Session {
 	}
 
 	/**
-	 * A convenience method that returns an HTTP 403 response if there is not
-	 * an authenticated user.
+	 * A convenience method that returns an HTTP 403 response if the user is
+	 * not authorized.
 	 */
 	public static function require_authorization(int $permission) {
 		self::require_authentication();

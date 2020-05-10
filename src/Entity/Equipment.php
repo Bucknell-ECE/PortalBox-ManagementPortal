@@ -2,14 +2,14 @@
 
 namespace Portalbox\Entity;
 
-use Portalbox\Transform\RESTSerializable;
+use InvalidArgumentException;
 
 /**
  * Equipment represents a machine connected to a Portalbox.
  * 
  * @package Portalbox\Entity
  */
-class Equipment extends AbstractEntity implements RESTSerializable {
+class Equipment extends AbstractEntity {
 
 	/**
 	 * This user's name
@@ -98,8 +98,12 @@ class Equipment extends AbstractEntity implements RESTSerializable {
 	 * @return Equipment - returns this in order to support fluent syntax.
 	 */
 	public function set_name(string $name) : Equipment {
-		$this->name = $name;
-		return $this;
+		if(0 < strlen($name)) {
+			$this->name = $name;
+			return $this;
+		}
+
+		throw new InvalidArgumentException('You must specify the equipment\'s name');
 	}
 
 	/**
@@ -165,8 +169,12 @@ class Equipment extends AbstractEntity implements RESTSerializable {
 	 * @return Equipment - returns this in order to support fluent syntax.
 	 */
 	public function set_mac_address(string $mac_address) : Equipment {
-		$this->mac_address = $mac_address;
-		return $this;
+		if(preg_match('/^([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})$/', $mac_address)) {
+			$this->mac_address = strtolower(str_replace(array('-', ':'), '', $mac_address));
+			return $this;
+		}
+
+		throw new InvalidArgumentException('The specified MAC Address must be valid');
 	}
 
 	/**
@@ -296,32 +304,4 @@ class Equipment extends AbstractEntity implements RESTSerializable {
 		return $this;
 	}
 
-	public function rest_serialize(bool $traverse = false) {
-		if($traverse) {
-			return [
-				'id' => $this->id(),
-				'name' => $this->name(),
-				'type_id' => $this->type_id(),
-				'type' => $this->type()->name(),
-				'mac_address' => $this->mac_address(),
-				'location_id' => $this->location_id(),
-				'location' => $this->location()->name(),
-				'timeout' => $this->timeout(),
-				'in_service' => $this->is_in_service(),
-				'in_use' => $this->is_in_use(),
-				'service_minutes' => $this->service_minutes()
-			];
-		} else {
-			return [
-				'id' => $this->id(),
-				'name' => $this->name(),
-				'type' => $this->type()->name(),
-				'mac_address' => $this->mac_address(),
-				'location' => $this->location()->name(),
-				'timeout' => $this->timeout(),
-				'in_service' => $this->is_in_service(),
-				'service_minutes' => $this->service_minutes()
-			];
-		}
-	}
 }

@@ -2,8 +2,6 @@
 
 namespace Portalbox\Entity;
 
-use Portalbox\Transform\RESTSerializable;
-
 /**
  * User represents a User in the system.
  * 
@@ -12,7 +10,7 @@ use Portalbox\Transform\RESTSerializable;
  * 
  * @package Portalbox\Entity
  */
-class User extends AbstractEntity implements RESTSerializable {
+class User extends AbstractEntity {
 
 	/**
 	 * This user's name
@@ -227,27 +225,5 @@ class User extends AbstractEntity implements RESTSerializable {
 	public function set_authorizations(array $authorizations) : User {
 		$this->authorizations = $authorizations;
 		return $this;
-	}
-
-	public function rest_serialize(bool $traverse = false) {
-		if($traverse) {
-			return [
-				'id' => $this->id(),
-				'name' => $this->name(),
-				'email' => $this->email(),
-				'comment' => $this->comment(),
-				'role' => $this->role()->rest_serialize($traverse),
-				'is_active' => $this->is_active()
-			];
-		} else {
-			return [
-				'id' => $this->id(),
-				'name' => $this->name(),
-				'email' => $this->email(),
-				'comment' => $this->comment(),
-				'role' => $this->role_name(),
-				'is_active' => $this->is_active()
-			];
-		}
 	}
 }

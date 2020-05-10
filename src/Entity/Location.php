@@ -2,6 +2,8 @@
 
 namespace Portalbox\Entity;
 
+use InvalidArgumentException;
+
 /**
  * Location represents a somewhere Equipment is located.
  * 
@@ -36,8 +38,12 @@ class Location extends AbstractEntity {
 	 * @return Location - returns this in order to support fluent syntax.
 	 */
 	public function set_name(string $name) : Location {
-		$this->name = $name;
-		return $this;
+		if(0 < strlen($name)) {
+			$this->name = $name;
+			return $this;
+		}
+
+		throw new InvalidArgumentException('You must specify the location\'s name');
 	}
 
 }

@@ -60,7 +60,7 @@ class Equipment extends AbstractEquipment {
 	 *
 	 * @return Location|null - the equipment's location
 	 */
-	public function Location() : ?Location {
+	public function location() : ?Location {
 		if(NULL === $this->location) {
 			$this->location = (new LocationModel($this->configuration()))->read($this->location_id());
 		}
