@@ -68,14 +68,28 @@ class APIKeyModel extends AbstractModel {
 	 */
 	public function update(APIKey $key) : ?APIKey {
 		$connection = $this->configuration()->writable_db_connection();
-		$sql = 'UPDATE api_keys SET name = :name, token = :token WHERE id = :id';
+		$sql = 'UPDATE api_keys SET name = :name WHERE id = :id';
 		$statement = $connection->prepare($sql);
 
 		$statement->bindValue(':id', $key->id(), PDO::PARAM_INT);
 		$statement->bindValue(':name', $key->name());
-		$statement->bindValue(':token', $key->token());
+		// this is weird... we don't update the token because it is immutable
 
 		if($statement->execute()) {
+			// fill in readonly fields...
+			$sql = 'SELECT token FROM api_keys WHERE id = :id';
+			$query = $connection->prepare($sql);
+			$query->bindValue(':id', $key->id(), PDO::PARAM_INT);
+			if($query->execute()) {
+				if($data = $query->fetch(PDO::FETCH_ASSOC)) {
+					$key->set_token($data['token']);
+				} else {
+					return null;
+				}
+			} else {
+				throw new DatabaseException($connection->errorInfo()[2]);
+			}
+
 			return $key;
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -113,20 +127,35 @@ class APIKeyModel extends AbstractModel {
 	 * @return APIKey[]|null - a list of api keys which match the search query
 	 */
 	public function search(APIKeyQuery $query) : ?array {
-		if(NULL === $query->token()) {
+		if(NULL === $query) {
 			// no query... bail
 			return NULL;
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT id, name, token FROM api_keys WHERE token = :token';
+		$sql = 'SELECT id, name, token FROM api_keys';
+
+		$where_clause_fragments = array();
+		if(NULL !== $query->token()) {
+			$where_clause_fragments[] = 'token = :token';
+		}
+		if(0 < count($where_clause_fragments)) {
+			$sql .= ' WHERE ';
+			$sql .= join(' AND ', $where_clause_fragments);
+		}
+
 		$statement = $connection->prepare($sql);
-		$statement->bindValue(':token', $query->token());
+		if(NULL !== $query->token()) {
+			$statement->bindValue(':token', $query->token());
+		}
+		
 		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
 			if(FALSE !== $data) {
 				return $this->buildAPIKeysFromArrays($data);
 			} else {
+				print_r($statement);
+				print_r($connection->errorInfo());
 				return null;
 			}
 		} else {

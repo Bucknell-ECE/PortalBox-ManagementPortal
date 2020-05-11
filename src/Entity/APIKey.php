@@ -2,6 +2,8 @@
 
 namespace Portalbox\Entity;
 
+use InvalidArgumentException;
+
 /**
  * APIKey represents a token that can be used to authenticate to the REST API
  * without establishing a User Session
@@ -41,8 +43,12 @@ class APIKey extends AbstractEntity {
 	 * @return APIKey - returns this in order to support fluent syntax.
 	 */
 	public function set_name(string $name) : APIKey {
-		$this->name = $name;
-		return $this;
+		if(0 < strlen($name)) {
+			$this->name = $name;
+			return $this;
+		}
+
+		throw new InvalidArgumentException('You must specify the API key\'s name');
 	}
 
 	/**
@@ -53,6 +59,9 @@ class APIKey extends AbstractEntity {
 	 *           the API in the absence of a Session
 	 */
 	public function token() : string {
+		if(NULL === $this->token) {
+			$this->token = $this->create_token();
+		}
 		return $this->token;
 	}
 
@@ -69,4 +78,12 @@ class APIKey extends AbstractEntity {
 		return $this;
 	}
 
+	private function create_token() {
+		// If libsodium is available use it :)
+		if(true === function_exists('random_bytes')) {
+			return bin2hex(random_bytes(16));
+		} else {
+			return sprintf('%04X%04X%04X%04X%04X%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
+		}
+	}
 }

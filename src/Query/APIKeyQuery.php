@@ -18,9 +18,9 @@ class APIKeyQuery {
 	/**
 	 * Get the token for which to search
 	 *
-	 * @return string - the token for which to search
+	 * @return string|null - the token for which to search
 	 */
-	public function token() : string {
+	public function token() : ?string {
 		return $this->token;
 	}
 

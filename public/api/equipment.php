@@ -42,7 +42,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 
 			try {
 				$model = new EquipmentModel(Config::config());
-				$query = (new EquipmentQuery());
+				$query = new EquipmentQuery();
 				if(isset($_GET['location_id']) && !empty($_GET['location_id'])) {
 					$query->set_location_id($_GET['location_id']);
 				} else if(isset($_GET['location']) && !empty($_GET['location'])) {

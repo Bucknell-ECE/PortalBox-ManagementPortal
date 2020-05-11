@@ -2,24 +2,25 @@
 
 namespace Portalbox\Transform;
 
-use Portalbox\Entity\Location;
+use Portalbox\Entity\APIKey;
 
 /**
- * LocationTransformer is our bridge between dictionary resprsentations and
- * Location entity instances.
+ * APIKeyTransformer is our bridge between dictionary resprsentations and
+ * APIKey entity instances.
  * 
  * @package Portalbox\Transform
  */
-class LocationTransformer implements InputTransformer, OutputTransformer {
+class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	/**
 	 * TBD
 	 */
-	public function deserialize(array $data) : Location {
-		return (new Location())->set_name($data['name']);
+	public function deserialize(array $data) : APIKey {
+		return (new APIKey())
+			->set_name($data['name']);
 	}
 
 	/**
-	 * Called to serialize a Location entity instance to a dictionary
+	 * Called to serialize a APIKey entity instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise 
 	 *      may substitute flattened representations where appropriate.
@@ -32,12 +33,14 @@ class LocationTransformer implements InputTransformer, OutputTransformer {
 		if($traverse) {
 			return [
 				'id' => $data->id(),
-				'name' => $data->name()
+				'name' => $data->name(),
+				'token' => $data->token()
 			];
 		} else {
 			return [
 				'id' => $data->id(),
-				'name' => $data->name()
+				'name' => $data->name(),
+				'token' => $data->token()
 			];
 		}
 	}
@@ -50,6 +53,6 @@ class LocationTransformer implements InputTransformer, OutputTransformer {
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {
-		return ['id', 'Name'];
+		return ['id', 'Name', 'Token'];
 	}
 }
