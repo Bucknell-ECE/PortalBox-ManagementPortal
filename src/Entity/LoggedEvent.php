@@ -3,11 +3,11 @@
 namespace Portalbox\Entity;
 
 /**
- * LogEvent represents one Event in the event log
+ * LoggedEvent represents one Event in the event log
  * 
  * @package Portalbox\Entity
  */
-class LogEvent extends AbstractEntity {
+class LoggedEvent extends AbstractEntity {
 
 	/**
 	 * The time this event occured
