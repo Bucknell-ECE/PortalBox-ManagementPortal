@@ -3,11 +3,11 @@
 namespace Portalbox\Query;
 
 /**
- * LogEventQuery presents a standard interface for LogEvent search queries
+ * LoggedEventQuery presents a standard interface for LoggedEvent search queries
  * 
  * @package Portalbox\Query
  */
-class LogEventQuery {
+class LoggedEventQuery {
 	/**
 	 * Find log events on or before this date
 	 *
@@ -41,17 +41,17 @@ class LogEventQuery {
 	 *
 	 * @return string - the on or before date
 	 */
-	public function on_or_before() : string {
-		return $this->on_or_after;
+	public function on_or_before() : ?string {
+		return $this->on_or_before;
 	}
 
 	/**
 	 * Set the on or before date
 	 *
 	 * @param string on_or_before - the on or before date
-	 * @return LogEventQuery - returns this in order to support fluent syntax.
+	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
 	 */
-	public function set_on_or_before(string $on_or_before) : LogEventQuery {
+	public function set_on_or_before(string $on_or_before) : LoggedEventQuery {
 		$this->on_or_before = $on_or_before;
 		return $this;
 	}
@@ -61,7 +61,7 @@ class LogEventQuery {
 	 *
 	 * @return string - the on or after date
 	 */
-	public function on_or_after() : string {
+	public function on_or_after() : ?string {
 		return $this->on_or_after;
 	}
 
@@ -69,9 +69,9 @@ class LogEventQuery {
 	 * Set the on or after date
 	 *
 	 * @param string on_or_after - the on or after date
-	 * @return LogEventQuery - returns this in order to support fluent syntax.
+	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
 	 */
-	public function set_on_or_after(string $on_or_after) : LogEventQuery {
+	public function set_on_or_after(string $on_or_after) : LoggedEventQuery {
 		$this->on_or_after = $on_or_after;
 		return $this;
 	}
@@ -81,7 +81,7 @@ class LogEventQuery {
 	 *
 	 * @return int - the equipment id
 	 */
-	public function equipment_id() : int {
+	public function equipment_id() : ?int {
 		return $this->equipment_id;
 	}
 
@@ -89,9 +89,9 @@ class LogEventQuery {
 	 * Set the equipment id
 	 *
 	 * @param int equipment_id - the equipment id
-	 * @return LogEventQuery - returns this in order to support fluent syntax.
+	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
 	 */
-	public function set_equipment_id(int $equipment_id) : LogEventQuery {
+	public function set_equipment_id(int $equipment_id) : LoggedEventQuery {
 		$this->equipment_id = $equipment_id;
 		return $this;
 	}
@@ -101,7 +101,7 @@ class LogEventQuery {
 	 *
 	 * @return int - the location id
 	 */
-	public function location_id() : int {
+	public function location_id() : ?int {
 		return $this->location_id;
 	}
 
@@ -109,9 +109,9 @@ class LogEventQuery {
 	 * Set the location id
 	 *
 	 * @param int location_id - the location id
-	 * @return LogEventQuery - returns this in order to support fluent syntax.
+	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
 	 */
-	public function set_location_id(int $location_id) : LogEventQuery {
+	public function set_location_id(int $location_id) : LoggedEventQuery {
 		$this->location_id = $location_id;
 		return $this;
 	}
