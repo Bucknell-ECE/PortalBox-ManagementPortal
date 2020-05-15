@@ -21,7 +21,7 @@ class LoggedEvent extends AbstractEntity {
 	 *
 	 * @var int
 	 */
-	protected $type;
+	protected $type_id;
 	
 	/**
 	 * The id of the card which triggered this event
@@ -59,7 +59,7 @@ class LoggedEvent extends AbstractEntity {
 	protected $equipment_id;
 
 	/**
-	 * The equipment which reported this event
+	 * The name of the equipment which reported this event
 	 * 
 	 * @var Equipment|null
 	 */
@@ -90,19 +90,28 @@ class LoggedEvent extends AbstractEntity {
 	 *
 	 * @return int - the type of this event
 	 */
-	public function type() : int {
-		return $this->type;
+	public function type_id() : int {
+		return $this->type_id;
 	}
 
 	/**
-	 * Set the type of this event
+	 * Set the type_id of this event
 	 *
-	 * @param int type - the type of this event
+	 * @param int type_id - the type_id of this event
 	 * @return LoggedEvent - returns this in order to support fluent syntax.
 	 */
-	public function set_type(int $type) : LoggedEvent {
-		$this->type = $type;
+	public function set_type_id(int $type_id) : LoggedEvent {
+		$this->type_id = $type_id;
 		return $this;
+	}
+
+	/**
+	 * Get the event type for this event
+	 *
+	 * @return string - name for the event type
+	 */
+	public function type() : string {
+		return LoggedEventType::name_for_type($this->type_id);
 	}
 
 	/**
@@ -126,16 +135,17 @@ class LoggedEvent extends AbstractEntity {
 		return $this;
 	}
 
+	// a convenience method... see Model\Entity\LoggedEventModel ;)
 	/**
 	 * Get the name of the equipment which reported this event
 	 * 
-	 * @return string - the name of the user's equipment
+	 * @return string - the name of the equipment
 	 */
 	public function equipment_name() : string {
-		if(NULL === $equipment) {
+		if(NULL === $this->equipment) {
 			return '';
 		} else {
-			return $equipment->name();
+			return $this->equipment->name();
 		}
 	}
 
@@ -233,6 +243,20 @@ class LoggedEvent extends AbstractEntity {
 		return $this;
 	}
 
+	// a convenience method... see Model\Entity\LoggedEventModel ;)
+	/**
+	 * Get the name of the user whose action triggered this event
+	 * 
+	 * @return string - the name of the user
+	 */
+	public function user_name() : ?string {
+		if(NULL === $this->user) {
+			return '';
+		} else {
+			return $this->user->name();
+		}
+	}
+
 	/**
 	 * Get the user whose card which triggered this event
 	 *
@@ -257,5 +281,20 @@ class LoggedEvent extends AbstractEntity {
 		}
 
 		return $this;
+	}
+
+	// a convenience method... see Model\Entity\LoggedEventModel ;)
+	/**
+	 * Get the name of the location where the equipment which triggerd this
+	 * event is located
+	 * 
+	 * @return string - the name of the location
+	 */
+	public function location_name() : ?string {
+		if(NULL === $this->equipment) {
+			return '';
+		} else {
+			return $this->equipment->location()->name();
+		}
 	}
 }

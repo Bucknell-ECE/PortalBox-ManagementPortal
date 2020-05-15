@@ -154,8 +154,6 @@ class APIKeyModel extends AbstractModel {
 			if(FALSE !== $data) {
 				return $this->buildAPIKeysFromArrays($data);
 			} else {
-				print_r($statement);
-				print_r($connection->errorInfo());
 				return null;
 			}
 		} else {

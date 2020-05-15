@@ -5,7 +5,7 @@ namespace Portalbox\Transform;
 use Portalbox\Entity\User;
 
 /**
- * UserTransformer is our bridge between dictionary resprsentations and User
+ * UserTransformer is our bridge between dictionary representations and User
  * entity instances.
  * 
  * @package Portalbox\Transform

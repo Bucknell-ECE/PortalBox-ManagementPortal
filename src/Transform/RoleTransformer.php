@@ -5,7 +5,7 @@ namespace Portalbox\Transform;
 use Portalbox\Entity\Role;
 
 /**
- * RoleTransformer is our bridge between dictionary resprsentations and Role
+ * RoleTransformer is our bridge between dictionary representations and Role
  * entity instances.
  * 
  * @package Portalbox\Transform

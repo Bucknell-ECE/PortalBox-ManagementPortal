@@ -11,7 +11,7 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 
 /**
- * EquipmentTransformer is our bridge between dictionary resprsentations and
+ * EquipmentTransformer is our bridge between dictionary representations and
  * Equipment entity instances.
  * 
  * @package Portalbox\Transform

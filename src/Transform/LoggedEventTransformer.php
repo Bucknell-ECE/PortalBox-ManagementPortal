@@ -2,24 +2,20 @@
 
 namespace Portalbox\Transform;
 
-use Portalbox\Entity\Location;
+use Portalbox\Config;
+
+use Portalbox\Entity\LoggedEvent;
 
 /**
- * LocationTransformer is our bridge between dictionary representations and
- * Location entity instances.
+ * LoggedEventTransformer is our bridge between dictionary representations and
+ * LoggedEvent entity instances.
  * 
  * @package Portalbox\Transform
  */
-class LocationTransformer implements InputTransformer, OutputTransformer {
-	/**
-	 * TBD
-	 */
-	public function deserialize(array $data) : Location {
-		return (new Location())->set_name($data['name']);
-	}
+class LoggedEventTransformer implements OutputTransformer {
 
 	/**
-	 * Called to serialize a Location entity instance to a dictionary
+	 * Called to serialize LoggedEvent entity instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise 
 	 *      may substitute flattened representations where appropriate.
@@ -30,14 +26,25 @@ class LocationTransformer implements InputTransformer, OutputTransformer {
 	 */
 	public function serialize($data, bool $traverse = false) : array {
 		if($traverse) {
+			$equipment_transformer = new EquipmentTransformer();
+			$user_transformer = new UserTransformer();
 			return [
 				'id' => $data->id(),
-				'name' => $data->name()
+				'time' => $data->time(),
+				'type_id' => $data->type_id(),
+				'card_id' => $data->card_id(),
+				'user' => $user_transformer->serialize($data->user(), false),
+				'equipment' => $equipment_transformer->serialize($data->equipment(), true)
 			];
 		} else {
 			return [
 				'id' => $data->id(),
-				'name' => $data->name()
+				'time' => $data->time(),
+				'type' =>$data->type(),
+				'card' => $data->card_id(),
+				'user' => $data->user_name(),
+				'equipment' => $data->equipment_name(),
+				'location' => $data->location_name()
 			];
 		}
 	}
@@ -50,6 +57,6 @@ class LocationTransformer implements InputTransformer, OutputTransformer {
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {
-		return ['id', 'Name'];
+		return ['id', 'Time', 'Type', 'Card', 'User', 'Equipment', 'Location'];
 	}
 }

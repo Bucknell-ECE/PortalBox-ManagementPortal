@@ -5,7 +5,7 @@ namespace Portalbox\Transform;
 use Portalbox\Entity\EquipmentType;
 
 /**
- * EquipmentTypeTransformer is our bridge between dictionary resprsentations
+ * EquipmentTypeTransformer is our bridge between dictionary representations
  * and EquipmentType entity instances.
  * 
  * @package Portalbox\Transform

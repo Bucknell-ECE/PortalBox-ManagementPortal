@@ -5,7 +5,7 @@ namespace Portalbox\Transform;
 use Portalbox\Entity\APIKey;
 
 /**
- * APIKeyTransformer is our bridge between dictionary resprsentations and
+ * APIKeyTransformer is our bridge between dictionary representations and
  * APIKey entity instances.
  * 
  * @package Portalbox\Transform

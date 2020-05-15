@@ -37,6 +37,13 @@ class LoggedEventQuery {
 	protected $location_id;
 
 	/**
+	 * Find log events of a given type
+	 *
+	 * @var int
+	 */
+	protected $type_id;
+
+	/**
 	 * Get the on or before date
 	 *
 	 * @return string - the on or before date
@@ -113,6 +120,26 @@ class LoggedEventQuery {
 	 */
 	public function set_location_id(int $location_id) : LoggedEventQuery {
 		$this->location_id = $location_id;
+		return $this;
+	}
+
+	/**
+	 * Get the type id
+	 *
+	 * @return int - the type id
+	 */
+	public function type_id() : ?int {
+		return $this->type_id;
+	}
+
+	/**
+	 * Set the type id
+	 *
+	 * @param int type_id - the type id
+	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
+	 */
+	public function set_type_id(int $type_id) : LoggedEventQuery {
+		$this->type_id = $type_id;
 		return $this;
 	}
 }
