@@ -85,13 +85,28 @@ class Session {
 	}
 
 	/**
+	 * A convenience method that returns true iff the user is authenticated and
+	 * has the specified permission. An HTTP 403 response will be sent and
+	 * script execution terminated if the user is not authenticated.
+	 * 
+	 * @param int permission the Permission for which to check. Must be one of
+	 *     the constants exposed in Portalbox\Entity\Permission to result in
+	 *     true being returned
+	 * @return bool true iff the User is authenticated and has the specified
+	 *     permission
+	 */
+	public static function check_authorization(int $permission) : bool {
+		self::require_authentication();
+
+		return self::get_authenticated_user()->role()->has_permission($permission);
+	}
+
+	/**
 	 * A convenience method that returns an HTTP 403 response if the user is
 	 * not authorized.
 	 */
 	public static function require_authorization(int $permission) {
-		self::require_authentication();
-
-		if(!self::get_authenticated_user()->role()->has_permission($permission)) {
+		if(!self::check_authorization($permission)) {
 			http_response_code(403);
 			die('You have not been granted access to this information.');
 		}

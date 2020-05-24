@@ -78,11 +78,7 @@ class RoleModel extends AbstractModel {
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				$role = (new Role())
-					->set_id($data['id'])
-					->set_name($data['name'])
-					->set_is_system_role($data['is_system_role'])
-					->set_description($data['description']);
+				$role = $this->buildRoleFromArray($data);
 				
 				$sql = 'SELECT permission_id FROM roles_x_permissions WHERE role_id = :role_id';
 				$query = $connection->prepare($sql);
@@ -196,5 +192,45 @@ class RoleModel extends AbstractModel {
 		}
 
 		return $role;
+	}
+
+	/**
+	 * Search for Roles
+	 * 
+	 * @throws DatabaseException - when the database can not be queried
+	 * @return Role[]|null - a list of role which match the search query
+	 */
+	public function search() : ?array {
+		$connection = $this->configuration()->readonly_db_connection();
+		$sql = 'SELECT id, name, is_system_role, description FROM roles';
+		$statement = $connection->prepare($sql);
+		if($statement->execute()) {
+			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(FALSE !== $data) {
+				return $this->buildRolesFromArrays($data);
+			} else {
+				return null;
+			}
+		} else {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+	}
+
+	private function buildRoleFromArray(array $data) : Role {
+		return (new Role())
+					->set_id($data['id'])
+					->set_name($data['name'])
+					->set_is_system_role($data['is_system_role'])
+					->set_description($data['description']);
+	}
+
+	private function buildRolesFromArrays(array $data) : array {
+		$roles = array();
+
+		foreach($data as $datum) {
+			$roles[] = $this->buildRoleFromArray($datum);
+		}
+
+		return $roles;
 	}
 }

@@ -1,0 +1,32 @@
+<article style="align-items:flex-start">
+	<h1>Manage</h1>
+	<div class="row">
+		{{#features.cards}}<div class="icon-button">
+			<a href="/cards"><i class="material-icons">nfc</i>Cards</a>
+		</div>{{/features.cards}}
+		{{#features.equipment}}<div class="icon-button">
+			<a href="/equipment"><i class="material-icons">dock</i>Equipment</a>
+		</div>{{/features.equipment}}
+		{{#features.equipment_types}}<div class="icon-button">
+			<a href="/equipment-types"><i class="material-icons">devices_other</i>Equipment<br>Types</a>
+		</div>{{/features.equipment_types}}
+		{{#features.locations}}<div class="icon-button">
+			<a href="/locations"><i class="material-icons">place</i>Locations</a>
+		</div>{{/features.locations}}
+		{{#features.users}}<div class="icon-button">
+			<a href="/users"><i class="material-icons">group</i>Users</a>
+		</div>{{/features.users}}
+	</div>
+	<h1>Reports</h1>
+	<div class="row">
+		{{#features.logs}}<div class="icon-button">
+			<a href="/logs"><i class="material-icons">format_list_numbered</i>Access Log</a>
+		</div>{{/features.logs}}
+	</div>
+	<h1>System</h1>
+	<div class="row">
+		{{#features.api_keys}}<div class="icon-button">
+			<a href="/api-keys"><i class="material-icons">vpn_key</i>API Keys</a>
+		</div>{{/features.api_keys}}
+	</div>
+</article>

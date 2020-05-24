@@ -68,7 +68,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		// validate that we have an oid
 		if(!isset($_GET['id']) || empty($_GET['id'])) {
 			header('HTTP/1.0 400 Bad Request');
-			die('You must specify the location to modify via the id param');
+			die('You must specify the equipment to modify via the id param');
 		}
 
 		// check authorization

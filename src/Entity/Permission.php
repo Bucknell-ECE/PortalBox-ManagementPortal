@@ -148,7 +148,7 @@ class Permission {
 	const LIST_CHARGES = 505;
 
 	/** Users with this permission can list their own charges */
-	const LIST_OWN_CHANGES = 506;
+	const LIST_OWN_CHARGES = 506;
 
 	// CONFIG for now does not have permissions
 

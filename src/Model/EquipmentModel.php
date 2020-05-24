@@ -163,13 +163,17 @@ class EquipmentModel extends AbstractModel {
 		$sql = 'SELECT e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
 
 		$where_clause_fragments = array();
+		$parameters = array();
 		if(NULL !== $query->location_id()) {
 			$where_clause_fragments[] = 'l.id = :location';
+			$parameters[':location'] = $query->location_id();
 		} else if(NULL !== $query->location()) {
 			$where_clause_fragments[] = 'l.name = :location';
+			$parameters[':location'] = $query->location();
 		}
 		if(NULL !== $query->type()) {
 			$where_clause_fragments[] = 't.name = :type';
+			$parameters[':type'] = $query->type();
 		}
 		if($query->include_out_of_service()) {
 			// do nothing i.e. do not filter for in service only
@@ -183,13 +187,9 @@ class EquipmentModel extends AbstractModel {
 		$sql .= ' ORDER BY l.name';
 
 		$statement = $connection->prepare($sql);
-		if(NULL !== $query->location_id()) {
-			$statement->bindValue(':location', $query->location_id());
-		} else if(NULL !== $query->location()) {
-			$statement->bindValue(':location', $query->location());
-		}
-		if(NULL !== $query->type()) {
-			$statement->bindValue(':type', $query->type());
+		// run search
+		foreach($parameters as $k => $v) {
+			$query->bindValue($k, $v);
 		}
 
 		if($statement->execute()) {

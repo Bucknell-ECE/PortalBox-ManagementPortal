@@ -18,11 +18,25 @@ class Charge extends AbstractEntity {
 	protected $user_id;
 
 	/**
+	 * The the user who was charged
+	 *
+	 * @var User
+	 */
+	protected $user;
+
+	/**
 	 * The id of the equipment the user used
 	 *
 	 * @var int
 	 */
 	protected $equipment_id;
+
+	/**
+	 * The the equipment the user used
+	 *
+	 * @var Equipment
+	 */
+	protected $equipment;
 
 	/**
 	 * The time of this charge
@@ -81,6 +95,36 @@ class Charge extends AbstractEntity {
 	}
 
 	/**
+	 * Get the charged user's name
+	 *
+	 * @return string - the charged user's name
+	 */
+	public function user_name() : string {
+		return $this->user->name();
+	}
+
+	/**
+	 * Get the charged user
+	 *
+	 * @return User|null - the charged user
+	 */
+	public function user() : ?User {
+		return $this->user;
+	}
+
+	/**
+	 * Set the charged user
+	 *
+	 * @param User user - the charged user
+	 * @return Charge - returns this in order to support fluent syntax.
+	 */
+	public function set_user(User $user) : Charge {
+		$this->user = $user;
+		$this->user_id = $user->id();
+		return $this;
+	}
+
+	/**
 	 * Get the id of the equipment the user used to incur the Charge
 	 *
 	 * @return int - the id of the equipment the user used to incur the Charge
@@ -97,6 +141,36 @@ class Charge extends AbstractEntity {
 	 */
 	public function set_equipment_id(int $equipment_id) : Charge {
 		$this->equipment_id = $equipment_id;
+		return $this;
+	}
+
+	/**
+	 * Get the name of the equipment the user used to incur the Charge
+	 *
+	 * @return string - the name of the equipment the user used to incur the Charge
+	 */
+	public function equipment_name() : string {
+		return $this->equipmemnt->name();
+	}
+
+	/**
+	 * Get the equipment the user used to incur the Charge
+	 *
+	 * @return Equipment|null - the equipment the user used to incur the Charge
+	 */
+	public function equipment() : ?Equipment {
+		return $this->equipment;
+	}
+
+	/**
+	 * Set the equipment the user used to incur the Charge
+	 *
+	 * @param Equipment equipment - the equipment the user used to incur the Charge
+	 * @return Charge - returns this in order to support fluent syntax.
+	 */
+	public function set_equipment(Equipment $equipment) : Charge {
+		$this->equipment = $equipment;
+		$this->equipment_id = $equipment->id();
 		return $this;
 	}
 
@@ -138,6 +212,15 @@ class Charge extends AbstractEntity {
 	public function set_amount(string $amount) : Charge {
 		$this->amount = $amount;
 		return $this;
+	}
+
+	/**
+	 * Get the policy for this charge
+	 *
+	 * @return string - name for the charge policy
+	 */
+	public function charge_policy() : string {
+		return ChargePolicy::name_for_policy($this->charge_policy_id);
 	}
 
 	/**

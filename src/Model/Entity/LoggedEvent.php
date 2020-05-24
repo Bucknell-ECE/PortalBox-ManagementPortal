@@ -6,9 +6,6 @@ use Portalbox\Config;
 
 use Portalbox\Entity\CardType;
 use Portalbox\Entity\LoggedEvent as AbstractLoggedEvent;
-use Portalbox\Entity\User;
-
-use Portalbox\Model\UserModel;
 
 class LoggedEvent extends AbstractLoggedEvent {
 	/**
