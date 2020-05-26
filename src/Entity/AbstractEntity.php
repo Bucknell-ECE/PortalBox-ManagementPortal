@@ -21,9 +21,9 @@ class AbstractEntity {
 	/**
 	 * Get the id of this entity
 	 *
-	 * @return int - the id of the entity
+	 * @return int|null - the id of the entity
 	 */
-	public function id() : int {
+	public function id() : ?int {
 		return $this->id;
 	}
 

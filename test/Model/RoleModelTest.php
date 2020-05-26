@@ -52,6 +52,11 @@ final class RoleModelTest extends TestCase {
 		self::assertEquals($description, $role_as_found->description());
 		self::assertTrue($role->has_permission(Permission::CREATE_API_KEY));
 
+		$roles_as_found = $model->search();
+		self::assertIsArray($roles_as_found);
+		self::assertNotEmpty($roles_as_found);
+		self::assertContainsOnlyInstancesOf(Role::class, $roles_as_found);
+
 		$role_as_deleted = $model->delete($role_id);
 
 		self::assertNotNull($role_as_deleted);

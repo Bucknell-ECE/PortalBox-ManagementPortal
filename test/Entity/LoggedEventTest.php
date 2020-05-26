@@ -22,7 +22,7 @@ final class LoggedEventTest extends TestCase {
 		$event = (new LoggedEvent())
 			->set_id($id)
 			->set_time($time)
-			->set_type_id($type)
+			->set_type_id($type_id)
 			->set_equipment_id($equipment_id)
 			->set_card_id($card_id)
 			->set_user_id($user_id);

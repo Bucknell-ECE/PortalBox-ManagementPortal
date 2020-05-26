@@ -49,6 +49,11 @@ final class LocationModelTest extends TestCase {
 		self::assertEquals($location_id, $location_as_modified->id());
 		self::assertEquals($name, $location_as_modified->name());
 
+		$locations_as_found = $model->search();
+		self::assertIsArray($locations_as_found);
+		self::assertNotEmpty($locations_as_found);
+		self::assertContainsOnlyInstancesOf(Location::class, $locations_as_found);
+
 		$location_as_deleted = $model->delete($location_id);
 
 		self::assertNotNull($location_as_deleted);

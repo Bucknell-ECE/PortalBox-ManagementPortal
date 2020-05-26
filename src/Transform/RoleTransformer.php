@@ -12,13 +12,14 @@ use Portalbox\Entity\Role;
  */
 class RoleTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * validate check that the paramter is an associative array with non empty
-	 * values for the 'name', 'type_id', 'mac_address', and 'location_id'
-	 * keys and the presence of a timeout key then if all is well returns but if
-	 * a check fails; the proper HTTP response is emitted and execution is halted.
+	 * TBD
 	 */
 	public function deserialize(array $data) : Role {
-		return new Role();
+		return (new Role())
+			->set_name($data['name'])
+			->set_description($data['description'])
+			->set_is_system_role(false)
+			->set_permissions($data['permissions']);
 	}
 
 	/**

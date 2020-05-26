@@ -17,6 +17,7 @@ use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
+use Portalbox\Query\ChargeQuery;
 
 final class ChargeModelTest extends TestCase {
 	/**
@@ -219,5 +220,67 @@ final class ChargeModelTest extends TestCase {
 		$charge_as_not_found = $model->read($charge_id);
 
 		self::assertNull($charge_as_not_found);
+	}
+
+	public function testSearch(): void {
+		$model = new ChargeModel($this->config);
+
+		$equipment_id = $this->equipment->id();
+		$user_id = $this->user->id();
+		$amount = '2.00';
+		$time = '2020-04-22 21:44:55';
+		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_rate = '0.05';
+		$charged_time = 40;
+
+		$charge = (new Charge())
+			->set_equipment_id($equipment_id)
+			->set_user_id($user_id)
+			->set_amount($amount)
+			->set_time($time)
+			->set_charge_policy_id($charge_policy_id)
+			->set_charge_rate($charge_rate)
+			->set_charged_time($charged_time);
+
+		$charge_as_created = $model->create($charge);
+
+		$charge_id = $charge_as_created->id();
+
+		$query = new ChargeQuery();	// get all charges
+		$all_charges = $model->search($query);
+
+		self::assertIsArray($all_charges);
+		self::assertNotEmpty($all_charges);
+		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges);
+
+		$query = (new ChargeQuery())->set_user_id($user_id);	// get all charges for user
+		$all_charges_for_user = $model->search($query);
+
+		self::assertIsArray($all_charges_for_user);
+		self::assertNotEmpty($all_charges_for_user);
+		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges_for_user);
+
+		$query = (new ChargeQuery())->set_equipment_id($equipment_id);	// get all charges for equipment
+		$all_charges_for_equipment = $model->search($query);
+
+		self::assertIsArray($all_charges_for_equipment);
+		self::assertNotEmpty($all_charges_for_equipment);
+		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges_for_equipment);
+
+		$query = (new ChargeQuery())->set_on_or_before('2020-04-23 00:00:00');	// get all charges before 2020-04-23
+		$all_charges_before_date = $model->search($query);
+
+		self::assertIsArray($all_charges_before_date);
+		self::assertNotEmpty($all_charges_before_date);
+		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges_before_date);
+
+		$query = (new ChargeQuery())->set_on_or_after('2020-04-22 00:00:00');	// get all charges on or after 2020-04-22
+		$all_charges_after_date = $model->search($query);
+
+		self::assertIsArray($all_charges_after_date);
+		self::assertNotEmpty($all_charges_after_date);
+		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges_after_date);
+
+		$model->delete($charge_id);
 	}
 }

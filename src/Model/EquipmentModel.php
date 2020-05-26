@@ -189,7 +189,7 @@ class EquipmentModel extends AbstractModel {
 		$statement = $connection->prepare($sql);
 		// run search
 		foreach($parameters as $k => $v) {
-			$query->bindValue($k, $v);
+			$statement->bindValue($k, $v);
 		}
 
 		if($statement->execute()) {

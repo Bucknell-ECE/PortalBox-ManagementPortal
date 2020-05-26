@@ -4,6 +4,7 @@ namespace Portalbox\Model;
 
 use Portalbox\Entity\Charge;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Query\ChargeQuery;
 
 use PDO;
 
@@ -158,7 +159,7 @@ class ChargeModel extends AbstractModel {
 		$statement = $connection->prepare($sql);
 		// run search
 		foreach($parameters as $k => $v) {
-			$query->bindValue($k, $v);
+			$statement->bindValue($k, $v);
 		}
 
 		if($statement->execute()) {

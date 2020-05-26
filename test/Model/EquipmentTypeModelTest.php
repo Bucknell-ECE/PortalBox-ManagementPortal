@@ -73,6 +73,11 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($charge_rate, $type_as_modified->charge_rate());
 		self::assertEquals($charge_policy_id, $type_as_modified->charge_policy_id());
 
+		$types_as_found = $model->search();
+		self::assertIsArray($types_as_found);
+		self::assertNotEmpty($types_as_found);
+		self::assertContainsOnlyInstancesOf(EquipmentType::class, $types_as_found);
+
 		$type_as_deleted = $model->delete($type_id);
 
 		self::assertNotNull($type_as_deleted);

@@ -50,11 +50,7 @@ class PaymentModel extends AbstractModel {
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return (new Payment())
-					->set_id($data['id'])
-					->set_user_id($data['user_id'])
-					->set_amount($data['amount'])
-					->set_time($data['time']);
+				return $this->buildPaymentFromArray($data);
 			} else {
 				return null;
 			}
@@ -108,5 +104,76 @@ class PaymentModel extends AbstractModel {
 		}
 
 		return $payment;
+	}
+
+	/**
+	 * Search for Payments
+	 * 
+	 * @param PaymentQuery query - the search query to perform
+	 * @throws DatabaseException - when the database can not be queried
+	 * @return Payment[]|null - a list of payments which match the search query
+	 */
+	public function search(PaymentQuery $query) : ?array {
+		if(NULL === $query->email()) {
+			// no query... bail
+			return NULL;
+		}
+
+		$connection = $this->configuration()->readonly_db_connection();
+		$sql = 'SELECT id, user_id, amount, time FROM payments';
+		$where_clause_fragments = array();
+		$parameters = array();
+		if(NULL !== $query->user_id()) {
+			$where_clause_fragments[] = 'user_id = :user_id';
+			$parameters[':user_id'] = $query->user_id();
+		}
+		if($query->on_or_after()) {
+			$where_clause_elements[] = 'time >= :after';
+			$parameters[':after'] = $query->on_or_after();
+		}
+		if($query->on_or_before()) {
+			$where_clause_elements[] = 'time <= :before';
+			$parameters[':before'] = $query->on_or_before();
+		}
+		if(0 < count($where_clause_fragments)) {
+			$sql .= ' WHERE ';
+			$sql .= join(' AND ', $where_clause_fragments);
+		}
+		$sql .= ' ORDER BY time DESC';
+
+		$statement = $connection->prepare($sql);
+		// run search
+		foreach($parameters as $k => $v) {
+			$statement->bindValue($k, $v);
+		}
+
+		if($statement->execute()) {
+			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(FALSE !== $data) {
+				return $this->buildPaymentsFromArrays($data);
+			} else {
+				return null;
+			}
+		} else {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+	}
+
+	private function buildPaymentFromArray(array $data) : Payment {
+		return (new Payment())
+				->set_id($data['id'])
+				->set_user_id($data['user_id'])
+				->set_amount($data['amount'])
+				->set_time($data['time']);
+	}
+
+	private function buildPaymentsFromArrays(array $data) : array {
+		$payments = array();
+
+		foreach($data as $datum) {
+			$payments[] = $this->buildPaymentFromArray($datum);
+		}
+
+		return $payments;
 	}
 }
