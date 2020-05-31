@@ -10,19 +10,8 @@ use Portalbox\Entity\Role;
 use Portalbox\Model\RoleModel;
 
 final class RoleModelTest extends TestCase {
-/**
-	 * The configuration
-	 * @var Config
-	 */
-	private $config;
-
-	public function setUp(): void {
-		parent::setUp();
-		$this->config = Config::config();
-	}
-
 	public function testModel(): void {
-		$model = new RoleModel($this->config);
+		$model = new RoleModel(Config::config());
 
 		$name = 'Test Role';
 		$is_system_role = FALSE;

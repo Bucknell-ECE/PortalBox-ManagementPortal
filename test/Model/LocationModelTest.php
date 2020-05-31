@@ -9,19 +9,8 @@ use Portalbox\Entity\Location;
 use Portalbox\Model\LocationModel;
 
 final class LocationModelTest extends TestCase {
-	/**
-	 * The configuration
-	 * @var Config
-	 */
-	private $config;
-
-	public function setUp(): void {
-		parent::setUp();
-		$this->config = Config::config();
-	}
-
 	public function testModel(): void {
-		$model = new LocationModel($this->config);
+		$model = new LocationModel(Config::config());
 
 		$name = 'Robotics Shop';
 

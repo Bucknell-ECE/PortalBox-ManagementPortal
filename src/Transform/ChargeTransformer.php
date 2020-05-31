@@ -2,6 +2,8 @@
 
 namespace Portalbox\Transform;
 
+use InvalidArgumentException;
+
 use Portalbox\Config;
 
 use Portalbox\Entity\Charge;
@@ -18,11 +20,43 @@ use Portalbox\Model\UserModel;
  */
 class ChargeTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * TBD
+	 * Deserialize a Charge entity object from a dictionary
+	 * 
+	 * @param array data - a dictionary representing a Charge
+	 * @return Charge - a valid entity object based on the data specified
+	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data) : Charge {
+		if(!array_key_exists('equipment_id', $data)) {
+			throw new InvalidArgumentException('\'equipment_id\' is a required field');
+		}
+		if(!array_key_exists('user_id', $data)) {
+			throw new InvalidArgumentException('\'user_id\' is a required field');
+		}
+		if(!array_key_exists('amount', $data)) {
+			throw new InvalidArgumentException('\'amount\' is a required field');
+		}
+		if(!array_key_exists('time', $data)) {
+			throw new InvalidArgumentException('\'time\' is a required field');
+		}
+		if(!array_key_exists('charge_policy_id', $data)) {
+			throw new InvalidArgumentException('\'charge_policy_id\' is a required field');
+		}
+		if(!array_key_exists('charge_rate', $data)) {
+			throw new InvalidArgumentException('\'charge_rate\' is a required field');
+		}
+		if(!array_key_exists('charged_time', $data)) {
+			throw new InvalidArgumentException('\'charged_time\' is a required field');
+		}
+
 		$equipment = (new EquipmentModel(Config::config()))->read($data['equipment_id']);
+		if(NULL === $equipment) {
+			throw new InvalidArgumentException('\'equipment_id\' must correspond to a valid equipment');
+		}
 		$user = (new UserModel(Config::config()))->read($data['user_id']);
+		if(NULL === $user) {
+			throw new InvalidArgumentException('\'user_id\' must correspond to a valid user');
+		}
 
 		return (new Charge())
 			->set_equipment($equipment)

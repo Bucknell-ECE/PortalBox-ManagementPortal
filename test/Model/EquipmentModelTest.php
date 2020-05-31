@@ -18,35 +18,35 @@ final class EquipmentModelTest extends TestCase {
 	/**
 	 * A location that exists in the db
 	 */
-	private $location;
+	private static $location;
 
 	/**
 	 * An equipment type which exists in the db
 	 */
-	private $type;
+	private static $type;
 
 	/**
 	 * The configuration
 	 * @var Config
 	 */
-	private $config;
+	private static $config;
 
-	public function setUp(): void {
+	public static function setUpBeforeClass(): void {
 		parent::setUp();
-		$this->config = Config::config();
+		self::$config = Config::config();
 
 		// provision a location in the db
-		$model = new LocationModel($this->config);
+		$model = new LocationModel(self::$config);
 
 		$name = 'Robotics Shop';
 
 		$location = (new Location())
 			->set_name($name);
 
-		$this->location = $model->create($location);
+		self::$location = $model->create($location);
 
 		// provision an equipment type in the db
-		$model = new EquipmentTypeModel($this->config);
+		$model = new EquipmentTypeModel(self::$config);
 
 		$name = 'Floodlight';
 		$requires_training = FALSE;
@@ -57,21 +57,21 @@ final class EquipmentModelTest extends TestCase {
 			->set_requires_training($requires_training)
 			->set_charge_policy_id($charge_policy_id);
 
-		$this->type = $model->create($type);
+		self::$type = $model->create($type);
 	}
 
-	public function tearDown() : void {
+	public static function tearDownAfterClass() : void {
 		// deprovision a location in the db
-		$model = new LocationModel($this->config);
-		$model->delete($this->location->id());
+		$model = new LocationModel(self::$config);
+		$model->delete(self::$location->id());
 
 		// deprovision an equipment type in the db
-		$model = new EquipmentTypeModel($this->config);
-		$model->delete($this->type->id());
+		$model = new EquipmentTypeModel(self::$config);
+		$model->delete(self::$type->id());
 	}
 
 	public function testCRUD(): void {
-		$model = new EquipmentModel($this->config);
+		$model = new EquipmentModel(self::$config);
 
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789ab';
@@ -81,8 +81,8 @@ final class EquipmentModelTest extends TestCase {
 
 		$equipment = (new Equipment())
 			->set_name($name)
-			->set_type($this->type)
-			->set_location($this->location)
+			->set_type(self::$type)
+			->set_location(self::$location)
 			->set_mac_address($mac_address)
 			->set_timeout($timeout)
 			->set_is_in_service($is_in_service)
@@ -93,8 +93,8 @@ final class EquipmentModelTest extends TestCase {
 		$equipment_id = $equipment_as_created->id();
 		self::assertIsInt($equipment_id);
 		self::assertEquals($name, $equipment_as_created->name());
-		self::assertEquals($this->type->id(), $equipment_as_created->type_id());
-		self::assertEquals($this->location->id(), $equipment_as_created->location_id());
+		self::assertEquals(self::$type->id(), $equipment_as_created->type_id());
+		self::assertEquals(self::$location->id(), $equipment_as_created->location_id());
 		self::assertEquals($mac_address, $equipment_as_created->mac_address());
 		self::assertEquals($timeout, $equipment_as_created->timeout());
 		self::assertEquals($is_in_service, $equipment_as_created->is_in_service());
@@ -105,8 +105,8 @@ final class EquipmentModelTest extends TestCase {
 		self::assertNotNull($equipment_as_found);
 		self::assertEquals($equipment_id, $equipment_as_found->id());
 		self::assertEquals($name, $equipment_as_found->name());
-		self::assertEquals($this->type->id(), $equipment_as_found->type_id());
-		self::assertEquals($this->location->id(), $equipment_as_found->location_id());
+		self::assertEquals(self::$type->id(), $equipment_as_found->type_id());
+		self::assertEquals(self::$location->id(), $equipment_as_found->location_id());
 		self::assertEquals($mac_address, $equipment_as_found->mac_address());
 		self::assertEquals($timeout, $equipment_as_found->timeout());
 		self::assertEquals($is_in_service, $equipment_as_found->is_in_service());
@@ -130,8 +130,8 @@ final class EquipmentModelTest extends TestCase {
 		self::assertNotNull($equipment_as_modified);
 		self::assertEquals($equipment_id, $equipment_as_modified->id());
 		self::assertEquals($name, $equipment_as_modified->name());
-		self::assertEquals($this->type->id(), $equipment_as_modified->type_id());
-		self::assertEquals($this->location->id(), $equipment_as_modified->location_id());
+		self::assertEquals(self::$type->id(), $equipment_as_modified->type_id());
+		self::assertEquals(self::$location->id(), $equipment_as_modified->location_id());
 		self::assertEquals($mac_address, $equipment_as_modified->mac_address());
 		self::assertEquals($timeout, $equipment_as_modified->timeout());
 		self::assertEquals($is_in_service, $equipment_as_modified->is_in_service());
@@ -142,8 +142,8 @@ final class EquipmentModelTest extends TestCase {
 		self::assertNotNull($equipment_as_deleted);
 		self::assertEquals($equipment_id, $equipment_as_deleted->id());
 		self::assertEquals($name, $equipment_as_deleted->name());
-		self::assertEquals($this->type->id(), $equipment_as_deleted->type_id());
-		self::assertEquals($this->location->id(), $equipment_as_deleted->location_id());
+		self::assertEquals(self::$type->id(), $equipment_as_deleted->type_id());
+		self::assertEquals(self::$location->id(), $equipment_as_deleted->location_id());
 		self::assertEquals($mac_address, $equipment_as_deleted->mac_address());
 		self::assertEquals($timeout, $equipment_as_deleted->timeout());
 		self::assertEquals($is_in_service, $equipment_as_deleted->is_in_service());
@@ -155,7 +155,7 @@ final class EquipmentModelTest extends TestCase {
 	}
 
 	public function testSearch(): void {
-		$model = new EquipmentModel($this->config);
+		$model = new EquipmentModel(self::$config);
 
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789AB';
@@ -165,8 +165,8 @@ final class EquipmentModelTest extends TestCase {
 
 		$equipment = (new Equipment())
 			->set_name($name)
-			->set_type($this->type)
-			->set_location($this->location)
+			->set_type(self::$type)
+			->set_location(self::$location)
 			->set_mac_address($mac_address)
 			->set_timeout($timeout)
 			->set_is_in_service($is_in_service)
@@ -181,7 +181,7 @@ final class EquipmentModelTest extends TestCase {
 		self::assertNotEmpty($all_in_service_equipment);
 		self::assertContainsOnlyInstancesOf(Equipment::class, $all_in_service_equipment);
 
-		$query = (new EquipmentQuery())->set_location($this->location->name());	// get all located in location
+		$query = (new EquipmentQuery())->set_location(self::$location->name());	// get all located in location
 		$all_equipment_in_location = $model->search($query);
 
 		self::assertIsArray($all_equipment_in_location);

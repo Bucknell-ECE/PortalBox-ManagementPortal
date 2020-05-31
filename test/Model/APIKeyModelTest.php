@@ -10,19 +10,8 @@ use Portalbox\Model\APIKeyModel;
 use Portalbox\Query\APIKeyQuery;
 
 final class APIKeyModelTest extends TestCase {
-	/**
-	 * The configuration
-	 * @var Config
-	 */
-	private $config;
-
-	public function setUp(): void {
-		parent::setUp();
-		$this->config = Config::config();
-	}
-
 	public function testModel(): void {
-		$model = new APIKeyModel($this->config);
+		$model = new APIKeyModel(Config::config());
 
 		$name = 'Google App Suite Integration';
 		$token = 'ABCDEF01234567890123456789ABCDEF';

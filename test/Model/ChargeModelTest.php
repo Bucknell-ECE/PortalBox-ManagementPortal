@@ -24,35 +24,35 @@ final class ChargeModelTest extends TestCase {
 	 * A user guananteed to exist in the DB
 	 * @var User
 	 */
-	private $user;
+	private static $user;
 
 	/**
 	 * A location that exists in the db
 	 */
-	private $location;
+	private static $location;
 
 	/**
 	 * An equipment type which exists in the db
 	 */
-	private $type;
+	private static $type;
 
 	/**
 	 * An equipment which exists in the db
 	 */
-	private $equipment;
+	private static $equipment;
 
 	/**
 	 * The configuration
 	 * @var Config
 	 */
-	private $config;
+	private static $config;
 
-	public function setUp(): void {
+	public static function setUpBeforeClass(): void {
 		parent::setUp();
-		$this->config = Config::config();
+		self::$config = Config::config();
 
 		// provision a user in the db
-		$model = new UserModel($this->config);
+		$model = new UserModel(self::$config);
 
 		$role_id = 3;	// default id of system defined admin role
 
@@ -71,20 +71,20 @@ final class ChargeModelTest extends TestCase {
 			->set_is_active($active)
 			->set_role($role);
 
-		$this->user = $model->create($user);
+		self::$user = $model->create($user);
 
 		// provision a location in the db
-		$model = new LocationModel($this->config);
+		$model = new LocationModel(self::$config);
 
 		$name = 'Robotics Shop';
 
 		$location = (new Location())
 			->set_name($name);
 
-		$this->location = $model->create($location);
+		self::$location = $model->create($location);
 
 		// provision an equipment type in the db
-		$model = new EquipmentTypeModel($this->config);
+		$model = new EquipmentTypeModel(self::$config);
 
 		$name = 'Floodlight';
 		$requires_training = FALSE;
@@ -95,10 +95,10 @@ final class ChargeModelTest extends TestCase {
 			->set_requires_training($requires_training)
 			->set_charge_policy_id($charge_policy_id);
 
-		$this->type = $model->create($type);
+		self::$type = $model->create($type);
 
 		// provision an equipment in the db
-		$model = new EquipmentModel($this->config);
+		$model = new EquipmentModel(self::$config);
 
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789AB';
@@ -108,39 +108,39 @@ final class ChargeModelTest extends TestCase {
 
 		$equipment = (new Equipment())
 			->set_name($name)
-			->set_type($this->type)
-			->set_location($this->location)
+			->set_type(self::$type)
+			->set_location(self::$location)
 			->set_mac_address($mac_address)
 			->set_timeout($timeout)
 			->set_is_in_service($is_in_service)
 			->set_service_minutes($service_minutes);
 
-		$this->equipment = $model->create($equipment);
+		self::$equipment = $model->create($equipment);
 	}
 
-	public function tearDown() : void {
+	public static function tearDownAfterClass() : void {
 		// deprovision a location in the db
-		$model = new UserModel($this->config);
-		$model->delete($this->user->id());
+		$model = new UserModel(self::$config);
+		$model->delete(self::$user->id());
 
 		// deprovision an equipment in the db
-		$model = new EquipmentModel($this->config);
-		$model->delete($this->equipment->id());
+		$model = new EquipmentModel(self::$config);
+		$model->delete(self::$equipment->id());
 
 		// deprovision a location in the db
-		$model = new LocationModel($this->config);
-		$model->delete($this->location->id());
+		$model = new LocationModel(self::$config);
+		$model->delete(self::$location->id());
 
 		// deprovision an equipment type in the db
-		$model = new EquipmentTypeModel($this->config);
-		$model->delete($this->type->id());
+		$model = new EquipmentTypeModel(self::$config);
+		$model->delete(self::$type->id());
 	}
 
 	public function testModel(): void {
-		$model = new ChargeModel($this->config);
+		$model = new ChargeModel(self::$config);
 
-		$equipment_id = $this->equipment->id();
-		$user_id = $this->user->id();
+		$equipment_id = self::$equipment->id();
+		$user_id = self::$user->id();
 		$amount = '2.00';
 		$time = '2020-04-22 21:44:55';
 		$charge_policy_id = ChargePolicy::PER_USE;
@@ -223,10 +223,10 @@ final class ChargeModelTest extends TestCase {
 	}
 
 	public function testSearch(): void {
-		$model = new ChargeModel($this->config);
+		$model = new ChargeModel(self::$config);
 
-		$equipment_id = $this->equipment->id();
-		$user_id = $this->user->id();
+		$equipment_id = self::$equipment->id();
+		$user_id = self::$user->id();
 		$amount = '2.00';
 		$time = '2020-04-22 21:44:55';
 		$charge_policy_id = ChargePolicy::PER_USE;

@@ -11,19 +11,8 @@ use Portalbox\Model\UserModel;
 use Portalbox\Query\UserQuery;
 
 final class UserModelTest extends TestCase {
-/**
-	 * The configuration
-	 * @var Config
-	 */
-	private $config;
-
-	public function setUp(): void {
-		parent::setUp();
-		$this->config = Config::config();
-	}
-
 	public function testModel(): void {
-		$model = new UserModel($this->config);
+		$model = new UserModel(Config::config());
 
 		$role_id = 3;	// default id of system defined admin role
 

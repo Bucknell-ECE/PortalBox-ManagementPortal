@@ -52,6 +52,27 @@ class Payment extends AbstractEntity {
 	}
 
 	/**
+	 * Get the user who paid
+	 *
+	 * @return User|null - the user who paid
+	 */
+	public function user() : ?User {
+		return $this->user;
+	}
+
+	/**
+	 * Set the user who paid
+	 *
+	 * @param User user - the user who paid
+	 * @return Payment - returns this in order to support fluent syntax.
+	 */
+	public function set_user(User $user) : Payment {
+		$this->user = $user;
+		$this->user_id = $user->id();
+		return $this;
+	}
+
+	/**
 	 * Get the amount of this payment
 	 *
 	 * @return string - the amount of this payment

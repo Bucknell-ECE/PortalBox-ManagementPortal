@@ -3,7 +3,13 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
+
+use Portalbox\Config;
+
 use Portalbox\Entity\Payment;
+
+// violation of SOLID design... should use these via interfaces and dependency injection
+use Portalbox\Model\UserModel;
 
 /**
  * PaymentTransformer is our bridge between dictionary representations and
@@ -30,8 +36,13 @@ class PaymentTransformer implements InputTransformer, OutputTransformer {
 			throw new InvalidArgumentException('\'time\' is a required field');
 		}
 
+		$user = (new UserModel(Config::config()))->read($data['user_id']);
+		if(NULL === $user) {
+			throw new InvalidArgumentException('\'user_id\' must correspond to a valid user');
+		}
+
 		return (new Payment())
-			->set_user_id($data['user_id'])
+			->set_user($user)
 			->set_amount($data['amount'])
 			->set_time($data['time']);
 	}

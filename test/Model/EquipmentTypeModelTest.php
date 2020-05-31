@@ -10,19 +10,8 @@ use Portalbox\Entity\EquipmentType;
 use Portalbox\Model\EquipmentTypeModel;
 
 final class EquipmentTypeModelTest extends TestCase {
-	/**
-	 * The configuration
-	 * @var Config
-	 */
-	private $config;
-
-	public function setUp(): void {
-		parent::setUp();
-		$this->config = Config::config();
-	}
-
 	public function testModel(): void {
-		$model = new EquipmentTypeModel($this->config);
+		$model = new EquipmentTypeModel(Config::config());
 
 		$name = 'ceramics printer';
 		$requires_training = TRUE;

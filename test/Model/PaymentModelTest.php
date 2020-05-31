@@ -17,19 +17,19 @@ final class PaymentModelTest extends TestCase {
 	 * A user guananteed to exist in the DB
 	 * @var User
 	 */
-	private $user;
+	private static $user;
 
 	/**
 	 * The configuration
 	 * @var Config
 	 */
-	private $config;
+	private static $config;
 
-	public function setUp(): void {
+	public static function setUpBeforeClass(): void {
 		parent::setUp();
-		$this->config = Config::config();
+		self::$config = Config::config();
 
-		$model = new UserModel($this->config);
+		$model = new UserModel(self::$config);
 
 		$role_id = 3;	// default id of system defined admin role
 
@@ -48,22 +48,22 @@ final class PaymentModelTest extends TestCase {
 			->set_is_active($active)
 			->set_role($role);
 
-		$this->user = $model->create($user);
+		self::$user = $model->create($user);
 	}
 
-	public function tearDown() : void {
-		$model = new UserModel($this->config);
-		$model->delete($this->user->id());
+	public static function tearDownAfterClass() : void {
+		$model = new UserModel(self::$config);
+		$model->delete(self::$user->id());
 	}
 
 	public function testModel(): void {
-		$model = new PaymentModel($this->config);
+		$model = new PaymentModel(self::$config);
 
 		$amount = '20.00';
 		$time = '2020-04-18 20:12:34';
 
 		$payment = (new Payment())
-			->set_user_id($this->user->id())
+			->set_user_id(self::$user->id())
 			->set_amount($amount)
 			->set_time($time);
 
@@ -72,7 +72,7 @@ final class PaymentModelTest extends TestCase {
 		self::assertNotNull($payment_as_created);
 		$payment_id = $payment_as_created->id();
 		self::assertIsInt($payment_id);
-		self::assertEquals($this->user->id(), $payment_as_created->user_id());
+		self::assertEquals(self::$user->id(), $payment_as_created->user_id());
 		self::assertEquals($amount, $payment_as_created->amount());
 		self::assertEquals($time, $payment_as_created->time());
 
@@ -80,7 +80,7 @@ final class PaymentModelTest extends TestCase {
 
 		self::assertNotNull($payment_as_found);
 		self::assertEquals($payment_id, $payment_as_found->id());
-		self::assertEquals($this->user->id(), $payment_as_found->user_id());
+		self::assertEquals(self::$user->id(), $payment_as_found->user_id());
 		self::assertEquals($amount, $payment_as_found->amount());
 		self::assertEquals($time, $payment_as_found->time());
 
@@ -93,7 +93,7 @@ final class PaymentModelTest extends TestCase {
 
 		self::assertNotNull($payment_as_modified);
 		self::assertEquals($payment_id, $payment_as_modified->id());
-		self::assertEquals($this->user->id(), $payment_as_modified->user_id());
+		self::assertEquals(self::$user->id(), $payment_as_modified->user_id());
 		self::assertEquals($amount, $payment_as_modified->amount());
 		self::assertEquals($time, $payment_as_modified->time());
 
@@ -101,7 +101,7 @@ final class PaymentModelTest extends TestCase {
 
 		self::assertNotNull($payment_as_deleted);
 		self::assertEquals($payment_id, $payment_as_deleted->id());
-		self::assertEquals($this->user->id(), $payment_as_deleted->user_id());
+		self::assertEquals(self::$user->id(), $payment_as_deleted->user_id());
 		self::assertEquals($amount, $payment_as_deleted->amount());
 		self::assertEquals($time, $payment_as_deleted->time());
 
@@ -111,13 +111,13 @@ final class PaymentModelTest extends TestCase {
 	}
 
 	public function testSearch(): void {
-		$model = new PaymentModel($this->config);
+		$model = new PaymentModel(self::$config);
 
 		$amount = '20.00';
 		$time = '2020-04-18 20:12:34';
 
 		$payment = (new Payment())
-			->set_user_id($this->user->id())
+			->set_user_id(self::$user->id())
 			->set_amount($amount)
 			->set_time($time);
 
@@ -132,7 +132,7 @@ final class PaymentModelTest extends TestCase {
 		self::assertNotEmpty($all_payments);
 		self::assertContainsOnlyInstancesOf(Payment::class, $all_payments);
 
-		$query = (new PaymentQuery())->set_user_id($this->user->id());
+		$query = (new PaymentQuery())->set_user_id(self::$user->id());
 		$users_payments = $model->search($query);
 
 		self::assertIsArray($users_payments);

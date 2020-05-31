@@ -25,40 +25,40 @@ final class CardModelTest extends TestCase {
 	/**
 	 * A user that exists in the db
 	 */
-	private $user;
+	private static $user;
 
 	/**
 	 * A location that exists in the db
 	 */
-	private $location;
+	private static $location;
 
 	/**
 	 * An equipment type which exists in the db
 	 */
-	private $equipment_type;
+	private static $equipment_type;
 
 	/**
 	 * The configuration
 	 * @var Config
 	 */
-	private $config;
+	private static $config;
 
-	public function setUp(): void {
+	public static function setUpBeforeClass(): void {
 		parent::setUp();
-		$this->config = Config::config();
+		self::$config = Config::config();
 
 		// provision a location in the db
-		$model = new LocationModel($this->config);
+		$model = new LocationModel(self::$config);
 
 		$name = 'Robotics Shop';
 
 		$location = (new Location())
 			->set_name($name);
 
-		$this->location = $model->create($location);
+		self::$location = $model->create($location);
 
 		// provision an equipment type in the db
-		$model = new EquipmentTypeModel($this->config);
+		$model = new EquipmentTypeModel(self::$config);
 
 		$name = 'Floodlight';
 		$requires_training = FALSE;
@@ -69,10 +69,10 @@ final class CardModelTest extends TestCase {
 			->set_requires_training($requires_training)
 			->set_charge_policy_id($charge_policy_id);
 
-		$this->equipment_type = $model->create($equipment_type);
+		self::$equipment_type = $model->create($equipment_type);
 
 		// provision a user in the db
-		$model = new UserModel($this->config);
+		$model = new UserModel(self::$config);
 
 		$role_id = 3;	// default id of system defined admin role
 
@@ -91,25 +91,25 @@ final class CardModelTest extends TestCase {
 			->set_is_active($active)
 			->set_role($role);
 
-		$this->user = $model->create($user);
+		self::$user = $model->create($user);
 	}
 
-	public function tearDown() : void {
+	public static function tearDownAfterClass() : void {
 		// deprovision a location in the db
-		$model = new LocationModel($this->config);
-		$model->delete($this->location->id());
+		$model = new LocationModel(self::$config);
+		$model->delete(self::$location->id());
 
 		// deprovision an equipment type in the db
-		$model = new EquipmentTypeModel($this->config);
-		$model->delete($this->equipment_type->id());
+		$model = new EquipmentTypeModel(self::$config);
+		$model->delete(self::$equipment_type->id());
 
 		// deprovision a user in the db
-		$model = new UserModel($this->config);
-		$model->delete($this->user->id());
+		$model = new UserModel(self::$config);
+		$model->delete(self::$user->id());
 	}
 
 	public function testProxyCardModel(): void {
-		$model = new CardModel($this->config);
+		$model = new CardModel(self::$config);
 
 		$card_id = 9812347165;
 
@@ -140,7 +140,7 @@ final class CardModelTest extends TestCase {
 	}
 
 	public function testShutdownCardModel(): void {
-		$model = new CardModel($this->config);
+		$model = new CardModel(self::$config);
 
 		$card_id = 812347165;
 
@@ -171,10 +171,10 @@ final class CardModelTest extends TestCase {
 	}
 
 	public function testTrainingCardModel(): void {
-		$model = new CardModel($this->config);
+		$model = new CardModel(self::$config);
 
 		$card_id = 812347165;
-		$equipment_type_id = $this->equipment_type->id();
+		$equipment_type_id = self::$equipment_type->id();
 
 		$card = (new TrainingCard())
 			->set_id($card_id)
@@ -207,10 +207,10 @@ final class CardModelTest extends TestCase {
 	}
 
 	public function testUserCardModel(): void {
-		$model = new CardModel($this->config);
+		$model = new CardModel(self::$config);
 
 		$card_id = 622347165;
-		$user_id = $this->user->id();
+		$user_id = self::$user->id();
 
 		$card = (new UserCard())
 			->set_id($card_id)
