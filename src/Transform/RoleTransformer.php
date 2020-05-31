@@ -2,6 +2,7 @@
 
 namespace Portalbox\Transform;
 
+use InvalidArgumentException;
 use Portalbox\Entity\Role;
 
 /**
@@ -12,18 +13,32 @@ use Portalbox\Entity\Role;
  */
 class RoleTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * TBD
+	 * Deserialize a Role entity object from a dictionary
+	 * 
+	 * @param array data - a dictionary representing a Role
+	 * @return Role - a valid entity object based on the data specified
+	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data) : Role {
+		if(!array_key_exists('name', $data)) {
+			throw new InvalidArgumentException('\'name\' is a required field');
+		}
+		if(!array_key_exists('description', $data)) {
+			throw new InvalidArgumentException('\'description\' is a required field');
+		}
+		if(!array_key_exists('permissions', $data)) {
+			throw new InvalidArgumentException('\'permissions\' is a required field');
+		}
+
 		return (new Role())
 			->set_name($data['name'])
 			->set_description($data['description'])
-			->set_is_system_role(false)
+			->set_is_system_role(false)	// hard coded as a business rule
 			->set_permissions($data['permissions']);
 	}
 
 	/**
-	 * Called to serialize a User entity instance to a dictionary
+	 * Called to serialize a Role entity instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise 
 	 *      may substitute flattened representations where appropriate.

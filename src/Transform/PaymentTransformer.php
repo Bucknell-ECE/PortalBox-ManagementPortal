@@ -3,33 +3,41 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-use Portalbox\Entity\APIKey;
+use Portalbox\Entity\Payment;
 
 /**
- * APIKeyTransformer is our bridge between dictionary representations and
- * APIKey entity instances.
+ * PaymentTransformer is our bridge between dictionary representations and
+ * Payment entity instances.
  * 
  * @package Portalbox\Transform
  */
-class APIKeyTransformer implements InputTransformer, OutputTransformer {
+class PaymentTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * Deserialize an APIKey entity object from a dictionary
+	 * Deserialize a Payment entity object from a dictionary
 	 * 
 	 * @param array data - a dictionary representing a Payment
-	 * @return APIKey - a valid entity object based on the data specified
+	 * @return Payment - a valid entity object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
-	public function deserialize(array $data) : APIKey {
-		if(!array_key_exists('name', $data)) {
-			throw new InvalidArgumentException('\'name\' is a required field');
+	public function deserialize(array $data) : Payment {
+		if(!array_key_exists('user_id', $data)) {
+			throw new InvalidArgumentException('\'user_id\' is a required field');
+		}
+		if(!array_key_exists('amount', $data)) {
+			throw new InvalidArgumentException('\'amount\' is a required field');
+		}
+		if(!array_key_exists('time', $data)) {
+			throw new InvalidArgumentException('\'time\' is a required field');
 		}
 
-		return (new APIKey())
-			->set_name($data['name']);
+		return (new Payment())
+			->set_user_id($data['user_id'])
+			->set_amount($data['amount'])
+			->set_time($data['time']);
 	}
 
 	/**
-	 * Called to serialize a APIKey entity instance to a dictionary
+	 * Called to serialize a Payment entity instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise 
 	 *      may substitute flattened representations where appropriate.
@@ -42,14 +50,16 @@ class APIKeyTransformer implements InputTransformer, OutputTransformer {
 		if($traverse) {
 			return [
 				'id' => $data->id(),
-				'name' => $data->name(),
-				'token' => $data->token()
+				'user_id' => $data->user_id(),
+				'amount' => $data->amount(),
+				'time' => $data->time()
 			];
 		} else {
 			return [
 				'id' => $data->id(),
-				'name' => $data->name(),
-				'token' => $data->token()
+				'user_id' => $data->user_id(),
+				'amount' => $data->amount(),
+				'time' => $data->time()
 			];
 		}
 	}
@@ -62,6 +72,6 @@ class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {
-		return ['id', 'Name', 'Token'];
+		return ['id', 'User Id', 'Amount', 'Time'];
 	}
 }

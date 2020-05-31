@@ -4,6 +4,7 @@ namespace Portalbox\Model;
 
 use Portalbox\Entity\Payment;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Query\PaymentQuery;
 
 use PDO;
 
@@ -114,7 +115,7 @@ class PaymentModel extends AbstractModel {
 	 * @return Payment[]|null - a list of payments which match the search query
 	 */
 	public function search(PaymentQuery $query) : ?array {
-		if(NULL === $query->email()) {
+		if(NULL === $query) {
 			// no query... bail
 			return NULL;
 		}

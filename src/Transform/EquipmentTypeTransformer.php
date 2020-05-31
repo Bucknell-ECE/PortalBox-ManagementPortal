@@ -2,6 +2,7 @@
 
 namespace Portalbox\Transform;
 
+use InvalidArgumentException;
 use Portalbox\Entity\EquipmentType;
 
 /**
@@ -12,9 +13,26 @@ use Portalbox\Entity\EquipmentType;
  */
 class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * TBD
+	 * Deserialize an EquipmentType entity object from a dictionary
+	 * 
+	 * @param array data - a dictionary representing a Role
+	 * @return EquipmentType - a valid entity object based on the data specified
+	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data) : EquipmentType {
+		if(!array_key_exists('name', $data)) {
+			throw new InvalidArgumentException('\'name\' is a required field');
+		}
+		if(!array_key_exists('requires_training', $data)) {
+			throw new InvalidArgumentException('\'requires_training\' is a required field');
+		}
+		if(!array_key_exists('charge_rate', $data)) {
+			throw new InvalidArgumentException('\'charge_rate\' is a required field');
+		}
+		if(!array_key_exists('charge_policy_id', $data)) {
+			throw new InvalidArgumentException('\'charge_policy_id\' is a required field');
+		}
+
 		return (new EquipmentType())
 			->set_name($data['name'])
 			->set_requires_training($data['requires_training'])

@@ -10,6 +10,7 @@ use Portalbox\Entity\Role;
 use Portalbox\Entity\User;
 use Portalbox\Model\PaymentModel;
 use Portalbox\Model\UserModel;
+use Portalbox\Query\PaymentQuery;
 
 final class PaymentModelTest extends TestCase {
 	/**
@@ -107,5 +108,37 @@ final class PaymentModelTest extends TestCase {
 		$payment_as_not_found = $model->read($payment_id);
 
 		self::assertNull($payment_as_not_found);
+	}
+
+	public function testSearch(): void {
+		$model = new PaymentModel($this->config);
+
+		$amount = '20.00';
+		$time = '2020-04-18 20:12:34';
+
+		$payment = (new Payment())
+			->set_user_id($this->user->id())
+			->set_amount($amount)
+			->set_time($time);
+
+		$payment_as_created = $model->create($payment);
+
+		$payment_id = $payment_as_created->id();
+
+		$query = new PaymentQuery();
+		$all_payments = $model->search($query);
+
+		self::assertIsArray($all_payments);
+		self::assertNotEmpty($all_payments);
+		self::assertContainsOnlyInstancesOf(Payment::class, $all_payments);
+
+		$query = (new PaymentQuery())->set_user_id($this->user->id());
+		$users_payments = $model->search($query);
+
+		self::assertIsArray($users_payments);
+		self::assertNotEmpty($users_payments);
+		self::assertContainsOnlyInstancesOf(Payment::class, $users_payments);
+
+		$model->delete($payment_id);
 	}
 }
