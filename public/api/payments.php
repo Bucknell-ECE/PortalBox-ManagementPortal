@@ -92,7 +92,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 				ResponseHandler::render($payment, $transformer);
 			} catch(InvalidArgumentException $iae) {
 				http_response_code(400);
-				die('One or more of the values provided we unacceptable. Please consult the documentation.');
+				die($iae->getMessage());
 			} catch(Exception $e) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
@@ -116,7 +116,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 				ResponseHandler::render($payment, $transformer);
 			} catch(InvalidArgumentException $iae) {
 				http_response_code(400);
-				die('One or more of the values provided we unacceptable. Please consult the documentation.');
+				die($iae->getMessage());
 			} catch(Exception $e) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');

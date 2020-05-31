@@ -92,7 +92,10 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$model = new ChargeModel(Config::config());
 				$charge = $model->update($charge);
 				ResponseHandler::render($charge, $transformer);
-			} catch(Exception $e) { // we could have a validation error...
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die($iae->getMessage());
+			} catch(Exception $e) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
@@ -102,7 +105,29 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		break;
 	case 'PUT':		// Create
-		// intentional fall through, creation not allowed
+		// check authorization
+		Session::require_authorization(Permission::CREATE_CHARGE);
+
+		$data = json_decode(file_get_contents('php://input'), TRUE);
+		if(NULL !== $data) {
+			try {
+				$transformer = new ChargeTransformer();
+				$charge = $transformer->deserialize($data);
+				$model = new ChargeModel(Config::config());
+				$charge = $model->create($charge);
+				ResponseHandler::render($charge, $transformer);
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die($iae->getMessage());
+			} catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the database');
+			}
+		} else {
+			http_response_code(400);
+			die(json_last_error_msg());
+		}
+		break;
 	case 'DELETE':	// Delete
 		// intentional fall through, deletion not allowed, but maybe it should be?
 	default:

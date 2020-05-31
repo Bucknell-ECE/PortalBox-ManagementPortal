@@ -2,6 +2,8 @@
 
 namespace Portalbox\Transform;
 
+use InvalidArgumentException;
+
 use Portalbox\Config;
 
 use Portalbox\Entity\Equipment;
@@ -18,11 +20,40 @@ use Portalbox\Model\LocationModel;
  */
 class EquipmentTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * TBD
+	 * Deserialize a Equipment entity object from a dictionary
+	 * 
+	 * @param array data - a dictionary representing a Equipment
+	 * @return Equipment - a valid entity object based on the data specified
+	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data) : Equipment {
+		if(!array_key_exists('name', $data)) {
+			throw new InvalidArgumentException('\'name\' is a required field');
+		}
+		if(!array_key_exists('type_id', $data)) {
+			throw new InvalidArgumentException('\'type_id\' is a required field');
+		}
+		if(!array_key_exists('location_id', $data)) {
+			throw new InvalidArgumentException('\'location_id\' is a required field');
+		}
+		if(!array_key_exists('mac_address', $data)) {
+			throw new InvalidArgumentException('\'mac_address\' is a required field');
+		}
+		if(!array_key_exists('timeout', $data)) {
+			throw new InvalidArgumentException('\'timeout\' is a required field');
+		}
+		if(!array_key_exists('in_service', $data)) {
+			throw new InvalidArgumentException('\'in_service\' is a required field');
+		}
+
 		$type = (new EquipmentTypeModel(Config::config()))->read($data['type_id']);
+		if(NULL === $type) {
+			throw new InvalidArgumentException('\'type_id\' must correspond to a valid equiment type');
+		}
 		$location = (new LocationModel(Config::config()))->read($data['location_id']);
+		if(NULL === $location) {
+			throw new InvalidArgumentException('\'location_id\' must correspond to a valid location');
+		}
 
 		return (new Equipment())
 			->set_name($data['name'])

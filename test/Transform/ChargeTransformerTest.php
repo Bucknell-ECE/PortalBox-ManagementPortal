@@ -174,6 +174,235 @@ final class ChargeTransformerTest extends TestCase {
 		self::assertEquals($time, $charge->time());
 	}
 
+	public function testDeserializeInvalidDataUserIDMissing(): void {
+		$transformer = new ChargeTransformer();
+
+		$id = 42;
+		$equipment_id = self::$equipment->id();
+		$amount = '2.00';
+		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_rate = '2.00';
+		$charged_time = 25;
+		$time = '2020-05-31 10:46:34';
+
+		$data = [
+			'id' => $id,
+			'equipment_id' => $equipment_id,
+			'amount' => $amount,
+			'charge_policy_id' => $charge_policy_id,
+			'charge_rate' => $charge_rate,
+			'charged_time' => $charged_time,
+			'time' => $time
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$charge = $transformer->deserialize($data);
+	}
+
+	public function testDeserializeInvalidDataUserID(): void {
+		$transformer = new ChargeTransformer();
+
+		$id = 42;
+		$user_id = self::$user->id() + 100;
+		$equipment_id = self::$equipment->id();
+		$amount = '2.00';
+		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_rate = '2.00';
+		$charged_time = 25;
+		$time = '2020-05-31 10:46:34';
+
+		$data = [
+			'id' => $id,
+			'user_id' => $user_id,
+			'equipment_id' => $equipment_id,
+			'amount' => $amount,
+			'charge_policy_id' => $charge_policy_id,
+			'charge_rate' => $charge_rate,
+			'charged_time' => $charged_time,
+			'time' => $time
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$charge = $transformer->deserialize($data);
+	}
+
+	public function testDeserializeInvalidDataEquipmentIDMissing(): void {
+		$transformer = new ChargeTransformer();
+
+		$id = 42;
+		$user_id = self::$user->id();
+		$amount = '2.00';
+		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_rate = '2.00';
+		$charged_time = 25;
+		$time = '2020-05-31 10:46:34';
+
+		$data = [
+			'id' => $id,
+			'user_id' => $user_id,
+			'amount' => $amount,
+			'charge_policy_id' => $charge_policy_id,
+			'charge_rate' => $charge_rate,
+			'charged_time' => $charged_time,
+			'time' => $time
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$charge = $transformer->deserialize($data);
+	}
+
+	public function testDeserializeInvalidDataEquipmentID(): void {
+		$transformer = new ChargeTransformer();
+
+		$id = 42;
+		$user_id = self::$user->id();
+		$equipment_id = self::$equipment->id() + 100;
+		$amount = '2.00';
+		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_rate = '2.00';
+		$charged_time = 25;
+		$time = '2020-05-31 10:46:34';
+
+		$data = [
+			'id' => $id,
+			'user_id' => $user_id,
+			'equipment_id' => $equipment_id,
+			'amount' => $amount,
+			'charge_policy_id' => $charge_policy_id,
+			'charge_rate' => $charge_rate,
+			'charged_time' => $charged_time,
+			'time' => $time
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$charge = $transformer->deserialize($data);
+	}
+
+	public function testDeserializeInvalidDataAmount(): void {
+		$transformer = new ChargeTransformer();
+
+		$id = 42;
+		$user_id = self::$user->id();
+		$equipment_id = self::$equipment->id();
+		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_rate = '2.00';
+		$charged_time = 25;
+		$time = '2020-05-31 10:46:34';
+
+		$data = [
+			'id' => $id,
+			'user_id' => $user_id,
+			'equipment_id' => $equipment_id,
+			'charge_policy_id' => $charge_policy_id,
+			'charge_rate' => $charge_rate,
+			'charged_time' => $charged_time,
+			'time' => $time
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$charge = $transformer->deserialize($data);
+	}
+
+	public function testDeserializeInvalidDataChargePolicy(): void {
+		$transformer = new ChargeTransformer();
+
+		$id = 42;
+		$user_id = self::$user->id();
+		$equipment_id = self::$equipment->id();
+		$amount = '2.00';
+		$charge_rate = '2.00';
+		$charged_time = 25;
+		$time = '2020-05-31 10:46:34';
+
+		$data = [
+			'id' => $id,
+			'user_id' => $user_id,
+			'equipment_id' => $equipment_id,
+			'amount' => $amount,
+			'charge_rate' => $charge_rate,
+			'charged_time' => $charged_time,
+			'time' => $time
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$charge = $transformer->deserialize($data);
+	}
+
+	public function testDeserializeInvalidDataChargeRate(): void {
+		$transformer = new ChargeTransformer();
+
+		$id = 42;
+		$user_id = self::$user->id();
+		$equipment_id = self::$equipment->id();
+		$amount = '2.00';
+		$charge_policy_id = ChargePolicy::PER_USE;
+		$charged_time = 25;
+		$time = '2020-05-31 10:46:34';
+
+		$data = [
+			'id' => $id,
+			'user_id' => $user_id,
+			'equipment_id' => $equipment_id,
+			'amount' => $amount,
+			'charge_policy_id' => $charge_policy_id,
+			'charged_time' => $charged_time,
+			'time' => $time
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$charge = $transformer->deserialize($data);
+	}
+
+	public function testDeserializeInvalidDataChargedTime(): void {
+		$transformer = new ChargeTransformer();
+
+		$id = 42;
+		$user_id = self::$user->id();
+		$equipment_id = self::$equipment->id();
+		$amount = '2.00';
+		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_rate = '2.00';
+		$time = '2020-05-31 10:46:34';
+
+		$data = [
+			'id' => $id,
+			'user_id' => $user_id,
+			'equipment_id' => $equipment_id,
+			'amount' => $amount,
+			'charge_policy_id' => $charge_policy_id,
+			'charge_rate' => $charge_rate,
+			'time' => $time
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$charge = $transformer->deserialize($data);
+	}
+
+	public function testDeserializeInvalidDataTime(): void {
+		$transformer = new ChargeTransformer();
+
+		$id = 42;
+		$user_id = self::$user->id();
+		$equipment_id = self::$equipment->id();
+		$amount = '2.00';
+		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_rate = '2.00';
+		$charged_time = 25;
+
+		$data = [
+			'id' => $id,
+			'user_id' => $user_id,
+			'equipment_id' => $equipment_id,
+			'amount' => $amount,
+			'charge_policy_id' => $charge_policy_id,
+			'charge_rate' => $charge_rate,
+			'charged_time' => $charged_time
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$charge = $transformer->deserialize($data);
+	}
+
 	public function testSerialize(): void {
 		$transformer = new ChargeTransformer();
 
