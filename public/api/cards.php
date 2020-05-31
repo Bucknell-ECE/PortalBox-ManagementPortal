@@ -6,15 +6,15 @@
 	 */
 	function validate($card) {
 		if(!is_array($card)) {
-			header('HTTP/1.0 500 Internal Server Error');
+			http_response_code(500);
 			die('We seem to have encountered an unexpected difficulty. Please ask your server administrator to investigate');
 		}
 		if(!array_key_exists('id', $card) || empty($card['id'])) {
-			header('HTTP/1.0 400 Bad Request');
+			http_response_code(400);
 			die('You must specify the card id');
 		}
 		if(!array_key_exists('type_id', $card) || empty($card['type_id'])) {
-			header('HTTP/1.0 400 Bad Request');
+			http_response_code(400);
 			die('You must specify the card type_id');
 		}
 		// Warning hard coded values! Of course it would be exceedingly hard to
@@ -22,13 +22,13 @@
 		// Application
 		if(3 == $card['type_id']) {
 			if(!array_key_exists('equipment_type_id', $card) || empty($card['equipment_type_id'])) {
-				header('HTTP/1.0 400 Bad Request');
+				http_response_code(400);
 				die('For a training card, you must specify the card equipment_type_id');
 			}
 		}
 		if(4 == $card['type_id']) {
 			if(!array_key_exists('user_id', $card) || empty($card['user_id'])) {
-				header('HTTP/1.0 400 Bad Request');
+				http_response_code(400);
 				die('For a user card, you must specify the card user_id');
 			}
 		}
@@ -36,7 +36,7 @@
 
 	// check authentication/authorization
 	if((include_once '../lib/Security.php') === FALSE) {
-		header('HTTP/1.0 500 Internal Server Error');
+		http_response_code(500);
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 	require_authorization('trainer');
@@ -44,12 +44,12 @@
 
 	// only authenticated users should reach this point
 	if((include_once '../lib/Database.php') === FALSE) {
-		header('HTTP/1.0 500 Internal Server Error');
+		http_response_code(500);
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
 	if((include_once '../lib/EncodeOutput.php') === FALSE) {
-		header('HTTP/1.0 500 Internal Server Error');
+		http_response_code(500);
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
@@ -65,11 +65,11 @@
 					if($card = $query->fetch(\PDO::FETCH_ASSOC)) {
 						render_json($card);
 					} else {
-						header('HTTP/1.0 404 Not Found');
+						http_response_code(404);
 						die('We have no record of that card');
 					}
 				} else {
-					header('HTTP/1.0 500 Internal Server Error');
+					http_response_code(500);
 					//die($query->errorInfo()[2]);
 					die('We experienced issues communicating with the database');
 				}
@@ -95,7 +95,7 @@
 					$cards = $query->fetchAll(\PDO::FETCH_ASSOC);
 					render_json($cards);
 				} else {
-					header('HTTP/1.0 500 Internal Server Error');
+					http_response_code(500);
 					//die($query->errorInfo()[2]);
 					die('We experienced issues communicating with the database');
 				}
@@ -105,7 +105,7 @@
 			require_authorization('admin');
 			// validate that we have an oid
 			if(!isset($_GET['id']) || empty($_GET['id'])) {
-				header('HTTP/1.0 400 Bad Request');
+				http_response_code(400);
 				die('You must specify the card to modify via the id param');
 			}
 
@@ -140,7 +140,7 @@
 									$query->bindValue(':id', $card['id']);
 									if(!$query->execute()) {
 										$connection->rollBack();
-										header('HTTP/1.0 500 Internal Server Error');
+										http_response_code(500);
 										//die($query->errorInfo()[2]);
 										die('We experienced issues communicating with the database');
 									}
@@ -150,7 +150,7 @@
 									$query->bindValue(':id', $card['id']);
 									if(!$query->execute()) {
 										$connection->rollBack();
-										header('HTTP/1.0 500 Internal Server Error');
+										http_response_code(500);
 										//die($query->errorInfo()[2]);
 										die('We experienced issues communicating with the database');
 									}
@@ -164,7 +164,7 @@
 									$query->bindValue(':equipment_type_id', $card['equipment_type_id']);
 									if(!$query->execute()) {
 										$connection->rollBack();
-										header('HTTP/1.0 500 Internal Server Error');
+										http_response_code(500);
 										//die($query->errorInfo()[2]);
 										die('We experienced issues communicating with the database');
 									}
@@ -175,7 +175,7 @@
 									$query->bindValue(':user_id', $card['user_id']);
 									if(!$query->execute()) {
 										$connection->rollBack();
-										header('HTTP/1.0 500 Internal Server Error');
+										http_response_code(500);
 										//die($query->errorInfo()[2]);
 										die('We experienced issues communicating with the database');
 									}
@@ -189,7 +189,7 @@
 									$query->bindValue(':equipment_type_id', $card['equipment_type_id']);
 									if(!$query->execute()) {
 										$connection->rollBack();
-										header('HTTP/1.0 500 Internal Server Error');
+										http_response_code(500);
 										//die($query->errorInfo()[2]);
 										die('We experienced issues communicating with the database');
 									}
@@ -200,7 +200,7 @@
 									$query->bindValue(':user_id', $card['user_id']);
 									if(!$query->execute()) {
 										$connection->rollBack();
-										header('HTTP/1.0 500 Internal Server Error');
+										http_response_code(500);
 										//die($query->errorInfo()[2]);
 										die('We experienced issues communicating with the database');
 									}
@@ -211,23 +211,23 @@
 							render_json($card);
 						} else {
 							$connection->rollBack();
-							header('HTTP/1.0 500 Internal Server Error');
+							http_response_code(500);
 							//die($query->errorInfo()[2]);
 							die('We experienced issues communicating with the database');
 						}
 					} else {
 						$connection->rollBack();
-						header('HTTP/1.0 404 Not Found');
+						http_response_code(404);
 						die('We have no record of that card');
 					}
 				} else {
 					$connection->rollBack();
-					header('HTTP/1.0 500 Internal Server Error');
+					http_response_code(500);
 					//die($query->errorInfo()[2]);
 					die('We experienced issues communicating with the database');
 				}
 			} else {
-				header('HTTP/1.0 400 Bad Request');
+				http_response_code(400);
 				die(json_last_error_msg());
 			}
 			break;
@@ -255,7 +255,7 @@
 							$query->bindValue(':equipment_type_id', $card['equipment_type_id']);
 							if(!$query->execute()) {
 								$connection->rollBack();
-								header('HTTP/1.0 500 Internal Server Error');
+								http_response_code(500);
 								//die($query->errorInfo()[2]);
 								die('We experienced issues communicating with the database');
 							}
@@ -266,7 +266,7 @@
 							$query->bindValue(':user_id', $card['user_id']);
 							if(!$query->execute()) {
 								$connection->rollBack();
-								header('HTTP/1.0 500 Internal Server Error');
+								http_response_code(500);
 								//die($query->errorInfo()[2]);
 								die('We experienced issues communicating with the database');
 							}
@@ -276,14 +276,14 @@
 						render_json($card);
 					} else {
 						$connection->rollBack();
-						header('HTTP/1.0 500 Internal Server Error');
+						http_response_code(500);
 						//die($query->errorInfo()[2]);
 						die('We experienced issues communicating with the database');
 					}
 				} else { // not admin but trainer required :. trainer
 					// WARNING HARDCODED VALUE!!! 
 					if(4 != $card['type_id']) {
-						header('HTTP/1.0 403 Forbidden');
+						http_response_code(403);
 						//die($query->errorInfo()[2]);
 						die('You have not been granted the privilege to create a card of the specified type');
 					}
@@ -302,7 +302,7 @@
 						$query->bindValue(':user_id', $card['user_id']);
 						if(!$query->execute()) {
 							$connection->rollBack();
-							header('HTTP/1.0 500 Internal Server Error');
+							http_response_code(500);
 							//die($query->errorInfo()[2]);
 							die('We experienced issues communicating with the database');
 						}
@@ -311,21 +311,21 @@
 						render_json($card);
 					} else {
 						$connection->rollBack();
-						header('HTTP/1.0 500 Internal Server Error');
+						http_response_code(500);
 						//die($query->errorInfo()[2]);
 						die('We experienced issues communicating with the database');
 					}
 				}
 				
 			} else {
-				header('HTTP/1.0 400 Bad Request');
+				http_response_code(400);
 				die(json_last_error_msg());
 			}
 			break;
 		case 'DELETE':	// Delete
 			// intentional fall through, deletion not allowed
 		default:
-			header('HTTP/1.0 405 Method Not Allowed');
+			http_response_code(405);
 			die('We were unable to understand your request.');
 	}
 	

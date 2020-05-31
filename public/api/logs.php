@@ -44,7 +44,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 			$transformer = new LoggedEventTransformer();
 			ResponseHandler::render($log, $transformer);
 		} catch(Exception $e) {
-			header('HTTP/1.0 500 Internal Server Error');
+			http_response_code(500);
 			die('We experienced issues communicating with the database');
 		}
 
@@ -69,7 +69,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		if(0 < count($where_clause_elements)) {
 			$sql .= ' WHERE ' . join(' AND ', $where_clause_elements);
 		} else {
-			header('HTTP/1.0 400 Bad Request');
+			http_response_code(400);
 			die('Our unfiltered logs can be very large. We therefore require API users to limit their log requests in some way');
 		}
 		$sql .= ' ORDER BY l.time DESC';
@@ -96,7 +96,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 					render_json($events);
 			}
 		} else {
-			header('HTTP/1.0 500 Internal Server Error');
+			http_response_code(500);
 			//die($query->errorInfo()[2]);
 			die('We experienced issues communicating with the database');
 		}
@@ -108,6 +108,6 @@ switch($_SERVER['REQUEST_METHOD']) {
 	case 'DELETE':	// Delete
 		// intentional fall through, deletion not allowed
 	default:
-		header('HTTP/1.0 405 Method Not Allowed');
+		http_response_code(405);
 		die('We were unable to understand your request.');
 }

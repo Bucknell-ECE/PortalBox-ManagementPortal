@@ -10,7 +10,7 @@ In some shell commands you may need to provide values left up to you. These valu
 This project is licensed under the Apache 2.0 License - see the LICENSE file for details
 
 ## Supported Server Environments
-Makerportal is known to work with:
+Makerportal requires PHP version 5.4+ and is known to work with:
 
  - Apache 2.4 + mod_php
  - Nginx 1.12 + PHP-FPM

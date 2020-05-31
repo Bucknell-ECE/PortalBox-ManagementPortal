@@ -9,21 +9,21 @@
 		// do not warn if include fails
 		@include_once('../lib/extensions/ext_validate_email.php');
 		if(!is_array($user)) {
-			header('HTTP/1.0 500 Internal Server Error');
+			http_response_code(500);
 			die('We seem to have encountered an unexpected difficulty. Please ask your server administrator to investigate');
 		}
 		if(!array_key_exists('name', $user) || empty($user['name'])) {
-			header('HTTP/1.0 400 Bad Request');
+			http_response_code(400);
 			die('You must specify the user\'s name');
 		}
 		if(!array_key_exists('email', $user) || empty($user['email'])) {
-			header('HTTP/1.0 400 Bad Request');
+			http_response_code(400);
 			die('You must specify the user\'s email');
 		} else {
 			if(function_exists('ext_validate_email')) {
 				$email = ext_validate_email($user['email']);
 				if(FALSE === $email) {
-					header('HTTP/1.0 400 Bad Request');
+					http_response_code(400);
 					die('You must specify a valid email for the user');
 				} else {
 					// "return" possibly modified value through pass by reference mechanism
@@ -32,7 +32,7 @@
 			}
 		}
 		if(!array_key_exists('management_portal_access_level_id', $user) || empty($user['management_portal_access_level_id'])) {
-			header('HTTP/1.0 400 Bad Request');
+			http_response_code(400);
 			die('You must specify the user\'s management portal access level');
 		} else {
 			$connection = DB::getConnection();
@@ -42,20 +42,20 @@
 			if($query->execute()) {
 				$type = $query->fetch(PDO::FETCH_ASSOC);
 				if(!$type) {
-					header('HTTP/1.0 400 Bad Request');
+					http_response_code(400);
 					die('You must specify a valid management portal access level for the user');
 				}
 			} else {
-				header('HTTP/1.0 500 Internal Server Error');
+				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
 		}
 		if(!array_key_exists('is_active', $user) || !isset($user['is_active'])) {
-			header('HTTP/1.0 400 Bad Request');
+			http_response_code(400);
 			die('You must specify whether the user is active');
 		}
 		if(array_key_exists('authorizations', $user) && !is_array($user['authorizations'])) {
-			header('HTTP/1.0 400 Bad Request');
+			http_response_code(400);
 			die('You must specify the user\'s authorizations as an array');
 		}
 	}
@@ -63,19 +63,19 @@
 	// check authentication
 	// trainers and admins can use this endpoint, we'll have to check authorization in each method
 	if((include_once '../lib/Security.php') === FALSE) {
-		header('HTTP/1.0 500 Internal Server Error');
+		http_response_code(500);
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 	require_authentication();
 
 	// only authenticated users should reach this point
 	if((include_once '../lib/Database.php') === FALSE) {
-		header('HTTP/1.0 500 Internal Server Error');
+		http_response_code(500);
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
 	if((include_once '../lib/EncodeOutput.php') === FALSE) {
-		header('HTTP/1.0 500 Internal Server Error');
+		http_response_code(500);
 		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
 	}
 
@@ -123,21 +123,21 @@
 
 								render_json($user);
 							} else {
-								header('HTTP/1.0 500 Internal Server Error');
+								http_response_code(500);
 								//die($query->errorInfo()[2]);
 								die('We experienced issues communicating with the database');
 							}
 						} else {
-							header('HTTP/1.0 500 Internal Server Error');
+							http_response_code(500);
 							//die($query->errorInfo()[2]);
 							die('We experienced issues communicating with the database');
 						}
 					} else {
-						header('HTTP/1.0 404 Not Found');
+						http_response_code(404);
 						die('We have no record of that user');
 					}
 				} else {
-					header('HTTP/1.0 500 Internal Server Error');
+					http_response_code(500);
 					//die($query->errorInfo()[2]);
 					die('We experienced issues communicating with the database');
 				}
@@ -200,7 +200,7 @@
 					unset($u);
 					render_json($users);
 				} else {
-					header('HTTP/1.0 500 Internal Server Error');
+					http_response_code(500);
 					//die($query->errorInfo()[2]);
 					die('We experienced issues communicating with the database');
 				}
@@ -215,14 +215,14 @@
 
 			// validate that we have an oid
 			if(!isset($_GET['id']) || empty($_GET['id'])) {
-				header('HTTP/1.0 400 Bad Request');
+				http_response_code(400);
 				die('You must specify the user to modify via the id param');
 			}
 
 			// validate that we have input
 			$user = json_decode(file_get_contents('php://input'), TRUE);
 			if(NULL === $user) {
-				header('HTTP/1.0 400 Bad Request');
+				http_response_code(400);
 				die("We could not decode your data. JSON error: " . json_last_error_msg());
 			}
 
@@ -303,7 +303,7 @@
 								$query->bindValue(':equipment_type_id', $id);
 								if(!$query->execute()) {
 									$connection->rollBack();
-									header('HTTP/1.0 500 Internal Server Error');
+									http_response_code(500);
 									//die($query->errorInfo()[2]);
 									die('We experienced issues communicating with the database');
 								}
@@ -318,7 +318,7 @@
 								$query->bindValue(':id', $id);
 								if(!$query->execute()) {
 									$connection->rollBack();
-									header('HTTP/1.0 500 Internal Server Error');
+									http_response_code(500);
 									//die($query->errorInfo()[2]);
 									die('We experienced issues communicating with the database');
 								}
@@ -355,19 +355,19 @@
 						render_json($user);
 					} else {
 						$connection->rollBack();
-						header('HTTP/1.0 500 Internal Server Error');
+						http_response_code(500);
 						//die($query->errorInfo()[2]);
 						die('We experienced issues communicating with the database');
 					}
 				} else {
 					$connection->rollBack();
-					header('HTTP/1.0 500 Internal Server Error');
+					http_response_code(500);
 					//die($query->errorInfo()[2]);
 					die('We experienced issues communicating with the database');
 				}
 			} else { // not admin but at least trainer :. trainer
 				if(!array_key_exists('authorizations', $user) || !is_array($user['authorizations'])) {
-					header('HTTP/1.0 400 Bad Request');
+					http_response_code(400);
 					die('You must specify the user\'s authorizations as an array');
 				}
 
@@ -430,7 +430,7 @@
 									$query->bindValue(':equipment_type_id', $id);
 									if(!$query->execute()) {
 										$connection->rollBack();
-										header('HTTP/1.0 500 Internal Server Error');
+										http_response_code(500);
 										//die($query->errorInfo()[2]);
 										die('We experienced issues communicating with the database');
 									}
@@ -445,7 +445,7 @@
 									$query->bindValue(':id', $id);
 									if(!$query->execute()) {
 										$connection->rollBack();
-										header('HTTP/1.0 500 Internal Server Error');
+										http_response_code(500);
 										//die($query->errorInfo()[2]);
 										die('We experienced issues communicating with the database');
 									}
@@ -481,16 +481,16 @@
 
 							render_json($user);
 						} else {
-							header('HTTP/1.0 500 Internal Server Error');
+							http_response_code(500);
 							//die($query->errorInfo()[2]);
 							die('We experienced issues communicating with the database');
 						}
 					} else {
-						header('HTTP/1.0 404 Not Found');
+						http_response_code(404);
 						die('We have no record of that user');
 					}
 				} else {
-					header('HTTP/1.0 500 Internal Server Error');
+					http_response_code(500);
 					//die($query->errorInfo()[2]);
 					die('We experienced issues communicating with the database');
 				}
@@ -512,12 +512,12 @@
 				$query->bindValue(':email', $user['email']);
 				if($query->execute()) {
 					if(0 < $query->rowCount()) {
-						header('HTTP/1.0 403 Forbidden');
+						http_response_code(403);
 						//die($query->errorInfo()[2]);
 						die('A user with the provided email address can not be added to the database');
 					}
 				} else {
-					header('HTTP/1.0 500 Internal Server Error');
+					http_response_code(500);
 					//die($query->errorInfo()[2]);
 					die('We experienced issues communicating with the database');
 				}
@@ -561,7 +561,7 @@
 							$query->bindValue(':equipment_type_id', $id);
 							if(!$query->execute()) {
 								$connection->rollBack();
-								header('HTTP/1.0 500 Internal Server Error');
+								http_response_code(500);
 								//die($query->errorInfo()[2]);
 								die('We experienced issues communicating with the database');
 							}
@@ -576,19 +576,19 @@
 					render_json($user);
 				} else {
 					$connection->rollBack();
-					header('HTTP/1.0 500 Internal Server Error');
+					http_response_code(500);
 					//die($query->errorInfo()[2]);
 					die('We experienced issues communicating with the database');
 				}
 			} else {
-				header('HTTP/1.0 400 Bad Request');
+				http_response_code(400);
 				die("We could not decode your data. JSON error: " . json_last_error_msg());
 			}
 			break;
 		case 'DELETE':	// Delete
 			// intentional fall through, deletion not allowed
 		default:
-			header('HTTP/1.0 405 Method Not Allowed');
+			http_response_code(405);
 			die('We were unable to understand your request.');
 	}
 ?>

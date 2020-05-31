@@ -1,181 +1,134 @@
 <?php
-	/**
-	 * validate - check that the parameter is an associative array with non empty
-	 * values for the 'name' key and if all is well returns but if a check fails;
-	 * the proper HTTP response is emitted and execution is halted.
-	 */
-	function validate($payment) {
-		if(!is_array($payment)) {
-			header('HTTP/1.0 500 Internal Server Error');
-			die('We seem to have encountered an unexpected difficulty. Please ask your server administrator to investigate');
-		}
-		if(!array_key_exists('user_id', $payment) || empty($payment['user_id'])) {
-			header('HTTP/1.0 400 Bad Request');
-			die('You must specify the user for the payment');
-		}
-		if(!array_key_exists('amount', $payment) || empty($payment['amount'])) {
-			header('HTTP/1.0 400 Bad Request');
-			die('You must specify the amount for the payment');
-		}
-		if(!array_key_exists('time', $payment) || empty($payment['time'])) {
-			header('HTTP/1.0 400 Bad Request');
-			die('You must specify the time for the payment');
-		}
-	}
 
-	// check authentication/authorization
-	// users, trainers and admins can use this endpoint, we'll have to check authorization in each method
-	if((include_once '../lib/Security.php') === FALSE) {
-		header('HTTP/1.0 500 Internal Server Error');
-		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
-	}
-	require_authentication();
+require '../../src/autoload.php';
 
-	// only authenticated users should reach this point
-	if((include_once '../lib/Database.php') === FALSE) {
-		header('HTTP/1.0 500 Internal Server Error');
-		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
-	}
+use Portalbox\Config;
+use Portalbox\ResponseHandler;
+use Portalbox\Session;
 
-	if((include_once '../lib/EncodeOutput.php') === FALSE) {
-		header('HTTP/1.0 500 Internal Server Error');
-		die('We were unable to load some dependencies. Please ask your server administrator to investigate');
-	}
+use Portalbox\Entity\Permission;
 
-	// switch on the request method
-	switch($_SERVER['REQUEST_METHOD']) {
-		case 'GET':		// List/Read
-			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-				require_authorization('admin');
+use Portalbox\Model\PaymentModel;
 
-				$connection = DB::getConnection();
-				$sql = 'SELECT p.id, p.user_id, u.name AS user, u.email, p.amount, p.time FROM payments AS p INNER JOIN users AS u on u.id = p.user_id WHERE p.id = :id';
-				$query = $connection->prepare($sql);
-				$query->bindValue(':id', $_GET['id']);
-				if($query->execute()) {
-					if($payment = $query->fetch(\PDO::FETCH_ASSOC)) {
-						render_json($payment);
-					} else {
-						header('HTTP/1.0 404 Not Found');
-						die('We have no record of that payment');
-					}
+use Portalbox\Query\PaymentQuery;
+
+use Portalbox\Transform\PaymentTransformer;
+
+// switch on the request method
+switch($_SERVER['REQUEST_METHOD']) {
+	case 'GET':		// List/Read
+		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
+			// check authorization
+			Session::require_authorization(Permission::READ_PAYMENT);
+
+			try {
+				$model = new PaymentModel(Config::config());
+				$payment = $model->read($_GET['id']);
+				if($payment) {
+					$transformer = new PaymentTransformer();
+					ResponseHandler::render($payment, $transformer);
 				} else {
-					header('HTTP/1.0 500 Internal Server Error');
-					//die($query->errorInfo()[2]);
-					die('We experienced issues communicating with the database');
+					http_response_code(404);
+					die('We have no record of that payment');
 				}
-			} else { // List
-				if(!isset($_GET['user_id']) || empty($_GET['user_id']) || $_GET['user_id'] != SecurityContext::getContext()->authorized_user_id) {	// allow users to view own profile
-					require_authorization('admin');
-				} 
+			} catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the database');
+			}
+		} else { // List
+			$user_id = NULL;
 
-				$connection = DB::getConnection();
-				$sql = 'SELECT p.id, p.user_id, u.name AS user, u.email, p.amount, p.time FROM payments AS p INNER JOIN users AS u on u.id = p.user_id';
+			// check authorization
+			if(Session::check_authorization(Permission::LIST_OWN_PAYMENTS)) {
+				if(!Session::check_authorization(Permission::LIST_PAYMENTS)) {
+					$user_id = Session::get_authenticated_user()->id();
+				}
+			} else {
+				Session::require_authorization(Permission::LIST_PAYMENTS);
+			}
 
-				$where_clause_elements = array();
-				$parameters = array();
-				if(isset($_GET['user_id']) && !empty($_GET['user_id'])) {
-					$where_clause_elements[] = 'p.user_id = :user_id';
-					$parameters[':user_id'] = $_GET['user_id'];
+			try {
+				$model = new PaymentModel(Config::config());
+				$query = new PaymentQuery();
+				if($user_id) {
+					$query->set_user_id($user_id);
+				} else if(isset($_GET['user_id']) && !empty($_GET['user_id'])) {
+					$query->set_user_id($_GET['user_id']);
 				}
 				if(isset($_GET['after']) && !empty($_GET['after'])) {
-					$where_clause_elements[] = 'p.time >= :after';
-					$parameters[':after'] = $_GET['after'];
+					$query->set_on_or_after($_GET['after']);
 				}
 				if(isset($_GET['before']) && !empty($_GET['before'])) {
-					$where_clause_elements[] = 'p.time <= :before';
-					$parameters[':before'] = $_GET['before'];
+					$query->set_on_or_before($_GET['before']);
 				}
-				if(0 < count($where_clause_elements)) {
-					$sql .= ' WHERE ' . join(' AND ', $where_clause_elements);
-				}
-				$sql .= ' ORDER BY p.time DESC';
 
-				$query = $connection->prepare($sql);
-				foreach($parameters as $k => $v) {
-					$query->bindValue($k, $v);
-				}
-				if($query->execute()) {
-					$payments = $query->fetchAll(\PDO::FETCH_ASSOC);
-					render_json($payments);
-				} else {
-					header('HTTP/1.0 500 Internal Server Error');
-					//die($query->errorInfo()[2]);
-					die('We experienced issues communicating with the database');
-				}
+				$payments = $model->search($query);
+				$transformer = new PaymentTransformer();
+				ResponseHandler::render($payments, $transformer);
+			} catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the database');
 			}
-			break;
-		case 'POST':	// Update
-			require_authorization('admin');
-
-			// validate that we have an oid
-			if(!isset($_GET['id']) || empty($_GET['id'])) {
-				header('HTTP/1.0 400 Bad Request');
-				die('You must specify the payment to modify via the id param');
-			}
-
-			$payment = json_decode(file_get_contents('php://input'), TRUE);
-			if(NULL !== $payment) {
-				validate($payment);
-
-				$connection = DB::getConnection();
-				$sql = 'UPDATE payments SET amount = :amount, time = :time, user_id = :user_id WHERE id = :id';
-				$query = $connection->prepare($sql);
-				$query->bindValue(':id', $_GET['id']);
-				$query->bindValue(':amount', $payment['amount']);
-				$query->bindValue(':time', $payment['time']);
-				$query->bindValue(':user_id', $payment['user_id']);
-				if($query->execute()) {
-					// success
-					// most drivers do not report the number of rows on an UPDATE
-					// We'll just return the equipment... but we'll update the value in the
-					// id field for consistency
-					$payment['id'] = $_GET['id'];
-					render_json($payment);
-				} else {
-					header('HTTP/1.0 500 Internal Server Error');
-					//die($query->errorInfo()[2]);
-					die('We experienced issues communicating with the database');
-				}
-			} else {
-				header('HTTP/1.0 400 Bad Request');
-				die(json_last_error_msg());
-			}
-			break;
-		case 'PUT':		// Create
-			require_authorization('admin');
-
-			$payment = json_decode(file_get_contents('php://input'), TRUE);
-			if(NULL !== $payment) {
-				validate($payment);
-
-				$connection = DB::getConnection();
-				$sql = 'INSERT INTO payments(amount, time, user_id) VALUES(:amount, :time, :user_id)';
-				$query = $connection->prepare($sql);
-				$query->bindValue(':amount', $payment['amount']);
-				$query->bindValue(':time', $payment['time']);
-				$query->bindValue(':user_id', $payment['user_id']);
-				if($query->execute()) {
-					// success
-					// most drivers do not report the number of rows on an INSERT
-					// We'll return the location after adding/overwriting an id field
-					$payment['id'] = $connection->lastInsertId('payments_id_seq');
-					render_json($payment);
-				} else {
-					header('HTTP/1.0 500 Internal Server Error');
-					//die($query->errorInfo()[2]);
-					die('We experienced issues communicating with the database');
-				}
-			} else {
-				header('HTTP/1.0 400 Bad Request');
-				die(json_last_error_msg());
-			}
+		}
 		break;
-		case 'DELETE':	// Delete
-			// intentional fall through, deletion not allowed, but maybe it should be?
-		default:
-			header('HTTP/1.0 405 Method Not Allowed');
-			die('We were unable to understand your request.');
-	}
-	
-?>
+	case 'POST':	// Update
+		// validate that we have an oid
+		if(!isset($_GET['id']) || empty($_GET['id'])) {
+			http_response_code(400);
+			die('You must specify the payment to modify via the id param');
+		}
+
+		// check authorization
+		Session::require_authorization(Permission::MODIFY_PAYMENT);
+
+		$data = json_decode(file_get_contents('php://input'), TRUE);
+		if(NULL !== $data) {
+			try {
+				$transformer = new PaymentTransformer();
+				$payment = $transformer->deserialize($data);
+				$payment->set_id($_GET['id']);
+				$model = new PaymentModel(Config::config());
+				$payment = $model->update($payment);
+				ResponseHandler::render($payment, $transformer);
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die('One or more of the values provided we unacceptable. Please consult the documentation.');
+			} catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the database');
+			}
+		} else {
+			http_response_code(400);
+			die(json_last_error_msg());
+		}
+		break;
+	case 'PUT':		// Create
+		// check authorization
+		Session::require_authorization(Permission::CREATE_PAYMENT);
+
+		$data = json_decode(file_get_contents('php://input'), TRUE);
+		if(NULL !== $data) {
+			try {
+				$transformer = new PaymentTransformer();
+				$payment = $transformer->deserialize($data);
+				$model = new PaymentModel(Config::config());
+				$payment = $model->create($payment);
+				ResponseHandler::render($payment, $transformer);
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die('One or more of the values provided we unacceptable. Please consult the documentation.');
+			} catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the database');
+			}
+		} else {
+			http_response_code(400);
+			die(json_last_error_msg());
+		}
+		break;
+	case 'DELETE':	// Delete
+		// intentional fall through, deletion not allowed, but maybe it should be?
+	default:
+		http_response_code(405);
+		die('We were unable to understand your request.');
+}
