@@ -2,6 +2,8 @@
 
 namespace Portalbox\Transform;
 
+use InvalidArgumentException;
+
 use Portalbox\Entity\Location;
 
 /**
@@ -12,9 +14,17 @@ use Portalbox\Entity\Location;
  */
 class LocationTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * TBD
+	 * Deserialize a Location entity object from a dictionary
+	 * 
+	 * @param array data - a dictionary representing a Location
+	 * @return Location - a valid entity object based on the data specified
+	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data) : Location {
+		if(!array_key_exists('name', $data)) {
+			throw new InvalidArgumentException('\'name\' is a required field');
+		}
+
 		return (new Location())->set_name($data['name']);
 	}
 

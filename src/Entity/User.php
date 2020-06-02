@@ -151,10 +151,10 @@ class User extends AbstractEntity {
 	 * @return string - the name of the user's role
 	 */
 	public function role_name() : string {
-		if(NULL === $role) {
+		if(NULL === $this->role) {
 			return '';
 		} else {
-			return $role->name();
+			return $this->role->name();
 		}
 	}
 

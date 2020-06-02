@@ -14,7 +14,7 @@ use PortalBox\Entity\Location;
 use PortalBox\Model\EquipmentTypeModel;
 use PortalBox\Model\LocationModel;
 
-use Portalbox\Transform\equipmentTransformer;
+use Portalbox\Transform\EquipmentTransformer;
 
 final class EquipmentTransformerTest extends TestCase {
 	/**

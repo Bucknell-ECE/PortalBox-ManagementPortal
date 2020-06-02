@@ -2,7 +2,14 @@
 
 namespace Portalbox\Transform;
 
+use InvalidArgumentException;
+
+use Portalbox\Config;
+
 use Portalbox\Entity\User;
+
+// violation of SOLID design... should use these via interfaces and dependency injection
+use Portalbox\Model\RoleModel;
 
 /**
  * UserTransformer is our bridge between dictionary representations and User
@@ -12,13 +19,43 @@ use Portalbox\Entity\User;
  */
 class UserTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * validate check that the paramter is an associative array with non empty
-	 * values for the 'name', 'type_id', 'mac_address', and 'location_id'
-	 * keys and the presence of a timeout key then if all is well returns but if
-	 * a check fails; the proper HTTP response is emitted and execution is halted.
+	 * Deserialize a Payment entity object from a dictionary
+	 * 
+	 * @param array data - a dictionary representing a Payment
+	 * @return Payment - a valid entity object based on the data specified
+	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data) : User {
-		return new User();
+		if(!array_key_exists('role_id', $data)) {
+			throw new InvalidArgumentException('\'role_id\' is a required field');
+		}
+		if(!array_key_exists('name', $data)) {
+			throw new InvalidArgumentException('\'name\' is a required field');
+		}
+		if(!array_key_exists('email', $data)) {
+			throw new InvalidArgumentException('\'email\' is a required field');
+		}
+		if(!array_key_exists('is_active', $data)) {
+			throw new InvalidArgumentException('\'is_active\' is a required field');
+		}
+
+		$role = (new RoleModel(Config::config()))->read($data['role_id']);
+		if(NULL === $role) {
+			throw new InvalidArgumentException('\'role_id\' must correspond to a valid role');
+		}
+
+		$user = (new User())
+					->set_name($data['name'])
+					->set_email($data['email'])
+					->set_is_active($data['is_active'])
+					->set_role($role);
+
+		// add in optional fields
+		if(array_key_exists('comment', $data)) {
+			$user->set_comment($data['comment']);
+		}
+
+		return $user;
 	}
 
 	/**
