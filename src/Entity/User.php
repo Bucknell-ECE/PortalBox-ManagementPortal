@@ -223,6 +223,8 @@ class User extends AbstractEntity {
 	 * @return User - returns this in order to support fluent syntax.
 	 */
 	public function set_authorizations(array $authorizations) : User {
+		// Should check if valid? ie an int that is the id of an equipment type
+
 		$this->authorizations = $authorizations;
 		return $this;
 	}

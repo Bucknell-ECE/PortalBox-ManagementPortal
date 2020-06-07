@@ -33,8 +33,35 @@ class UserModel extends AbstractModel {
 		$statement->bindValue(':is_active', $user->is_active(), PDO::PARAM_BOOL);
 		$statement->bindValue(':role_id', $user->role()->id(), PDO::PARAM_INT);
 
-		if($statement->execute()) {
-			return $user->set_id($connection->lastInsertId('users_id_seq'));
+		if($connection->beginTransaction()) {
+			if($statement->execute()) {
+				// Add in authorizations
+				$user_id = $connection->lastInsertId('users_id_seq');
+	
+				$authorizations = $user->authorizations();
+	
+				$sql = 'INSERT INTO authorizations (user_id, equipment_type_id) VALUES (:user_id, :equipment_type_id)';
+				$statement = $connection->prepare($sql);
+	
+				foreach($authorizations as $equipment_type_id) {
+					$statement->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+					$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
+					if(!$statement->execute()) {
+						// cancel transaction
+						$connection->rollBack();
+						return null;
+					}
+				}
+
+				// all good :. commit
+				$connection->commit();
+				return $user->set_id($user_id);
+			} else {
+				$connection->rollBack();	// This is unlikely to succeed but
+											// in case it does the transaction
+											// lock is released which is a good thing
+				throw new DatabaseException($statement->errorInfo()[2]);
+			}
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
@@ -54,12 +81,21 @@ class UserModel extends AbstractModel {
 		$statement->bindValue(':id', $id, PDO::PARAM_INT);
 		if($statement->execute()) {
 			if($data = $statement->fetch(PDO::FETCH_ASSOC)) {
-				return $this->buildUserFromArray($data);
+				$user = $this->buildUserFromArray($data);
+
+				$sql = 'SELECT equipment_type_id FROM authorizations WHERE user_id = :user_id';
+				$query = $connection->prepare($sql);
+				$query->bindValue(':user_id', $data['id'], PDO::PARAM_INT);
+				if($query->execute()) {
+					return $user->set_authorizations($query->fetchAll(PDO::FETCH_COLUMN));
+				}
+
+				return null;
 			} else {
 				return null;
 			}
 		} else {
-			throw new DatabaseException($connection->errorInfo()[2]);
+			throw new DatabaseException($statement->errorInfo()[2]);
 		}
 	}
 
@@ -71,6 +107,10 @@ class UserModel extends AbstractModel {
 	 * @return User|null - the user or null if the user could not be saved
 	 */
 	public function update(User $user) : ?User {
+		$user_id = $user->id();
+		$authorizations = $user->authorizations();
+		$old_authorizations = $this->read($user_id)->authorizations();
+
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE users SET name = :name, email = :email, comment = :comment, role_id = :role_id, is_active = :is_active WHERE id = :id';
 		$statement = $connection->prepare($sql);
@@ -82,16 +122,57 @@ class UserModel extends AbstractModel {
 		$statement->bindValue(':is_active', $user->is_active(), PDO::PARAM_BOOL);
 		$statement->bindValue(':role_id', $user->role()->id(), PDO::PARAM_INT);
 
-		if($statement->execute()) {
-			$user = (new PDOAwareUser($this->configuration()))
-				->set_id($user->id())
-				->set_name($user->name())
-				->set_email($user->email())
-				->set_comment($user->comment())
-				->set_is_active($user->is_active())
-				->set_role_id($user->role()->id());
-			
-			return $user;
+		if($connection->beginTransaction()) {
+			if($statement->execute()) {
+				$user = (new PDOAwareUser($this->configuration()))
+					->set_id($user->id())
+					->set_name($user->name())
+					->set_email($user->email())
+					->set_comment($user->comment())
+					->set_is_active($user->is_active())
+					->set_role_id($user->role()->id());
+				
+				// Authorizations... There are three cases:
+				//	1) Authorizations which were removed -> delete
+				//	2) Authorizations which were added -> insert
+				//	3) Authorizations which were not changed -> do nothing
+
+				$unchanged_authorizations = array_intersect($old_authorizations, $authorizations);
+				$added_authorizations = array_diff($authorizations, $unchanged_authorizations);
+				$removed_authorizations = array_diff($old_authorizations, $unchanged_authorizations);
+	
+				$sql = 'INSERT INTO authorizations (user_id, equipment_type_id) VALUES (:user_id, :equipment_type_id)';
+				$statement = $connection->prepare($sql);
+	
+				foreach($added_authorizations as $equipment_type_id) {
+					$statement->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+					$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
+					if(!$statement->execute()) {
+						// cancel transaction
+						$connection->rollBack();
+						return null;
+					}
+				}
+
+				$sql = 'DELETE FROM authorizations WHERE user_id = :user_id AND equipment_type_id = :equipment_type_id';
+				$statement = $connection->prepare($sql);
+
+				foreach($removed_authorizations as $equipment_type_id) {
+					$statement->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+					$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
+					if(!$statement->execute()) {
+						// cancel transaction
+						$connection->rollBack();
+						return null;
+					}
+				}
+
+				// all good :. commit
+				$connection->commit();
+				return $user->set_authorizations($authorizations);
+			} else {
+				throw new DatabaseException($statement->errorInfo()[2]);
+			}
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
@@ -146,7 +227,7 @@ class UserModel extends AbstractModel {
 				return null;
 			}
 		} else {
-			throw new DatabaseException($connection->errorInfo()[2]);
+			throw new DatabaseException($statement->errorInfo()[2]);
 		}
 	}
 

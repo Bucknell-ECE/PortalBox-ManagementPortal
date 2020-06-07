@@ -9,6 +9,7 @@ use Portalbox\Config;
 use Portalbox\Entity\User;
 
 // violation of SOLID design... should use these via interfaces and dependency injection
+use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 
 /**
@@ -54,6 +55,21 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 		if(array_key_exists('comment', $data)) {
 			$user->set_comment($data['comment']);
 		}
+		if(array_key_exists('authorizations', $data)) {
+			if(!is_array($data['authorizations'])) {
+				throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
+			}
+
+			$model = new EquipmentTypeModel(Config::config());
+			foreach($data['authorizations'] as $equipment_type_id) {
+				$equipment_type = $model->read($equipment_type_id);
+				if(NULL === $equipment_type) {
+					throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
+				}
+			}
+
+			$user->set_authorizations($data['authorizations']);
+		}
 
 		return $user;
 	}
@@ -77,7 +93,8 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 				'email' => $data->email(),
 				'comment' => $data->comment(),
 				'role' => $role_transformer->serialize($data->role(), $traverse),
-				'is_active' => $data->is_active()
+				'is_active' => $data->is_active(),
+				'authorizations' => $data->authorizations()
 			];
 		} else {
 			return [

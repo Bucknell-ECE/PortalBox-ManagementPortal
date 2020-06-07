@@ -34,28 +34,6 @@ final class RoleTest extends TestCase {
 		self::assertCount($permissions_count, $role->permissions());
 		self::assertContains(Permission::READ_API_KEY, $role->permissions());
 		self::assertContains(Permission::READ_CARD, $role->permissions());
-
-		$permissions_count++;
-		$role->add_permission(Permission::READ_EQUIPMENT);
-		self::assertIsIterable($role->permissions());
-		self::assertCount($permissions_count, $role->permissions());
-		self::assertContains(Permission::READ_API_KEY, $role->permissions());
-		self::assertContains(Permission::READ_CARD, $role->permissions());
-		self::assertContains(Permission::READ_EQUIPMENT, $role->permissions());
-	}
-
-	public function testAddFirstPermission(): void {
-		$role = (new Role())->add_permission(Permission::READ_API_KEY);
-
-		self::assertIsIterable($role->permissions());
-		self::assertCount(1, $role->permissions());
-		self::assertContains(Permission::READ_API_KEY, $role->permissions());
-	}
-
-	public function testAddInvalidPermissionTriggersException(): void {
-		$this->expectException(InvalidArgumentException::class);
-
-		$role = (new Role())->add_permission(-1);
 	}
 
 	public function testSetInvalidPermissionListTriggersException(): void {
