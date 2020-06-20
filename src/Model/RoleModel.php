@@ -84,7 +84,7 @@ class RoleModel extends AbstractModel {
 				$statement = $connection->prepare($sql);
 				$statement->bindValue(':role_id', $data['id'], PDO::PARAM_INT);
 				if($statement->execute()) {
-					return $role->set_permissions($statement->fetchAll(PDO::FETCH_COLUMN));
+					return $role->set_permissions(array_map('intval', $statement->fetchAll(PDO::FETCH_COLUMN)));
 				}
 
 				// throw exception?

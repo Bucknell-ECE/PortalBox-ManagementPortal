@@ -1,0 +1,14 @@
+{{#user}}
+<label for="menu-toggle" id="menu-button">
+	<img src="{{profile_image_url}}" class="circular" height="64" width="64" />
+</label>
+<input type="checkbox" id="menu-toggle" name="menu-toggle" class="checkbox-hack">
+<div id="menu">
+	<label for="menu-toggle" class="scrim"></label>
+	<ul>
+		<li><a href="/profile"><i class="material-icons">person</i> Profile</a></li>
+		<li><hr></li>
+		<li><a href="/logout"><i class="material-icons">exit_to_app</i> Signout</a></li>
+	</ul>
+</div>
+{{/user}}

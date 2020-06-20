@@ -87,7 +87,7 @@ class UserModel extends AbstractModel {
 				$query = $connection->prepare($sql);
 				$query->bindValue(':user_id', $data['id'], PDO::PARAM_INT);
 				if($query->execute()) {
-					return $user->set_authorizations($query->fetchAll(PDO::FETCH_COLUMN));
+					return $user->set_authorizations(array_map('intval', $query->fetchAll(PDO::FETCH_COLUMN)));
 				}
 
 				return null;

@@ -26,7 +26,7 @@ use Portalbox\Transform\UserTransformer;
 if(!array_key_exists('HTTP_AUTHORIZATION', $_SERVER)) {
 	// If the user did not send an auth header, let them know it is required
 	http_response_code(403);
-	die('No Authorization header provided');	 // should include link to docs
+	die('No Authorization header provided');	// should include link to docs
 }
 
 // Step 2 Validate AUTHORIZATION header
@@ -44,11 +44,13 @@ if(array_key_exists('error_description', $response)) {
 	http_response_code(403);
 	die('Unable to verify authentication with OAuth provider (' . $response['error_description'] . ')');
 } else if(array_key_exists('email', $response) && array_key_exists('exp', $response) && $response['exp'] > time()) {
+
 	// Step 3 Check for user in db
 	$model = new UserModel(Config::config());
 	$query = (new UserQuery())->set_email($response['email']);
 	$users = $model->search($query);
 	if($users && 0 < count($users)) {
+
 		// Step 4 user is found start a session and return the user
 		if(session_status() !== PHP_SESSION_ACTIVE) {
 			$success = session_start();
@@ -69,7 +71,6 @@ if(array_key_exists('error_description', $response)) {
 		http_response_code(403);
 		die('It does not appear you have been granted permission to use this system');
 	}
-
 } else {
 	// Something unexpected happened; inform the user we can't let them in and don't know why
 	http_response_code(403);

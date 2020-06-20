@@ -1,4 +1,4 @@
-import { SessionTimeOutError } from 'SessionTimeOutError.js';
+import { SessionTimeOutError } from './SessionTimeOutError.js';
 
 /**
  * Hide away the details of working with the REST API

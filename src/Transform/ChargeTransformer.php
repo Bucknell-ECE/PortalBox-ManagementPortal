@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Portalbox\Config;
 
 use Portalbox\Entity\Charge;
+use Portalbox\Entity\ChargePolicy;
 
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentModel;
@@ -41,6 +42,9 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 		}
 		if(!array_key_exists('charge_policy_id', $data)) {
 			throw new InvalidArgumentException('\'charge_policy_id\' is a required field');
+		}
+		if(!ChargePolicy::is_valid($data['charge_policy_id'])) {
+			throw new InvalidArgumentException('\'charge_policy_id\' must be a valid charge policy id');
 		}
 		if(!array_key_exists('charge_rate', $data)) {
 			throw new InvalidArgumentException('\'charge_rate\' is a required field');

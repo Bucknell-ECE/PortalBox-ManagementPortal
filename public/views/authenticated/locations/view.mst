@@ -1,0 +1,51 @@
+{{#location}}
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/locations">Locations</a></li>
+	<li>{{name}} ({{id}})</li>
+</ul>
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />
+<article>
+	<header>
+		<h1>Location</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-edit-state" class="default">Edit</label>
+		</div>
+	</header>
+	<dl>
+		<dt>Name:</label>
+		<dd>{{name}}</dd>
+		<dt>Equipment:</dt>
+		<dd>
+			{{#equipment}}
+			<ul>
+				<li><a href="/equipment/{{id}}">{{name}} ({{type}})</a></li>
+			</ul>
+			{{/equipment}}
+			{{^equipment}}No equipment is currently located here{{/equipment}}
+		</dd>
+	</dl>
+</article>
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
+<article>
+	<header>
+		<h1>Location</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-view-state">Cancel</label>
+			<button form="edit-location-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="edit-location-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" value="{{name}}" required />
+	</form>
+</article>
+{{/location}}
+{{^location}}
+<article>
+	<header>
+		<h1>Location</h1>
+	</header>
+	<p>Sorry we couldn't find that</p>
+</article>
+{{/location}}

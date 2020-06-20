@@ -1,0 +1,39 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/equipment-types">Equipment Types</a></li>
+	<li>Add Equipment Type</li>
+</ul>
+<article>
+	<header>
+		<h1>Add Equipment Type</h1>
+		<div class="button-group">
+			<a href="/equipment-types">Cancel</a>
+			<button form="add-equipment-type-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="add-equipment-type-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" required />
+		<label for="requires_training">Requires Training:</label>
+		<input type="checkbox" name="requires_training" id="requires_training" />
+		<div class="help">
+			<label for="equipment-type-requires-training-help-toggle">
+				<i class="material-icons">help</i>
+			</label>
+			<input type="checkbox" id="equipment-type-requires-training-help-toggle" class="checkbox-hack">
+			<div class="content">
+				<label for="equipment-type-requires-training-help-toggle" class="scrim"></label>
+				<div>
+					<p>Does this equipment type require users to be certified as having completed training before they may activate it with their identification card.</p>
+				</div>
+			</div>
+		</div>
+		<label for="charge_policy_id">Charge Policy:</label>
+		<select name="charge_policy_id" id="charge_policy_id" required />
+			<option></option>
+			{{#charge_policies}}<option value="{{id}}">{{name}}</option>{{/charge_policies}}
+		</select>
+		<label for="rate">Rate:</label>
+		<input type="number" name="charge_rate" id="charge_rate" min="0.00" step="0.01"{{#charge_rate}} value="{{.}}"{{/charge_rate}} />
+	</form>
+</article>

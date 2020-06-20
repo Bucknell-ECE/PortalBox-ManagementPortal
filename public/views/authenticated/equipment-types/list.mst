@@ -1,0 +1,31 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li>Equipment Types</li>
+</ul>
+<article>
+	<header>
+		<h1>Equipment Types</h1>
+		<div class="button-group">
+			<a href="/equipment-types/add" class="default">Add</a>
+		</div>
+	</header>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Charge Policy</th>
+				<th>Rate</th>
+				<th>Requires Training</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#types}}<tr class="link" onclick="go('/equipment-types/{{id}}', 'Equipment Types');">
+				<td>{{name}}</td>
+				<td>{{charge_policy}}</td>
+				<td>{{#charge_rate}}{{.}}{{/charge_rate}}</td>
+				<td>{{#requires_training}}Yes{{/requires_training}}{{^requires_training}}No{{/requires_training}}</td>
+			</tr>{{/types}}
+			{{^types}}<tr><td colspan="3">No equipment types found. <a href="/equipment-types/add">Add one now?</a></td></tr>{{/types}}
+		</tbody>
+	</table>
+</article>
