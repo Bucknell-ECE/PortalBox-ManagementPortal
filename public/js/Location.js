@@ -33,7 +33,7 @@ export class Location {
 	 * @throws String if any other error occurs
 	 */
 	static read(id) {
-		return fetch("/api/location.php?id=" + id, {"credentials": "same-origin"}).then(response => {
+		return fetch("/api/locations.php?id=" + id, {"credentials": "same-origin"}).then(response => {
 			if(response.ok) {
 				return response.json();
 			} else if(403 == response.status) {

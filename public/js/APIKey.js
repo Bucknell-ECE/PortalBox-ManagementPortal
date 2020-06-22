@@ -95,4 +95,22 @@ export class APIKey {
 			throw "API was unable to save api key";
 		});
 	}
+
+	/**
+	 * 
+	 */
+	static delete(id) {
+		return fetch("/api/api-keys.php?id=" + id, {
+			credentials: "include",
+			method: "DELETE"
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+			throw "API was unable to delete API key";
+		})
+	}
 }

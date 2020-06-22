@@ -7,7 +7,7 @@ export class Payment {
 	/**
 	 * Get a list of payments matching a query
 	 *
-	 * @param String query a url query string of search parameters
+	 * @param {String} query - a url query string of search parameters
 	 * @return Array<Payment> a list of payments that match the query
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs

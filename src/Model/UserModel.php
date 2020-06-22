@@ -210,15 +210,30 @@ class UserModel extends AbstractModel {
 	 * @return User[]|null - a list of users which match the search query
 	 */
 	public function search(UserQuery $query) : ?array {
-		if(NULL === $query->email()) {
+		if(NULL === $query) {
 			// no query... bail
 			return NULL;
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id WHERE u.email = :email';
+		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id';
+		$where_clause_fragments = array();
+		$parameters = array();
+		if(NULL !== $query->email()) {
+			$where_clause_fragments[] = 'email = :email';
+			$parameters[':email'] = $query->email();
+		}
+		if(0 < count($where_clause_fragments)) {
+			$sql .= ' WHERE ';
+			$sql .= join(' AND ', $where_clause_fragments);
+		}
+
 		$statement = $connection->prepare($sql);
-		$statement->bindValue(':email', $query->email());
+		// run search
+		foreach($parameters as $k => $v) {
+			$statement->bindValue($k, $v);
+		}
+
 		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
 			if(FALSE !== $data) {

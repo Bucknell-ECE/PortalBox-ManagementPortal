@@ -18,9 +18,9 @@ class UserQuery {
 	/**
 	 * Get the email address of the user for which to search
 	 *
-	 * @return string - the email address of the user for which to search
+	 * @return string|null - the email address of the user for which to search
 	 */
-	public function email() : string {
+	public function email() : ?string {
 		return $this->email;
 	}
 

@@ -4,13 +4,13 @@
 	<li><a href="/api-keys">API Keys</a></li>
 	<li>{{name}} ({{id}})</li>
 </ul>
-<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />
+{{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
 <article>
 	<header>
 		<h1>API Key</h1>
 		<div class="button-group">
-			<button type="button" onclick="delete_api_key({{id}});">Delete</button>
-			<label for="view-edit-toggle-edit-state" class="default">Edit</label>
+			{{#deletable}}<button type="button" id="delete-api-key-button">Delete</button>{{/deletable}}
+			{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
 		</div>
 	</header>
 	<dl>
@@ -20,6 +20,7 @@
 		<dd>{{token}}</dd>
 	</dl>
 </article>
+{{#editable}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
 <article>
 	<header>
@@ -34,6 +35,7 @@
 		<input type="text" name="name" id="name" value="{{name}}" required />
 	</form>
 </article>
+{{/editable}}
 {{/key}}
 {{^key}}
 <ul class="crumbs">

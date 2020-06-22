@@ -1,0 +1,46 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/equipment">Equipment</a></li>
+	<li>Add Equipment</li>
+</ul>
+<article>
+	<header>
+		<h1>Add Equipment</h1>
+		<div class="button-group">
+			<a href="/equipment">Cancel</a>
+			<button form="add-equipment-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="add-equipment-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" required />
+		<label for="mac_address">MAC Address:</label>
+		<input type="text" name="mac_address" id="mac_address" required />
+		<label for="type_id">Type:</label>
+		<select name="type_id" id="type" required />
+			<option></option>
+			{{#types}}<option value="{{id}}">{{name}}</option>{{/types}}
+		</select>
+		<label for="location_id">Location:</label>
+		<select name="location_id" id="location_id" required />
+			<option></option>
+			{{#locations}}<option value="{{id}}">{{name}}</option>{{/locations}}
+		</select>
+		<label for="timeout">Time out:</label>
+		<input type="number" name="timeout" id="timeout" min="0" value="0" />
+		<div class="help">
+			<label for="equipment-timeout-help-toggle">
+				<i class="material-icons">help</i>
+			</label>
+			<input type="checkbox" id="equipment-timeout-help-toggle" class="checkbox-hack">
+			<div class="content">
+				<label for="equipment-timeout-help-toggle" class="scrim"></label>
+				<div>
+					<p>Does this equipment have a time limit after which the equipment will deactivate unless the user &quot;renews&quot; their session by pressing the button on the portal box. Specify in minutes, leave as &quot;0&quot; for no limit.</p>
+				</div>
+			</div>
+		</div>
+		<label for="in_service">In service:</label>
+		<input type="checkbox" name="in_service" id="in_service" checked />
+	</form>
+</article>

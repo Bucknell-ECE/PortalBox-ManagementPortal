@@ -69,7 +69,10 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$model = new EquipmentTypeModel(Config::config());
 				$equipment_type = $model->update($equipment_type);
 				ResponseHandler::render($equipment_type, $transformer);
-			} catch(Exception $e) { // we could have a validation error...
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die($iae->getMessage());
+			} catch(Exception $e) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
@@ -90,7 +93,11 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$model = new EquipmentTypeModel(Config::config());
 				$equipment_type = $model->create($equipment_type);
 				ResponseHandler::render($equipment_type, $transformer);
-			} catch(Exception $e) { // we could have a validation error...
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die($iae->getMessage());
+			} catch(Exception $e) {
+				error_log($e->getMessage());
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}

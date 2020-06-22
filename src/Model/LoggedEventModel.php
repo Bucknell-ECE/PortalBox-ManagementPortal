@@ -59,7 +59,7 @@ class LoggedEventModel extends AbstractModel {
 		$where_clause_fragments = array();
 		$parameters = array();
 		if($query->equipment_id()) {
-			$where_clause_elements[] = 'l.equipment_id = :equipment_id';
+			$where_clause_elements[] = 'el.equipment_id = :equipment_id';
 			$parameters[':equipment_id'] = $query->equipment_id();
 		}
 		if($query->location_id()) {
@@ -67,27 +67,27 @@ class LoggedEventModel extends AbstractModel {
 			$parameters[':location_id'] = $query->location_id();
 		}
 		if($query->type_id()) {
-			$where_clause_elements[] = 'e.event_type_id = :event_type_id';
+			$where_clause_elements[] = 'el.event_type_id = :event_type_id';
 			$parameters[':event_type_id'] = $query->type_id();
 		}
 		if($query->on_or_after()) {
-			$where_clause_elements[] = 'l.time >= :after';
+			$where_clause_elements[] = 'el.time >= :after';
 			$parameters[':after'] = $query->on_or_after();
 		}
 		if($query->on_or_before()) {
-			$where_clause_elements[] = 'l.time <= :before';
+			$where_clause_elements[] = 'el.time <= :before';
 			$parameters[':before'] = $query->on_or_before();
 		}
 		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
-		$sql .= ' ORDER BY l.time DESC';
+		$sql .= ' ORDER BY el.time DESC';
 
 		$statement = $connection->prepare($sql);
 		// run search
 		foreach($parameters as $k => $v) {
-			$query->bindValue($k, $v);
+			$statement->bindValue($k, $v);
 		}
 		
 		if($statement->execute()) {
@@ -98,7 +98,7 @@ class LoggedEventModel extends AbstractModel {
 				return null;
 			}
 		} else {
-			throw new DatabaseException($connection->errorInfo()[2]);
+			throw new DatabaseException($statement->errorInfo()[2]);
 		}
 	}
 

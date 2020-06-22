@@ -4,12 +4,12 @@
 	<li><a href="/locations">Locations</a></li>
 	<li>{{name}} ({{id}})</li>
 </ul>
-<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />
+{{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
 <article>
 	<header>
 		<h1>Location</h1>
 		<div class="button-group">
-			<label for="view-edit-toggle-edit-state" class="default">Edit</label>
+			{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
 		</div>
 	</header>
 	<dl>
@@ -26,6 +26,7 @@
 		</dd>
 	</dl>
 </article>
+{{#editable}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
 <article>
 	<header>
@@ -40,6 +41,7 @@
 		<input type="text" name="name" id="name" value="{{name}}" required />
 	</form>
 </article>
+{{/editable}}
 {{/location}}
 {{^location}}
 <article>

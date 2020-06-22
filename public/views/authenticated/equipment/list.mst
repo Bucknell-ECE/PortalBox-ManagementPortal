@@ -1,0 +1,42 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li>Equipment</li>
+</ul>
+<article>
+	<header>
+		<h1>Equipment</h1>
+		<div class="button-group">
+			<label for="search-form-toggle"><i class="material-icons">search</i></label>
+			<a href="/equipment/add" class="default">Add</a>
+		</div>
+	</header>
+	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
+	<form class="advanced_search">
+		<label for="include_out_of_service">Include &quot;Out of Service&quot;:</label>
+		<input type="checkbox" name="include_out_of_service" id="include_out_of_service"{{#include_out_of_service}} checked{{/include_out_of_service}} />
+		<div class="button-group">
+			<button class="default" type="submit">Filter</button>
+		</div>
+	</form>{{/search}}
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Type</th>
+				<th>Location</th>
+				<th>In Service</th>
+				<th>Available</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#equipment}}<tr class="link" onclick="go('/equipment/{{id}}', 'Equipment');">
+				<td>{{name}}</td>
+				<td>{{type}}</td>
+				<td>{{location}}</td>
+				<td class="center">{{#in_service}}<i class="material-icons">check_circle_outline</i>{{/in_service}}{{^in_service}}<i class="material-icons">highlight_off</i>{{/in_service}}</td>
+				<td class="center">{{#in_use}}<i class="material-icons">highlight_off</i>{{/in_use}}{{^in_use}}<i class="material-icons">check_circle_outline</i>{{/in_use}}</td>
+			</tr>{{/equipment}}
+			{{^equipment}}<tr><td colspan="5">No equipment found. <a href="/equipment/add">Add equipment now?</a></td></tr>{{/equipment}}
+		</tbody>
+	</table>
+</article>

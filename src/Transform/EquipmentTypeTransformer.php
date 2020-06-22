@@ -3,6 +3,8 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
+
+use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
 
 /**
@@ -26,11 +28,14 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 		if(!array_key_exists('requires_training', $data)) {
 			throw new InvalidArgumentException('\'requires_training\' is a required field');
 		}
-		if(!array_key_exists('charge_rate', $data)) {
-			throw new InvalidArgumentException('\'charge_rate\' is a required field');
-		}
 		if(!array_key_exists('charge_policy_id', $data)) {
 			throw new InvalidArgumentException('\'charge_policy_id\' is a required field');
+		}
+		if(!ChargePolicy::is_valid($data['charge_policy_id'])) {
+			throw new InvalidArgumentException('\'charge_policy_id\' must be a valid charge policy id');
+		}
+		if(!array_key_exists('charge_rate', $data)) {
+			throw new InvalidArgumentException('\'charge_rate\' is a required field');
 		}
 
 		return (new EquipmentType())

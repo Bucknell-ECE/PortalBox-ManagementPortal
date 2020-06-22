@@ -39,7 +39,6 @@ switch($_SERVER['REQUEST_METHOD']) {
 
 			try {
 				$model = new RoleModel(Config::config());
-
 				$roles = $model->search();
 				$transformer = new RoleTransformer();
 				ResponseHandler::render($roles, $transformer);
@@ -68,7 +67,10 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$model = new RoleModel(Config::config());
 				$role = $model->update($role);
 				ResponseHandler::render($role, $transformer);
-			} catch(Exception $e) { // we could have a validation error...
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die($iae->getMessage());
+			} catch(Exception $e) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
@@ -89,7 +91,10 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$model = new RoleModel(Config::config());
 				$role = $model->create($role);
 				ResponseHandler::render($role, $transformer);
-			} catch(Exception $e) { // we could have a validation error...
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die($iae->getMessage());
+			} catch(Exception $e) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}

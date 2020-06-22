@@ -20,7 +20,7 @@ if you use a different configuration please create a pull request to let us know
 ## Configuration
 Configuration is primarily handled with two files. The first, `config/config.ini` specifies the database connection parameters used by the webservice a.k.a REST API and the Google OAuth Client ID used for OAUTH2 authentication. The second `public/styles/palette.css` is used to set the site's color palette. Example configuration files are provided in the respective directories. To use the Bucknell color palette simply copy `public/styles/example-palette.css` to `public/styles/palette.css`. While copying `config/example-config.ini` to `config/config.ini` is the fastest way to get started, you will need to then edit `config.ini` providing your database connection parameters and API key.
 
-*Note*: currently only Google is supported as as OAUTH provider and you will need to provide a public redirect url (no local only addresses like web.makerspace.local) for your web site when you generate an OAUTH Client ID. See also: https://developers.google.com/identity/protocols/OpenIDConnect
+*Note*: currently only Google is supported as as OAUTH provider and you will need to provide a public redirect url (Google does not allow local only addresses like web.makerspace.local) for your web site when you generate an OAUTH Client ID. See also: https://developers.google.com/identity/protocols/OpenIDConnect
 
 *Note*: Some webservers strip the Authorization header from requests before sending them to PHP. As we process the Authorization header in PHP (see api/login.php) you may need to allow the header through. If using WSGI with apache, you may be able to simply add this:
 
@@ -42,7 +42,7 @@ Occasionally, it may be necessary to provide a helper function for PHP. We suppo
 	cd ${PROJECT_DIRECTORY}/public
 	yarn install
 	```
-3) Copy `public/config/example-config.ini` to `public/config/config.ini` and edit the config.ini file filling in your database connection settings and Google OAuth Client ID.
+3) Copy `config/example-config.ini` to `config/config.ini` and edit the config.ini file filling in your database connection settings and Google OAuth Client ID.
 4) Copy `public/styles/example-palette.css` to `public/styles/palette.css`; [Optional] Customize the site by editing palette.css
 5) Either point your web server's DOCUMENT_ROOT to the public folder [OR] copy everything including hidden files e.g. .htaccess to the place your server considers to be DOCUMENT_ROOT
 
@@ -64,7 +64,10 @@ cd ${PROJECT_DIRECTORY}/public
 php -S localhost:8000
 ```
 
-However, various OAuth2 providers restrict the "redirect" URL to be a public URL. With these OAuth2 providers you may be able to still test locally by adding an alias for your local machine to a nonexistant domain or subdomain of your domain in your `/etc/hosts` file and enter that same nonexistant domain/subdomain as an authorized redirect URI for your OAuth Client ID credential. E.g.
+You should then be able to use the requests available in the included [Postman](https://www.postman.com/) collection, see `documentation/api.postman_collection.json`, after setting reasonable collection variable values to test the API.
+
+### Live Testing
+Various OAuth2 providers restrict the "redirect" URL to be a public URL. With these OAuth2 providers you may be able to test locally by adding an alias for your local machine to a nonexistant domain or subdomain of your domain in your `/etc/hosts` file and enter that same nonexistant domain/subdomain as an authorized redirect URI for your OAuth Client ID credential. E.g.
 
 ```
 sudo echo "127.0.0.1	dev.bucknell.edu" >> /ect/hosts
@@ -84,3 +87,4 @@ Since 2019 Tom Egan <tom@tomegan.tech>
 ## Roadmap
 - work with OAUTH providers other than Google
 - add a way to set a logo other than editing index.html
+- automate Integration testing with phpunit or Postman

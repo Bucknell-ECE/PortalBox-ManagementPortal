@@ -69,7 +69,10 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$model = new LocationModel(Config::config());
 				$location = $model->update($location);
 				ResponseHandler::render($location, $transformer);
-			} catch(Exception $e) { // we could have a validation error...
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die($iae->getMessage());
+			} catch(Exception $e) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
@@ -90,7 +93,10 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$model = new LocationModel(Config::config());
 				$location = $model->create($location);
 				ResponseHandler::render($location, $transformer);
-			} catch(Exception $e) { // we could have a validation error...
+			} catch(InvalidArgumentException $iae) {
+				http_response_code(400);
+				die($iae->getMessage());
+			} catch(Exception $e) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}

@@ -1,0 +1,108 @@
+{{#user}}
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/users">Users</a></li>
+	<li>{{name}}</li>
+</ul>
+{{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
+<article>
+	<header>
+		<h1>User: {{name}}</h1>
+	</header>
+	<div class="row">
+		<section>
+			<header>
+				<h2>Details</h2>
+				<div class="button-group">
+					{{#editable}}<label for="view-edit-toggle-edit-state">Edit</label>{{/editable}}
+				</div>
+			</header>
+			<dl>
+				<dt>Name:</label>
+				<dd>{{name}}</dd>
+				<dt>Email:</dt>
+				<dd><a href="mailto:{{email}}">{{email}}</a></dd>
+				<dt>Comment:</dt>
+				<dd>{{comment}}</dd>
+				<dt>Active</dt>
+				<dd>{{#is_active}}<i class="material-icons">check_circle_outline</i>{{/is_active}}{{^is_active}}<i class="material-icons">highlight_off</i>{{/is_active}}</dd>
+				<dt>Role:</dt>
+				<dd>{{#role}}{{name}}{{/role}}</dd>
+				<dt>Authorized for:</dt>
+				<dd>
+					{{#authorizations}}
+					<ul>
+						<li>{{equipment_type}}</li>
+					</ul>
+					{{/authorizations}}
+					{{^authorizations}}Not yet Authorized for any Equipment{{/authorizations}}
+				</dd>
+			</dl>
+		</section>
+		<section>
+			<header>
+				<h2>Account History</h2>
+				<div class="button-group">
+					<a href="/users/{{id}}/add_payment" class="default">Add Payment</a>
+				</div>
+			</header>
+			<table>
+				<thead>
+					<tr><th>Date</th><th>Equipment</th><th>Amount</th></tr>
+				</thead>
+				<tbody>
+					{{#ledger}}<tr{{#equipment_id}} class="debit link"{{/equipment_id}} onclick="go('/{{#equipment_id}}charges{{/equipment_id}}{{^equipment_id}}payments{{/equipment_id}}/{{id}}', {{name}});">
+						<td>{{time}}</td>
+						<td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>
+						<td>{{amount}}</td>
+					</tr>{{/ledger}}
+					{{^ledger}}<tr><td colspan="3">No account activity to date</td></tr>{{/ledger}}
+				</tbody>
+				<tfoot>
+					<tr><td colspan="2" style="text-align:right">Balance:</td><td>{{balance}}</td></tr>
+				</tfoot>
+			</table>
+		</section>
+	</div>
+</article>
+{{#editable}}
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
+<article>
+	<header>
+		<h1>User</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-view-state">Cancel</label>
+			<button form="edit-user-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+    <form id="edit-user-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" value="{{name}}" required />
+		<label for="email">Email:</label>
+		<input type="email" name="email" id="email" value="{{email}}" required />
+		<label for="comment" style="align-self:baseline">Comment:</label>
+		<textarea type="text" name="comment" id="comment">{{comment}}</textarea>
+		<label for="is_active">Active:</label>
+		<input type="checkbox" name="is_active" id="is_active" {{#is_active}}checked {{/is_active}}/>
+		<label for="role_id">Role:</label>
+		<select name="role_id" id="role_id" required />
+			<option></option>
+			{{#roles}}<option value="{{id}}">{{name}}</option>{{/roles}}
+		</select>
+		<label for="authorizations" style="align-self:baseline">Authorizations:</label>
+		<fieldset id="authorizations">
+			{{#equipment_types}}<label><input type="checkbox" name="authorizations.{{id}}" id="authorizations.{{id}}" /> {{name}}</label>{{/equipment_types}}
+			{{^equipment_types}}<p>No equipment types yet defined that the user can be authorized for.</p>{{/equipment_types}}
+		</fieldset>
+	</form>
+</article>
+{{/editable}}
+{{/user}}
+{{^user}}
+<article>
+	<header>
+		<h1>User</h1>
+	</header>
+	<p>Sorry we couldn't find that</p>
+</article>
+{{/user}}

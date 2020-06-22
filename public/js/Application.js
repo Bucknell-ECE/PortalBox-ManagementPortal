@@ -1,49 +1,14 @@
 import { SessionTimeOutError } from './SessionTimeOutError.js';
 import { APIKey } from './APIKey.js';
+import { ChargePolicy } from './ChargePolicy.js';
 import { Equipment } from './Equipment.js';
 import { EquipmentType } from './EquipmentType.js';
 import { Location } from './Location.js';
+import { LoggedEvent } from './LoggedEvent.js';
+import { Payment } from './Payment.js';
+import { User } from './User.js';
 
 import * as Permission from './Permission.js';
-
-/*
-* Card Types and Charge Policies are integral to the functioning of
-* the IoT Portal Box application and would need be changed in a
-* coordinated manner not only here but also the DB and the IoT 
-* application. Therefore it is reasonable to hard code them at this time.
-*/
-const card_types = [
-	{
-		"id": 1,
-		"name":"shutdown"
-	},
-	{
-		"id": 2,
-		"name":"proxy"
-	},
-	{
-		"id": 3,
-		"name":"training"
-	},
-	{
-		"id": 4,
-		"name":"user"
-	},
-];
-const charge_policies = [
-	{
-		"id": 2,
-		"name":"No Charge"
-	},
-	{
-		"id": 3,
-		"name":"Per Use"
-	},
-	{
-		"id": 4,
-		"name":"Per Minute"
-	},
-];
 
 class Application extends Moostaka {
 	constructor() {
@@ -94,8 +59,19 @@ class Application extends Moostaka {
 			system: null
 		};
 
+		// User needs CREATE_API_KEY Permission to make use of /location/add route
+		if(this.user.has_permission(Permission.CREATE_API_KEY)) {
+			this.route("/api-keys/add", _ => {
+				this.render("#main", "authenticated/api-keys/add", {}, {}, () => {
+					document
+						.getElementById("add-api-key-form")
+						.addEventListener("submit", (e) => this.add_api_key(e) );
+				}).catch(e => this.handleError(e));
+			});
+		}
+
 		// User needs LIST_API_KEYS Permission to make use of /api-keys route
-		if(this.user.has_permission(Permission.LIST_EQUIPMENT_TYPES)) {
+		if(this.user.has_permission(Permission.LIST_API_KEYS)) {
 			if(!home_icons.system) { home_icons.system = system_icons }
 			home_icons.system.api_keys = true;
 			this.route("/api-keys", _ => {
@@ -103,6 +79,12 @@ class Application extends Moostaka {
 					this.render("#main", "admin/api-keys/list", {"keys": keys});
 				}).catch(e => this.handleError(e));
 			});
+		}
+
+		// User needs READ_API_KEY to make use of /api-keys/id
+		if(this.user.has_permission(Permission.READ_API_KEY)) {
+			// User needs MODIFY_API_KEY to make use of /api-keys/id for editing
+			this.route("/api-keys/:id", params => this.read_api_key(params.id, this.user.has_permission(Permission.MODIFY_API_KEY), this.user.has_permission(Permission.DELETE_API_KEY)));
 		}
 
 		// User needs CREATE_EQUIPMENT Permission to make use of /equipment/add route
@@ -113,33 +95,12 @@ class Application extends Moostaka {
 
 				Promise.all([p1, p2]).then(values => {
 					this.render("#main", "admin/equipment/add", {"types": values[0], "locations": values[1]}, {}, () => {
-						let form = document.getElementById("add-equipment-form");
-						form.addEventListener("submit", (e) => { add_equipment(e); });
+						document
+							.getElementById("add-equipment-form")
+							.addEventListener("submit", (e) => { this.add_equipment(e); });
 					});
 				}).catch(e => this.handleError(e));
 			});
-		}
-
-		// User needs both read and modify to make use of /equipment/id route with editing
-		if(this.user.has_permission(Permission.READ_EQUIPMENT) && this.user.has_permission(Permission.MODIFY_EQUIPMENT)) {
-			this.route("/equipment/:id", params => {
-				let p0 = Equipment.read(params.id);
-				let p1 = EquipmentType.list();
-				let p2 = Location.list();
-
-				Promise.all([p0, p1, p2]).then(values => {
-					let equipment = values[0];
-					equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
-					this.render("#main", "admin/equipment/view", {"equipment": equipment, "types": values[1], "locations": values[2]}, {}, () => {
-						document.getElementById("type_id").value = values[0].type_id;
-						document.getElementById("location_id").value = values[0].location_id;
-						let form = document.getElementById("edit-equipment-form");
-						form.addEventListener("submit", (e) => { update_equipment(values[0], e); });
-					});
-				}).catch(e => this.handleError(e));
-			});
-		} else if(this.user.has_permission(Permission.READ_EQUIPMENT)) {
-			// render a read only view
 		}
 
 		// User needs LIST_EQUIPMENT Permission to make use of /equipment route
@@ -169,6 +130,25 @@ class Application extends Moostaka {
 			});
 		}
 
+		// User needs READ_EQUIPMENT to make use of /api-keys/id
+		if(this.user.has_permission(Permission.READ_EQUIPMENT)) {
+			// User needs MODIFY_EQUIPMENT to make use of /api-keys/id for editing
+			this.route("/equipment/:id", params => this.read_equipment(params.id, this.user.has_permission(Permission.MODIFY_EQUIPMENT)));
+		}
+
+		// User needs CREATE_EQUIPMENT_TYPE Permission to make use of /equipment-types/add route
+		if(this.user.has_permission(Permission.CREATE_EQUIPMENT_TYPE)) {
+			this.route("/equipment-types/add", _ => {
+				ChargePolicy.list().then(charge_policies => {
+					this.render("#main", "authenticated/equipment-types/add", {"charge_policies":charge_policies}, {}, () => {
+						document
+							.getElementById("add-equipment-type-form")
+							.addEventListener("submit", (e) => this.add_equipment_type(e) );
+					});
+				}).catch(e => this.handleError(e));
+			});
+		}
+
 		// User needs LIST_EQUIPMENT_TYPES Permission to make use of /equipment-types route
 		if(this.user.has_permission(Permission.LIST_EQUIPMENT_TYPES)) {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
@@ -180,12 +160,19 @@ class Application extends Moostaka {
 			});
 		}
 
+		// User needs READ_EQUIPMENT_TYPE to make use of /equipment-types/id
+		if(this.user.has_permission(Permission.READ_EQUIPMENT_TYPE)) {
+			// User needs MODIFY_EQUIPMENT_TYPE to make use of /equipment-types/id for editing
+			this.route("/equipment-types/:id", params => this.read_equipment_type(params.id, this.user.has_permission(Permission.MODIFY_EQUIPMENT_TYPE)));
+		}
+
 		// User needs CREATE_LOCATION Permission to make use of /location/add route
 		if(this.user.has_permission(Permission.CREATE_LOCATION)) {
 			this.route("/locations/add", _ => {
 				this.render("#main", "authenticated/locations/add", {}, {}, () => {
-					let form = document.getElementById("add-location-form");
-					form.addEventListener("submit", (e) => this.add_location(e) );
+					document
+						.getElementById("add-location-form")
+						.addEventListener("submit", (e) => this.add_location(e) );
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -199,6 +186,47 @@ class Application extends Moostaka {
 					this.render("#main", "authenticated/locations/list", {"locations": locations});
 				}).catch(e => this.handleError(e));
 			});
+		}
+
+		// User needs READ_LOCATION to make use of /locations/id
+		if(this.user.has_permission(Permission.READ_LOCATION)) {
+			// User needs MODIFY_LOCATION to make use of /locations/id for editing
+			this.route("/locations/:id", params => this.read_location(params.id, this.user.has_permission(Permission.MODIFY_LOCATION)));
+		}
+
+		// User needs LIST_LOGS Permission to make use of /locations route
+		if(this.user.has_permission(Permission.LIST_LOGS)) {
+			if(!home_icons.reports) { home_icons.reports = report_icons }
+			home_icons.reports.logs = true;
+			this.route("/logs", _ => this.list_log({}));
+		}
+
+		// User needs CREATE_USER Permission to make use of /users/add route
+		if(this.user.has_permission(Permission.CREATE_USER)) {
+			this.route("/users/add", _ => {
+				this.render("#main", "authenticated/users/add", {}, {}, () => {
+					document
+						.getElementById("add-user-form")
+						.addEventListener("submit", (e) => this.add_user(e) );
+				}).catch(e => this.handleError(e));
+			});
+		}
+
+		// User needs LIST_USERS Permission to make use of /users route
+		if(this.user.has_permission(Permission.LIST_USERS)) {
+			if(!home_icons.manage) { home_icons.manage = manage_icons }
+			home_icons.manage.users = true;
+			this.route("/users", _ => {
+				User.list().then(users => {
+					this.render("#main", "authenticated/users/list", {"users": users});
+				}).catch(e => this.handleError(e));
+			});
+		}
+
+		// User needs READ_USER to make use of /users/id
+		if(this.user.has_permission(Permission.READ_USER)) {
+			// User needs MODIFY_LOCATION to make use of /users/id for editing
+			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER)));
 		}
 
 		// Everyone gets a home route; what it presents them is controlled by home_icons
@@ -252,7 +280,7 @@ class Application extends Moostaka {
 	 * @return Object - an object with an attribute for each form input or
 	 *     group of inputs.
 	 */
-	get_form_data(form) {
+	_get_form_data(form) {
 		// should check that form is a form
 
 		let data = {};
@@ -289,13 +317,16 @@ class Application extends Moostaka {
 	/**
 	 * Callback that handles adding an api key to the backend. Bound
 	 * to the form.submit() in moostaka.render() for the view
+	 *
+	 * @param {Event} event - the form submission event
 	 */
 	add_api_key(event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
 		APIKey.create(data).then(_ => {
 			this.navigate("/api-keys");
+			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
 
@@ -307,60 +338,62 @@ class Application extends Moostaka {
 	 */
 	delete_api_key(id) {
 		if(window.confirm("Are you sure you want to delete the API key")) { 
-			fetch("/api/api-keys.php?id=" + id, {
-				credentials: "include",
-				method: "DELETE"
-			}).then(response => {
-				if(response.ok) {
-					moostaka.navigate("/api-keys");
-				} else if(403 == response.status) {
-					throw new SessionTimeOutError();
-				}
-
-				throw "API was unable to save new API key";
-			}).catch(handleError);
+			APIKey.delete(id).then(_ => {
+				this.navigate("/api-keys")
+			}).catch(e => this.handleError(e));
 		}
+	}
+
+	/**
+	 * Helper method to view an api key.
+	 *
+	 * @param {Integer} id - the unique id of the api key to view
+	 * @param {bool} editable - whether to show controls for editing the api key.
+	 * @param {bool} deletable - whether to show controls for deleting the api key.
+	 */
+	read_api_key(id, editable, deletable) {
+		APIKey.read(id).then(key => {
+			this.render("#main", "authenticated/api-keys/view", {"key": key, "editable": editable, "deletable": deletable}, {}, () => {
+				document
+					.getElementById("edit-api-key-form")
+					.addEventListener("submit", (e) => { this.update_api_key(id, e); });
+				document
+					.getElementById("delete-api-key-button")
+					.addEventListener("click", _ => { this.delete_api_key(id); });
+			});
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles updating cards on backend. Bound
 	 * to the form.submit() in moostaka.render() for the view.
+	 *
+	 * @param {Integer} id - the unique id of the location to modify
+	 * @param {Event} event - the form submission event
 	 */
-	update_api_key(key, event) {
+	update_api_key(id, event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
-		fetch("/api/api-keys.php?id=" + key.id, {
-			body: JSON.stringify(data),
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save API key";
-		}).then(_data => {
-			moostaka.navigate("/api-keys");
+		APIKey.modify(id, data).then(_ => {
+			this.navigate("/api-keys");
 			// notify user of success
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles adding a card to the backend. Bound
 	 * to the form.submit() in moostaka.render() for the view
+	 *
+	 * @param {Event} event - the form submission event
 	 */
 	add_card(event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
 		Card.create(data).then(_ => {
 			this.navigate("/cards");
+			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
 
@@ -382,7 +415,7 @@ class Application extends Moostaka {
 			throw "API was unable to list cards";
 		}).then(cards => {
 			moostaka.render("#main", auth_level + "/cards/list", {"cards": cards});
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
@@ -391,7 +424,7 @@ class Application extends Moostaka {
 	 */
 	update_card(card, event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
 		fetch("/api/cards.php?id=" + card.id, {
 			body: JSON.stringify(data),
@@ -411,7 +444,7 @@ class Application extends Moostaka {
 		}).then(_data => {
 			moostaka.navigate("/cards");
 			// notify user of success
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
@@ -420,7 +453,7 @@ class Application extends Moostaka {
 	 */
 	update_charge(charge, event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
 		fetch("/api/charges.php?id=" + charge.id, {
 			body: JSON.stringify(data),
@@ -440,134 +473,167 @@ class Application extends Moostaka {
 		}).then(_data => {
 			moostaka.navigate("/charges");
 			// notify user of success
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles adding equipment to the backend. Bound
 	 * to the form.submit() in moostaka.render() for the view
+	 *
+	 * @param {Event} event - the form submission event
 	 */
 	add_equipment(event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
 		Equipment.create(data).then(_data => {
 			this.navigate("/equipment");
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Helper method to view an equipment.
+	 *
+	 * @param {Integer} id - the unique id of the equipment to view
+	 * @param {bool} editable - whether to show controls for editing the equipment.
+	 */
+	read_equipment(id, editable) {
+		let p0 = Equipment.read(id);
+		let p1 = EquipmentType.list();
+		let p2 = Location.list();
+
+		Promise.all([p0, p1, p2]).then(values => {
+			let equipment = values[0];
+			equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
+			this.render("#main", "authenticated/equipment/view", {"equipment": equipment, "types": values[1], "locations": values[2], "editable":editable}, {}, () => {
+				document.getElementById("type_id").value = values[0].type_id;
+				document.getElementById("location_id").value = values[0].location_id;
+				document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e); });
+			});
 		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles updating equipment on backend. Bound
 	 * to the form.submit() in moostaka.render() for the view.
+	 *
+	 * @param {Integer} id - the unique id of the equipment to modify
+	 * @param {Event} event - the form submission event
 	 */
-	update_equipment(equipment, event) {
+	update_equipment(id, event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
-		fetch("/api/equipment.php?id=" + equipment.id, {
-			body: JSON.stringify(data),
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save equipment";
-		}).then(_data => {
-			moostaka.navigate("/equipment");
+		Equipment.modify(id, data).then(_ => {
+			this.navigate("/equipment");
 			// notify user of success
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles adding an equipment type to the backend.
 	 * Bound to the form.submit() in moostaka.render() for the view
+	 *
+	 * @param {Event} event - the form submission event
 	 */
 	add_equipment_type(event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
 		EquipmentType.create(data).then(_ => {
 			this.navigate("/equipment-types");
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
 
+	/**
+	 * Helper method to view an equipment type.
+	 *
+	 * @param {Integer} id - the unique id of the equipment type to view
+	 * @param {bool} editable - whether to show controls for editing the equipment type.
+	 */
+	read_equipment_type(id, editable) {
+		let p0 = EquipmentType.read(id);
+		let p1 = ChargePolicy.list();
+
+		Promise.all([p0,p1]).then(values => {
+			let type = values[0];
+			this.render("#main", "admin/equipment-types/view", {"type":type, "charge_policies":values[1], "editable": editable}, {}, () => {
+				document.getElementById("charge_policy_id").value = type.charge_policy_id;
+				document
+					.getElementById("edit-equipment-type-form")
+					.addEventListener("submit", (e) => { this.update_equipment_type(id, e); });
+			});
 		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles updating an equipment type on backend.
 	 * Bound to the form.submit() in moostaka.render() for the view.
+	 *
+	 * @param {Integer} id - the unique id of the location to modify
+	 * @param {Event} event - the form submission event
 	 */
-	update_equipment_type(type, event) {
+	update_equipment_type(id, event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
-		fetch("/api/equipment-types.php?id=" + type.id, {
-			body: JSON.stringify(data),
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save equipment type";
-		}).then(_data => {
-			moostaka.navigate("/equipment-types");
+		EquipmentType.modify(id, data).then(_ => {
+			this.navigate("/equipment-types");
 			// notify user of success
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles adding a location to the backend. Bound
 	 * to the form.submit() in moostaka.render() for the view
+	 *
+	 *  @param {Event} event - the form submission event
 	 */
 	add_location(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
 		Location.create(data).then(_ => {
 			this.navigate("/locations");
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Helper method to view a location.
+	 *
+	 * @param {Integer} id - the unique id of the location to view
+	 * @param {bool} editable - whether to show controls for editing the location.
+	 */
+	read_location(id, editable) {
+		let p0 = Location.read(id);
+		let p1 = Equipment.list("location_id=" + id);
+		
+		Promise.all([p0,p1]).then(values => {
+			this.render("#main", "authenticated/locations/view", {"location": values[0], "equipment": values[1], "editable": editable}, {}, () => {
+				let form = document.getElementById("edit-location-form");
+				form.addEventListener("submit", (e) => { this.update_location(id, e); });
+			});
 		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles updating a location on backend. Bound
 	 * to the form.submit() in moostaka.render() for the view.
+	 *
+	 * @param {Integer} id - the unique id of the location to modify
+	 * @param {Event} event - the form submission event
 	 */
-	update_location(location, event) {
+	update_location(id, event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
-		fetch("/api/locations.php?id=" + location.id, {
-			body: JSON.stringify(data),
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save location";
-		}).then(_data => {
-			moostaka.navigate("/locations");
+		Location.modify(id, data).then(_ => {
+			this.navigate("/locations");
 			// notify user of success
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
@@ -588,36 +654,12 @@ class Application extends Moostaka {
 		}
 		let queryString = Object.keys(search).map(key => key + '=' + search[key]).join('&');
 
-		let p0 = fetch("/api/logs.php?" + queryString, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to retrieve specified log segment";
-		});
-		let p1 = fetch("/api/equipment.php", {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to list equipment";
-		});
-		let p2 = fetch("/api/locations.php", {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to list locations";
-		});
+		let p0 = LoggedEvent.list(queryString);
+		let p1 = Equipment.list();
+		let p2 = Location.list();
 		
 		Promise.all([p0, p1, p2]).then(values => {
-			moostaka.render("#main", "admin/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "queryString":queryString}, {}, () => {
+			this.render("#main", "authenticated/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "queryString":queryString}, {}, () => {
 				//fix up selects
 				if(search.hasOwnProperty("equipment_id")) {
 					document.getElementById("equipment_id").value = search.equipment_id;
@@ -626,7 +668,7 @@ class Application extends Moostaka {
 					document.getElementById("location_id").value = search.location_id;
 				}
 			});
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
@@ -652,7 +694,7 @@ class Application extends Moostaka {
 		}).then(data => {
 			let blob = new Blob([data], {type: "text/csv;charset=utf-8"});
 			saveAs(blob, "log.csv");    // provided by Eli Grey's FileSaver.js
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
@@ -660,13 +702,13 @@ class Application extends Moostaka {
 	 * a search and if so calls list_log to runthe search and display the results
 	 * 
 	 * @param {HTMLFormElement} search_form - the form encapsulating the inputs
-	 *     which the user has used to indicate how they wishthe log to be searched/
+	 *     which the user has used to indicate how they wish the log to be searched/
 	 *     filtered
 	 */
 	search_log(search_form) {
 		// look at search params to insure we have a search
 		let search = {};
-		let searchParams = get_form_data(search_form);
+		let searchParams = this._get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length) {
@@ -675,20 +717,23 @@ class Application extends Moostaka {
 		}
 		
 		if(0 < Object.keys(search).length) {
-			list_log(search);
+			this.list_log(search);
 		}
 	}
 
 	/**
 	 * Callback that handles adding a payment to the backend. Bound
 	 * to the form.submit() in moostaka.render() for the view
+	 *
+	 * @param {Event} event - the form submission event
 	 */
 	add_payment(event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
 		Payment.create(data).then(data => {
 			this.navigate("/users/" + data.user_id);
+			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
 
@@ -698,7 +743,7 @@ class Application extends Moostaka {
 	 */
 	confirm_payment(event) {
 		event.preventDefault();
-		let payment = get_form_data(event.target);
+		let payment = this._get_form_data(event.target);
 
 		moostaka.render("#main", "admin/users/confirm_payment", {"payment": payment}, {}, () => {
 			let form = document.getElementById("confirm-payment-form");
@@ -709,99 +754,52 @@ class Application extends Moostaka {
 	/**
 	 * Callback that handles adding a user to the backend. Bound
 	 * to the form.submit() in moostaka.render() for the view
+	 *
+	 * @param {Event} event - the form submission event
 	 */
 	add_user(event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
 		User.create(data).then(_ => {
 			this.navigate("/users");
+			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
 
 	/**
-	 * Render an optionally sorted list of users
+	 * Helper method to view a user.
+	 *
+	 * @param {Integer} id - the unique id of the user to view
+	 * @param {bool} editable - whether to show controls for editing the user.
 	 */
-	list_users(params, auth_level) {
-		let url = "/api/users.php?";
-
-		let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-
-		fetch(url + queryString, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to list users";
-		}).then(users => {
-			if(0 < Object.keys(params).length) {
-				params.customized = true;
-			}
-			moostaka.render("#main", auth_level + "/users/list", {"users": users, "search":params});
-		}).catch(handleError);
-	}
-
-	search_users(search_form, auth_level) {
-		// look at search params to insure we have a search
-		let search = {};
-		let searchParams = get_form_data(search_form);
-		let keys = Object.getOwnPropertyNames(searchParams);
-		for(let k of keys) {
-			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
-				search[k] = searchParams[k];
-			}
-		}
-
-		if(0 < Object.keys(search).length) {
-			list_users(search, auth_level);
-		}
-	}
-
-	sort_users(sort_column, auth_level) {
-		let search_form = document.getElementById('user_search_form');
-		// look at search params to insure we have a search
-		let search = {};
-		let searchParams = get_form_data(search_form);
-		let keys = Object.getOwnPropertyNames(searchParams);
-		for(let k of keys) {
-			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
-				search[k] = searchParams[k];
-			}
-		}
-
-		search.sort = sort_column;
-		list_users(search, auth_level);
+	read_user(id, editable) {
+		let p0 = User.read(id);
+		let p1 = Equipment.list("location_id=" + id);
+		
+		Promise.all([p0,p1]).then(values => {
+			this.render("#main", "authenticated/users/view", {"user": values[0], "equipment": values[1], "editable": editable}, {}, () => {
+				let form = document.getElementById("edit-user-form");
+				form.addEventListener("submit", (e) => { this.update_user(id, e); });
+			});
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles updating a user on backend. Bound
 	 * to the form.submit() in moostaka.render() for the view.
+	 *
+	 * @param {Integer} id - the unique id of the user to modify
+	 * @param {Event} event - the form submission event
 	 */
-	update_user(user, event) {
+	update_user(id, event) {
 		event.preventDefault();
-		let data = get_form_data(event.target);
+		let data = this._get_form_data(event.target);
 
-		fetch("/api/users.php?id=" + user.id, {
-			body: JSON.stringify(data),
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save user";
-		}).then(_data => {
-			moostaka.navigate("/users");
+		User.modify(id, data).then(_ => {
+			this.navigate("/users");
 			// notify user of success
-		}).catch(handleError);
+		}).catch(e => this.handleError(e));
 	}
 }
 

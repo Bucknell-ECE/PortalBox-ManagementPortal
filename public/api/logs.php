@@ -1,6 +1,5 @@
 <?php
 
-
 require '../../src/autoload.php';
 
 use Portalbox\Config;

@@ -1,0 +1,30 @@
+{{#payment}}
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/users">Users</a></li>
+	<li><a href="/users/{{id}}">{{name}}</a></li>
+	<li>Confirm Payment</li>
+</ul>
+<article>
+	<header>
+		<h1>Confrim Payment</h1>
+		<div class="button-group">
+			<a href="/users/{{user_id}}/add_payment">Cancel</a>
+			<button form="confirm-payment-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<dl>
+		<dt>User:</dt>
+		<dd>{{user}}</dd>
+		<dt>Amount:</dt>
+		<dd>${{amount}}</dd>
+		<dt>Date:</dt>
+		<dd>{{time}}</dd>
+	</dl>
+	<form id="confirm-payment-form">
+		<input type="hidden" name="time" id="time" value="{{time}}" />
+		<input type="hidden" name="amount" id="amount" value="{{amount}}" />
+		<input type="hidden" name="user_id" id="user_id" value="{{user_id}}">
+	</form>
+</article>
+{{/payment}}
