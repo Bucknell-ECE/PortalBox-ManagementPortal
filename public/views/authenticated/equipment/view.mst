@@ -13,7 +13,7 @@
 		</div>
 	</header>
 	<dl>
-		<dt>Name:</label>
+		<dt>Name:</dt>
 		<dd>{{name}}</dd>
 		<dt>MAC Address:</dt>
 		<dd>{{mac_address}}</dd>
@@ -39,7 +39,7 @@
 			<button form="edit-equipment-form" type="submit" class="default">Save</a>
 		</div>
 	</header>
-    <form id="edit-equipment-form">
+	<form id="edit-equipment-form">
 		<label for="name">Name:</label>
 		<input type="text" name="name" id="name" value="{{name}}" required />
 		<label for="mac_address">MAC Address:</label>

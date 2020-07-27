@@ -117,16 +117,36 @@ class Permission {
 	/** Users with this permission can list their own equipment access cards */
 	const LIST_OWN_CARDS = 306;
 
-	/** Users with this permission can create charge policies */
+	/** Users with this permission can create charge policies
+	 * 
+	 * Charge policies play a special role in the system as designed. Stored
+	 * Procedures in the database make decisions based on charge policy thus
+	 * policies are implemented as constants in code.
+	 */
 	const CREATE_CHARGE_POLICY = 401;
 
-	/** Users with this permission can read charge policies */
+	/** Users with this permission can read charge policies
+	 * 
+	 * Charge policies play a special role in the system as designed. Stored
+	 * Procedures in the database make decisions based on charge policy thus
+	 * policies are implemented as constants in code.
+	 */
 	const READ_CHARGE_POLICY = 402;
 
-	/** Users with this permission can modify charge policies */
+	/** Users with this permission can modify charge policies
+	 * 
+	 * Charge policies play a special role in the system as designed. Stored
+	 * Procedures in the database make decisions based on charge policy thus
+	 * policies are implemented as constants in code.
+	 */
 	const MODIFY_CHARGE_POLICY = 403;
 
-	/** Users with this permission can delete charge policies */
+	/** Users with this permission can delete charge policies
+	 * 
+	 * Charge policies play a special role in the system as designed. Stored
+	 * Procedures in the database make decisions based on charge policy thus
+	 * policies are implemented as constants in code.
+	 */
 	const DELETE_CHARGE_POLICY = 404;
 
 	/** Users with this permission can list charge policies */

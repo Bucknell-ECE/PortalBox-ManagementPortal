@@ -1,0 +1,24 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/roles">Roles</a></li>
+	<li>Add Role</li>
+</ul>
+<article>
+	<header>
+		<h1>Add Role</h1>
+		<div class="button-group">
+			<a href="/roles">Cancel</a>
+			<button form="add-role-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="add-role-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" required />
+		<label for="name">Description:</label>
+		<input type="text" name="description" id="description" value="{{description}}" />
+		<label for="permissions" style="align-self:baseline">Permissions:</label>
+		<fieldset id="permissions">
+			{{#possible_permissions}}<label><input type="checkbox" name="permissions.{{id}}" id="permissions.{{id}}" /> {{name}}</label>{{/possible_permissions}}
+		</fieldset>
+	</form>
+</article>

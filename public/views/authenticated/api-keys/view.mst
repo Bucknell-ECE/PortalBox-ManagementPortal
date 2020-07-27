@@ -14,9 +14,9 @@
 		</div>
 	</header>
 	<dl>
-		<dt>Name:</label>
+		<dt>Name:</dt>
 		<dd>{{name}}</dd>
-		<dt>Token:</label>
+		<dt>Token:</dt>
 		<dd>{{token}}</dd>
 	</dl>
 </article>
@@ -40,13 +40,13 @@
 {{^key}}
 <ul class="crumbs">
 	<li><a href="/">Home</a></li>
-	<li><a href="/keys">API Keys</a></li>
+	<li><a href="/api-keys">API Keys</a></li>
 	<li>Not Found</li>
 </ul>
 <article>
 	<header>
 		<h1>API Key</h1>
 	</header>
-	<p>Sorry we couldn't find that</p>
+	<p>Sorry we couldn't find that API Key</p>
 </article>
 {{/key}}

@@ -6,6 +6,7 @@ import { EquipmentType } from './EquipmentType.js';
 import { Location } from './Location.js';
 import { LoggedEvent } from './LoggedEvent.js';
 import { Payment } from './Payment.js';
+import { Role } from './Role.js';
 import { User } from './User.js';
 
 import * as Permission from './Permission.js';
@@ -65,7 +66,7 @@ class Application extends Moostaka {
 				this.render("#main", "authenticated/api-keys/add", {}, {}, () => {
 					document
 						.getElementById("add-api-key-form")
-						.addEventListener("submit", (e) => this.add_api_key(e) );
+						.addEventListener("submit", (e) => this._add_api_key(e) );
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -166,7 +167,7 @@ class Application extends Moostaka {
 			this.route("/equipment-types/:id", params => this.read_equipment_type(params.id, this.user.has_permission(Permission.MODIFY_EQUIPMENT_TYPE)));
 		}
 
-		// User needs CREATE_LOCATION Permission to make use of /location/add route
+		// User needs CREATE_LOCATION Permission to make use of /locations/add route
 		if(this.user.has_permission(Permission.CREATE_LOCATION)) {
 			this.route("/locations/add", _ => {
 				this.render("#main", "authenticated/locations/add", {}, {}, () => {
@@ -199,6 +200,36 @@ class Application extends Moostaka {
 			if(!home_icons.reports) { home_icons.reports = report_icons }
 			home_icons.reports.logs = true;
 			this.route("/logs", _ => this.list_log({}));
+		}
+
+		// User needs CREATE_ROLE Permission to make use of /roles/add route
+		if(this.user.has_permission(Permission.CREATE_ROLE)) {
+			this.route("/roles/add", _ => {
+				Permission.list().then(permissions => {
+					this.render("#main", "authenticated/roles/add", { "possible_permissions":permissions }, {}, () => {
+						document
+							.getElementById("add-role-form")
+							.addEventListener("submit", (e) => this._add_role(e) );
+					});
+				}).catch(e => this.handleError(e));
+			});
+		}
+
+		// User needs LIST_ROLES Permission to make use of /roles route
+		if(this.user.has_permission(Permission.LIST_ROLES)) {
+			if(!home_icons.system) { home_icons.system = system_icons }
+			home_icons.system.roles = true;
+			this.route("/roles", _ => {
+				Role.list().then(roles => {
+					this.render("#main", "authenticated/roles/list", {"roles":roles});
+				}).catch(e => this.handleError(e));
+			});
+		}
+
+		// User needs READ_ROLE to make use of /roles/id
+		if(this.user.has_permission(Permission.READ_ROLE)) {
+			// User needs MODIFY_ROLE to make use of /roles/id for editing
+			this.route("/roles/:id", params => this._read_role(params.id, this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.DELETE_ROLE)));
 		}
 
 		// User needs CREATE_USER Permission to make use of /users/add route
@@ -320,7 +351,7 @@ class Application extends Moostaka {
 	 *
 	 * @param {Event} event - the form submission event
 	 */
-	add_api_key(event) {
+	_add_api_key(event) {
 		event.preventDefault();
 		let data = this._get_form_data(event.target);
 
@@ -336,7 +367,7 @@ class Application extends Moostaka {
 	 * 
 	 * @param {string} id - the numeric id as a tring of the key to delete
 	 */
-	delete_api_key(id) {
+	_delete_api_key(id) {
 		if(window.confirm("Are you sure you want to delete the API key")) { 
 			APIKey.delete(id).then(_ => {
 				this.navigate("/api-keys")
@@ -353,13 +384,13 @@ class Application extends Moostaka {
 	 */
 	read_api_key(id, editable, deletable) {
 		APIKey.read(id).then(key => {
-			this.render("#main", "authenticated/api-keys/view", {"key": key, "editable": editable, "deletable": deletable}, {}, () => {
+			this.render("#main", "authenticated/api-keys/view", {"key":key, "editable":editable, "deletable":deletable}, {}, () => {
 				document
 					.getElementById("edit-api-key-form")
 					.addEventListener("submit", (e) => { this.update_api_key(id, e); });
 				document
 					.getElementById("delete-api-key-button")
-					.addEventListener("click", _ => { this.delete_api_key(id); });
+					.addEventListener("click", _ => { this._delete_api_key(id); });
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -613,8 +644,9 @@ class Application extends Moostaka {
 		
 		Promise.all([p0,p1]).then(values => {
 			this.render("#main", "authenticated/locations/view", {"location": values[0], "equipment": values[1], "editable": editable}, {}, () => {
-				let form = document.getElementById("edit-location-form");
-				form.addEventListener("submit", (e) => { this.update_location(id, e); });
+				document
+					.getElementById("edit-location-form")
+					.addEventListener("submit", (e) => { this.update_location(id, e); });
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -746,9 +778,87 @@ class Application extends Moostaka {
 		let payment = this._get_form_data(event.target);
 
 		moostaka.render("#main", "admin/users/confirm_payment", {"payment": payment}, {}, () => {
-			let form = document.getElementById("confirm-payment-form");
-			form.addEventListener("submit", (e) => { add_payment(e); });
+			document
+				.getElementById("confirm-payment-form")
+				.addEventListener("submit", (e) => { add_payment(e); });
 		});
+	}
+
+	/**
+	 * Callback that handles adding a role to the backend. Bound to the
+	 * form.submit() in moostaka.render() for the view
+	 *
+	 * @param {Event} event - the form submission event
+	 */
+	_add_role(event) {
+		event.preventDefault();
+		let data = this._get_form_data(event.target);
+
+		Role.create(data).then(_ => {
+			this.navigate("/roles");
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles deleting a role from the backend. Bound to the
+	 * delete button in the View API Key view [views/admin/roles/view.mst] 
+	 * 
+	 * @param {string} id - the numeric id as a tring of the key to delete
+	 */
+	// _delete_role(id) {
+	// 	if(window.confirm("Are you sure you want to delete the Role")) { 
+	// 		Role.delete(id).then(_ => {
+	// 			this.navigate("/roles")
+	// 		}).catch(e => this.handleError(e));
+	// 	}
+	// }
+
+	/**
+	 * Helper method to view a role.
+	 *
+	 * @param {Integer} id - the unique id of the role to view
+	 * @param {bool} editable - whether to show controls for editing the role.
+	 * @param {bool} deletable - whether to show controls for deleting the role.
+	 */
+	_read_role(id, editable, deletable) {
+		let p0 = Role.read(id);
+		let p1 = Permission.list();
+
+		Promise.all([p0, p1]).then(values => {
+			let role = values[0];
+			let permissions = role.permissions;
+			role.permissions = permissions.sort((a, b) => a - b).map(p => Permission.name_for_permission(p));
+
+			this.render("#main", "authenticated/roles/view", {"role":role, "possible_permissions":values[1], "editable":editable, "deletable":deletable}, {}, () => {
+				for(const permission of permissions) {
+					document.getElementById("permissions." + permission).checked = true;
+				}
+				document
+					.getElementById("edit-role-form")
+					.addEventListener("submit", (e) => { this._update_role(id, e); });
+				// document
+				// 	.getElementById("delete-role-button")
+				// 	.addEventListener("click", _ => { this._delete_role(id); });
+			});
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles updating roles on backend. Bound
+	 * to the form.submit() in moostaka.render() for the view.
+	 *
+	 * @param {Integer} id - the unique id of the role to modify
+	 * @param {Event} event - the form submission event
+	 */
+	_update_role(id, event) {
+		event.preventDefault();
+		let data = this._get_form_data(event.target);
+
+		Role.modify(id, data).then(_ => {
+			this.navigate("/roles");
+			// notify user of success
+		}).catch(e => this.handleError(e));
 	}
 
 	/**

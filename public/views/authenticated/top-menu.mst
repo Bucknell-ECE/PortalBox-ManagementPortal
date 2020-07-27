@@ -6,7 +6,7 @@
 			<a href="/cards"><i class="material-icons">nfc</i>Cards</a>
 		</div>{{/cards}}
 		{{#equipment}}<div class="icon-button">
-			<a href="/equipment"><i class="material-icons">dock</i>Equipment</a>
+			<a href="/equipment"><i class="material-icons">build</i>Equipment</a>
 		</div>{{/equipment}}
 		{{#equipment_types}}<div class="icon-button">
 			<a href="/equipment-types"><i class="material-icons">devices_other</i>Equipment<br>Types</a>
@@ -33,6 +33,9 @@
 		{{#api_keys}}<div class="icon-button">
 			<a href="/api-keys"><i class="material-icons">vpn_key</i>API Keys</a>
 		</div>{{/api_keys}}
+		{{#roles}}<div class="icon-button">
+			<a href="/roles"><i class="material-icons">people_outline</i>Roles</a>
+		</div>{{/roles}}
 	</div>
 	{{/features.system}}
 </article>

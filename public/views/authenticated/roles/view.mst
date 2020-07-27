@@ -1,0 +1,69 @@
+{{#role}}
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/roles">Roles</a></li>
+	<li>{{name}} ({{id}})</li>
+</ul>
+{{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
+<article>
+	<header>
+		<h1>Role</h1>
+		{{^system_role}}<div class="button-group">
+			<!-- {{#deletable}}<button type="button" id="delete-role-button">Delete</button>{{/deletable}} -->
+			{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
+		</div>{{/system_role}}
+	</header>
+	<dl>
+		<dt>Name:</dt>
+		<dd>{{name}}</dd>
+		<dt>Description:</dt>
+		<dd>{{description}}</dd>
+		<dt>System Role:</dt>
+		<dd>{{#system_role}}Yes{{/system_role}}{{^system_role}}No{{/system_role}}</dd>
+		<dt>Permisions</dt>
+		<dd>
+			{{#permissions}}
+			<ul>
+				<li>{{.}}</li>
+			</ul>
+			{{/permissions}}
+			{{^permissions}}Role currently has no permissions{{/permissions}}
+		</dd>
+	</dl>
+</article>
+{{#editable}}
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
+<article>
+	<header>
+		<h1>Role</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-view-state">Cancel</label>
+			<button form="edit-role-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="edit-role-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" value="{{name}}" required />
+		<label for="name">Description:</label>
+		<input type="text" name="description" id="description" value="{{description}}" />
+		<label for="permissions" style="align-self:baseline">Permissions:</label>
+		<fieldset id="permissions">
+			{{#possible_permissions}}<label><input type="checkbox" name="permissions.{{id}}" id="permissions.{{id}}" /> {{name}}</label>{{/possible_permissions}}
+		</fieldset>
+	</form>
+</article>
+{{/editable}}
+{{/role}}
+{{^role}}
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/roles">Roles</a></li>
+	<li>Not Found</li>
+</ul>
+<article>
+	<header>
+		<h1>Role</h1>
+	</header>
+	<p>Sorry we couldn't find that Role</p>
+</article>
+{{/role}}

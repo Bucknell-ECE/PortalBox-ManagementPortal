@@ -13,7 +13,7 @@
 		</div>
 	</header>
 	<dl>
-		<dt>Name:</label>
+		<dt>Name:</dt>
 		<dd>{{name}}</dd>
 		<dt>Requires Training:</dt>
 		<dd>{{#requires_training}}Yes{{/requires_training}}{{^requires_training}}No{{/requires_training}}</dd>

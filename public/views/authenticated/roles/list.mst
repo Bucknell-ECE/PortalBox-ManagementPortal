@@ -1,0 +1,29 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li>Roles</li>
+</ul>
+<article>
+	<header>
+		<h1>Roles</h1>
+		<div class="button-group">
+			<a href="/roles/add" class="default">Add</a>
+		</div>
+	</header>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Description</th>
+				<th>System Role</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#roles}}<tr class="link" onclick="go('/roles/{{id}}', 'Roles');">
+				<td>{{name}}</td>
+				<td>{{description}}</td>
+				<td>{{#system_role}}<i class="material-icons">check_circle_outline</i>{{/system_role}}</td>
+			</tr>{{/roles}}
+			{{^roles}}<tr><td colspan="3">Logging in to the Management Website without any roles sholud be impossible. Congradulations on breaking the system. Whould you please <a href="https://github.com/Bucknell-ECE/PortalBox-ManagementPortal/issues">open an issue</a> describing how you did so? </td></tr>{{/roles}}
+		</tbody>
+	</table>
+</article>
