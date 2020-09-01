@@ -5,6 +5,7 @@
 	<li>{{name}}</li>
 </ul>
 {{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
+{{^editable}}{{#authorizable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/authorizable}}{{/editable}}
 <article>
 	<header>
 		<h1>User: {{name}}</h1>
@@ -15,10 +16,11 @@
 				<h2>Details</h2>
 				<div class="button-group">
 					{{#editable}}<label for="view-edit-toggle-edit-state">Edit</label>{{/editable}}
+					{{^editable}}{{#authorizable}}<label for="view-edit-toggle-edit-state">Edit</label>{{/authorizable}}{{/editable}}
 				</div>
 			</header>
 			<dl>
-				<dt>Name:</label>
+				<dt>Name:</dt>
 				<dd>{{name}}</dd>
 				<dt>Email:</dt>
 				<dd><a href="mailto:{{email}}">{{email}}</a></dd>
@@ -30,12 +32,12 @@
 				<dd>{{#role}}{{name}}{{/role}}</dd>
 				<dt>Authorized for:</dt>
 				<dd>
-					{{#authorizations}}
+					{{#authorized_equipment_types}}
 					<ul>
-						<li>{{equipment_type}}</li>
+						<li>{{name}}</li>
 					</ul>
-					{{/authorizations}}
-					{{^authorizations}}Not yet Authorized for any Equipment{{/authorizations}}
+					{{/authorized_equipment_types}}
+					{{^authorized_equipment_types}}Not yet Authorized for any Equipment{{/authorized_equipment_types}}
 				</dd>
 			</dl>
 		</section>
@@ -75,7 +77,7 @@
 			<button form="edit-user-form" type="submit" class="default">Save</a>
 		</div>
 	</header>
-    <form id="edit-user-form">
+	<form id="edit-user-form">
 		<label for="name">Name:</label>
 		<input type="text" name="name" id="name" value="{{name}}" required />
 		<label for="email">Email:</label>
@@ -86,7 +88,6 @@
 		<input type="checkbox" name="is_active" id="is_active" {{#is_active}}checked {{/is_active}}/>
 		<label for="role_id">Role:</label>
 		<select name="role_id" id="role_id" required />
-			<option></option>
 			{{#roles}}<option value="{{id}}">{{name}}</option>{{/roles}}
 		</select>
 		<label for="authorizations" style="align-self:baseline">Authorizations:</label>
@@ -97,6 +98,37 @@
 	</form>
 </article>
 {{/editable}}
+{{#authorizable}}
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
+<article>
+	<header>
+		<h1>User</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-view-state">Cancel</label>
+			<button form="authorize-user-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<dl>
+		<dt>Name:</dt>
+		<dd>{{name}}</dd>
+		<dt>Email:</dt>
+		<dd><a href="mailto:{{email}}">{{email}}</a></dd>
+		<dt>Comment:</dt>
+		<dd>{{comment}}</dd>
+		<dt>Active</dt>
+		<dd>{{#is_active}}<i class="material-icons">check_circle_outline</i>{{/is_active}}{{^is_active}}<i class="material-icons">highlight_off</i>{{/is_active}}</dd>
+		<dt>Role:</dt>
+		<dd>{{#role}}{{name}}{{/role}}</dd>
+	</dl>
+	<form id="authorize-user-form">
+		<label for="authorizations" style="align-self:baseline">Authorizations:</label>
+		<fieldset id="authorizations">
+			{{#equipment_types}}<label><input type="checkbox" name="authorizations.{{id}}" id="authorizations.{{id}}" /> {{name}}</label>{{/equipment_types}}
+			{{^equipment_types}}<p>No equipment types yet defined that the user can be authorized for.</p>{{/equipment_types}}
+		</fieldset>
+	</form>
+</article>
+{{/authorizable}}
 {{/user}}
 {{^user}}
 <article>

@@ -235,10 +235,15 @@ class Application extends Moostaka {
 		// User needs CREATE_USER Permission to make use of /users/add route
 		if(this.user.has_permission(Permission.CREATE_USER)) {
 			this.route("/users/add", _ => {
-				this.render("#main", "authenticated/users/add", {}, {}, () => {
-					document
-						.getElementById("add-user-form")
-						.addEventListener("submit", (e) => this.add_user(e) );
+				let p0 = EquipmentType.list();
+				let p1 = Role.list();
+
+				Promise.all([p0,p1]).then(values => {
+					this.render("#main", "authenticated/users/add", {"equipment_types":values[0], "roles":values[1]}, {}, () => {
+						document
+							.getElementById("add-user-form")
+							.addEventListener("submit", (e) => this._add_user(e) );
+					});
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -256,13 +261,14 @@ class Application extends Moostaka {
 
 		// User needs READ_USER to make use of /users/id
 		if(this.user.has_permission(Permission.READ_USER)) {
-			// User needs MODIFY_LOCATION to make use of /users/id for editing
-			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER)));
+			// User needs MODIFY_USER to make use of /users/id for editing user attributes eg email address
+			// User needs CREATE_EQUIPMENT_AUTHORIZATION or DELETE_EQUIPMENT_AUTHORIZATION to manage authorizations
+			this.route("/users/:id", params => this._read_user(params.id, this.user.has_permission(Permission.MODIFY_USER), this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION)));
 		}
 
 		// Everyone gets a home route; what it presents them is controlled by home_icons
 		this.route("/", _ => {
-			this.render("#main", "authenticated/top-menu", {"features": home_icons});
+			this.render("#main", "authenticated/top-menu", {"features":home_icons});
 		});
 	}
 	
@@ -304,7 +310,9 @@ class Application extends Moostaka {
 	/**
 	 * Helper which iterates the fields in a form creating an object
 	 * which has key value pairs corresponding to the name and value
-	 * of the fields with a name attribute. If name is of the form
+	 * of the fields with a name attribute.
+	 * 
+	 * If name is of the form
 	 * "foo.bar" then the value will be nested as ret["foo"]["bar"]
 	 * 
 	 * @param HTMLFormElement form - the form from which to retrieve data
@@ -320,24 +328,25 @@ class Application extends Moostaka {
 			if(field.hasAttribute("name")) {
 				let parts = field.name.split('.').reverse();
 				let key = parts.pop();
-				let destination = data;
-				while(parts.length > 0) {
-					if(undefined === destination[key]) {
-						destination[key] = {};
+				if(1 == parts.length && field.hasAttribute("type") && "checkbox" == field.type) {
+					if(undefined === data[key]) {
+						data[key] = [];
 					}
-
-					destination = destination[key];
-					key = parts.pop();
-				}
-
-				if(field.hasAttribute("type") && "checkbox" == field.type) {
 					if(field.checked) {
-						destination[key] = true;
-					} else {
-						destination[key] = false;
+						data[key].push(parts.pop());
 					}
 				} else {
-					destination[key] = field.value;
+					// checkboxes are weird they have a checked property
+					if(field.hasAttribute("type") && "checkbox" == field.type) {
+						if(field.checked) {
+							data[key] = true;
+						} else {
+							data[key] = false;
+						}
+					} else {
+						// text inputs, selects, radio buttons have a value property
+						data[key] = field.value;
+					}
 				}
 			}
 		}
@@ -867,7 +876,7 @@ class Application extends Moostaka {
 	 *
 	 * @param {Event} event - the form submission event
 	 */
-	add_user(event) {
+	_add_user(event) {
 		event.preventDefault();
 		let data = this._get_form_data(event.target);
 
@@ -878,19 +887,56 @@ class Application extends Moostaka {
 	}
 
 	/**
+	 * Callback that handles authorizing a user on backend. Bound
+	 * to the form.submit() in moostaka.render() for the view.
+	 *
+	 * @param {Integer} id - the unique id of the user to authorize
+	 * @param {Event} event - the form submission event
+	 */
+	_authorize_user(id, event) {
+		event.preventDefault();
+		let data = this._get_form_data(event.target);
+
+		User.authorize(id, data).then(_ => {
+			this.navigate("/users/" + id);
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
 	 * Helper method to view a user.
 	 *
 	 * @param {Integer} id - the unique id of the user to view
 	 * @param {bool} editable - whether to show controls for editing the user.
+	 * @param {bool} authorizable - whether to show controls for authorizing the user.
 	 */
-	read_user(id, editable) {
+	_read_user(id, editable, authorizable) {
 		let p0 = User.read(id);
-		let p1 = Equipment.list("location_id=" + id);
-		
-		Promise.all([p0,p1]).then(values => {
-			this.render("#main", "authenticated/users/view", {"user": values[0], "equipment": values[1], "editable": editable}, {}, () => {
-				let form = document.getElementById("edit-user-form");
-				form.addEventListener("submit", (e) => { this.update_user(id, e); });
+		let p1 = EquipmentType.list();
+		let p2 = Role.list();
+
+		Promise.all([p0,p1,p2]).then(values => {
+			let user = values[0];
+			let equipment_types = values[1];
+			let roles = values[2].filter(role => "unauthenticated" != role.name);
+			let authorized_equipment_types = equipment_types.filter(type => user.authorizations.includes(type.id));
+			this.render("#main", "authenticated/users/view", {"user":user, "equipment_types":equipment_types, "roles":roles, "authorized_equipment_types":authorized_equipment_types, "editable": editable, "authorizable":authorizable}, {}, () => {
+				let selector = document.getElementById("role_id");
+				if(selector) {
+					selector.value = user.role.id;
+				}
+				for(const authorization of user.authorizations) {
+					document.getElementById("authorizations." + authorization).checked = true;
+				}
+				let form = null;
+				form = document.getElementById("edit-user-form");
+				if(form) {
+					form.addEventListener("submit", (e) => { this._update_user(id, e); });
+				}
+				form = document.getElementById("authorize-user-form");
+				if(form) {
+					form.addEventListener("submit", (e) => { this._authorize_user(id, e); });
+				}
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -902,7 +948,7 @@ class Application extends Moostaka {
 	 * @param {Integer} id - the unique id of the user to modify
 	 * @param {Event} event - the form submission event
 	 */
-	update_user(id, event) {
+	_update_user(id, event) {
 		event.preventDefault();
 		let data = this._get_form_data(event.target);
 

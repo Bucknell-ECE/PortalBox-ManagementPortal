@@ -20,10 +20,10 @@
 		<textarea type="text" name="comment" id="comment">{{comment}}</textarea>
 		<label for="is_active">Active:</label>
 		<input type="checkbox" name="is_active" id="is_active" checked />
-		<label for="management_portal_access_level_id">Management Portal Access Level:</label>
-		<select name="management_portal_access_level_id" id="management_portal_access_level_id" required />
+		<label for="role_id">Role:</label>
+		<select name="role_id" id="role_id" required />
 			<option></option>
-			{{#management_portal_access_levels}}<option value="{{id}}">{{name}}</option>{{/management_portal_access_levels}}
+			{{#roles}}<option value="{{id}}">{{name}}</option>{{/roles}}
 		</select>
 		<label for="authorizations" style="align-self:baseline">Authorizations:</label>
 		<fieldset id="authorizations">

@@ -136,6 +136,33 @@ export class User {
 	}
 
 	/**
+	 * Modify the authorizations (only) of the user specified by id
+	 *
+	 * @param int id the unique id of the User to modify
+	 * @return User specified by the id
+	 * @throws SessionTimeOutError if the user session has expired
+	 * @throws String if any other error occurs
+	 */
+	static authorize(id, data) {
+		return fetch("/api/users.php?id=" + id, {
+			body: JSON.stringify(data),
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			method: "PATCH"
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+	
+			throw "API was unable to save user";
+		});
+	}
+
+	/**
 	 * Modify the user specified by id
 	 *
 	 * @param int id the unique id of the User to modify
