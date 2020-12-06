@@ -50,7 +50,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 			try {
 				$model = new PaymentModel(Config::config());
 				$query = new PaymentQuery();
-				if($user_id) {
+				if(NULL !== $user_id) {
 					$query->set_user_id($user_id);
 				} else if(isset($_GET['user_id']) && !empty($_GET['user_id'])) {
 					$query->set_user_id($_GET['user_id']);

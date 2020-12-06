@@ -48,17 +48,17 @@
 					<a href="/users/{{id}}/add_payment" class="default">Add Payment</a>
 				</div>
 			</header>
-			<table>
+			<table style="min-width:100%">
 				<thead>
 					<tr><th>Date</th><th>Equipment</th><th>Amount</th></tr>
 				</thead>
 				<tbody>
-					{{#ledger}}<tr{{#equipment_id}} class="debit link"{{/equipment_id}} onclick="go('/{{#equipment_id}}charges{{/equipment_id}}{{^equipment_id}}payments{{/equipment_id}}/{{id}}', {{name}});">
+					{{#transactions}}{{#equipment_id}}<tr class="debit link" onclick="go('/charges/{{id}}', {{name}});">{{/equipment_id}}{{^equipment_id}}<tr onclick="go('/payments/{{id}}', {{name}});">{{/equipment_id}}
 						<td>{{time}}</td>
 						<td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>
 						<td>{{amount}}</td>
-					</tr>{{/ledger}}
-					{{^ledger}}<tr><td colspan="3">No account activity to date</td></tr>{{/ledger}}
+					</tr>{{/transactions}}
+					{{^transactions}}<tr><td colspan="3">No account activity to date</td></tr>{{/transactions}}
 				</tbody>
 				<tfoot>
 					<tr><td colspan="2" style="text-align:right">Balance:</td><td>{{balance}}</td></tr>

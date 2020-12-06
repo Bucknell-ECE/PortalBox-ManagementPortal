@@ -1,5 +1,6 @@
 import { SessionTimeOutError } from './SessionTimeOutError.js';
 import { APIKey } from './APIKey.js';
+import { Charge } from './Charge.js';
 import { ChargePolicy } from './ChargePolicy.js';
 import { Equipment } from './Equipment.js';
 import { EquipmentType } from './EquipmentType.js';
@@ -931,13 +932,38 @@ class Application extends Moostaka {
 		let p0 = User.read(id);
 		let p1 = EquipmentType.list();
 		let p2 = Role.list();
+		let p3 = Charge.list("user_id=" + id);
+		let p4 = Payment.list("user_id=" + id);
 
-		Promise.all([p0,p1,p2]).then(values => {
+		Promise.all([p0,p1,p2,p3,p4]).then(values => {
+			let currency_formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
+			let date_formatter = new Intl.DateTimeFormat();
 			let user = values[0];
 			let equipment_types = values[1];
 			let roles = values[2].filter(role => "unauthenticated" != role.name);
 			let authorized_equipment_types = equipment_types.filter(type => user.authorizations.includes(type.id));
-			this.render("#main", "authenticated/users/view", {"user":user, "equipment_types":equipment_types, "roles":roles, "authorized_equipment_types":authorized_equipment_types, "editable": editable, "authorizable":authorizable}, {}, () => {
+			let total_charges = values[3].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+			let total_payments = values[4].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+			let balance = currency_formatter.format(total_payments - total_charges);
+			let transactions = values[3].concat(values[4]).map(e => {
+				e.ts = new Date(e.time);
+				e.time = date_formatter.format(e.ts);
+				e.amount = currency_formatter.format(e.amount);
+				return e;
+			}).sort((a, b) => {
+				return a.ts - b.ts;
+			});
+
+			this.render("#main", "authenticated/users/view", {
+					"user":user,
+					"equipment_types":equipment_types,
+					"roles":roles,
+					"authorized_equipment_types":authorized_equipment_types,
+					"transactions":transactions,
+					"balance":balance,
+					"editable": editable,
+					"authorizable":authorizable
+			}, {}, () => {
 				let selector = document.getElementById("role_id");
 				if(selector) {
 					selector.value = user.role.id;

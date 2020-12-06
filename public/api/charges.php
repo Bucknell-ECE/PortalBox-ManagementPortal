@@ -52,7 +52,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 				if(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
 					$query->set_equipment_id($_GET['equipment_id']);
 				}
-				if($user_id) {
+				if(NULL !== $user_id) {
 					$query->set_user_id($user_id);
 				} else if(isset($_GET['user_id']) && !empty($_GET['user_id'])) {
 					$query->set_user_id($_GET['user_id']);
