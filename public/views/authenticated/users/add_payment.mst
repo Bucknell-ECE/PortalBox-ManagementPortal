@@ -18,8 +18,6 @@
 		<input type="date" name="time" id="time" required />
 		<label for="amount">Amount:</label>
 		<input type="number" name="amount" id="amount" min="0.00" step="0.01" required />
-		<label for="user">User:</label>
-		<input type="text" name="user" id="user" value="{{name}}" disabled>
 		<input type="hidden" name="user_id" id="user_id" value="{{id}}">
 	</form>
 </article>

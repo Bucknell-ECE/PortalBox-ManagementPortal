@@ -2,20 +2,20 @@
 <ul class="crumbs">
 	<li><a href="/">Home</a></li>
 	<li><a href="/users">Users</a></li>
-	<li><a href="/users/{{id}}">{{name}}</a></li>
+	<li><a href="/users/{{#user}}{{id}}{{/user}}">{{#user}}{{name}}{{/user}}</a></li>
 	<li>Confirm Payment</li>
 </ul>
 <article>
 	<header>
-		<h1>Confrim Payment</h1>
+		<h1>Confirm Payment</h1>
 		<div class="button-group">
-			<a href="/users/{{user_id}}/add_payment">Cancel</a>
+			<a href="/users/{{#user}}{{id}}{{/user}}/add_payment">Cancel</a>
 			<button form="confirm-payment-form" type="submit" class="default">Save</a>
 		</div>
 	</header>
 	<dl>
 		<dt>User:</dt>
-		<dd>{{user}}</dd>
+		<dd>{{#user}}{{name}}{{/user}}</dd>
 		<dt>Amount:</dt>
 		<dd>${{amount}}</dd>
 		<dt>Date:</dt>
@@ -24,7 +24,7 @@
 	<form id="confirm-payment-form">
 		<input type="hidden" name="time" id="time" value="{{time}}" />
 		<input type="hidden" name="amount" id="amount" value="{{amount}}" />
-		<input type="hidden" name="user_id" id="user_id" value="{{user_id}}">
+		<input type="hidden" name="user_id" id="user_id" value="{{#user}}{{id}}{{/user}}">
 	</form>
 </article>
 {{/payment}}

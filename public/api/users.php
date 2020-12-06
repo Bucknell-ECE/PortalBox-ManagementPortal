@@ -68,7 +68,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		// validate that we have an oid
 		if(!isset($_GET['id']) || empty($_GET['id'])) {
 			http_response_code(400);
-			die('You must specify the user to authorize via the id param');
+			die('You must specify the user to modify via the id param');
 		}
 
 		// check authorization

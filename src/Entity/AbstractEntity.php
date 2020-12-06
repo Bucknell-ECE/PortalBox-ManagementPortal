@@ -3,11 +3,9 @@
 namespace Portalbox\Entity;
 
 /**
- * User represents a User in the system.
- * 
- *	Typically this class is used by requesting the authenticated user instance
- *	from the Session which will be an instance of this class
- * 
+ * AbstractEntity is the base class for the other entities in the system. It
+ * "abstracts out" common functionality.
+ *
  * @package Portalbox\Entity
  */
 class AbstractEntity {

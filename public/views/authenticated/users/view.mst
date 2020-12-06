@@ -135,6 +135,6 @@
 	<header>
 		<h1>User</h1>
 	</header>
-	<p>Sorry we couldn't find that</p>
+	<p>Sorry we couldn't find that user.</p>
 </article>
 {{/user}}

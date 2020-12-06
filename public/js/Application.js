@@ -66,8 +66,8 @@ class Application extends Moostaka {
 				this.render("#main", "authenticated/api-keys/add", {}, {}, () => {
 					document
 						.getElementById("add-api-key-form")
-						.addEventListener("submit", (e) => this._add_api_key(e) );
-				}).catch(e => this.handleError(e));
+						.addEventListener("submit", (e) => this.add_api_key(e));
+				});
 			});
 		}
 
@@ -144,7 +144,7 @@ class Application extends Moostaka {
 					this.render("#main", "authenticated/equipment-types/add", {"charge_policies":charge_policies}, {}, () => {
 						document
 							.getElementById("add-equipment-type-form")
-							.addEventListener("submit", (e) => this.add_equipment_type(e) );
+							.addEventListener("submit", (e) => this.add_equipment_type(e));
 					});
 				}).catch(e => this.handleError(e));
 			});
@@ -173,8 +173,8 @@ class Application extends Moostaka {
 				this.render("#main", "authenticated/locations/add", {}, {}, () => {
 					document
 						.getElementById("add-location-form")
-						.addEventListener("submit", (e) => this.add_location(e) );
-				}).catch(e => this.handleError(e));
+						.addEventListener("submit", (e) => this.add_location(e));
+				});
 			});
 		}
 
@@ -202,6 +202,19 @@ class Application extends Moostaka {
 			this.route("/logs", _ => this.list_log({}));
 		}
 
+		// User needs CREATE_USER Permission to make use of /users/add route
+		if(this.user.has_permission(Permission.CREATE_PAYMENT)) {
+			this.route("/users/:id/add_payment", params => {
+				User.read(params.id).then(user => {
+					this.render("#main", "authenticated/users/add_payment", {"user":user}, {}, () => {
+						document
+							.getElementById("add-payment-form")
+							.addEventListener("submit", (e) => this.confirm_payment(user, e));
+					});
+				}).catch(e => this.handleError(e));
+			});
+		}
+
 		// User needs CREATE_ROLE Permission to make use of /roles/add route
 		if(this.user.has_permission(Permission.CREATE_ROLE)) {
 			this.route("/roles/add", _ => {
@@ -209,7 +222,7 @@ class Application extends Moostaka {
 					this.render("#main", "authenticated/roles/add", { "possible_permissions":permissions }, {}, () => {
 						document
 							.getElementById("add-role-form")
-							.addEventListener("submit", (e) => this._add_role(e) );
+							.addEventListener("submit", (e) => this.add_role(e));
 					});
 				}).catch(e => this.handleError(e));
 			});
@@ -229,7 +242,7 @@ class Application extends Moostaka {
 		// User needs READ_ROLE to make use of /roles/id
 		if(this.user.has_permission(Permission.READ_ROLE)) {
 			// User needs MODIFY_ROLE to make use of /roles/id for editing
-			this.route("/roles/:id", params => this._read_role(params.id, this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.DELETE_ROLE)));
+			this.route("/roles/:id", params => this.read_role(params.id, this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.DELETE_ROLE)));
 		}
 
 		// User needs CREATE_USER Permission to make use of /users/add route
@@ -242,7 +255,7 @@ class Application extends Moostaka {
 					this.render("#main", "authenticated/users/add", {"equipment_types":values[0], "roles":values[1]}, {}, () => {
 						document
 							.getElementById("add-user-form")
-							.addEventListener("submit", (e) => this._add_user(e) );
+							.addEventListener("submit", (e) => this.add_user(e));
 					});
 				}).catch(e => this.handleError(e));
 			});
@@ -263,7 +276,7 @@ class Application extends Moostaka {
 		if(this.user.has_permission(Permission.READ_USER)) {
 			// User needs MODIFY_USER to make use of /users/id for editing user attributes eg email address
 			// User needs CREATE_EQUIPMENT_AUTHORIZATION or DELETE_EQUIPMENT_AUTHORIZATION to manage authorizations
-			this.route("/users/:id", params => this._read_user(params.id, this.user.has_permission(Permission.MODIFY_USER), this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION)));
+			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER), this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION)));
 		}
 
 		// Everyone gets a home route; what it presents them is controlled by home_icons
@@ -319,7 +332,7 @@ class Application extends Moostaka {
 	 * @return Object - an object with an attribute for each form input or
 	 *     group of inputs.
 	 */
-	_get_form_data(form) {
+	get_form_data(form) {
 		// should check that form is a form
 
 		let data = {};
@@ -360,9 +373,9 @@ class Application extends Moostaka {
 	 *
 	 * @param {Event} event - the form submission event
 	 */
-	_add_api_key(event) {
+	add_api_key(event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		APIKey.create(data).then(_ => {
 			this.navigate("/api-keys");
@@ -376,7 +389,7 @@ class Application extends Moostaka {
 	 * 
 	 * @param {string} id - the numeric id as a tring of the key to delete
 	 */
-	_delete_api_key(id) {
+	delete_api_key(id) {
 		if(window.confirm("Are you sure you want to delete the API key")) { 
 			APIKey.delete(id).then(_ => {
 				this.navigate("/api-keys")
@@ -399,7 +412,7 @@ class Application extends Moostaka {
 					.addEventListener("submit", (e) => { this.update_api_key(id, e); });
 				document
 					.getElementById("delete-api-key-button")
-					.addEventListener("click", _ => { this._delete_api_key(id); });
+					.addEventListener("click", _ => { this.delete_api_key(id); });
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -413,7 +426,7 @@ class Application extends Moostaka {
 	 */
 	update_api_key(id, event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		APIKey.modify(id, data).then(_ => {
 			this.navigate("/api-keys");
@@ -429,7 +442,7 @@ class Application extends Moostaka {
 	 */
 	add_card(event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		Card.create(data).then(_ => {
 			this.navigate("/cards");
@@ -464,7 +477,7 @@ class Application extends Moostaka {
 	 */
 	update_card(card, event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		fetch("/api/cards.php?id=" + card.id, {
 			body: JSON.stringify(data),
@@ -493,7 +506,7 @@ class Application extends Moostaka {
 	 */
 	update_charge(charge, event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		fetch("/api/charges.php?id=" + charge.id, {
 			body: JSON.stringify(data),
@@ -524,7 +537,7 @@ class Application extends Moostaka {
 	 */
 	add_equipment(event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		Equipment.create(data).then(_data => {
 			this.navigate("/equipment");
@@ -563,7 +576,7 @@ class Application extends Moostaka {
 	 */
 	update_equipment(id, event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		Equipment.modify(id, data).then(_ => {
 			this.navigate("/equipment");
@@ -579,7 +592,7 @@ class Application extends Moostaka {
 	 */
 	add_equipment_type(event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		EquipmentType.create(data).then(_ => {
 			this.navigate("/equipment-types");
@@ -617,7 +630,7 @@ class Application extends Moostaka {
 	 */
 	update_equipment_type(id, event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		EquipmentType.modify(id, data).then(_ => {
 			this.navigate("/equipment-types");
@@ -633,7 +646,7 @@ class Application extends Moostaka {
 	 */
 	add_location(event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		Location.create(data).then(_ => {
 			this.navigate("/locations");
@@ -669,7 +682,7 @@ class Application extends Moostaka {
 	 */
 	update_location(id, event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		Location.modify(id, data).then(_ => {
 			this.navigate("/locations");
@@ -749,7 +762,7 @@ class Application extends Moostaka {
 	search_log(search_form) {
 		// look at search params to insure we have a search
 		let search = {};
-		let searchParams = this._get_form_data(search_form);
+		let searchParams = this.get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length) {
@@ -770,7 +783,7 @@ class Application extends Moostaka {
 	 */
 	add_payment(event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		Payment.create(data).then(data => {
 			this.navigate("/users/" + data.user_id);
@@ -781,15 +794,19 @@ class Application extends Moostaka {
 	/**
 	 * Callback that handles confirming a payment. Bound to the form.submit()
 	 * in moostaka.render() for the view
+	 *
+	 * @param {User} user - the user account for which a payment is being
+	 *      confirmed.
+	 * @param {Event} event - the form submission event
 	 */
-	confirm_payment(event) {
+	confirm_payment(user, event) {
 		event.preventDefault();
-		let payment = this._get_form_data(event.target);
+		let payment = this.get_form_data(event.target);
 
-		moostaka.render("#main", "admin/users/confirm_payment", {"payment": payment}, {}, () => {
+		this.render("#main", "authenticated/users/confirm_payment", {"user": user, "payment": payment}, {}, () => {
 			document
 				.getElementById("confirm-payment-form")
-				.addEventListener("submit", (e) => { add_payment(e); });
+				.addEventListener("submit", (e) => { this.add_payment(e); });
 		});
 	}
 
@@ -799,9 +816,9 @@ class Application extends Moostaka {
 	 *
 	 * @param {Event} event - the form submission event
 	 */
-	_add_role(event) {
+	add_role(event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		Role.create(data).then(_ => {
 			this.navigate("/roles");
@@ -830,7 +847,7 @@ class Application extends Moostaka {
 	 * @param {bool} editable - whether to show controls for editing the role.
 	 * @param {bool} deletable - whether to show controls for deleting the role.
 	 */
-	_read_role(id, editable, deletable) {
+	read_role(id, editable, deletable) {
 		let p0 = Role.read(id);
 		let p1 = Permission.list();
 
@@ -845,7 +862,7 @@ class Application extends Moostaka {
 				}
 				document
 					.getElementById("edit-role-form")
-					.addEventListener("submit", (e) => { this._update_role(id, e); });
+					.addEventListener("submit", (e) => { this.update_role(id, e); });
 				// document
 				// 	.getElementById("delete-role-button")
 				// 	.addEventListener("click", _ => { this._delete_role(id); });
@@ -860,9 +877,9 @@ class Application extends Moostaka {
 	 * @param {Integer} id - the unique id of the role to modify
 	 * @param {Event} event - the form submission event
 	 */
-	_update_role(id, event) {
+	update_role(id, event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		Role.modify(id, data).then(_ => {
 			this.navigate("/roles");
@@ -876,9 +893,9 @@ class Application extends Moostaka {
 	 *
 	 * @param {Event} event - the form submission event
 	 */
-	_add_user(event) {
+	add_user(event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		User.create(data).then(_ => {
 			this.navigate("/users");
@@ -893,9 +910,9 @@ class Application extends Moostaka {
 	 * @param {Integer} id - the unique id of the user to authorize
 	 * @param {Event} event - the form submission event
 	 */
-	_authorize_user(id, event) {
+	authorize_user(id, event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		User.authorize(id, data).then(_ => {
 			this.navigate("/users/" + id);
@@ -910,7 +927,7 @@ class Application extends Moostaka {
 	 * @param {bool} editable - whether to show controls for editing the user.
 	 * @param {bool} authorizable - whether to show controls for authorizing the user.
 	 */
-	_read_user(id, editable, authorizable) {
+	read_user(id, editable, authorizable) {
 		let p0 = User.read(id);
 		let p1 = EquipmentType.list();
 		let p2 = Role.list();
@@ -931,11 +948,11 @@ class Application extends Moostaka {
 				let form = null;
 				form = document.getElementById("edit-user-form");
 				if(form) {
-					form.addEventListener("submit", (e) => { this._update_user(id, e); });
+					form.addEventListener("submit", (e) => { this.update_user(id, e); });
 				}
 				form = document.getElementById("authorize-user-form");
 				if(form) {
-					form.addEventListener("submit", (e) => { this._authorize_user(id, e); });
+					form.addEventListener("submit", (e) => { this.authorize_user(id, e); });
 				}
 			});
 		}).catch(e => this.handleError(e));
@@ -948,12 +965,12 @@ class Application extends Moostaka {
 	 * @param {Integer} id - the unique id of the user to modify
 	 * @param {Event} event - the form submission event
 	 */
-	_update_user(id, event) {
+	update_user(id, event) {
 		event.preventDefault();
-		let data = this._get_form_data(event.target);
+		let data = this.get_form_data(event.target);
 
 		User.modify(id, data).then(_ => {
-			this.navigate("/users");
+			this.navigate("/users/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
