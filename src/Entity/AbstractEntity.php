@@ -29,9 +29,9 @@ class AbstractEntity {
 	 * Set the unique id of this entity
 	 *
 	 * @param int id - the unique id for this entity
-	 * @return AbstractEntity - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_id(int $id) : AbstractEntity {
+	public function set_id(int $id) : self {
 		$this->id = $id;
 		return $this;
 	}

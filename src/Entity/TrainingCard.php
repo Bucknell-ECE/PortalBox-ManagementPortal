@@ -39,9 +39,9 @@ class TrainingCard extends AbstractEntity implements Card {
 	 *
 	 * @param int equipment_type_id - the id of the type of equipment this card
 	 *               can activate for training
-	 * @return TrainingCard - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_equipment_type_id(int $equipment_type_id) : TrainingCard {
+	public function set_equipment_type_id(int $equipment_type_id) : self {
 		$this->equipment_type_id = $equipment_type_id;
 		$this->equipment_type = NULL;
 		return $this;
@@ -62,9 +62,9 @@ class TrainingCard extends AbstractEntity implements Card {
 	 *
 	 * @param EquipmentType|null equipment_type - the type of equipment this
 	 *               card can activate for training
-	 * @return TrainingCard - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_type(?EquipmentType $equipment_type) : TrainingCard {
+	public function set_type(?EquipmentType $equipment_type) : self {
 		$this->equipment_type = $equipment_type;
 		if(NULL === $equipment_type) {
 			$this->equipment_type_id = -1;

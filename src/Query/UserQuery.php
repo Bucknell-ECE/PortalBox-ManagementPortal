@@ -28,9 +28,9 @@ class UserQuery {
 	 * Set the email address of the user for which to search
 	 *
 	 * @param string email - the email address of the user for which to search
-	 * @return UserQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_email(string $email) : UserQuery {
+	public function set_email(string $email) : self {
 		$this->email = $email;
 		return $this;
 	}

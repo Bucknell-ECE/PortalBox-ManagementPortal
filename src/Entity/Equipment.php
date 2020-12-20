@@ -102,9 +102,9 @@ class Equipment extends AbstractEntity {
 	 * Set the name of this equipment
 	 *
 	 * @param string name - the name for this equipment
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_name(string $name) : Equipment {
+	public function set_name(string $name) : self {
 		if(0 < strlen($name)) {
 			$this->name = $name;
 			return $this;
@@ -126,9 +126,9 @@ class Equipment extends AbstractEntity {
 	 * Set the equipment's type id
 	 *
 	 * @param int type_id - the equipment's type id
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_type_id(int $type_id) : Equipment {
+	public function set_type_id(int $type_id) : self {
 		$this->type_id = $type_id;
 		$this->type = NULL;
 		return $this;
@@ -147,9 +147,9 @@ class Equipment extends AbstractEntity {
 	 * Set the equipment's type
 	 *
 	 * @param EquipmentType type - the type for the equipment
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_type(EquipmentType $type) : Equipment {
+	public function set_type(EquipmentType $type) : self {
 		$this->type = $type;
 		$this->type_id = $type->id();
 		return $this;
@@ -168,9 +168,9 @@ class Equipment extends AbstractEntity {
 	 * Set the MAC address of the portalbox this equipment is connected to
 	 *
 	 * @param string mac_address - the MAC address of the portalbox this equipment is connected to
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_mac_address(string $mac_address) : Equipment {
+	public function set_mac_address(string $mac_address) : self {
 		if(preg_match('/^([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})$/', $mac_address)) {
 			$this->mac_address = strtolower(str_replace(array('-', ':'), '', $mac_address));
 			return $this;
@@ -192,9 +192,9 @@ class Equipment extends AbstractEntity {
 	 * Set the equipment's location id
 	 *
 	 * @param int location_id - the equipment's location id
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_location_id(int $location_id) : Equipment {
+	public function set_location_id(int $location_id) : self {
 		$this->location_id = $location_id;
 		$this->location = NULL;
 		return $this;
@@ -213,9 +213,9 @@ class Equipment extends AbstractEntity {
 	 * Set the equipment's location
 	 *
 	 * @param Location location - the location for the equipment
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_location(Location $location) : Equipment {
+	public function set_location(Location $location) : self {
 		$this->location = $location;
 		$this->location_id = $location->id();
 		return $this;
@@ -234,9 +234,9 @@ class Equipment extends AbstractEntity {
 	 * Set the equipment's timeout
 	 *
 	 * @param int timeout - the equipment's timeout
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_timeout(int $timeout) : Equipment {
+	public function set_timeout(int $timeout) : self {
 		$this->timeout = $timeout;
 		return $this;
 	}
@@ -254,9 +254,9 @@ class Equipment extends AbstractEntity {
 	 * Set whether the equipment is in service
 	 *
 	 * @param bool is_in_service - whether the equipment is in service
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_is_in_service(bool $is_in_service) : Equipment {
+	public function set_is_in_service(bool $is_in_service) : self {
 		$this->is_in_service = $is_in_service;
 		return $this;
 	}
@@ -274,9 +274,9 @@ class Equipment extends AbstractEntity {
 	 * Set whether the equipment is in use
 	 *
 	 * @param bool is_in_use - whether the equipment is in use
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_is_in_use(bool $is_in_use) : Equipment {
+	public function set_is_in_use(bool $is_in_use) : self {
 		$this->is_in_use = $is_in_use;
 		return $this;
 	}
@@ -294,9 +294,9 @@ class Equipment extends AbstractEntity {
 	 * Set the equipment's service minutes
 	 *
 	 * @param int service_minutes - the equipment's service minutes
-	 * @return Equipment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_service_minutes(int $service_minutes) : Equipment {
+	public function set_service_minutes(int $service_minutes) : self {
 		$this->service_minutes = $service_minutes;
 		return $this;
 	}

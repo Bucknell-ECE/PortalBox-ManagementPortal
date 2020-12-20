@@ -40,9 +40,9 @@ class APIKey extends AbstractEntity {
 	 * Set the name of this API key
 	 *
 	 * @param string name - the name for this API key
-	 * @return APIKey - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_name(string $name) : APIKey {
+	public function set_name(string $name) : self {
 		if(0 < strlen($name)) {
 			$this->name = $name;
 			return $this;
@@ -71,9 +71,9 @@ class APIKey extends AbstractEntity {
 	 *
 	 * @param string token - the token that can be presented to authenticate
 	 *           to the API in the absence of a Session
-	 * @return APIKey - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_token(string $token) : APIKey {
+	public function set_token(string $token) : self {
 		$this->token = $token;
 		return $this;
 	}

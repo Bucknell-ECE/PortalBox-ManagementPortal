@@ -55,9 +55,9 @@ class Role extends AbstractEntity {
 	 * Set the name of this role
 	 *
 	 * @param string name - the name for this role
-	 * @return Role - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_name(string $name) : Role {
+	public function set_name(string $name) : self {
 		$this->name = $name;
 		return $this;
 	}
@@ -75,9 +75,9 @@ class Role extends AbstractEntity {
 	 * Set whether this role is a system role
 	 *
 	 * @param bool is_system_role - whether this role is a system role
-	 * @return Role - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_is_system_role(bool $is_system_role) : Role {
+	public function set_is_system_role(bool $is_system_role) : self {
 		$this->is_system_role = $is_system_role;
 		return $this;
 	}
@@ -95,9 +95,9 @@ class Role extends AbstractEntity {
 	 * Set the description of this role
 	 *
 	 * @param string description - the description for this role
-	 * @return Role - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_description(string $description) : Role {
+	public function set_description(string $description) : self {
 		$this->description = $description;
 		return $this;
 	}
@@ -120,9 +120,9 @@ class Role extends AbstractEntity {
 	 * @param array<int> permissions - the permissions for this role
 	 * @throws InvalidArgumentException if any of the  specified permission are
 	 *             not not one of the public constants from Permission
-	 * @return Role - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_permissions(array $permissions) : Role {
+	public function set_permissions(array $permissions) : self {
 		foreach($permissions as $permission) {
 			if(!Permission::is_valid($permission)) {
 				throw new InvalidArgumentException('permission must be one of the public constants from Permission');

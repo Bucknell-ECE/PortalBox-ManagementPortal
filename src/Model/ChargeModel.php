@@ -120,7 +120,7 @@ class ChargeModel extends AbstractModel {
 	 * 
 	 * @param ChargeQuery query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
-	 * @return Equipment[]|null - a list of equipment which match the search query
+	 * @return Charge[]|null - a list of charges which match the search query
 	 */
 	public function search(ChargeQuery $query) : ?array {
 		if(NULL === $query) {

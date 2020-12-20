@@ -50,9 +50,9 @@ class ChargeQuery {
 	 * Set the on or before date
 	 *
 	 * @param string on_or_before - the on or before date
-	 * @return ChargeQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_on_or_before(string $on_or_before) : ChargeQuery {
+	public function set_on_or_before(string $on_or_before) : self {
 		$this->on_or_before = $on_or_before;
 		return $this;
 	}
@@ -70,9 +70,9 @@ class ChargeQuery {
 	 * Set the on or after date
 	 *
 	 * @param string on_or_after - the on or after date
-	 * @return ChargeQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_on_or_after(string $on_or_after) : ChargeQuery {
+	public function set_on_or_after(string $on_or_after) : self {
 		$this->on_or_after = $on_or_after;
 		return $this;
 	}
@@ -90,9 +90,9 @@ class ChargeQuery {
 	 * Set the equipment id
 	 *
 	 * @param int equipment_id - the equipment id
-	 * @return ChargeQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_equipment_id(int $equipment_id) : ChargeQuery {
+	public function set_equipment_id(int $equipment_id) : self {
 		$this->equipment_id = $equipment_id;
 		return $this;
 	}
@@ -110,9 +110,9 @@ class ChargeQuery {
 	 * Set the user id
 	 *
 	 * @param int user_id - the user id
-	 * @return ChargeQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_user_id(int $user_id) : ChargeQuery {
+	public function set_user_id(int $user_id) : self {
 		$this->user_id = $user_id;
 		return $this;
 	}

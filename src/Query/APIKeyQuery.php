@@ -28,9 +28,9 @@ class APIKeyQuery {
 	 * Set the token for which to search
 	 *
 	 * @param string token - the token for which to search
-	 * @return APIKeyQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_token(string $token) : APIKeyQuery {
+	public function set_token(string $token) : self {
 		$this->token = $token;
 		return $this;
 	}

@@ -78,9 +78,9 @@ class LoggedEvent extends AbstractEntity {
 	 * Set the time this event occured
 	 *
 	 * @param string time - the time this event occured
-	 * @return LoggedEvent - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_time(string $time) : LoggedEvent {
+	public function set_time(string $time) : self {
 		$this->time = $time;
 		return $this;
 	}
@@ -98,9 +98,9 @@ class LoggedEvent extends AbstractEntity {
 	 * Set the type_id of this event
 	 *
 	 * @param int type_id - the type_id of this event
-	 * @return LoggedEvent - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_type_id(int $type_id) : LoggedEvent {
+	public function set_type_id(int $type_id) : self {
 		$this->type_id = $type_id;
 		return $this;
 	}
@@ -127,9 +127,9 @@ class LoggedEvent extends AbstractEntity {
 	 * Set the id of the equipment which reported this event
 	 *
 	 * @param int equipment_id - the id of the equipment which reported this event
-	 * @return LoggedEvent - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_equipment_id(int $equipment_id) : LoggedEvent {
+	public function set_equipment_id(int $equipment_id) : self {
 		$this->equipment_id = $equipment_id;
 		$this->equipment = NULL;
 		return $this;
@@ -162,9 +162,9 @@ class LoggedEvent extends AbstractEntity {
 	 * Set the equipment which reported this event
 	 *
 	 * @param Equipment|null equipment - the equipment which reported this event
-	 * @return LoggedEvent - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_equipment(?Equipment $equipment) : LoggedEvent {
+	public function set_equipment(?Equipment $equipment) : self {
 		$this->equipment = $equipment;
 		if(NULL === $equipment) {
 			$this->equipment_id = -1;
@@ -188,9 +188,9 @@ class LoggedEvent extends AbstractEntity {
 	 * Set the id of the card which triggered this event
 	 *
 	 * @param int card_id - the id of the card which triggered this event
-	 * @return LoggedEvent - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_card_id(int $card_id) : LoggedEvent {
+	public function set_card_id(int $card_id) : self {
 		$this->card_id = $card_id;
 		$this->card = NULL;
 		return $this;
@@ -209,9 +209,9 @@ class LoggedEvent extends AbstractEntity {
 	 * Set the card which triggered this event
 	 *
 	 * @param Card|null card - the card which triggered this event
-	 * @return LoggedEvent - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_card(?Card $card) : LoggedEvent {
+	public function set_card(?Card $card) : self {
 		$this->card = $card;
 		if(NULL === $card) {
 			$this->card_id = -1;
@@ -235,9 +235,9 @@ class LoggedEvent extends AbstractEntity {
 	 * Set the id of the user whose card which triggered this event
 	 *
 	 * @param int user_id - the id of the user whose card which triggered this event
-	 * @return LoggedEvent - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_user_id(int $user_id) : LoggedEvent {
+	public function set_user_id(int $user_id) : self {
 		$this->user_id = $user_id;
 		$this->user = NULL;
 		return $this;
@@ -270,9 +270,9 @@ class LoggedEvent extends AbstractEntity {
 	 * Set the user whose card which triggered this event
 	 *
 	 * @param User|null user - the user whose card which triggered this event
-	 * @return LoggedEvent - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_user(?User $user) : LoggedEvent {
+	public function set_user(?User $user) : self {
 		$this->user = $user;
 		if(NULL === $user) {
 			$this->user_id = -1;

@@ -35,9 +35,9 @@ class Location extends AbstractEntity {
 	 * Set the name of this location
 	 *
 	 * @param string name - the name for this location
-	 * @return Location - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_name(string $name) : Location {
+	public function set_name(string $name) : self {
 		if(0 < strlen($name)) {
 			$this->name = $name;
 			return $this;

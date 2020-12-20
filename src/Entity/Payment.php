@@ -44,9 +44,9 @@ class Payment extends AbstractEntity {
 	 * Set the id of the user who paid
 	 *
 	 * @param int user_id - the id of the user who paid
-	 * @return Payment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_user_id(int $user_id) : Payment {
+	public function set_user_id(int $user_id) : self {
 		$this->user_id = $user_id;
 		return $this;
 	}
@@ -64,9 +64,9 @@ class Payment extends AbstractEntity {
 	 * Set the user who paid
 	 *
 	 * @param User user - the user who paid
-	 * @return Payment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_user(User $user) : Payment {
+	public function set_user(User $user) : self {
 		$this->user = $user;
 		$this->user_id = $user->id();
 		return $this;
@@ -85,9 +85,9 @@ class Payment extends AbstractEntity {
 	 * Set the amount of this payment
 	 *
 	 * @param string amount - the amount of this payment
-	 * @return Payment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_amount(string $amount) : Payment {
+	public function set_amount(string $amount) : self {
 		$this->amount = $amount;
 		return $this;
 	}
@@ -105,9 +105,9 @@ class Payment extends AbstractEntity {
 	 * Set the time of this payment
 	 *
 	 * @param string time - the time of this payment
-	 * @return Payment - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_time(string $time) : Payment {
+	public function set_time(string $time) : self {
 		$this->time = $time;
 		return $this;
 	}

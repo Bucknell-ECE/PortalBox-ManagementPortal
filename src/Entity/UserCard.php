@@ -37,9 +37,9 @@ class UserCard extends AbstractEntity implements Card {
 	 * Set the id of the user to whom this card was issued
 	 *
 	 * @param int user_id - the id of the user to whom this card was issued
-	 * @return UserCard - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_user_id(int $user_id) : UserCard {
+	public function set_user_id(int $user_id) : self {
 		$this->user_id = $user_id;
 		$this->user = NULL;
 		return $this;
@@ -58,9 +58,9 @@ class UserCard extends AbstractEntity implements Card {
 	 * Set the user to whom this card was issued
 	 *
 	 * @param User|null user - user to whom this card was issued
-	 * @return UserCard - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_user(?User $user) : UserCard {
+	public function set_user(?User $user) : self {
 		$this->user = $user;
 		if(NULL === $user) {
 			$this->user_id = -1;

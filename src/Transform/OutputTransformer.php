@@ -33,7 +33,7 @@ interface OutputTransformer {
 
 	/**
 	 * Called to get the column headers for a tabular output format eg csv.
-	 * The column count should mtch the number of fields in an array returned
+	 * The column count should match the number of fields in an array returned
 	 * by serialize() when $traverse is false
 	 * 
 	 * @return array - a list of strings that ccan be column headers

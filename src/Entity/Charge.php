@@ -87,9 +87,9 @@ class Charge extends AbstractEntity {
 	 * Set the id of the user who paid
 	 *
 	 * @param int user_id - the id of the user who paid
-	 * @return Charge - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_user_id(int $user_id) : Charge {
+	public function set_user_id(int $user_id) : self {
 		$this->user_id = $user_id;
 		return $this;
 	}
@@ -116,9 +116,9 @@ class Charge extends AbstractEntity {
 	 * Set the charged user
 	 *
 	 * @param User user - the charged user
-	 * @return Charge - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_user(User $user) : Charge {
+	public function set_user(User $user) : self {
 		$this->user = $user;
 		$this->user_id = $user->id();
 		return $this;
@@ -137,9 +137,9 @@ class Charge extends AbstractEntity {
 	 * Set the id of the equipment the user used to incur the Charge
 	 *
 	 * @param int equipment_id - the id of the equipment the user used to incur the Charge
-	 * @return Charge - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_equipment_id(int $equipment_id) : Charge {
+	public function set_equipment_id(int $equipment_id) : self {
 		$this->equipment_id = $equipment_id;
 		return $this;
 	}
@@ -166,9 +166,9 @@ class Charge extends AbstractEntity {
 	 * Set the equipment the user used to incur the Charge
 	 *
 	 * @param Equipment equipment - the equipment the user used to incur the Charge
-	 * @return Charge - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_equipment(Equipment $equipment) : Charge {
+	public function set_equipment(Equipment $equipment) : self {
 		$this->equipment = $equipment;
 		$this->equipment_id = $equipment->id();
 		return $this;
@@ -187,9 +187,9 @@ class Charge extends AbstractEntity {
 	 * Set the time of this charge
 	 *
 	 * @param string time - the time of this charge
-	 * @return Charge - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_time(string $time) : Charge {
+	public function set_time(string $time) : self {
 		$this->time = $time;
 		return $this;
 	}
@@ -207,9 +207,9 @@ class Charge extends AbstractEntity {
 	 * Set the amount of this charge
 	 *
 	 * @param string amount - the amount of this charge
-	 * @return Charge - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_amount(string $amount) : Charge {
+	public function set_amount(string $amount) : self {
 		$this->amount = $amount;
 		return $this;
 	}
@@ -236,9 +236,9 @@ class Charge extends AbstractEntity {
 	 * Set the id of the charge policy in effect during the creation of the Charge
 	 *
 	 * @param int charge_policy_id - the id of the charge policy in effect during the creation of the Charge
-	 * @return Charge - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_charge_policy_id(int $charge_policy_id) : Charge {
+	public function set_charge_policy_id(int $charge_policy_id) : self {
 		$this->charge_policy_id = $charge_policy_id;
 		return $this;
 	}
@@ -256,9 +256,9 @@ class Charge extends AbstractEntity {
 	 * Set the charge rate in effect during the creation of the Charge
 	 *
 	 * @param string charge_rate - the charge rate in effect during the creation of the Charge
-	 * @return Charge - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_charge_rate(string $charge_rate) : Charge {
+	public function set_charge_rate(string $charge_rate) : self {
 		$this->charge_rate = $charge_rate;
 		return $this;
 	}
@@ -280,9 +280,9 @@ class Charge extends AbstractEntity {
 	 *
 	 * @param int charged_time - the duration in seconds of the activation session that resulted in the
 	 * creation of this Charge
-	 * @return Charge - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_charged_time(int $charged_time) : Charge {
+	public function set_charged_time(int $charged_time) : self {
 		$this->charged_time = $charged_time;
 		return $this;
 	}

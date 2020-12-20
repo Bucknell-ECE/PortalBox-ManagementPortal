@@ -56,9 +56,9 @@ class LoggedEventQuery {
 	 * Set the on or before date
 	 *
 	 * @param string on_or_before - the on or before date
-	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_on_or_before(string $on_or_before) : LoggedEventQuery {
+	public function set_on_or_before(string $on_or_before) : self {
 		$this->on_or_before = $on_or_before;
 		return $this;
 	}
@@ -76,9 +76,9 @@ class LoggedEventQuery {
 	 * Set the on or after date
 	 *
 	 * @param string on_or_after - the on or after date
-	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_on_or_after(string $on_or_after) : LoggedEventQuery {
+	public function set_on_or_after(string $on_or_after) : self {
 		$this->on_or_after = $on_or_after;
 		return $this;
 	}
@@ -96,9 +96,9 @@ class LoggedEventQuery {
 	 * Set the equipment id
 	 *
 	 * @param int equipment_id - the equipment id
-	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_equipment_id(int $equipment_id) : LoggedEventQuery {
+	public function set_equipment_id(int $equipment_id) : self {
 		$this->equipment_id = $equipment_id;
 		return $this;
 	}
@@ -116,9 +116,9 @@ class LoggedEventQuery {
 	 * Set the location id
 	 *
 	 * @param int location_id - the location id
-	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_location_id(int $location_id) : LoggedEventQuery {
+	public function set_location_id(int $location_id) : self {
 		$this->location_id = $location_id;
 		return $this;
 	}
@@ -136,9 +136,9 @@ class LoggedEventQuery {
 	 * Set the type id
 	 *
 	 * @param int type_id - the type id
-	 * @return LoggedEventQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_type_id(int $type_id) : LoggedEventQuery {
+	public function set_type_id(int $type_id) : self {
 		$this->type_id = $type_id;
 		return $this;
 	}

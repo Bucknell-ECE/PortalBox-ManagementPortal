@@ -53,9 +53,9 @@ class EquipmentType extends AbstractEntity {
 	 * Set the name of this equipment type
 	 *
 	 * @param string name - the name for this equipment type
-	 * @return EquipmentType - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_name(string $name) : EquipmentType {
+	public function set_name(string $name) : self {
 		if(0 < strlen($name)) {
 			$this->name = $name;
 			return $this;
@@ -77,9 +77,9 @@ class EquipmentType extends AbstractEntity {
 	 * Set whether this equipment type requires training
 	 *
 	 * @param bool requires_training - whether this equipment type requires training
-	 * @return EquipmentType - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_requires_training(bool $requires_training) : EquipmentType {
+	public function set_requires_training(bool $requires_training) : self {
 		$this->requires_training = $requires_training;
 		return $this;
 	}
@@ -97,9 +97,9 @@ class EquipmentType extends AbstractEntity {
 	 * Set the charge rate of this equipment type
 	 *
 	 * @param string|null charge_rate - the charge rate for this equipment type
-	 * @return EquipmentType - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_charge_rate(?string $charge_rate) : EquipmentType {
+	public function set_charge_rate(?string $charge_rate) : self {
 		if(NULL === $charge_rate || 0 < strlen($charge_rate)) {
 			$this->charge_rate = $charge_rate;
 			return $this;
@@ -134,9 +134,9 @@ class EquipmentType extends AbstractEntity {
 	 *             type. Must be one of the public constants in ChargePolicy
 	 * @throws InvalidArgumentException if the specified id is not one of the
 	 *             public constants from ChargePolicy
-	 * @return EquipmentType - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_charge_policy_id(int $charge_policy_id) : EquipmentType {
+	public function set_charge_policy_id(int $charge_policy_id) : self {
 		if(ChargePolicy::is_valid($charge_policy_id)) {
 			$this->charge_policy_id = $charge_policy_id;
 			return $this;

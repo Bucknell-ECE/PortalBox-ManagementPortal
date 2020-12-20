@@ -77,9 +77,9 @@ class User extends AbstractEntity {
 	 * Set the name of this user
 	 *
 	 * @param string name - the name for this user
-	 * @return User - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_name(string $name) : User {
+	public function set_name(string $name) : self {
 		$this->name = $name;
 		return $this;
 	}
@@ -97,9 +97,9 @@ class User extends AbstractEntity {
 	 * Set the email address of this user
 	 *
 	 * @param string email - the email for this user
-	 * @return User - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_email(string $email) : User {
+	public function set_email(string $email) : self {
 		$this->email = $email;
 		return $this;
 	}
@@ -117,9 +117,9 @@ class User extends AbstractEntity {
 	 * Set the comment for this user
 	 *
 	 * @param string comment - the comment for this user
-	 * @return User - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_comment(?string $comment) : User {
+	public function set_comment(?string $comment) : self {
 		$this->comment = $comment;
 		return $this;
 	}
@@ -137,9 +137,9 @@ class User extends AbstractEntity {
 	 * Set the user's role id
 	 *
 	 * @param int role_id - the role for this user
-	 * @return User - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_role_id(int $role_id) : User {
+	public function set_role_id(int $role_id) : self {
 		$this->role_id = $role_id;
 		$this->role = NULL;
 		return $this;
@@ -171,9 +171,9 @@ class User extends AbstractEntity {
 	 * Set the user's role
 	 *
 	 * @param Role|null role - the role for this user
-	 * @return User - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_role(?Role $role) : User {
+	public function set_role(?Role $role) : self {
 		$this->role = $role;
 		if(NULL === $role) {
 			$this->role_id = -1;
@@ -197,9 +197,9 @@ class User extends AbstractEntity {
 	 * Set whether this user is active
 	 *
 	 * @param bool is_active - whether this user is active
-	 * @return User - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_is_active(bool $is_active) : User {
+	public function set_is_active(bool $is_active) : self {
 		$this->is_active = $is_active;
 		return $this;
 	}
@@ -220,9 +220,9 @@ class User extends AbstractEntity {
 	 * Set the authorizations for this user
 	 *
 	 * @param array<int> authorizations - the authorizations for this user
-	 * @return User - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_authorizations(array $authorizations) : User {
+	public function set_authorizations(array $authorizations) : self {
 		// Should check if valid? ie an int that is the id of an equipment type
 
 		$this->authorizations = $authorizations;

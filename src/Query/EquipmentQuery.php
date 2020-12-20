@@ -56,9 +56,9 @@ class EquipmentQuery {
 	 * Set whether to find out of service equipment
 	 *
 	 * @param bool include_out_of_service - whether to find out of service equipment
-	 * @return EquipmentQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_include_out_of_service(bool $include_out_of_service) : EquipmentQuery {
+	public function set_include_out_of_service(bool $include_out_of_service) : self {
 		$this->include_out_of_service = $include_out_of_service;
 		return $this;
 	}
@@ -76,9 +76,9 @@ class EquipmentQuery {
 	 * Set the name of the equipmen type
 	 *
 	 * @param string|null type - the name of the equipment type
-	 * @return EquipmentQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_type(?string $type) : EquipmentQuery {
+	public function set_type(?string $type) : self {
 		$this->type = $type;
 		return $this;
 	}
@@ -96,9 +96,9 @@ class EquipmentQuery {
 	 * Set the location name
 	 *
 	 * @param string|null location - the location name
-	 * @return EquipmentQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_location(?string $location) : EquipmentQuery {
+	public function set_location(?string $location) : self {
 		$this->location = $location;
 		return $this;
 	}
@@ -116,9 +116,9 @@ class EquipmentQuery {
 	 * Set the location id
 	 *
 	 * @param int|null location_id - the location id
-	 * @return EquipmentQuery - returns this in order to support fluent syntax.
+	 * @return self
 	 */
-	public function set_location_id(?int $location_id) : EquipmentQuery {
+	public function set_location_id(?int $location_id) : self {
 		$this->location_id = $location_id;
 		return $this;
 	}
