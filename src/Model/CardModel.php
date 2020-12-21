@@ -8,7 +8,10 @@ use Portalbox\Entity\ProxyCard;
 use Portalbox\Entity\ShutdownCard;
 use Portalbox\Entity\TrainingCard;
 use Portalbox\Entity\UserCard;
+
 use Portalbox\Exception\DatabaseException;
+
+use Portalbox\Query\CardQuery;
 
 use PDO;
 
@@ -91,20 +94,7 @@ class CardModel extends AbstractModel {
 		$query->bindValue(':id', $id);	//BIGINT
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				switch($data['type_id']) {
-					case CardType::PROXY:
-						return (new ProxyCard())->set_id($data['id']);
-					case CardType::SHUTDOWN:
-						return (new ShutdownCard())->set_id($data['id']);
-					case CardType::TRAINING:
-						// does this need to be PDO aware?
-						return (new TrainingCard())->set_id($data['id'])->set_equipment_type_id($data['equipment_type_id']);
-					case CardType::USER:
-						// does this need to be PDO aware?
-						return(new UserCard())->set_id($data['id'])->set_user_id($data['user_id']);
-					default:
-						return null;
-				}
+				return $this->buildCardFromArray($data);
 			} else {
 				return null;
 			}
@@ -208,5 +198,76 @@ class CardModel extends AbstractModel {
 		}
 
 		return $card;
+	}
+
+	/**
+	 * Search for Cards
+	 * 
+	 * @param CardQuery|null query - the search query to perform
+	 * @throws DatabaseException - when the database can not be queried
+	 * @return Card[]|null - a list of equipment which match the search query
+	 */
+	public function search(?CardQuery $query = null) : ?array {
+		$connection = $this->configuration()->readonly_db_connection();
+
+		$sql = 'SELECT c.id, c.type_id, uxc.user_id, etxc.equipment_type_id FROM cards AS c LEFT JOIN users_x_cards AS uxc ON c.id = uxc.card_id LEFT JOIN equipment_type_x_cards AS etxc ON c.id = etxc.card_id';
+
+		$where_clause_fragments = array();
+		$parameters = array();
+		if(NULL !== $query && NULL !== $query->equipment_type_id()) {
+			$where_clause_fragments[] = 'etxc.equipment_type_id = :equipment_type_id';
+			$parameters[':equipment_type_id'] = $query->equipment_type_id();
+		}
+		if(NULL !== $query && NULL !== $query->user_id()) {
+			$where_clause_fragments[] = 'uxc.user_id = :user_id';
+			$parameters[':user_id'] = $query->user_id();
+		}
+		if(0 < count($where_clause_fragments)) {
+			$sql .= ' WHERE ';
+			$sql .= join(' AND ', $where_clause_fragments);
+		}
+		$statement = $connection->prepare($sql);
+		// run search
+		foreach($parameters as $k => $v) {
+			$statement->bindValue($k, $v);
+		}
+
+		if($statement->execute()) {
+			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(FALSE !== $data) {
+				return $this->buildCardsFromArrays($data);
+			} else {
+				return null;
+			}
+		} else {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+	}
+
+	private function buildCardFromArray(array $data) : ?Card {
+		switch($data['type_id']) {
+			case CardType::PROXY:
+				return (new ProxyCard())->set_id($data['id']);
+			case CardType::SHUTDOWN:
+				return (new ShutdownCard())->set_id($data['id']);
+			case CardType::TRAINING:
+				// does this need to be PDO aware?
+				return (new TrainingCard())->set_id($data['id'])->set_equipment_type_id($data['equipment_type_id']);
+			case CardType::USER:
+				// does this need to be PDO aware?
+				return(new UserCard())->set_id($data['id'])->set_user_id($data['user_id']);
+			default:
+				return null;
+		}
+	}
+
+	private function buildCardsFromArrays(array $data) : array {
+		$cards = [];
+
+		foreach($data as $datum) {
+			$cards[] = $this->buildCardFromArray($datum);
+		}
+
+		return $cards;
 	}
 }

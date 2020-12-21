@@ -5,21 +5,24 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
 use Portalbox\Config;
+
 use Portalbox\Entity\CardType;
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Location;
+use Portalbox\Entity\ProxyCard;
 use Portalbox\Entity\Role;
+use Portalbox\Entity\ShutdownCard;
+use Portalbox\Entity\TrainingCard;
 use Portalbox\Entity\User;
+use Portalbox\Entity\UserCard;
+
+use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
 
-use Portalbox\Entity\ProxyCard;
-use Portalbox\Entity\ShutdownCard;
-use Portalbox\Entity\TrainingCard;
-use Portalbox\Entity\UserCard;
-use Portalbox\Model\CardModel;
+use Portalbox\Query\CardQuery;
 
 final class CardModelTest extends TestCase {
 	/**
@@ -240,5 +243,85 @@ final class CardModelTest extends TestCase {
 		$card_as_not_found = $model->read($card_id);
 
 		self::assertNull($card_as_not_found);
+	}
+
+	public function testSearch(): void {
+		$model = new CardModel(self::$config);
+
+		$card_id = 622347165;
+		$user_id = self::$user->id();
+
+		$card = (new UserCard())
+			->set_id($card_id)
+			->set_user_id($user_id);
+
+		$user_card_1 = $model->create($card);
+
+		$card_id = 622347166;
+		$user_id = self::$user->id();
+
+		$card = (new UserCard())
+			->set_id($card_id)
+			->set_user_id($user_id);
+
+		$user_card_2 = $model->create($card);
+
+		$card_id = 812347165;
+		$equipment_type_id = self::$equipment_type->id();
+
+		$card = (new TrainingCard())
+			->set_id($card_id)
+			->set_equipment_type_id($equipment_type_id);
+
+		$training_card = $model->create($card);
+
+		$card_id = 47165542;
+
+		$card = (new ShutdownCard())
+			->set_id($card_id);
+
+		$shutdown_card = $model->create($card);
+
+		$cards = array_map(function ($card) {
+			return $card->id();
+		}, $model->search());
+		self::assertContains($user_card_1->id(), $cards);
+		self::assertContains($user_card_2->id(), $cards);
+		self::assertContains($training_card->id(), $cards);
+		self::assertContains($shutdown_card->id(), $cards);
+
+		$query = new CardQuery();
+		$cards = array_map(function ($card) {
+			return $card->id();
+		}, $model->search($query));
+		self::assertContains($user_card_1->id(), $cards);
+		self::assertContains($user_card_2->id(), $cards);
+		self::assertContains($training_card->id(), $cards);
+		self::assertContains($shutdown_card->id(), $cards);
+
+		$query = (new CardQuery())
+			->set_user_id($user_id);
+		$cards = array_map(function ($card) {
+			return $card->id();
+		}, $model->search($query));
+		self::assertContains($user_card_1->id(), $cards);
+		self::assertContains($user_card_2->id(), $cards);
+		self::assertNotContains($training_card->id(), $cards);
+		self::assertNotContains($shutdown_card->id(), $cards);
+
+		$query = (new CardQuery())
+			->set_equipment_type_id($equipment_type_id);
+		$cards = array_map(function ($card) {
+			return $card->id();
+		}, $model->search($query));
+		self::assertNotContains($user_card_1->id(), $cards);
+		self::assertNotContains($user_card_2->id(), $cards);
+		self::assertContains($training_card->id(), $cards);
+		self::assertNotContains($shutdown_card->id(), $cards);
+
+		$model->delete($user_card_1->id());
+		$model->delete($user_card_2->id());
+		$model->delete($training_card->id());
+		$model->delete($shutdown_card->id());
 	}
 }
