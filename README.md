@@ -47,6 +47,7 @@ Occasionally, it may be necessary to provide a helper function for PHP. We suppo
 5) Either point your web server's DOCUMENT_ROOT to the public folder [OR] copy everything including hidden files e.g. .htaccess to the place your server considers to be DOCUMENT_ROOT
 
 ## Testing
+
 ### Unit Testing
 A unit test suite is included for testing PHP code. To use it you will need `phpunit` and to generate the PSR-4 autoload map. This can be done using `composer`. To get `composer` follow the instructions for your os on https://getcomposer.org. With `composer` installed, simply change into the project directory and run `composer install`. You can then run tests using `phpunit` installed by `composer`.
 

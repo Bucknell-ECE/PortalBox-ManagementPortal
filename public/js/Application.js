@@ -1,5 +1,6 @@
 import { SessionTimeOutError } from './SessionTimeOutError.js';
 import { APIKey } from './APIKey.js';
+import { Card } from './Card.js';
 import { Charge } from './Charge.js';
 import { ChargePolicy } from './ChargePolicy.js';
 import { Equipment } from './Equipment.js';
@@ -61,7 +62,7 @@ class Application extends Moostaka {
 			system: null
 		};
 
-		// User needs CREATE_API_KEY Permission to make use of /location/add route
+		// User needs CREATE_API_KEY Permission to make use of /api-keys/add route
 		if(this.user.has_permission(Permission.CREATE_API_KEY)) {
 			this.route("/api-keys/add", _ => {
 				this.render("#main", "authenticated/api-keys/add", {}, {}, () => {
@@ -87,6 +88,34 @@ class Application extends Moostaka {
 		if(this.user.has_permission(Permission.READ_API_KEY)) {
 			// User needs MODIFY_API_KEY to make use of /api-keys/id for editing
 			this.route("/api-keys/:id", params => this.read_api_key(params.id, this.user.has_permission(Permission.MODIFY_API_KEY), this.user.has_permission(Permission.DELETE_API_KEY)));
+		}
+
+		// User needs CREATE_CARD Permission to make use of /cards/add route
+		if(this.user.has_permission(Permission.CREATE_CARD)) {
+			this.route("/cards/add", _ => {
+				this.render("#main", "authenticated/cards/add", {}, {}, () => {
+					document
+						.getElementById("add-card-form")
+						.addEventListener("submit", (e) => this.add_card(e));
+				});
+			});
+		}
+
+		// User needs LIST_CARDS Permission to make use of /cards route
+		if(this.user.has_permission(Permission.LIST_CARDS)) {
+			if(!home_icons.manage_icons) { home_icons.manage_icons = manage_icons }
+			home_icons.manage_icons.cards = true;
+			this.route("/cards", _ => {
+				Card.list().then(cards => {
+					this.render("#main", "authenticated/cards/list", {"cards": cards});
+				}).catch(e => this.handleError(e));
+			});
+		}
+
+		// User needs READ_CARD to make use of /cards/id
+		if(this.user.has_permission(Permission.READ_CARD)) {
+			// User needs MODIFY_CARD to make use of /cards/id for editing
+			this.route("/cards/:id", params => this.read_card(params.id, this.user.has_permission(Permission.MODIFY_CARD)));
 		}
 
 		// User needs CREATE_EQUIPMENT Permission to make use of /equipment/add route

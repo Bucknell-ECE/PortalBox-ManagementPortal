@@ -1,0 +1,75 @@
+{{#card}}
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/cards">Cards</a></li>
+	<li>Card {{id}}</li>
+</ul>
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />
+<article>
+	<header>
+		<h1>Card</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-edit-state" class="default">Edit</label>
+		</div>
+	</header>
+	<dl>
+		<dt>ID:</label>
+		<dd>{{id}}</dd>
+		<dt>Type:</dt>
+		<dd>{{type}}</dd>
+		<dt id="equipment_type_label">Equipment Type:</dt>
+		<dd id="equipment_type">{{equipment_type}}</dd>
+		<dt id="user_label">User:</dt>
+		<dd id="user">{{user}}</dd>
+	</dl>
+</article>
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
+<article>
+	<header>
+		<h1>Card</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-view-state">Cancel</label>
+			<button form="edit-card-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+    <form id="edit-card-form">
+		<label for="id">ID:</label>
+		<input type="text" name="id" id="id" value="{{id}}" required />
+        <div class="help">
+			<label for="card-id-help-toggle">
+				<i class="material-icons">help</i>
+			</label>
+			<input type="checkbox" id="card-id-help-toggle" class="checkbox-hack">
+			<div class="content">
+				<label for="card-id-help-toggle" class="scrim"></label>
+				<div>
+					<p>Enter the number that is returned when scanning the card.</p>
+				</div>
+			</div>
+		</div>
+		<label for="type_id">Type:</label>
+		<select name="type_id" id="type_id" required>
+			<option label="Please Choose"></option>
+			{{#types}}<option value="{{id}}">{{name}}</option>{{/types}}
+		</select>
+		<label for="user_id" id="user_id_label">User:</label>
+		<select name="user_id" id="user_id">
+			<option label="Please Choose"></option>
+			{{#users}}<option value="{{id}}">{{name}}</option>{{/users}}
+		</select>
+		<label for="equipment_type_id" id="equipment_type_id_label">Equipment Type:</label>
+		<select name="equipment_type_id" id="equipment_type_id">
+			<option label="Please Choose"></option>
+			{{#equipment_types}}<option value="{{id}}">{{name}}</option>{{/equipment_types}}
+		</select>
+	</form>
+</article>
+{{/card}}
+{{^card}}
+<article>
+	<header>
+		<h1>Card</h1>
+	</header>
+	<p>Sorry we couldn't find that</p>
+</article>
+{{/card}}

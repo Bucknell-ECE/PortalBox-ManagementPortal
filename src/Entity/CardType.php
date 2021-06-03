@@ -40,4 +40,20 @@ class CardType {
 
 		return false;
 	}
+
+	/**
+	 * Get the name for the card type
+	 * 
+	 * @param int type_id - the policy id to check
+	 * @return string - name for the event type
+	 */
+	public static function name_for_type(int $type_id) : string {
+		switch($type_id) {
+			case self::SHUTDOWN: return 'Shutdown Card';
+			case self::PROXY: return 'Proxy Card';
+			case self::TRAINING: return 'Training Card';
+			case self::USER: return 'User Card';
+			default: return 'Invalid';
+		}
+	}
 }

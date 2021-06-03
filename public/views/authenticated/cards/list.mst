@@ -1,0 +1,34 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li>Cards</li>
+</ul>
+<article>
+	<header>
+		<h1>Cards</h1>
+		<div class="button-group">
+			{{! <label for="filter-form-toggle"><i class="material-icons">search</i></label> }}
+			<a href="/cards/add" class="default">Add</a>
+		</div>
+	</header>
+	<input type="checkbox" id="filter-form-toggle" class="checkbox-hack" {{#search}}checked{{/search}} onclick="document.getElementById('name').focus()" />
+	<form class="advanced_search" onsubmit="return false;">
+		<label for="card_id">Card:</label>
+		<input name="card_id" id="card_id" onchange="moostaka.navigate('/cards/search/' + this.value);" value="{{search}}" autocomplete="off" />
+	</form>
+	<table>
+		<thead>
+			<tr>
+				<th>Card ID</th>
+				<th>Type</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#cards}}<tr class="link" onclick="go('/cards/{{id}}', 'Cards');">
+				<td>{{id}}</td>
+				<td>{{type}}</td>
+			</tr>{{/cards}}
+			{{^cards}}<tr><td colspan="2">We did not find any cards</td></tr>{{/cards}}
+		</tbody>
+	</table>
+</article>
+	
