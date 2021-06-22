@@ -16,6 +16,27 @@ class UserQuery {
 	protected $email;
 
 	/**
+	 * The name of the user for which to search
+	 * 
+	 * @var string
+	 */
+	protected $name;
+
+	/**
+	 * The comment for the user to search for
+	 * 
+	 * @var string
+	 */
+	protected $comment;
+
+	/**
+	 * The id of the user for which to search
+	 * 
+	 * @var int
+	 */
+	protected $id;
+
+	/**
 	 * Get the email address of the user for which to search
 	 *
 	 * @return string|null - the email address of the user for which to search
@@ -35,4 +56,42 @@ class UserQuery {
 		return $this;
 	}
 
+	/**
+	 * Get the name of the user for which to search
+	 * 
+	 * @return string|null - the name of the user for which to search
+	 */
+	public function name() : ?string {
+		return $this->name;
+	}
+
+	/**
+	 * Set the name of the user for which to search
+	 *
+	 * @param string email - the name of the user for which to search 
+	 * @return self
+	 */
+	public function set_name(string $name) : self {
+		$this->name = $name;
+		return $this;
+	}
+
+	/**
+	 * Get the comment of the user for which to search
+	 * 
+	 * @return string|null
+	 */
+	public function comment() : ?string {
+		return $this->comment;
+	}
+	/**
+	 * Set the comment of the user for which to search
+	 *
+	 * @param string comment 
+	 * @return self
+	 */
+	public function set_comment(string $comment) : self {
+		$this->comment = $comment;
+		return $this;
+	}
 }

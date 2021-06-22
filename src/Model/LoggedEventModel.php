@@ -59,23 +59,23 @@ class LoggedEventModel extends AbstractModel {
 		$where_clause_fragments = array();
 		$parameters = array();
 		if($query->equipment_id()) {
-			$where_clause_elements[] = 'el.equipment_id = :equipment_id';
+			$where_clause_fragments[] = 'el.equipment_id = :equipment_id';
 			$parameters[':equipment_id'] = $query->equipment_id();
 		}
 		if($query->location_id()) {
-			$where_clause_elements[] = 'e.location_id = :location_id';
+			$where_clause_fragments[] = 'e.location_id = :location_id';
 			$parameters[':location_id'] = $query->location_id();
 		}
 		if($query->type_id()) {
-			$where_clause_elements[] = 'el.event_type_id = :event_type_id';
+			$where_clause_fragments[] = 'el.event_type_id = :event_type_id';
 			$parameters[':event_type_id'] = $query->type_id();
 		}
 		if($query->on_or_after()) {
-			$where_clause_elements[] = 'el.time >= :after';
+			$where_clause_fragments[] = 'el.time >= :after';
 			$parameters[':after'] = $query->on_or_after();
 		}
 		if($query->on_or_before()) {
-			$where_clause_elements[] = 'el.time <= :before';
+			$where_clause_fragments[] = 'el.time <= :before';
 			$parameters[':before'] = $query->on_or_before();
 		}
 		if(0 < count($where_clause_fragments)) {
@@ -107,8 +107,8 @@ class LoggedEventModel extends AbstractModel {
 		return (new PDOAwareLoggedEvent($this->configuration()))
 					->set_id($data['id'])
 					->set_type_id($data['event_type_id'])
-					->card_id($data['card_id'])
-					->card_type_id($data['card_type_id'])
+					->set_card_id($data['card_id'])
+					->set_card_type_id($data['card_type_id'])
 					->set_equipment_id($data['equipment_id'])
 					->set_equipment_name($data['equipment_name'])
 					//->set_location_name($data['location_name'])

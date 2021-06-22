@@ -180,12 +180,13 @@ class EquipmentModel extends AbstractModel {
 		} else {
 			$where_clause_fragments[] = 'e.in_service = 1';
 		}
+		
 		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
 		$sql .= ' ORDER BY l.name';
-
+		
 		$statement = $connection->prepare($sql);
 		// run search
 		foreach($parameters as $k => $v) {

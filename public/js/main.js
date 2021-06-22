@@ -1,7 +1,7 @@
 import { Application } from './Application.js';
 import { User } from './User.js';
 
-var app = null;
+window.app = null;
 
 /**
  * While Moostaka is pretty great; simple, open source, has made this SPA

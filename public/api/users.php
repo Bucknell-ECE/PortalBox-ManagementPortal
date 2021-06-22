@@ -44,6 +44,38 @@ switch($_SERVER['REQUEST_METHOD']) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
+		} elseif(isset($_GET['name']) && !empty($_GET['name'])) { // Search by name
+			$search_name = $_GET['name'];
+			
+			Session::check_authorization(Permission::LIST_USERS);
+
+			try {
+				$model = new UserModel(Config::config());
+				$query = (new UserQuery())->set_name($search_name);
+				$users = $model->search($query);
+				$transformer = new UserTransformer();
+				ResponseHandler::render($users, $transformer);
+			} catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the databases');
+			}
+
+		} elseif(isset($_GET['comment']) && !empty($_GET['comment'])) {
+			$search_comment = $_GET['comment'];
+
+			//Session::check_authorization(Permission::)
+
+			try {
+				$model = new UserModel(Config::config());
+				$query = (new UserQuery())->set_comment($search_comment);
+
+				$users = $model->search($query);
+				$transformer = new UserTransformer();
+				ResponseHandler::render($users, $transformer);
+			}	catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the database');
+			}
 		} else { // List
 			// check authorization
 			Session::require_authorization(Permission::LIST_USERS);

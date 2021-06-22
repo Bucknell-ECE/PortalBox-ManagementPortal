@@ -11,7 +11,6 @@ namespace Portalbox\Entity;
  * @package Portalbox\Entity
  */
 class User extends AbstractEntity {
-
 	/**
 	 * This user's name
 	 *

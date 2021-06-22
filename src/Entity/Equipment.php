@@ -33,7 +33,7 @@ class Equipment extends AbstractEntity {
 	protected $type;
 
 	/**
-	 * The MAC address of teh portalbox the equipment is connected to
+	 * The MAC address of the portalbox the equipment is connected to
 	 *
 	 * @var string
 	 */
@@ -160,7 +160,7 @@ class Equipment extends AbstractEntity {
 	 *
 	 * @return string - the MAC address of the portalbox this equipment is connected to
 	 */
-	public function mac_address() : string {
+	public function mac_address() : ?string {
 		return $this->mac_address;
 	}
 
@@ -170,13 +170,18 @@ class Equipment extends AbstractEntity {
 	 * @param string mac_address - the MAC address of the portalbox this equipment is connected to
 	 * @return self
 	 */
-	public function set_mac_address(string $mac_address) : self {
+	public function set_mac_address(?string $mac_address) : self {
+		if(is_null($mac_address)) {
+			return $this;
+		}
 		if(preg_match('/^([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})$/', $mac_address)) {
 			$this->mac_address = strtolower(str_replace(array('-', ':'), '', $mac_address));
 			return $this;
+		} else {
+			return $this;
 		}
 
-		throw new InvalidArgumentException('The specified MAC Address must be valid');
+		// throw new InvalidArgumentException('The specified MAC Address must be valid');
 	}
 
 	/**

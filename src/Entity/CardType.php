@@ -26,6 +26,31 @@ class CardType {
 	/** This card type is issued to users so they may activate a Portalbox */
 	const USER = 4;
 
+	protected $id;
+
+	protected $name;
+
+	public function name() : string {
+		return $this->name;
+	}
+
+	private function set_name(string $name) : self {
+		if(0 < strlen($name)) {
+			$this->name = $name;
+			return $this;
+		}
+	}
+
+	public function id() : int {
+		return $this->id;
+	}
+
+	public function set_id(int $id) : self {
+		$this->id = $id;
+		$this->set_name(CardType::name_for_type($id));
+		return $this;
+	}
+
 	/**
 	 * Determine if the card type is valid
 	 *

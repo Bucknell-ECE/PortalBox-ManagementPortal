@@ -10,3 +10,13 @@
 
 # site specific extensions should not be tracked
 /public/lib/extensions
+
+# ignore log files
+/logs/
+
+/public/js/.bin/
+/public/js/file-saver/
+/public/js/hellojs/
+/public/js/moostaka/
+/public/js/mustache/
+/public/js/.yarn-integrity

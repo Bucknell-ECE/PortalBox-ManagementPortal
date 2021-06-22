@@ -92,7 +92,7 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 				'name' => $data->name(),
 				'email' => $data->email(),
 				'comment' => $data->comment(),
-				'role' => $role_transformer->serialize($data->role(), $traverse),
+				'role' => is_null($data->role()) ? NULL : $role_transformer->serialize($data->role(), $traverse),
 				'is_active' => $data->is_active(),
 				'authorizations' => $data->authorizations()
 			];

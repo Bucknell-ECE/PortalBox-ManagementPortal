@@ -89,7 +89,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 					'id' => $data->id(),
 					'card_type_id' => $card_type_id,
 					'card_type' => CardType::name_for_type($card_type_id),
-					'user' => $user_transformer->serialize($data->user(), $traverse),
+					'user' => is_null($data->user()) ? NULL : $user_transformer->serialize($data->user(), $traverse),
 					'equipment_type' => NULL
 				];
 			} else if (CardType::TRAINING == $card_type_id) {
@@ -99,7 +99,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 					'card_type_id' => $card_type_id,
 					'card_type' => CardType::name_for_type($card_type_id),
 					'user' => NULL,
-					'equipment_type' => $equipment_type_transformer->serialize($data->equipment_type(), $traverse)
+					'equipment_type' => is_null($data->equipment_type()) ? NULL : $equipment_type_transformer->serialize($data->equipment_type(), $traverse)
 				];
 			} else if (CardType::PROXY == $card_type_id) {
 				return [
@@ -125,7 +125,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 					'card_type_id' => $card_type_id,
 					'card_type' => CardType::name_for_type($card_type_id),
 					'user_id' => $data->user_id(),
-					'user' => $data->user->name()(),
+					'user' => is_null($data->user) ? '' : $data->user->name(),
 					'equipment_type_id' => '',
 					'equipment_type' => ''
 				];
@@ -137,7 +137,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 					'user_id' => '',
 					'user' => '',
 					'equipment_type_id' => $data->equipment_type_id(),
-					'equipment_type' => $data->equipment_type->name()
+					'equipment_type' => is_null($data->equipment_type) ? '' : $data->equipment_type->name()
 				];
 			} else if (CardType::PROXY == $card_type_id) {
 				return [

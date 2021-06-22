@@ -141,7 +141,7 @@ class LoggedEvent extends AbstractEntity {
 	 * 
 	 * @return string - the name of the equipment
 	 */
-	public function equipment_name() : string {
+	public function equipment_name() : ?string {
 		if(NULL === $this->equipment) {
 			return '';
 		} else {
@@ -180,7 +180,7 @@ class LoggedEvent extends AbstractEntity {
 	 *
 	 * @return int - the id of the card which triggered this event
 	 */
-	public function card_id() : int {
+	public function card_id() : ?int {
 		return $this->card_id;
 	}
 

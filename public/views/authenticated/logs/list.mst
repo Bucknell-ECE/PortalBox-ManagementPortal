@@ -6,23 +6,23 @@
 	<header>
 		<h1>Access Logs{{#search}}{{^customized}} for the Past Week{{/customized}}{{/search}}</h1>
 		<div class="button-group">
-			<button type="button" title="Download as (*.csv)" onclick="save_log('{{queryString}}')"><i class="material-icons">save_alt</i></button>
+			<button type="button" title="Download as (*.csv)" onclick="app.save_log('{{queryString}}')"><i class="material-icons">save_alt</i></button>
 			<label for="search-form-toggle" title="Search"><i class="material-icons">search</i></label>
 		</div>
 	</header>
 	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
 	<form class="advanced_search" onsubmit="return false;">
 		<label for="after">After:</label>
-		<input type="date" name="after" id="after"{{#after}} value="{{.}}"{{/after}} onchange="search_log(this.form)" />
+		<input type="date" name="after" id="after"{{#after}} value="{{.}}"{{/after}} onchange="app.search_log(this.form)" />
 		<label for="before">Before:</label>
-		<input type="date" name="before" id="before"{{#before}} value="{{.}}"{{/before}} onchange="search_log(this.form)" />
+		<input type="date" name="before" id="before"{{#before}} value="{{.}}"{{/before}} onchange="app.search_log(this.form)" />
 		<label for="location_id">Location:</label>
-		<select name="location_id" id="location_id" onchange="search_log(this.form)" />
+		<select name="location_id" id="location_id" onchange="app.search_log(this.form)" />
 			<option></option>
 			{{#locations}}<option value="{{id}}">{{name}}</option>{{/locations}}
 		</select>
 		<label for="equipment_id">Equipment:</label>
-		<select name="equipment_id" id="equipment_id" onchange="search_log(this.form)" />
+		<select name="equipment_id" id="equipment_id" onchange="app.search_log(this.form)" />
 			<option></option>
 			{{#equipment}}<option value="{{id}}">{{name}}</option>{{/equipment}}
 		</select>
@@ -40,9 +40,9 @@
 		<tbody>
 			{{#log_messages}}<tr>
 				<td>{{time}}</td>
-				<td>{{event_type}}</td>
+				<td>{{type}}</td>
 				<td>{{equipment}}</td>
-				<td>{{card_id}}</td>
+				<td>{{card}}</td>
 				<td>{{#user}}{{.}}{{/user}}{{^user}}&nbsp;{{/user}}</td>
 			</tr>{{/log_messages}}
 			{{^log_messages}}<tr><td colspan="5">We did not find any log records matching your search</td></tr>{{/log_messages}}

@@ -3,7 +3,7 @@
 namespace Portalbox\Model;
 
 use Portalbox\Entity\Card;
-use PortalBox\Entity\CardType;
+use Portalbox\Entity\CardType;
 use Portalbox\Entity\ProxyCard;
 use Portalbox\Entity\ShutdownCard;
 use Portalbox\Entity\TrainingCard;
@@ -12,6 +12,7 @@ use Portalbox\Entity\UserCard;
 use Portalbox\Exception\DatabaseException;
 
 use Portalbox\Query\CardQuery;
+use Portalbox\Query\UserQuery;
 
 use PDO;
 
@@ -94,7 +95,7 @@ class CardModel extends AbstractModel {
 		$query->bindValue(':id', $id);	//BIGINT
 		if($query->execute()) {
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return $this->buildCardFromArray($data);
+				return $this->buildCardsFromArrays(array($data))[0];
 			} else {
 				return null;
 			}
@@ -244,18 +245,39 @@ class CardModel extends AbstractModel {
 		}
 	}
 
-	private function buildCardFromArray(array $data) : ?Card {
+	private function buildCardFromArray(array $data, array $users, array $equipment_types) : ?Card {
 		switch($data['type_id']) {
 			case CardType::PROXY:
 				return (new ProxyCard())->set_id($data['id']);
 			case CardType::SHUTDOWN:
 				return (new ShutdownCard())->set_id($data['id']);
 			case CardType::TRAINING:
-				// does this need to be PDO aware?
-				return (new TrainingCard())->set_id($data['id'])->set_equipment_type_id($data['equipment_type_id']);
+				$equipment_type_id = $data['equipment_type_id'];
+				$equipment_type = array_filter($equipment_types,
+					function ($e) use ($equipment_type_id) {
+						return $e->id() == $equipment_type_id;
+					});
+				
+				$equipment_type = array_pop($equipment_type);
+				
+				return $card = (new TrainingCard())
+					->set_id($data['id'])
+					->set_equipment_type_id($data['equipment_type_id'])
+					->set_equipment_type($equipment_type);
+
 			case CardType::USER:
-				// does this need to be PDO aware?
-				return(new UserCard())->set_id($data['id'])->set_user_id($data['user_id']);
+				$user_id = $data['user_id'];
+				$user = array_filter($users,
+					function ($e) use ($user_id) {
+						return $e->id() == $user_id;
+					});
+
+				$user = array_pop($user);
+				
+				return(new UserCard())
+					->set_id($data['id'])
+					->set_user_id($data['user_id'])
+					->set_user($user);
 			default:
 				return null;
 		}
@@ -263,9 +285,32 @@ class CardModel extends AbstractModel {
 
 	private function buildCardsFromArrays(array $data) : array {
 		$cards = [];
+		$users = [];
+		$roles = [];
+		$equipment_types = [];
+
+		$e_model = new EquipmentTypeModel($this->configuration());
+		$u_model = new UserModel($this->configuration());
+		$r_model = new RoleModel($this->configuration());
+
+		$u_query = new UserQuery();
+		
+		$equipment_types = $e_model->search();
+		$users = $u_model->search($u_query);
+		$roles = $r_model->search();
+
+		foreach($users as $user) {
+			$r_id = $user->role_id();
+
+			$role = array_filter($roles,
+				function ($e) use ($r_id) {
+					return $e->id() == $r_id;
+				});
+			$user->set_role(array_pop($role));
+		}
 
 		foreach($data as $datum) {
-			$cards[] = $this->buildCardFromArray($datum);
+			$cards[] = $this->buildCardFromArray($datum, $users, $equipment_types);
 		}
 
 		return $cards;

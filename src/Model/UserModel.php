@@ -219,9 +219,16 @@ class UserModel extends AbstractModel {
 		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id';
 		$where_clause_fragments = array();
 		$parameters = array();
+		$modifier = "";
 		if(NULL !== $query->email()) {
 			$where_clause_fragments[] = 'email = :email';
 			$parameters[':email'] = $query->email();
+		} elseif(NULL !== $query->name()) {
+			$where_clause_fragments[] = 'u.name LIKE :name';
+			$parameters[':name'] = '%' . $query->name() . '%';
+		} elseif(NULL !== $query->comment()) {
+			$where_clause_fragments[] = 'u.comment LIKE :comment';
+			$parameters[':comment'] = '%' . $query->comment() . '%';
 		}
 		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';

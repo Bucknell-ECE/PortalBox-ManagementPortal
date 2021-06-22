@@ -25,7 +25,7 @@
 		<tbody>
 			{{#cards}}<tr class="link" onclick="go('/cards/{{id}}', 'Cards');">
 				<td>{{id}}</td>
-				<td>{{type}}</td>
+				<td>{{card_type}}</td>
 			</tr>{{/cards}}
 			{{^cards}}<tr><td colspan="2">We did not find any cards</td></tr>{{/cards}}
 		</tbody>

@@ -10,6 +10,7 @@ import { LoggedEvent } from './LoggedEvent.js';
 import { Payment } from './Payment.js';
 import { Role } from './Role.js';
 import { User } from './User.js';
+import { CardType } from './CardType.js';
 
 import * as Permission from './Permission.js';
 
@@ -477,6 +478,24 @@ class Application extends Moostaka {
 		Card.create(data).then(_ => {
 			this.navigate("/cards");
 			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	read_card(id) {
+		let p0 = Card.read(id);
+		let p1 = CardType.list();
+		let p2 = User.list();
+		let p3 = EquipmentType.list();
+
+		Promise.all([p0, p1, p2, p3]).then(values => {
+			let card = values[0];
+			this.render("#main", "authenticated/cards/view", {
+				"card": values[0],
+				"types": values[1],
+				"users": values[2],
+				"equipment_types": values[3]
+				
+			}, {}, () => {});
 		}).catch(e => this.handleError(e));
 	}
 
@@ -1028,6 +1047,62 @@ class Application extends Moostaka {
 			this.navigate("/users/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Render an optionally sorted list of users
+	 */
+	list_users(params, auth_level) {
+		let url = "/api/users.php?";
+
+		let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
+
+		fetch(url + queryString, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+			throw "API was unable to list users";
+		}).then(users => {
+			if(0 < Object.keys(params).length) {
+				params.customized = true;
+			}
+			this.render("#main", auth_level + "/users/list", {"users": users, "search":params});
+		}).catch(e => this.handleError(e));
+	}
+
+	search_users(search_form, auth_level) {
+		// look at search params to insure we have a search
+		let search = {};
+		let searchParams = this.get_form_data(search_form);
+		let keys = Object.getOwnPropertyNames(searchParams);
+		for(let k of keys) {
+			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
+				search[k] = searchParams[k];
+			}
+		}
+
+		if(0 < Object.keys(search).length) {
+			this.list_users(search, auth_level);
+		}
+	}
+
+	sort_users(sort_column, auth_level) {
+		let search_form = document.getElementById('user_search_form');
+		// look at search params to insure we have a search
+		let search = {};
+		let searchParams = this.get_form_data(search_form);
+		let keys = Object.getOwnPropertyNames(searchParams);
+		for(let k of keys) {
+			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
+				search[k] = searchParams[k];
+			}
+		}
+
+		search.sort = sort_column;
+		this.list_users(search, auth_level);
 	}
 }
 

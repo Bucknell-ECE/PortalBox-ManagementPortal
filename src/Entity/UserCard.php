@@ -29,7 +29,7 @@ class UserCard extends AbstractEntity implements Card {
 	 *
 	 * @return int - the id of the user to whom this card was issued
 	 */
-	public function user_id() : int {
+	public function user_id() : ?int {
 		return $this->user_id;
 	}
 
@@ -39,9 +39,9 @@ class UserCard extends AbstractEntity implements Card {
 	 * @param int user_id - the id of the user to whom this card was issued
 	 * @return self
 	 */
-	public function set_user_id(int $user_id) : self {
+	public function set_user_id(?int $user_id) : self {
 		$this->user_id = $user_id;
-		$this->user = NULL;
+		$this->user = NULL; //Create new user from user_id
 		return $this;
 	}
 

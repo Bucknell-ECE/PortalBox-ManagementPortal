@@ -57,6 +57,11 @@ class TrainingCard extends AbstractEntity implements Card {
 		return $this->equipment_type;
 	}
 
+	public function set_equipment_type(?EquipmentType $equipment_type) : self{
+		$this->equipment_type = $equipment_type;
+		return $this;
+	}
+
 	/**
 	 * Set the type of equipment this card can activate for training
 	 *
