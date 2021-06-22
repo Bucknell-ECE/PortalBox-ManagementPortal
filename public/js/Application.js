@@ -94,11 +94,76 @@ class Application extends Moostaka {
 		// User needs CREATE_CARD Permission to make use of /cards/add route
 		if(this.user.has_permission(Permission.CREATE_CARD)) {
 			this.route("/cards/add", _ => {
-				this.render("#main", "authenticated/cards/add", {}, {}, () => {
-					document
-						.getElementById("add-card-form")
-						.addEventListener("submit", (e) => this.add_card(e));
-				});
+				let p1 = CardType.list();
+				let p2 = User.list();
+				let p3 = EquipmentType.list();
+
+				Promise.all([p1, p2, p3]).then(values => {
+					this.render('#main', "authenticated/cards/add", {"types": values[0], "users": values[1], "equipment_types": values[2]}, {}, () => {
+						let form = document.getElementById("add-card-form");
+						form.addEventListener("submit", (e) => { add_card(e); });
+						let equipment_type_selector_label = document.getElementById("equipment_type_id_label");
+						let equipment_type_selector = document.getElementById("equipment_type_id");
+						let user_selector_label = document.getElementById("user_id_label");
+						let user_selector = document.getElementById("user_id");
+						equipment_type_selector_label.style.display = "none";
+						equipment_type_selector.style.display = "none";
+						equipment_type_selector.disabled = true;
+						equipment_type_selector.required = false;
+						user_selector_label.style.display = "none";
+						user_selector.style.display = "none";
+						user_selector.disabled = true;
+						user_selector.required = false;
+						let type_id_selector = document.getElementById("type_id");
+						type_id_selector.addEventListener('change', (event) => {
+							// Warning hardcoded values! However, we'd need
+							// to make massive changes to the Portal Box
+							// Application to do otherwise
+							let equipment_type_selector_label = document.getElementById("equipment_type_id_label");
+							let equipment_type_selector = document.getElementById("equipment_type_id");
+							let user_selector_label = document.getElementById("user_id_label");
+							let user_selector = document.getElementById("user_id");
+							switch(event.target.value) {
+								case "1":	// intentional fallthrough
+								case "2":
+									// hide and disable the equipment type and user selectors
+									equipment_type_selector_label.style.display = "none";
+									equipment_type_selector.style.display = "none";
+									equipment_type_selector.disabled = true;
+									equipment_type_selector.required = false;
+									user_selector_label.style.display = "none";
+									user_selector.style.display = "none";
+									user_selector.disabled = true;
+									user_selector.required = false;
+									break;
+								case "3": // type training selected
+									// hide and disable the user selector
+									// show and enable the equipment type selector
+									equipment_type_selector_label.style.display = "block";
+									equipment_type_selector.style.display = "block";
+									equipment_type_selector.disabled = false;
+									equipment_type_selector.required = true;
+									user_selector_label.style.display = "none";
+									user_selector.style.display = "none";
+									user_selector.disabled = true;
+									user_selector.required = false;
+									break;
+								case "4": // user card selected
+									// hide and disable the equipment type selector
+									// show and enable the user selector
+									equipment_type_selector_label.style.display = "none";
+									equipment_type_selector.style.display = "none";
+									equipment_type_selector.disabled = true;
+									equipment_type_selector.required = false;
+									user_selector_label.style.display = "block";
+									user_selector.style.display = "block";
+									user_selector.disabled = false;
+									user_selector.required = true;
+									break;
+							}
+						});						
+					});
+				}).catch(e => this.handleError(e));
 			});
 		}
 
@@ -475,7 +540,7 @@ class Application extends Moostaka {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		Card.create(data).then(_ => {
+		Card.create(data).then(_data => {
 			this.navigate("/cards");
 			// notify user of success
 		}).catch(e => this.handleError(e));
@@ -608,7 +673,11 @@ class Application extends Moostaka {
 		Promise.all([p0, p1, p2]).then(values => {
 			let equipment = values[0];
 			equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
-			this.render("#main", "authenticated/equipment/view", {"equipment": equipment, "types": values[1], "locations": values[2], "editable":editable}, {}, () => {
+			this.render("#main", "authenticated/equipment/view", {"equipment": equipment,
+				// "types": values[1],
+				// "locations": values[2],
+				"editable":editable}, {}, () => {
+
 				document.getElementById("type_id").value = values[0].type_id;
 				document.getElementById("location_id").value = values[0].location_id;
 				document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e); });
