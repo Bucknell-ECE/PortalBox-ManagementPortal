@@ -23,6 +23,13 @@ class CardQuery {
 	protected $user_id;
 
 	/**
+	 * Find cards for this id
+	 * 
+	 * @var int
+	 */
+	protected $id;
+
+	/**
 	 * Get the equipment type id
 	 *
 	 * @return int - the equipment type id
@@ -59,6 +66,26 @@ class CardQuery {
 	 */
 	public function set_user_id(int $user_id) : self {
 		$this->user_id = $user_id;
+		return $this;
+	}
+
+	/**
+	 * Get the card id
+	 * 
+	 * @return int - the card id
+	 */
+	public function id() : ?int  {
+		return $this->id;
+	}
+
+	/**
+	 * Set the card id
+	 * 
+	 * @param int id - the card id
+	 * @return self
+	 */
+	public function set_id(int $id): self {
+		$this->id = $id;
 		return $this;
 	}
 }

@@ -6,16 +6,14 @@
 	<header>
 		<h1>Users</h1>
 		<div class="button-group">
-			<label for="filter-form-toggle"><i class="material-icons">search</i></label>
 			<a href="/users/add" class="default">Add</a>
 		</div>
 	</header>
-	<input type="checkbox" id="filter-form-toggle" class="checkbox-hack" {{#customized}}checked{{/customized}} onclick="document.getElementById('name').focus()" />
 	<form class="advanced_search" id="user_search_form" onsubmit="return false;">
 		{{#sort}}<input type="hidden" name="sort" value="{{.}}" />{{/sort}}
-		<label for="name">Name:</label>
+		<label for="name">Search for Name:</label>
 		<input name="name" id="name" onchange="app.search_users(this.form, 'admin')" value="{{name}}" autocomplete="off" />
-		<label for="comment">Comment:</label>
+		<label for="comment">Search for Comment:</label>
 		<input name="comment" id="comment" onchange="app.search_users(this.form, 'admin')" value="{{comment}}" autocomplete="off" />
 		<label for="include_inactive">Include Inactive:</label>
 		<input type="checkbox" name="include_inactive" id="include_inactive" onchange="app.search_users(this.form, 'admin')" {{#include_inactive}}checked {{/include_inactive}}/>

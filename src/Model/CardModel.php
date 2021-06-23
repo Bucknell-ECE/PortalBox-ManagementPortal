@@ -223,6 +223,10 @@ class CardModel extends AbstractModel {
 			$where_clause_fragments[] = 'uxc.user_id = :user_id';
 			$parameters[':user_id'] = $query->user_id();
 		}
+		if(NULL !== $query && NULL !== $query->id()) {
+			$where_clause_fragments[] = 'c.id LIKE :id';
+			$parameters[':id'] = '%' . $query->id() . '%';
+		}
 		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);

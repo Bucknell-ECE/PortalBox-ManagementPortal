@@ -11,8 +11,8 @@ export class Card {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static list() {
-		return fetch("/api/cards.php", {"credentials": "same-origin"}).then(response => {
+	static list(query = '') {
+		return fetch("/api/cards.php?" + query, {"credentials": "same-origin"}).then(response => {
 			if(response.ok) {
 				return response.json();
 			} else if(403 == response.status) {

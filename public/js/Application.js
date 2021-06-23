@@ -553,7 +553,6 @@ class Application extends Moostaka {
 		let p3 = EquipmentType.list();
 
 		Promise.all([p0, p1, p2, p3]).then(values => {
-			let card = values[0];
 			this.render("#main", "authenticated/cards/view", {
 				"card": values[0],
 				"types": values[1],
@@ -565,24 +564,27 @@ class Application extends Moostaka {
 	}
 
 	list_cards(params, auth_level) {
-		let url = "/api/cards.php";
-
-		// if('card_id' in params) {
-		//     url += '?search=';
-		//     url += encodeURIComponent(params.card_id);
-		// }
-
-		fetch(url, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to list cards";
-		}).then(cards => {
-			moostaka.render("#main", auth_level + "/cards/list", {"cards": cards});
+		let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
+		
+		Card.list(queryString).then(cards => {
+			this.render('#main', auth_level + "/cards/list", {"cards": cards});
 		}).catch(e => this.handleError(e));
+	}
+
+	search_cards(search_form, auth_level) {
+		let search = {};
+		let searchParams = this.get_form_data(search_form);
+		let keys = Object.getOwnPropertyNames(searchParams);
+
+		for(let k of keys) {
+			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
+				search[k] = searchParams[k];
+			}
+		}
+
+		if(0 < Object.keys(search).length) {
+			this.list_cards({"search": search.card_id}, auth_level);
+		}
 	}
 
 	/**

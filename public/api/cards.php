@@ -35,6 +35,22 @@ switch($_SERVER['REQUEST_METHOD']) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
+		} elseif(isset($_GET['search']) && !empty($_GET['search'])) {
+			$search_id = $_GET['search'];
+
+			Session::require_authorization(Permission::READ_CARD);
+
+			try {
+				$model = new CardModel(Config::config());
+				$query = (new CardQuery())->set_id($search_id);
+				$cards = $model->search($query);
+
+				$transformer = new CardTransformer();
+				ResponseHandler::render($cards, $transformer);
+			} catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the database');
+			}
 		} else { // Lists
 			$user_id = NULL;
 

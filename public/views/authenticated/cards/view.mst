@@ -24,6 +24,8 @@
 		{{#user}}
 		<dt id="user_label">User:</dt>
 		<dd id="user">{{user.name}}</dd>
+		<dt id="user_email_label">Email:</dt>
+		<dd id="email">{{user.email}}</dd>
 		{{/user}}
 	</dl>
 </article>
