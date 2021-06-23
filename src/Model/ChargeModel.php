@@ -5,6 +5,11 @@ namespace Portalbox\Model;
 use Portalbox\Entity\Charge;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\ChargeQuery;
+use Portalbox\Query\EquipmentQuery;
+use Portalbox\Query\UserQuery;
+
+use Portalbox\Model\EquipmentModel;
+use Portalbox\Model\UserModel;
 
 use PDO;
 
@@ -188,9 +193,39 @@ class ChargeModel extends AbstractModel {
 
 	private function buildChargesFromArrays(array $data) : array {
 		$charges = [];
+		$machines = [];
+		$users = [];
+
+		$e_model = new EquipmentModel($this->Configuration());
+		$u_model = new UserModel($this->Configuration());
+
+		$e_query = new EquipmentQuery();
+		$u_query = new UserQuery();
+
+		$machines = $e_model->search($e_query);
+		$users = $u_model->search($u_query);
 
 		foreach($data as $datum) {
 			$charges[] = $this->buildChargeFromArray($datum);
+		}
+
+		foreach($charges as $charge) {
+			$e_id = $charge->equipment_id();
+			
+			$machine = array_filter($machines,
+				function ($e) use ($e_id) {
+					return $e->id() == $e_id;
+				});
+			$charge->set_equipment(array_pop($machine));
+
+
+			$u_id = $charge->user_id();
+
+			$user = array_filter($users,
+				function ($e) use ($u_id) {
+					return $e->id() == $u_id;
+				});
+			$charge->set_user(array_pop($user));
 		}
 
 		return $charges;

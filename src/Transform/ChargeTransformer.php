@@ -105,6 +105,7 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 				'user_id' => $data->user_id(),
 				'user' => $data->user_name(),
 				'amount' => $data->amount(),
+				'time' => $data->time(),
 				'charge_policy_id' => $data->charge_policy_id(),
 				'charge_policy' => $data->charge_policy(),
 				'charge_rate' => $data->charge_rate(),
@@ -121,6 +122,6 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {
-		return ['id', 'Equipment ID', 'Equipment', 'User ID', 'User', 'Charge Policy ID', 'Charge Policy', 'Charge Rate', 'Charged Time'];
+		return ['id', 'Equipment ID', 'Equipment', 'User ID', 'User', 'Amount', 'Time', 'Charge Policy ID', 'Charge Policy', 'Charge Rate', 'Charged Time'];
 	}
 }

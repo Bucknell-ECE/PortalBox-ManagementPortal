@@ -150,7 +150,7 @@ class Charge extends AbstractEntity {
 	 * @return string - the name of the equipment the user used to incur the Charge
 	 */
 	public function equipment_name() : string {
-		return $this->equipmemnt->name();
+		return $this->equipment->name();
 	}
 
 	/**
