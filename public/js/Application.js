@@ -375,6 +375,37 @@ class Application extends Moostaka {
 			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER), this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION)));
 		}
 
+		if(this.user.has_permission(Permission.READ_OWN_USER)) {
+			this.route("/profile", _ => {
+				let p0 = User.read(this.user.id);
+				let p1 = Charge.list("user_id=" + this.user.id);
+				let p2 = Payment.list("user_id=" + this.user.id);
+				let p3 = EquipmentType.list();
+
+				Promise.all([p0, p1, p2, p3]).then(values => {
+					let user = values[0];
+					let ledger = values[1].concat(values[2]).map(e => {
+						e.ts = new Date(e.time);
+						return e;
+					}).sort((a,b) => {
+						return a.ts - b.ts
+					});
+
+					let total_charges = values[1].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+					let total_payments = values[2].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
+					let balance = Number(Math.round((total_payments - total_charges)+'e2')+'e-2');
+					let authorized_equipment_types = values[3].filter(type => user.authorizations.includes(type.id));
+					
+					this.render("#main", "authenticated/profile", {
+						"balance": balance,
+						"equipment_type": authorized_equipment_types,
+						"ledger": ledger,
+						"user": user
+					});
+				}).catch(e => this.handleError(e));
+			});
+		}
+
 		// Everyone gets a home route; what it presents them is controlled by home_icons
 		this.route("/", _ => {
 			this.render("#main", "authenticated/top-menu", {"features":home_icons});

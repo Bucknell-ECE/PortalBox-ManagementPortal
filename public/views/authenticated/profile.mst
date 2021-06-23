@@ -14,12 +14,12 @@
 		<dd><a href="mailto:{{email}}">{{email}}</a></dd>
 		<dt>Authorized for:</dt>
 		<dd>
-			{{#authorizations}}
+			{{#equipment_type}}
 			<ul>
-				<li>{{equipment_type}}</li>
+				<li>{{name}}</li>
 			</ul>
-			{{/authorizations}}
-			{{^authorizations}}Not yet Authorized for any Equipment{{/authorizations}}
+			{{/equipment_type}}
+			{{^equipment_type}}Not yet Authorized for any Equipment{{/equipment_type}}
 		</dd>
 		<dt>Charge/Payment History:</dt>
 		<dd>
