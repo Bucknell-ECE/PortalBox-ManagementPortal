@@ -6,7 +6,7 @@
 	<header>
 		<h1>Access Logs{{#search}}{{^customized}} for the Past Week{{/customized}}{{/search}}</h1>
 		<div class="button-group">
-			<button type="button" title="Download as (*.csv)" onclick="app.save_log('{{queryString}}')"><i class="material-icons">save_alt</i></button>
+			<button type="button" title="Download as (*.csv)" onclick="app.save('logs.php?' + '{{queryString}}')"><i class="material-icons">save_alt</i></button>
 			<label for="search-form-toggle" title="Search"><i class="material-icons">search</i></label>
 		</div>
 	</header>
@@ -35,6 +35,7 @@
 				<th>Equipment</th>
 				<th>Card</th>
 				<th>User</th>
+				<th>Location</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -44,6 +45,7 @@
 				<td>{{equipment}}</td>
 				<td>{{card}}</td>
 				<td>{{#user}}{{.}}{{/user}}{{^user}}&nbsp;{{/user}}</td>
+				<td>{{location}}</td>
 			</tr>{{/log_messages}}
 			{{^log_messages}}<tr><td colspan="5">We did not find any log records matching your search</td></tr>{{/log_messages}}
 		</tbody>

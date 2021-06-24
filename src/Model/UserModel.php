@@ -229,6 +229,10 @@ class UserModel extends AbstractModel {
 		} elseif(NULL !== $query->comment()) {
 			$where_clause_fragments[] = 'u.comment LIKE :comment';
 			$parameters[':comment'] = '%' . $query->comment() . '%';
+		} elseif(NULL !== $query->equipment_id()) {
+			$sql .= ' INNER JOIN authorizations AS a ON u.id = a.user_id';
+			$where_clause_fragments[] = 'a.equipment_type_id = :equipment_id';
+			$parameters[':equipment_id'] = $query->equipment_id();
 		}
 		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';

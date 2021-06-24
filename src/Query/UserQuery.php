@@ -37,6 +37,13 @@ class UserQuery {
 	protected $id;
 
 	/**
+	 * Equipment id to find authorized users for
+	 * 
+	 * @var int
+	 */
+	protected $equipment_id;
+
+	/**
 	 * Get the email address of the user for which to search
 	 *
 	 * @return string|null - the email address of the user for which to search
@@ -92,6 +99,26 @@ class UserQuery {
 	 */
 	public function set_comment(string $comment) : self {
 		$this->comment = $comment;
+		return $this;
+	}
+
+	/**
+	 * Get the equipment id to search for authorized users with
+	 * 
+	 * @return int|null
+	 */
+	public function equipment_id() : ?int {
+		return $this->equipment_id;
+	}
+
+	/**
+	 * Set the equipment id to search for authorized users with
+	 * 
+	 * @param int equipment id
+	 * @return self
+	 */
+	public function set_equipment_id(int $equipment_id) : self {
+		$this->equipment_id = $equipment_id;
 		return $this;
 	}
 }

@@ -702,19 +702,26 @@ class Application extends Moostaka {
 		let p0 = Equipment.read(id);
 		let p1 = EquipmentType.list();
 		let p2 = Location.list();
+		let p3 = null;
+		p0.then(value => {
+			p3 = User.list("equipment_id="+value.type_id);
 
-		Promise.all([p0, p1, p2]).then(values => {
-			let equipment = values[0];
-			equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
-			this.render("#main", "authenticated/equipment/view", {"equipment": equipment,
-				// "types": values[1],
-				// "locations": values[2],
-				"editable":editable}, {}, () => {
+			Promise.all([p0, p1, p2, p3]).then(values => {
+				let equipment = values[0];
+				equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
+				let authorized_users = values[3];
 
-				document.getElementById("type_id").value = values[0].type_id;
-				document.getElementById("location_id").value = values[0].location_id;
-				document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e); });
-			});
+				this.render("#main", "authenticated/equipment/view", {"equipment": equipment,
+					"users": authorized_users,
+					// "types": values[1],
+					// "locations": values[2],
+					"editable":editable}, {}, () => {
+
+					document.getElementById("type_id").value = values[0].type_id;
+					document.getElementById("location_id").value = values[0].location_id;
+					document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e); });
+				});
+			})
 		}).catch(e => this.handleError(e));
 	}
 
@@ -880,8 +887,9 @@ class Application extends Moostaka {
 	 * Retrieves log as currently filtered in csv format and allows user
 	 * to save as a CSV file
 	 */
-	save_log(search) {
-		let url = '/api/logs.php?' + search;
+	save(search) {
+		// let url = '/api/logs.php?' + search;
+		let url = '/api/' + search;
 
 		fetch(url, {
 			credentials: "include",

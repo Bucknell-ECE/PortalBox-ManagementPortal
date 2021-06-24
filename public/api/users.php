@@ -63,7 +63,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		} elseif(isset($_GET['comment']) && !empty($_GET['comment'])) {
 			$search_comment = $_GET['comment'];
 
-			//Session::check_authorization(Permission::)
+			Session::check_authorization(Permission::LIST_USERS);
 
 			try {
 				$model = new UserModel(Config::config());
@@ -73,6 +73,23 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$transformer = new UserTransformer();
 				ResponseHandler::render($users, $transformer);
 			}	catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the database');
+			}
+		} elseif(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
+			$search_id = $_GET['equipment_id'];
+
+			Session::check_authorization(Permission::LIST_USERS);
+
+			try {
+				$model = new UserModel(Config::config());	
+				$query = (new UserQuery())->set_equipment_id($search_id);
+
+				$users = $model->search($query);
+
+				$transformer = new UserTransformer();
+				ResponseHandler::render($users, $transformer);
+			} catch(Exception $e) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}

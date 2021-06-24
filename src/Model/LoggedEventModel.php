@@ -111,7 +111,7 @@ class LoggedEventModel extends AbstractModel {
 					->set_card_type_id($data['card_type_id'])
 					->set_equipment_id($data['equipment_id'])
 					->set_equipment_name($data['equipment_name'])
-					//->set_location_name($data['location_name'])
+					->set_location_name($data['location_name'])
 					->set_time($data['time'])
 					->set_user_name($data['user_name']);
 	}

@@ -6,6 +6,8 @@
 </ul>
 {{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
 <article>
+	<div class="row">
+	<section>
 	<header>
 		<h1>Equipment</h1>
 		<div class="button-group">
@@ -28,6 +30,32 @@
 		<dt>Service Time:</dt>
 		<dd>{{service_hours}}</dd>
 	</dl>
+	</section>
+	<section>
+		<header>
+			<h1>Authorized Users</h1>
+			<div class="button-group">
+				<button type="button" title="Download as (*.csv)" onclick="app.save('users.php?equipment_id=' + '{{type_id}}')"><i class="material-icons">save_alt</i></button>
+			</div>
+		</header>
+		<table style="min-width:100%">
+			<thead>
+				<tr>
+					<th>User</th><th>Email</th>
+				</tr>
+			</thead>
+			{{#users}}
+			<tbody>
+				<td>{{name}}</td>
+				<td>{{email}}</td>
+			</tbody>
+			{{/users}}
+			{{^users}}
+				<tr><td colspan="2">No Authorized Users</td></tr>
+			{{/users}}
+		</table>
+	</section>
+	</div>
 </article>
 {{#editable}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
