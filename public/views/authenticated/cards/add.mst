@@ -31,11 +31,11 @@
 			<option label="Please Choose"></option>
 			{{#types}}<option value="{{id}}">{{name}}</option>{{/types}}
 		</select>
-		<label for="user_id" id="user_id_label">User:</label>
-		<select name="user_id" id="user_id">
-			<option label="Please Choose"></option>
-			{{#users}}<option value="{{id}}">{{name}}</option>{{/users}}
-		</select>
+		<label for="user_id" id="user_id_label">User:</label> 
+		<input list="user_id" id="user_id_input">
+		<datalist id="user_id">
+			{{#users}}<option>{{name}}</option>{{/users}}
+		</datalist>		
 		<label for="equipment_type_id" id="equipment_type_id_label">Equipment Type:</label>
 		<select name="equipment_type_id" id="equipment_type_id">
 			<option label="Please Choose"></option>

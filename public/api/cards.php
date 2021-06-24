@@ -117,7 +117,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':		// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_CHARGE);
+		Session::require_authorization(Permission::CREATE_CARD);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {

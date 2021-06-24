@@ -101,17 +101,19 @@ class Application extends Moostaka {
 				Promise.all([p1, p2, p3]).then(values => {
 					this.render('#main', "authenticated/cards/add", {"types": values[0], "users": values[1], "equipment_types": values[2]}, {}, () => {
 						let form = document.getElementById("add-card-form");
-						form.addEventListener("submit", (e) => { add_card(e); });
+						form.addEventListener("submit", (e) => { app.add_card(e); });
 						let equipment_type_selector_label = document.getElementById("equipment_type_id_label");
 						let equipment_type_selector = document.getElementById("equipment_type_id");
 						let user_selector_label = document.getElementById("user_id_label");
 						let user_selector = document.getElementById("user_id");
+						let user_id_input = document.getElementById("user_id_input");
 						equipment_type_selector_label.style.display = "none";
 						equipment_type_selector.style.display = "none";
 						equipment_type_selector.disabled = true;
 						equipment_type_selector.required = false;
 						user_selector_label.style.display = "none";
 						user_selector.style.display = "none";
+						user_id_input.style.display = "none";
 						user_selector.disabled = true;
 						user_selector.required = false;
 						let type_id_selector = document.getElementById("type_id");
@@ -133,6 +135,7 @@ class Application extends Moostaka {
 									equipment_type_selector.required = false;
 									user_selector_label.style.display = "none";
 									user_selector.style.display = "none";
+									user_id_input.style.display = "none";
 									user_selector.disabled = true;
 									user_selector.required = false;
 									break;
@@ -145,6 +148,7 @@ class Application extends Moostaka {
 									equipment_type_selector.required = true;
 									user_selector_label.style.display = "none";
 									user_selector.style.display = "none";
+									user_id_input.style.display = "none";
 									user_selector.disabled = true;
 									user_selector.required = false;
 									break;
@@ -156,10 +160,21 @@ class Application extends Moostaka {
 									equipment_type_selector.disabled = true;
 									equipment_type_selector.required = false;
 									user_selector_label.style.display = "block";
-									user_selector.style.display = "block";
+									user_selector.style.display = "none";
+									user_id_input.style.display = "block";
 									user_selector.disabled = false;
 									user_selector.required = true;
 									break;
+								default:
+									equipment_type_selector_label.style.display = "none";
+									equipment_type_selector.style.display = "none";
+									equipment_type_selector.disabled = true;
+									equipment_type_selector.required = false;
+									user_selector_label.style.display = "none";
+									user_selector.style.display = "none";
+									user_id_input.style.display = "none";
+									user_selector.disabled = true;
+									user_selector.required = false;
 							}
 						});						
 					});
