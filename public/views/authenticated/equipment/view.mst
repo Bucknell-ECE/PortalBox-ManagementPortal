@@ -44,12 +44,14 @@
 					<th>User</th><th>Email</th>
 				</tr>
 			</thead>
-			{{#users}}
 			<tbody>
-				<td>{{name}}</td>
-				<td>{{email}}</td>
+				{{#users}}
+					<tr>
+						<td>{{name}}</td>
+						<td>{{email}}</td>
+					</tr>
+				{{/users}}
 			</tbody>
-			{{/users}}
 			{{^users}}
 				<tr><td colspan="2">No Authorized Users</td></tr>
 			{{/users}}

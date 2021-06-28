@@ -23,11 +23,14 @@
 		</dd>
 		<dt>Charge/Payment History:</dt>
 		<dd>
-			<table>
-				<thead>
+			<div class="button-group">
+				<button type="button" id="transaction-button">Hide Transactions</button>
+			</div>
+			<table id="transaction-table">
+				<thead class="collapsible-content">
 					<tr><th>Date</th><th>Equipment</th><th>Amount</th></tr>
 				</thead>
-				<tbody>
+				<tbody class="collapsible-content">
 					{{#ledger}}<tr{{#equipment_id}} class="debit"{{/equipment_id}}>
 						<td>{{time}}</td>
 						<td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>

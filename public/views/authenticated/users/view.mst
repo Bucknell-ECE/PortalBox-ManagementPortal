@@ -48,11 +48,14 @@
 					<a href="/users/{{id}}/add_payment" class="default">Add Payment</a>
 				</div>
 			</header>
-			<table style="min-width:100%">
-				<thead>
+			<div class="button-group">
+			<button type="button" id="transaction-button" class="" >Hide Transactions</button>
+			</div>
+			<table style="min-width:100%" id="transaction-table">
+				<thead class="collapsible-content">
 					<tr><th>Date</th><th>Equipment</th><th>Amount</th></tr>
 				</thead>
-				<tbody>
+				<tbody class="collapsible-content">
 					{{#transactions}}{{#equipment_id}}<tr class="debit link" onclick="go('/charges/{{id}}', {{name}});">{{/equipment_id}}{{^equipment_id}}<tr onclick="go('/payments/{{id}}', {{name}});">{{/equipment_id}}
 						<td>{{time}}</td>
 						<td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>

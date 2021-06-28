@@ -57,8 +57,6 @@ tr:nth-of-type(2n) {
 tr.link { cursor: pointer; }
 td.center { text-align:center; }
 
-tfoot { border-top: solid thin var(--accent-color) }
-
 /* checkboxes used to store UI state are hidden */
 .checkbox-hack { display:none; }
 .scrim {

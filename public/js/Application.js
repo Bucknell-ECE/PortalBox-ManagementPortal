@@ -416,6 +416,15 @@ class Application extends Moostaka {
 						"equipment_type": authorized_equipment_types,
 						"ledger": ledger,
 						"user": user
+					}, {}, () => {
+						let transaction_button = null;
+						transaction_button = document.getElementById("transaction-button");
+						if(transaction_button) {
+							transaction_button.addEventListener("click", (e) => {this.toggle_transactions();});
+						}
+						if(values[1].length + values[2].length > 20) {
+							this.toggle_transactions();
+						}
 					});
 				}).catch(e => this.handleError(e));
 			});
@@ -1153,6 +1162,14 @@ class Application extends Moostaka {
 				if(form) {
 					form.addEventListener("submit", (e) => { this.authorize_user(id, e); });
 				}
+				let transaction_button = null;
+				transaction_button = document.getElementById("transaction-button");
+				if(transaction_button) {
+					transaction_button.addEventListener("click", (e) => {this.toggle_transactions();});
+				}
+				if(values[3].length + values[4].length > 20) {
+					this.toggle_transactions();
+				}
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -1228,6 +1245,26 @@ class Application extends Moostaka {
 
 		search.sort = sort_column;
 		this.list_users(search, auth_level);
+	}
+
+	toggle_transactions() {
+		let content = document.getElementsByClassName("collapsible-content");
+		let button = document.getElementById("transaction-button");
+
+		if(button.innerText == "Show Transactions") {
+			button.innerText = "Hide Transactions";
+		} else {
+			button.innerText = "Show Transactions";
+		}
+
+		for(let i = 0; i < content.length; i++) {
+			let element = content[i];
+			if(element.style.display == '') {
+				element.style.display = 'none';
+			} else {
+				element.style.display = '';
+			}
+		}
 	}
 }
 
