@@ -98,6 +98,7 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 				'location' => $data->location()->name(),
 				'timeout' => $data->timeout(),
 				'in_service' => $data->is_in_service(),
+				'in_use' => $data->is_in_use(),
 				'service_minutes' => $data->service_minutes()
 			];
 		}
@@ -111,6 +112,6 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {
-		return ['id', 'Name', 'Type', 'MAC Address', 'Location', 'Timeout', 'In Service', 'Service Minutes'];
+		return ['id', 'Name', 'Type', 'MAC Address', 'Location', 'Timeout', 'In Service', 'In Use', 'Service Minutes'];
 	}
 }

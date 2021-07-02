@@ -237,7 +237,19 @@ class Application extends Moostaka {
 				}
 
 				Equipment.list(searchParams.toString()).then(equipment => {
-					this.render("#main", "admin/equipment/list", {"equipment": equipment, "search":search});
+					this.render("#main", "admin/equipment/list", {"equipment": equipment, "search":search}, {}, () => {
+
+						let icons = document.getElementsByClassName("material-icons");
+						
+						for(let i = 0; i < icons.length; i++) {
+							if(icons[i].innerText == "check_circle_outline") {
+								icons[i].style.color = "green";
+							}
+							if(icons[i].innerText == "highlight_off") {
+								icons[i].style.color = "red";
+							}
+						}
+					});
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -444,7 +456,18 @@ class Application extends Moostaka {
 		this.flush();
 		this.route("/", _params => {
 			Equipment.list().then(equipment => {
-				this.render("#main", "unauthenticated/availability", {"equipment": equipment});
+				this.render("#main", "unauthenticated/availability", {"equipment": equipment}, {}, () => {
+						let icons = document.getElementsByClassName("material-icons");
+						
+						for(let i = 0; i < icons.length; i++) {
+							if(icons[i].innerText == "check_circle_outline") {
+								icons[i].style.color = "green";
+							}
+							if(icons[i].innerText == "highlight_off") {
+								icons[i].style.color = "red";
+							}
+						}
+				});
 			}).catch(e => this.handleError(e));
 		});
 	}
