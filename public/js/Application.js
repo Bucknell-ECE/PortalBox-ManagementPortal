@@ -760,8 +760,8 @@ class Application extends Moostaka {
 
 				this.render("#main", "authenticated/equipment/view", {"equipment": equipment,
 					"users": authorized_users,
-					// "types": values[1],
-					// "locations": values[2],
+					"types": values[1],
+					"locations": values[2],
 					"editable":editable}, {}, () => {
 
 					document.getElementById("type_id").value = values[0].type_id;

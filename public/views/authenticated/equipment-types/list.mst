@@ -12,7 +12,7 @@
 	<table>
 		<thead>
 			<tr>
-				<th>Name</th>
+				<th>Type</th>
 				<th>Charge Policy</th>
 				<th>Rate</th>
 				<th>Requires Training</th>
