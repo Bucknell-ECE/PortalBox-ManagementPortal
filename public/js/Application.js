@@ -238,17 +238,7 @@ class Application extends Moostaka {
 
 				Equipment.list(searchParams.toString()).then(equipment => {
 					this.render("#main", "admin/equipment/list", {"equipment": equipment, "search":search}, {}, () => {
-
-						let icons = document.getElementsByClassName("material-icons");
-						
-						for(let i = 0; i < icons.length; i++) {
-							if(icons[i].innerText == "check_circle_outline") {
-								icons[i].style.color = "green";
-							}
-							if(icons[i].innerText == "highlight_off") {
-								icons[i].style.color = "red";
-							}
-						}
+						this.set_icon_colors(document);
 					});
 				}).catch(e => this.handleError(e));
 			});
@@ -390,7 +380,10 @@ class Application extends Moostaka {
 			home_icons.manage.users = true;
 			this.route("/users", _ => {
 				User.list().then(users => {
-					this.render("#main", "authenticated/users/list", {"users": users});
+					this.render("#main", "authenticated/users/list", {"users": users}, {}, () => {
+						this.set_icon_colors(document);
+					});
+
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -457,16 +450,7 @@ class Application extends Moostaka {
 		this.route("/", _params => {
 			Equipment.list().then(equipment => {
 				this.render("#main", "unauthenticated/availability", {"equipment": equipment}, {}, () => {
-						let icons = document.getElementsByClassName("material-icons");
-						
-						for(let i = 0; i < icons.length; i++) {
-							if(icons[i].innerText == "check_circle_outline") {
-								icons[i].style.color = "green";
-							}
-							if(icons[i].innerText == "highlight_off") {
-								icons[i].style.color = "red";
-							}
-						}
+					this.set_icon_colors(document);
 				});
 			}).catch(e => this.handleError(e));
 		});
@@ -767,6 +751,8 @@ class Application extends Moostaka {
 					document.getElementById("type_id").value = values[0].type_id;
 					document.getElementById("location_id").value = values[0].location_id;
 					document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e); });
+
+					this.set_icon_colors(document);
 				});
 			})
 		}).catch(e => this.handleError(e));
@@ -1193,6 +1179,7 @@ class Application extends Moostaka {
 				if(values[3].length + values[4].length > 20) {
 					this.toggle_transactions();
 				}
+				this.set_icon_colors(document);
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -1234,7 +1221,9 @@ class Application extends Moostaka {
 			if(0 < Object.keys(params).length) {
 				params.customized = true;
 			}
-			this.render("#main", auth_level + "/users/list", {"users": users, "search":params});
+			this.render("#main", auth_level + "/users/list", {"users": users, "search":params}, {}, () => {
+				this.set_icon_colors(document);
+			});
 		}).catch(e => this.handleError(e));
 	}
 
@@ -1286,6 +1275,19 @@ class Application extends Moostaka {
 				element.style.display = 'none';
 			} else {
 				element.style.display = '';
+			}
+		}
+	}
+
+	set_icon_colors(d) {
+		let icons = d.getElementsByClassName("material-icons");
+
+		for(let i = 0; i < icons.length; i++) {
+			if(icons[i].innerText == "check_circle_outline") {
+				icons[i].style.color = "green";
+			}
+			if(icons[i].innerText == "highlight_off") {
+				icons[i].style.color = "red";
 			}
 		}
 	}
