@@ -118,64 +118,7 @@ class Application extends Moostaka {
 						user_selector.required = false;
 						let type_id_selector = document.getElementById("type_id");
 						type_id_selector.addEventListener('change', (event) => {
-							// Warning hardcoded values! However, we'd need
-							// to make massive changes to the Portal Box
-							// Application to do otherwise
-							let equipment_type_selector_label = document.getElementById("equipment_type_id_label");
-							let equipment_type_selector = document.getElementById("equipment_type_id");
-							let user_selector_label = document.getElementById("user_id_label");
-							let user_selector = document.getElementById("user_id");
-							switch(event.target.value) {
-								case "1":	// intentional fallthrough
-								case "2":
-									// hide and disable the equipment type and user selectors
-									equipment_type_selector_label.style.display = "none";
-									equipment_type_selector.style.display = "none";
-									equipment_type_selector.disabled = true;
-									equipment_type_selector.required = false;
-									user_selector_label.style.display = "none";
-									user_selector.style.display = "none";
-									user_id_input.style.display = "none";
-									user_selector.disabled = true;
-									user_selector.required = false;
-									break;
-								case "3": // type training selected
-									// hide and disable the user selector
-									// show and enable the equipment type selector
-									equipment_type_selector_label.style.display = "block";
-									equipment_type_selector.style.display = "block";
-									equipment_type_selector.disabled = false;
-									equipment_type_selector.required = true;
-									user_selector_label.style.display = "none";
-									user_selector.style.display = "none";
-									user_id_input.style.display = "none";
-									user_selector.disabled = true;
-									user_selector.required = false;
-									break;
-								case "4": // user card selected
-									// hide and disable the equipment type selector
-									// show and enable the user selector
-									equipment_type_selector_label.style.display = "none";
-									equipment_type_selector.style.display = "none";
-									equipment_type_selector.disabled = true;
-									equipment_type_selector.required = false;
-									user_selector_label.style.display = "block";
-									user_selector.style.display = "none";
-									user_id_input.style.display = "block";
-									user_selector.disabled = false;
-									user_selector.required = true;
-									break;
-								default:
-									equipment_type_selector_label.style.display = "none";
-									equipment_type_selector.style.display = "none";
-									equipment_type_selector.disabled = true;
-									equipment_type_selector.required = false;
-									user_selector_label.style.display = "none";
-									user_selector.style.display = "none";
-									user_id_input.style.display = "none";
-									user_selector.disabled = true;
-									user_selector.required = false;
-							}
+							this.card_options_selector(event.target.value);
 						});						
 					});
 				}).catch(e => this.handleError(e));
@@ -196,7 +139,9 @@ class Application extends Moostaka {
 		// User needs READ_CARD to make use of /cards/id
 		if(this.user.has_permission(Permission.READ_CARD)) {
 			// User needs MODIFY_CARD to make use of /cards/id for editing
-			this.route("/cards/:id", params => this.read_card(params.id, this.user.has_permission(Permission.MODIFY_CARD)));
+			this.route("/cards/:id", params => {
+				this.read_card(params.id, this.user.has_permission(Permission.MODIFY_CARD));
+			});
 		}
 
 		// User needs CREATE_EQUIPMENT Permission to make use of /equipment/add route
@@ -621,7 +566,29 @@ class Application extends Moostaka {
 				"users": values[2],
 				"equipment_types": values[3]
 				
-			}, {}, () => {});
+			}, {}, () => {
+				let card = values[0];
+				document.getElementById("type_id").value = card.card_type_id;
+				let type_id_selector = document.getElementById("type_id")
+
+				this.card_options_selector(String(card.card_type_id));
+				type_id_selector.addEventListener('change', (event) => {
+					this.card_options_selector(event.target.value);
+				});
+
+				switch(card.card_type_id) {
+					case 3: // Training Card
+						document.getElementById("equipment_type_id").value = card.equipment_type.id;
+						break;
+					case 4: // User Card
+						document.getElementById("user_id").value = card.user.id;
+						break;
+					case 1: // Shutdown Card
+					case 2: // Proxy Card
+				}
+
+				document.getElementById("edit-card-form").addEventListener("submit", (e) => { this.update_card(card, e); });
+			});
 		}).catch(e => this.handleError(e));
 	}
 
@@ -657,24 +624,8 @@ class Application extends Moostaka {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		fetch("/api/cards.php?id=" + card.id, {
-			body: JSON.stringify(data),
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save card";
-		}).then(_data => {
-			moostaka.navigate("/cards");
-			// notify user of success
+		Card.modify(card.id, data).then(_ => {
+			this.navigate("/cards");
 		}).catch(e => this.handleError(e));
 	}
 
@@ -1289,6 +1240,67 @@ class Application extends Moostaka {
 			if(icons[i].innerText == "highlight_off") {
 				icons[i].style.color = "red";
 			}
+		}
+	}
+
+	card_options_selector(value) {
+		// Warning hardcoded values! However, we'd need
+		// to make massive changes to the Portal Box
+		// Application to do otherwise
+		let equipment_type_selector_label = document.getElementById("equipment_type_id_label");
+		let equipment_type_selector = document.getElementById("equipment_type_id");
+		let user_selector_label = document.getElementById("user_id_label");
+		let user_selector = document.getElementById("user_id");
+		switch(value) {
+			case "1":	// intentional fallthrough
+			case "2":
+				// hide and disable the equipment type and user selectors
+				equipment_type_selector_label.style.display = "none";
+				equipment_type_selector.style.display = "none";
+				equipment_type_selector.disabled = true;
+				equipment_type_selector.required = false;
+				user_selector_label.style.display = "none";
+				user_selector.style.display = "none";
+				user_id_input.style.display = "none";
+				user_selector.disabled = true;
+				user_selector.required = false;
+				break;
+			case "3": // type training selected
+				// hide and disable the user selector
+				// show and enable the equipment type selector
+				equipment_type_selector_label.style.display = "block";
+				equipment_type_selector.style.display = "block";
+				equipment_type_selector.disabled = false;
+				equipment_type_selector.required = true;
+				user_selector_label.style.display = "none";
+				user_selector.style.display = "none";
+				user_id_input.style.display = "none";
+				user_selector.disabled = true;
+				user_selector.required = false;
+				break;
+			case "4": // user card selected
+				// hide and disable the equipment type selector
+				// show and enable the user selector
+				equipment_type_selector_label.style.display = "none";
+				equipment_type_selector.style.display = "none";
+				equipment_type_selector.disabled = true;
+				equipment_type_selector.required = false;
+				user_selector_label.style.display = "block";
+				user_selector.style.display = "none";
+				user_id_input.style.display = "block";
+				user_selector.disabled = false;
+				user_selector.required = true;
+				break;
+			default:
+				equipment_type_selector_label.style.display = "none";
+				equipment_type_selector.style.display = "none";
+				equipment_type_selector.disabled = true;
+				equipment_type_selector.required = false;
+				user_selector_label.style.display = "none";
+				user_selector.style.display = "none";
+				user_id_input.style.display = "none";
+				user_selector.disabled = true;
+				user_selector.required = false;
 		}
 	}
 }
