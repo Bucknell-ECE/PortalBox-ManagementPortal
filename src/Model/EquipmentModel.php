@@ -185,7 +185,7 @@ class EquipmentModel extends AbstractModel {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
-		$sql .= ' ORDER BY l.name';
+		$sql .= ' ORDER BY l.name, t.name, e.name';
 		
 		$statement = $connection->prepare($sql);
 		// run search

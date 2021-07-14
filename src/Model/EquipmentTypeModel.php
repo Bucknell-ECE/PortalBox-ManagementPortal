@@ -117,7 +117,7 @@ class EquipmentTypeModel extends AbstractModel {
 	public function search() : ?array {
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate FROM equipment_types';
+		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate FROM equipment_types ORDER BY name';
 		$statement = $connection->prepare($sql);
 		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
