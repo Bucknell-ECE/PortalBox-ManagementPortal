@@ -5,14 +5,16 @@
 <article>
 	<header>
 		<h1>Equipment Types</h1>
+		{{#create_equipment_type_permission}}
 		<div class="button-group">
 			<a href="/equipment-types/add" class="default">Add</a>
 		</div>
+		{{/create_equipment_type_permission}}
 	</header>
 	<table>
 		<thead>
 			<tr>
-				<th>Name</th>
+				<th>Type</th>
 				<th>Charge Policy</th>
 				<th>Rate</th>
 				<th>Requires Training</th>

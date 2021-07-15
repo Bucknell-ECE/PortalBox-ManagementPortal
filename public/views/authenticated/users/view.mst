@@ -44,9 +44,11 @@
 		<section>
 			<header>
 				<h2>Account History</h2>
+				{{#create_payment_permission}}
 				<div class="button-group">
 					<a href="/users/{{id}}/add_payment" class="default">Add Payment</a>
 				</div>
+				{{/create_payment_permission}}
 			</header>
 			<div class="button-group">
 			<button type="button" id="transaction-button" class="" >Hide Transactions</button>
@@ -89,10 +91,12 @@
 		<textarea type="text" name="comment" id="comment">{{comment}}</textarea>
 		<label for="is_active">Active:</label>
 		<input type="checkbox" name="is_active" id="is_active" {{#is_active}}checked {{/is_active}}/>
+		{{#role_editable}}
 		<label for="role_id">Role:</label>
 		<select name="role_id" id="role_id" required />
 			{{#roles}}<option value="{{id}}">{{name}}</option>{{/roles}}
 		</select>
+		{{/role_editable}}
 		<label for="authorizations" style="align-self:baseline">Authorizations:</label>
 		<fieldset id="authorizations">
 			{{#equipment_types}}<label><input type="checkbox" name="authorizations.{{id}}" id="authorizations.{{id}}" /> {{name}}</label>{{/equipment_types}}

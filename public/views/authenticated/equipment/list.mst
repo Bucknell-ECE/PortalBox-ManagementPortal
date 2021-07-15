@@ -5,10 +5,12 @@
 <article>
 	<header>
 		<h1>Equipment</h1>
+		{{#create_equipment_permission}}
 		<div class="button-group">
 			<label for="search-form-toggle"><i class="material-icons">search</i></label>
 			<a href="/equipment/add" class="default">Add</a>
 		</div>
+		{{/create_equipment_permission}}
 	</header>
 	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
 	<form class="advanced_search">

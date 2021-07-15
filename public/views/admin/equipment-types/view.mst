@@ -4,16 +4,16 @@
 	<li><a href="/equipment-types">Equipment Types</a></li>
 	<li>{{name}} ({{id}})</li>
 </ul>
-<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />
+{{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
 <article>
 	<header>
 		<h1>Equipment Type</h1>
 		<div class="button-group">
-			<label for="view-edit-toggle-edit-state" class="default">Edit</label>
+			{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
 		</div>
 	</header>
 	<dl>
-		<dt>Name:</label>
+		<dt>Name:</dt>
 		<dd>{{name}}</dd>
 		<dt>Requires Training:</dt>
 		<dd>{{#requires_training}}Yes{{/requires_training}}{{^requires_training}}No{{/requires_training}}</dd>
@@ -23,6 +23,7 @@
 		<dd>{{.}}</dd>{{/charge_rate}}
 	</dl>
 </article>
+{{#editable}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
 <article>
 	<header>
@@ -58,6 +59,7 @@
 		<input type="number" name="charge_rate" id="charge_rate" min="0.00" step="0.01"{{#charge_rate}} value="{{.}}"{{/charge_rate}} />
 	</form>
 </article>
+{{/editable}}
 {{/type}}
 {{^type}}
 <article>

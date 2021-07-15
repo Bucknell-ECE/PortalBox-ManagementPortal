@@ -275,6 +275,9 @@ export const DELETE_ROLE = 1104;
 /** Users with this permission can list roles */
 export const LIST_ROLES = 1105;
 
+/** Users with this permission can view the roles page */
+export const VIEW_ROLES = 1107;
+
 /** Users with this permission can create users */
 export const CREATE_USER = 1201;
 
@@ -358,6 +361,7 @@ let permissions = {
 	1103:{id:MODIFY_ROLE, name:"Modify roles"},
 	1104:{id:DELETE_ROLE, name:"Delete roles"},
 	1105:{id:LIST_ROLES, name:"List roles"},
+	1107:{id:VIEW_ROLES, name:"View roles"},
 	1201:{id:CREATE_USER, name:"Add users to system"},
 	1202:{id:READ_USER, name:"View user details"},
 	1203:{id:MODIFY_USER, name:"Modify users"},

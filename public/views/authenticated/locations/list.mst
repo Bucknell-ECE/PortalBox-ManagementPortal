@@ -5,9 +5,11 @@
 <article>
 	<header>
 		<h1>Locations</h1>
+		{{#create_location_permission}}
 		<div class="button-group">
 			<a href="/locations/add" class="default">Add</a>
 		</div>
+		{{/create_location_permission}}
 	</header>
 	<table>
 		<thead>

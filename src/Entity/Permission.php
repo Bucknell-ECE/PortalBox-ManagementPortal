@@ -278,6 +278,9 @@ class Permission {
 
 	/** Users with this permission can list roles */
 	const LIST_ROLES = 1105;
+
+	/** Users with this permission can view the roles page */
+	const VIEW_ROLES = 1107;
 	
 	/** Users with this permission can create users */
 	const CREATE_USER = 1201;

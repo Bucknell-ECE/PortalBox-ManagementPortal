@@ -182,7 +182,7 @@ class Application extends Moostaka {
 				}
 
 				Equipment.list(searchParams.toString()).then(equipment => {
-					this.render("#main", "admin/equipment/list", {"equipment": equipment, "search":search}, {}, () => {
+					this.render("#main", "admin/equipment/list", {"equipment": equipment, "search":search, "create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)}, {}, () => {
 						this.set_icon_colors(document);
 					});
 				}).catch(e => this.handleError(e));
@@ -214,7 +214,7 @@ class Application extends Moostaka {
 			home_icons.manage.equipment_types = true;
 			this.route("/equipment-types", _ => {
 				EquipmentType.list().then(types => {
-					this.render("#main", "authenticated/equipment-types/list", {"types": types});
+					this.render("#main", "authenticated/equipment-types/list", {"types": types, "create_equipment_type_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT_TYPE)});
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -242,7 +242,7 @@ class Application extends Moostaka {
 			home_icons.manage.locations = true;
 			this.route("/locations", _ => {
 				Location.list().then(locations => {
-					this.render("#main", "authenticated/locations/list", {"locations": locations});
+					this.render("#main", "authenticated/locations/list", {"locations": locations, "create_location_permission": this.user.has_permission(Permission.CREATE_LOCATION)});
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -287,7 +287,7 @@ class Application extends Moostaka {
 		}
 
 		// User needs LIST_ROLES Permission to make use of /roles route
-		if(this.user.has_permission(Permission.LIST_ROLES)) {
+		if(this.user.has_permission(Permission.LIST_ROLES) && this.user.has_permission(Permission.VIEW_ROLES)) {
 			if(!home_icons.system) { home_icons.system = system_icons }
 			home_icons.system.roles = true;
 			this.route("/roles", _ => {
@@ -298,7 +298,7 @@ class Application extends Moostaka {
 		}
 
 		// User needs READ_ROLE to make use of /roles/id
-		if(this.user.has_permission(Permission.READ_ROLE)) {
+		if(this.user.has_permission(Permission.READ_ROLE) && this.user.has_permission(Permission.VIEW_ROLES)) {
 			// User needs MODIFY_ROLE to make use of /roles/id for editing
 			this.route("/roles/:id", params => this.read_role(params.id, this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.DELETE_ROLE)));
 		}
@@ -325,7 +325,7 @@ class Application extends Moostaka {
 			home_icons.manage.users = true;
 			this.route("/users", _ => {
 				User.list().then(users => {
-					this.render("#main", "authenticated/users/list", {"users": users}, {}, () => {
+					this.render("#main", "authenticated/users/list", {"users": users, "create_user_permission": this.user.has_permission(Permission.CREATE_USER)}, {}, () => {
 						this.set_icon_colors(document);
 					});
 
@@ -337,7 +337,9 @@ class Application extends Moostaka {
 		if(this.user.has_permission(Permission.READ_USER)) {
 			// User needs MODIFY_USER to make use of /users/id for editing user attributes eg email address
 			// User needs CREATE_EQUIPMENT_AUTHORIZATION or DELETE_EQUIPMENT_AUTHORIZATION to manage authorizations
-			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER), this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION)));
+			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER), 
+				this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION),
+				this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.CREATE_PAYMENT)));
 		}
 
 		if(this.user.has_permission(Permission.READ_OWN_USER)) {
@@ -1070,7 +1072,7 @@ class Application extends Moostaka {
 	 * @param {bool} editable - whether to show controls for editing the user.
 	 * @param {bool} authorizable - whether to show controls for authorizing the user.
 	 */
-	read_user(id, editable, authorizable) {
+	read_user(id, editable, authorizable, role_editable, payment_permission) {
 		let p0 = User.read(id);
 		let p1 = EquipmentType.list();
 		let p2 = Role.list();
@@ -1104,7 +1106,9 @@ class Application extends Moostaka {
 					"transactions":transactions,
 					"balance":balance,
 					"editable": editable,
-					"authorizable":authorizable
+					"authorizable":authorizable,
+					"role_editable": role_editable,
+					"create_payment_permission": payment_permission
 			}, {}, () => {
 				let selector = document.getElementById("role_id");
 				if(selector) {

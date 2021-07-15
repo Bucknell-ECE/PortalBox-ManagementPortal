@@ -5,9 +5,11 @@
 <article>
 	<header>
 		<h1>Users</h1>
+		{{#create_user_permission}}
 		<div class="button-group">
 			<a href="/users/add" class="default">Add</a>
 		</div>
+		{{/create_user_permission}}
 	</header>
 	<form class="advanced_search" id="user_search_form" onsubmit="return false;">
 		{{#sort}}<input type="hidden" name="sort" value="{{.}}" />{{/sort}}
