@@ -201,6 +201,7 @@ class ChargeModel extends AbstractModel {
 
 		$e_query = new EquipmentQuery();
 		$u_query = new UserQuery();
+		$u_query->set_include_inactive(TRUE);
 
 		$machines = $e_model->search($e_query);
 		$users = $u_model->search($u_query);
