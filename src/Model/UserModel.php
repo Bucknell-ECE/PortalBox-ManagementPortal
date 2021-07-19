@@ -220,6 +220,16 @@ class UserModel extends AbstractModel {
 		$where_clause_fragments = array();
 		$parameters = array();
 		$modifier = "";
+
+		if(NULL !== $query->include_inactive()) {
+			if($query->include_inactive() === 0) {
+				$where_clause_fragments[] = 'u.is_active = :is_active';
+				$parameters[':is_active'] = 1;
+			}
+		} else {
+			$where_clause_fragments[] = 'u.is_active = :is_active';
+			$parameters[':is_active'] = 1;
+		}
 		if(NULL !== $query->email()) {
 			$where_clause_fragments[] = 'email = :email';
 			$parameters[':email'] = $query->email();

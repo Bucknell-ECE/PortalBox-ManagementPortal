@@ -19,6 +19,10 @@ use Portalbox\Transform\UserTransformer;
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
+		$include_inactive = null;
+		if(isset($_GET['include_inactive']) && !empty($_GET['include_inactive'])) {
+			$include_inactive = $_GET['include_inactive'] === 'true' ? 1 : 0;
+		}
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			$user_id = $_GET['id'];
 			// check authorization
@@ -52,6 +56,9 @@ switch($_SERVER['REQUEST_METHOD']) {
 			try {
 				$model = new UserModel(Config::config());
 				$query = (new UserQuery())->set_name($search_name);
+				if(!is_null($include_inactive)) {
+					$query->set_include_inactive($include_inactive);
+				}
 				$users = $model->search($query);
 				$transformer = new UserTransformer();
 				ResponseHandler::render($users, $transformer);
@@ -68,7 +75,9 @@ switch($_SERVER['REQUEST_METHOD']) {
 			try {
 				$model = new UserModel(Config::config());
 				$query = (new UserQuery())->set_comment($search_comment);
-
+				if(!is_null($include_inactive)) {
+					$query->set_include_inactive($include_inactive);
+				}
 				$users = $model->search($query);
 				$transformer = new UserTransformer();
 				ResponseHandler::render($users, $transformer);
@@ -76,6 +85,19 @@ switch($_SERVER['REQUEST_METHOD']) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
+		} elseif(isset($_GET['include_inactive']) && !empty($_GET['include_inactive'])) {
+			Session::check_authorization(Permission::LIST_USERS);
+
+			// try {
+				$model = new UserModel(Config::config());
+				$query = (new UserQuery())->set_include_inactive($include_inactive);
+				$users = $model->search($query);
+				$transformer = new UserTransformer();
+				ResponseHandler::render($users, $transformer);
+			// }	catch(Exception $e) {
+			// 	http_response_code(500);
+			// 	die('We experienced issues communicating with the database');
+			// }
 		} elseif(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
 			$search_id = $_GET['equipment_id'];
 

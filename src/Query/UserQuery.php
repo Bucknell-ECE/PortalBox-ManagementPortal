@@ -44,6 +44,13 @@ class UserQuery {
 	protected $equipment_id;
 
 	/**
+	 * Int for determining if inactive users should be included
+	 * 
+	 * @var int
+	 */
+	protected $include_inactive;
+
+	/**
 	 * Get the email address of the user for which to search
 	 *
 	 * @return string|null - the email address of the user for which to search
@@ -119,6 +126,15 @@ class UserQuery {
 	 */
 	public function set_equipment_id(int $equipment_id) : self {
 		$this->equipment_id = $equipment_id;
+		return $this;
+	}
+
+	public function include_inactive() : ?int {
+		return $this->include_inactive;
+	}
+
+	public function set_include_inactive(int $include_inactive) : self {
+		$this->include_inactive = $include_inactive;
 		return $this;
 	}
 }

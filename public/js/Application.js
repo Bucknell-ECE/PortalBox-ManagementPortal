@@ -80,7 +80,7 @@ class Application extends Moostaka {
 			home_icons.system.api_keys = true;
 			this.route("/api-keys", _ => {
 				APIKey.list().then(keys => {
-					this.render("#main", "admin/api-keys/list", {"keys": keys});
+					this.render("#main", "authenticated/api-keys/list", {"keys": keys});
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -151,7 +151,7 @@ class Application extends Moostaka {
 				let p2 = Location.list();
 
 				Promise.all([p1, p2]).then(values => {
-					this.render("#main", "admin/equipment/add", {"types": values[0], "locations": values[1]}, {}, () => {
+					this.render("#main", "authenticated/equipment/add", {"types": values[0], "locations": values[1]}, {}, () => {
 						document
 							.getElementById("add-equipment-form")
 							.addEventListener("submit", (e) => { this.add_equipment(e); });
@@ -182,7 +182,7 @@ class Application extends Moostaka {
 				}
 
 				Equipment.list(searchParams.toString()).then(equipment => {
-					this.render("#main", "admin/equipment/list", {"equipment": equipment, "search":search, "create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)}, {}, () => {
+					this.render("#main", "authenticated/equipment/list", {"equipment": equipment, "search":search, "create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)}, {}, () => {
 						this.set_icon_colors(document);
 					});
 				}).catch(e => this.handleError(e));
@@ -324,12 +324,7 @@ class Application extends Moostaka {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.users = true;
 			this.route("/users", _ => {
-				User.list().then(users => {
-					this.render("#main", "authenticated/users/list", {"users": users, "create_user_permission": this.user.has_permission(Permission.CREATE_USER)}, {}, () => {
-						this.set_icon_colors(document);
-					});
-
-				}).catch(e => this.handleError(e));
+				this.list_users(null);
 			});
 		}
 
@@ -598,7 +593,7 @@ class Application extends Moostaka {
 		let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
 		
 		Card.list(queryString).then(cards => {
-			this.render('#main', auth_level + "/cards/list", {"cards": cards});
+			this.render('#main', "authenticated/cards/list", {"cards": cards});
 		}).catch(e => this.handleError(e));
 	}
 
@@ -756,7 +751,7 @@ class Application extends Moostaka {
 
 		Promise.all([p0,p1]).then(values => {
 			let type = values[0];
-			this.render("#main", "admin/equipment-types/view", {"type":type, "charge_policies":values[1], "editable": editable}, {}, () => {
+			this.render("#main", "authenticated/equipment-types/view", {"type":type, "charge_policies":values[1], "editable": editable}, {}, () => {
 				document.getElementById("charge_policy_id").value = type.charge_policy_id;
 				document
 					.getElementById("edit-equipment-type-form")
@@ -1159,46 +1154,39 @@ class Application extends Moostaka {
 	/**
 	 * Render an optionally sorted list of users
 	 */
-	list_users(params, auth_level) {
-		let url = "/api/users.php?";
+	list_users(params) {
+		let queryString = "";
+		if(params !== null) {
+			queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
+		}
 
-		let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-
-		fetch(url + queryString, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to list users";
-		}).then(users => {
-			if(0 < Object.keys(params).length) {
+		User.list(queryString).then(users => {
+			if((params !== null) && 0 < Object.keys(params).length) {
 				params.customized = true;
 			}
-			this.render("#main", auth_level + "/users/list", {"users": users, "search":params}, {}, () => {
+			this.render("#main", "authenticated/users/list", {"users": users, "search": params, "create_user_permission": this.user.has_permission(Permission.CREATE_USER)}, {}, () => {
 				this.set_icon_colors(document);
 			});
 		}).catch(e => this.handleError(e));
 	}
 
-	search_users(search_form, auth_level) {
+	search_users(search_form) {
 		// look at search params to insure we have a search
 		let search = {};
 		let searchParams = this.get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
-			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
+			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]))) {
 				search[k] = searchParams[k];
 			}
 		}
 
 		if(0 < Object.keys(search).length) {
-			this.list_users(search, auth_level);
+			this.list_users(search);
 		}
 	}
 
-	sort_users(sort_column, auth_level) {
+	sort_users(sort_column) {
 		let search_form = document.getElementById('user_search_form');
 		// look at search params to insure we have a search
 		let search = {};
@@ -1211,7 +1199,7 @@ class Application extends Moostaka {
 		}
 
 		search.sort = sort_column;
-		this.list_users(search, auth_level);
+		this.list_users(search);
 	}
 
 	toggle_transactions() {
