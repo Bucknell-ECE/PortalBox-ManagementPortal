@@ -850,15 +850,19 @@ class Application extends Moostaka {
 		let p0 = LoggedEvent.list(queryString);
 		let p1 = Equipment.list();
 		let p2 = Location.list();
+		let p3 = EquipmentType.list();
 		
-		Promise.all([p0, p1, p2]).then(values => {
-			this.render("#main", "authenticated/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "queryString":queryString}, {}, () => {
+		Promise.all([p0, p1, p2, p3]).then(values => {
+			this.render("#main", "authenticated/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "equipment-type": values[3], "queryString":queryString}, {}, () => {
 				//fix up selects
 				if(search.hasOwnProperty("equipment_id")) {
 					document.getElementById("equipment_id").value = search.equipment_id;
 				}
 				if(search.hasOwnProperty("location_id")) {
 					document.getElementById("location_id").value = search.location_id;
+				}
+				if(search.hasOwnProperty("equipment_type_id")) {
+					document.getElementById("equipment_type_id").value = search.equipment_type_id;
 				}
 			});
 		}).catch(e => this.handleError(e));

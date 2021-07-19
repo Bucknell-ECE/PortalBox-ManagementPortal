@@ -44,6 +44,13 @@ class LoggedEventQuery {
 	protected $type_id;
 
 	/**
+	 * Find log events of a giben equipment type
+	 * 
+	 * @var int
+	 */
+	protected $equipment_type_id;
+
+	/**
 	 * Get the on or before date
 	 *
 	 * @return string - the on or before date
@@ -140,6 +147,26 @@ class LoggedEventQuery {
 	 */
 	public function set_type_id(int $type_id) : self {
 		$this->type_id = $type_id;
+		return $this;
+	}
+
+	/**
+	 * Get the equipment type id
+	 * 
+	 * @return int - the equipment type id
+	 */
+	public function equipment_type_id() : ?int {
+		return $this->equipment_type_id;
+	}
+
+	/**
+	 * Set the equipment type id
+	 * 
+	 * @param int equipment_type_id - the equipment type id
+	 * @return self
+	 */
+	public function set_equipment_type_id(int $equipment_type_id) : self {
+		$this->equipment_type_id = $equipment_type_id;
 		return $this;
 	}
 }

@@ -21,10 +21,15 @@
 			<option></option>
 			{{#locations}}<option value="{{id}}">{{name}}</option>{{/locations}}
 		</select>
-		<label for="equipment_id">Equipment:</label>
+		<label for="equipment_id">Equipment Name:</label>
 		<select name="equipment_id" id="equipment_id" onchange="app.search_log(this.form)" />
 			<option></option>
 			{{#equipment}}<option value="{{id}}">{{name}}</option>{{/equipment}}
+		</select>
+		<label for="equipment_type">Equipment Type:</label>
+		<select name="equipment_type_id" id="equipment_type_id" onchange="app.search_log(this.form)" />
+			<option></option>
+			{{#equipment-type}}<option value="{{id}}">{{name}}</option>{{/equipment-type}}
 		</select>
 	</form>{{/search}}
 	<table>
@@ -32,7 +37,8 @@
 			<tr>
 				<th>Time</th>
 				<th>Event</th>
-				<th>Equipment</th>
+				<th>Equipment Name</th>
+				<th>Equipment Type</th>
 				<th>Card</th>
 				<th>User</th>
 				<th>Location</th>
@@ -42,7 +48,8 @@
 			{{#log_messages}}<tr>
 				<td>{{time}}</td>
 				<td>{{type}}</td>
-				<td>{{equipment}}</td>
+				<td>{{equipment_name}}</td>
+				<td>{{equipment_type}}</td>
 				<td>{{card}}</td>
 				<td>{{#user}}{{.}}{{/user}}{{^user}}&nbsp;{{/user}}</td>
 				<td>{{location}}</td>

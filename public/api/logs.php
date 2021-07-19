@@ -26,6 +26,9 @@ switch($_SERVER['REQUEST_METHOD']) {
 			if(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
 				$query->set_equipment_id($_GET['equipment_id']);
 			}
+			if(isset($_GET['equipment_type_id']) && !empty($_GET['equipment_type_id'])) {
+				$query->set_equipment_type_id($_GET['equipment_type_id']);
+			}
 			if(isset($_GET['location_id']) && !empty($_GET['location_id'])) {
 				$query->set_location_id($_GET['location_id']);
 			}

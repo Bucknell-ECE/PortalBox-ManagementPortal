@@ -34,7 +34,7 @@ class LoggedEventTransformer implements OutputTransformer {
 				'type_id' => $data->type_id(),
 				'card_id' => $data->card_id(),
 				'user' => $user_transformer->serialize($data->user(), false),
-				'equipment' => $equipment_transformer->serialize($data->equipment(), true)
+				'equipment' => $equipment_transformer->serialize($data->equipment(), true),
 			];
 		} else {
 			return [
@@ -43,7 +43,8 @@ class LoggedEventTransformer implements OutputTransformer {
 				'type' =>$data->type(),
 				'card' => $data->card_id(),
 				'user' => $data->user_name(),
-				'equipment' => $data->equipment_name(),
+				'equipment_name' => $data->equipment_name(),
+				'equipment_type' => $data->equipment_type(),
 				'location' => $data->location_name()
 			];
 		}
@@ -57,6 +58,6 @@ class LoggedEventTransformer implements OutputTransformer {
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {
-		return ['id', 'Time', 'Type', 'Card', 'User', 'Equipment', 'Location'];
+		return ['id', 'Time', 'Type', 'Card', 'User', 'Equipment Name', 'Equipment Type', 'Location'];
 	}
 }

@@ -65,6 +65,22 @@ class LoggedEvent extends AbstractEntity {
 	 */
 	protected $equipment;
 
+	
+	/**
+	 * The id of the equipment type for this event
+	 * 
+	 * @var int
+	 */
+	private $equipment_type_id;
+
+	/**
+	 * The name of the equipment type for this event
+	 * 
+	 * @var string
+	 */
+	private $equipment_type;
+
+
 	/**
 	 * Get the time this event occured
 	 *
@@ -296,5 +312,23 @@ class LoggedEvent extends AbstractEntity {
 		} else {
 			return $this->equipment->location()->name();
 		}
+	}
+
+	public function equipment_type_id() : ?int {
+		return $this->equipment_type_id;
+	}
+
+	public function set_equipment_type_id(int $equipment_type_id) : LoggedEvent {
+		$this->equipment_type_id = $equipment_type_id;
+		return $this;
+	}
+
+	public function equipment_type() : ?string {
+		return $this->equipment_type;
+	}
+
+	public function set_equipment_type(string $equipment_type) : LoggedEvent {
+		$this->equipment_type = $equipment_type;
+		return $this;
 	}
 }

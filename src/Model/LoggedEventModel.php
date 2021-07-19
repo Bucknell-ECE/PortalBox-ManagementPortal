@@ -54,13 +54,17 @@ class LoggedEventModel extends AbstractModel {
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT el.id, el.time, el.event_type_id, el.card_id, c.type_id AS card_type_id, el.equipment_id, e.name AS equipment_name, l.name AS location_name, u.id AS user_id, u.name as user_name FROM log AS el INNER JOIN equipment AS e ON el.equipment_id = e.id INNER JOIN locations AS l ON e.location_id = l.id INNER JOIN cards AS c ON el.card_id = c.id LEFT JOIN users_x_cards AS uxc ON el.card_id = uxc.card_id LEFT JOIN users AS u ON u.id = uxc.user_id';
+		$sql = 'SELECT el.id, el.time, el.event_type_id, el.card_id, c.type_id AS card_type_id, el.equipment_id, e.name AS equipment_name, et.id AS equipment_type_id, et.name AS equipment_type, l.name AS location_name, u.id AS user_id, u.name as user_name FROM log AS el INNER JOIN equipment AS e ON el.equipment_id = e.id INNER JOIN equipment_types AS et ON e.type_id = et.id INNER JOIN locations AS l ON e.location_id = l.id INNER JOIN cards AS c ON el.card_id = c.id LEFT JOIN users_x_cards AS uxc ON el.card_id = uxc.card_id LEFT JOIN users AS u ON u.id = uxc.user_id';
 
 		$where_clause_fragments = array();
 		$parameters = array();
 		if($query->equipment_id()) {
 			$where_clause_fragments[] = 'el.equipment_id = :equipment_id';
 			$parameters[':equipment_id'] = $query->equipment_id();
+		}
+		if($query->equipment_type_id()) {
+			$where_clause_fragments[] = 'et.id = :equipment_type_id';
+			$parameters[':equipment_type_id'] = $query->equipment_type_id();
 		}
 		if($query->location_id()) {
 			$where_clause_fragments[] = 'e.location_id = :location_id';
@@ -111,6 +115,8 @@ class LoggedEventModel extends AbstractModel {
 					->set_card_type_id($data['card_type_id'])
 					->set_equipment_id($data['equipment_id'])
 					->set_equipment_name($data['equipment_name'])
+					->set_equipment_type_id($data['equipment_type_id'])
+					->set_equipment_type($data['equipment_type'])
 					->set_location_name($data['location_name'])
 					->set_time($data['time'])
 					->set_user_name($data['user_name']);
