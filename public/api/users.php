@@ -88,16 +88,16 @@ switch($_SERVER['REQUEST_METHOD']) {
 		} elseif(isset($_GET['include_inactive']) && !empty($_GET['include_inactive'])) {
 			Session::check_authorization(Permission::LIST_USERS);
 
-			// try {
+			try {
 				$model = new UserModel(Config::config());
 				$query = (new UserQuery())->set_include_inactive($include_inactive);
 				$users = $model->search($query);
 				$transformer = new UserTransformer();
 				ResponseHandler::render($users, $transformer);
-			// }	catch(Exception $e) {
-			// 	http_response_code(500);
-			// 	die('We experienced issues communicating with the database');
-			// }
+			}	catch(Exception $e) {
+				http_response_code(500);
+				die('We experienced issues communicating with the database');
+			}
 		} elseif(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
 			$search_id = $_GET['equipment_id'];
 
