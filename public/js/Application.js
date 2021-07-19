@@ -556,36 +556,8 @@ class Application extends Moostaka {
 		let p2 = User.list();
 		let p3 = EquipmentType.list();
 
-		Promise.all([p0, p1, p2, p3]).then(values => {
-			this.render("#main", "authenticated/cards/view", {
-				"card": values[0],
-				"types": values[1],
-				"users": values[2],
-				"equipment_types": values[3]
-				
-			}, {}, () => {
-				let card = values[0];
-				document.getElementById("type_id").value = card.card_type_id;
-				let type_id_selector = document.getElementById("type_id")
-
-				this.card_options_selector(String(card.card_type_id));
-				type_id_selector.addEventListener('change', (event) => {
-					this.card_options_selector(event.target.value);
-				});
-
-				switch(card.card_type_id) {
-					case 3: // Training Card
-						document.getElementById("equipment_type_id").value = card.equipment_type.id;
-						break;
-					case 4: // User Card
-						document.getElementById("user_id").value = card.user.id;
-						break;
-					case 1: // Shutdown Card
-					case 2: // Proxy Card
-				}
-
-				document.getElementById("edit-card-form").addEventListener("submit", (e) => { this.update_card(card, e); });
-			});
+		Promise.all([p0]).then(values => {
+			this.render("#main", "authenticated/cards/view", {"card": values[0]});
 		}).catch(e => this.handleError(e));
 	}
 
@@ -611,19 +583,6 @@ class Application extends Moostaka {
 		if(0 < Object.keys(search).length) {
 			this.list_cards({"search": search.card_id}, auth_level);
 		}
-	}
-
-	/**
-	 * Callback that handles updating cards on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
-	 */
-	update_card(card, event) {
-		event.preventDefault();
-		let data = this.get_form_data(event.target);
-
-		Card.modify(card.id, data).then(_ => {
-			this.navigate("/cards");
-		}).catch(e => this.handleError(e));
 	}
 
 	/**

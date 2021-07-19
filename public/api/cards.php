@@ -84,37 +84,6 @@ switch($_SERVER['REQUEST_METHOD']) {
 			}
 		}
 		break;
-	case 'POST':	// Update
-		// validate that we have an oid
-		if(!isset($_GET['id']) || empty($_GET['id'])) {
-			http_response_code(400);
-			die('You must specify the charge to modify via the id param');
-		}
-
-		// check authorization
-		Session::require_authorization(Permission::MODIFY_CARD);
-
-		$data = json_decode(file_get_contents('php://input'), TRUE);
-		if(NULL !== $data) {
-			try {
-				$transformer = new CardTransformer();
-				$card = $transformer->deserialize($data);
-				$card->set_id($_GET['id']);
-				$model = new CardModel(Config::config());
-				$card = $model->update($card);
-				ResponseHandler::render($card, $transformer);
-			} catch(InvalidArgumentException $iae) {
-				http_response_code(400);
-				die($iae->getMessage());
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} else {
-			http_response_code(400);
-			die(json_last_error_msg());
-		}
-		break;
 	case 'PUT':		// Create
 		// check authorization
 		Session::require_authorization(Permission::CREATE_CARD);
@@ -141,6 +110,8 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'DELETE':	// Delete
 		// intentional fall through, deletion not allowed
+	case 'POST': // Update
+		// intentional fall through, editing cards not allowed
 	default:
 		http_response_code(405);
 		die('We were unable to understand your request.');
