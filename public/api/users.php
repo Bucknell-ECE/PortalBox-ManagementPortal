@@ -27,7 +27,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 			$user_id = $_GET['id'];
 			// check authorization
 			if(Session::check_authorization(Permission::READ_OWN_USER)) {
-				if($user_id !== Session::get_authenticated_user()->id()) {
+				if((int)$user_id !== (int)Session::get_authenticated_user()->id()) {
 					Session::require_authorization(Permission::READ_USER);
 				}
 			} else {
