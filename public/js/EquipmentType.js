@@ -66,7 +66,7 @@ export class EquipmentType {
 				throw new SessionTimeOutError();
 			}
 	
-			throw "API was unable to save new equipment";
+			throw "API was unable to save new equipment type";
 		});
 	}
 

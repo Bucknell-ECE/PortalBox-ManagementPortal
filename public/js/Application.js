@@ -623,11 +623,20 @@ class Application extends Moostaka {
 	add_equipment(event) {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
+		
+		Equipment.list().then(equipment_list => {
+			
+			let contains = equipment_list.reduce((accumulator, equipment) => ((equipment.mac_address === data.mac_address) || accumulator), false);
 
-		Equipment.create(data).then(_data => {
-			this.navigate("/equipment");
-			// notify user of success
-		}).catch(e => this.handleError(e));
+			if(contains) {
+				this.handleError(Error('Cannot save equipment. MAC address already exists.'));
+			} else {
+				Equipment.create(data).then(_data => {
+					this.navigate("/equipment");
+					// notify user of success
+				}).catch(e => this.handleError(e));
+			}
+		});
 	}
 
 	/**
@@ -657,7 +666,7 @@ class Application extends Moostaka {
 
 					document.getElementById("type_id").value = values[0].type_id;
 					document.getElementById("location_id").value = values[0].location_id;
-					document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e); });
+					document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e, equipment); });
 
 					this.set_icon_colors(document);
 				});
@@ -676,10 +685,19 @@ class Application extends Moostaka {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		Equipment.modify(id, data).then(_ => {
-			this.navigate("/equipment");
-			// notify user of success
-		}).catch(e => this.handleError(e));
+		Equipment.list().then(equipment_list => {
+			
+			let contains = equipment_list.reduce((accumulator, equipment) => ((equipment.mac_address === data.mac_address) || accumulator), false);
+
+			if(contains) {
+				this.handleError(Error('Cannot save equipment. MAC address already exists.'));
+			} else {
+				Equipment.modify(id, data).then(_ => {
+					this.navigate("/equipment");
+					// notify user of success
+				}).catch(e => this.handleError(e));
+			}
+		});
 	}
 
 	/**
