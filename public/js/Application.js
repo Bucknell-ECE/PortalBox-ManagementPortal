@@ -687,7 +687,7 @@ class Application extends Moostaka {
 
 		Equipment.list().then(equipment_list => {
 			equipment_list = equipment_list.filter((equipment) => (equipment.name != data.name));
-			console.log(equipment_list);
+			
 			let contains = equipment_list.reduce((accumulator, equipment) => ((equipment.mac_address === data.mac_address) || accumulator), false);
 
 			if(contains) {
