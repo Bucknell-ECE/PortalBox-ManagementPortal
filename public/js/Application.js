@@ -658,7 +658,8 @@ class Application extends Moostaka {
 				equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
 				let authorized_users = values[3];
 
-				this.render("#main", "authenticated/equipment/view", {"equipment": equipment,
+				this.render("#main", "authenticated/equipment/view", {
+					"equipment": equipment,
 					"users": authorized_users,
 					"types": values[1],
 					"locations": values[2],
@@ -726,10 +727,16 @@ class Application extends Moostaka {
 	read_equipment_type(id, editable) {
 		let p0 = EquipmentType.read(id);
 		let p1 = ChargePolicy.list();
+		let p2 = User.list("equipment_id="+id);
 
-		Promise.all([p0,p1]).then(values => {
+		Promise.all([p0,p1,p2]).then(values => {
 			let type = values[0];
-			this.render("#main", "authenticated/equipment-types/view", {"type":type, "charge_policies":values[1], "editable": editable}, {}, () => {
+			this.render("#main", "authenticated/equipment-types/view", {
+					"type":type,
+					"charge_policies":values[1],
+					"editable": editable,
+					"users": values[2]
+				}, {}, () => {
 				document.getElementById("charge_policy_id").value = type.charge_policy_id;
 				document
 					.getElementById("edit-equipment-type-form")

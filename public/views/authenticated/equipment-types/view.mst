@@ -6,22 +6,52 @@
 </ul>
 {{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
 <article>
-	<header>
-		<h1>Equipment Type</h1>
-		<div class="button-group">
-			{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
-		</div>
-	</header>
-	<dl>
-		<dt>Name:</dt>
-		<dd>{{name}}</dd>
-		<dt>Requires Training:</dt>
-		<dd>{{#requires_training}}Yes{{/requires_training}}{{^requires_training}}No{{/requires_training}}</dd>
-		<dt>Charge Policy:</dt>
-		<dd>{{charge_policy}}</dd>
-		{{#charge_rate}}<dt>Rate:</dt>
-		<dd>{{.}}</dd>{{/charge_rate}}
-	</dl>
+	<div class="row">
+	<section>
+		<header>
+			<h1>Equipment Type</h1>
+			<div class="button-group">
+				{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
+			</div>
+		</header>
+		<dl>
+			<dt>Name:</dt>
+			<dd>{{name}}</dd>
+			<dt>Requires Training:</dt>
+			<dd>{{#requires_training}}Yes{{/requires_training}}{{^requires_training}}No{{/requires_training}}</dd>
+			<dt>Charge Policy:</dt>
+			<dd>{{charge_policy}}</dd>
+			{{#charge_rate}}<dt>Rate:</dt>
+			<dd>{{.}}</dd>{{/charge_rate}}
+		</dl>
+	</section>
+	<section>
+		<header>
+			<h1>Authorized Users</h1>
+			<div class="button-group">
+				<button type="button" title="Download as (*.csv)" onclick="app.save('users.php?equipment_id=' + '{{type_id}}')"><i class="material-icons">save_alt</i></button>
+			</div>
+		</header>
+		<table style="min-width:100%">
+			<thead>
+				<tr>
+					<th>User</th><th>Email</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#users}}
+					<tr>
+						<td>{{name}}</td>
+						<td>{{email}}</td>
+					</tr>
+				{{/users}}
+			</tbody>
+			{{^users}}
+				<tr><td colspan="2">No Authorized Users</td></tr>
+			{{/users}}
+		</table>
+	</section>
+	</div>
 </article>
 {{#editable}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
