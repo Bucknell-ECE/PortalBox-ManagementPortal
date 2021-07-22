@@ -19,10 +19,6 @@ use Portalbox\Transform\UserTransformer;
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
-		$include_inactive = null;
-		if(isset($_GET['include_inactive']) && !empty($_GET['include_inactive'])) {
-			$include_inactive = $_GET['include_inactive'] === 'true' ? 1 : 0;
-		}
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			$user_id = $_GET['id'];
 			// check authorization
@@ -48,80 +44,28 @@ switch($_SERVER['REQUEST_METHOD']) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
-		} elseif(isset($_GET['name']) && !empty($_GET['name'])) { // Search by name
-			$search_name = $_GET['name'];
-			
-			Session::check_authorization(Permission::LIST_USERS);
-
-			try {
-				$model = new UserModel(Config::config());
-				$query = (new UserQuery())->set_name($search_name);
-				if(!is_null($include_inactive)) {
-					$query->set_include_inactive($include_inactive);
-				}
-				$users = $model->search($query);
-				$transformer = new UserTransformer();
-				ResponseHandler::render($users, $transformer);
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the databases');
-			}
-
-		} elseif(isset($_GET['comment']) && !empty($_GET['comment'])) {
-			$search_comment = $_GET['comment'];
-
-			Session::check_authorization(Permission::LIST_USERS);
-
-			try {
-				$model = new UserModel(Config::config());
-				$query = (new UserQuery())->set_comment($search_comment);
-				if(!is_null($include_inactive)) {
-					$query->set_include_inactive($include_inactive);
-				}
-				$users = $model->search($query);
-				$transformer = new UserTransformer();
-				ResponseHandler::render($users, $transformer);
-			}	catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} elseif(isset($_GET['include_inactive']) && !empty($_GET['include_inactive'])) {
-			Session::check_authorization(Permission::LIST_USERS);
-
-			try {
-				$model = new UserModel(Config::config());
-				$query = (new UserQuery())->set_include_inactive($include_inactive);
-				$users = $model->search($query);
-				$transformer = new UserTransformer();
-				ResponseHandler::render($users, $transformer);
-			}	catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} elseif(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
-			$search_id = $_GET['equipment_id'];
-
-			Session::check_authorization(Permission::LIST_USERS);
-
-			try {
-				$model = new UserModel(Config::config());	
-				$query = (new UserQuery())->set_equipment_id($search_id);
-
-				$users = $model->search($query);
-
-				$transformer = new UserTransformer();
-				ResponseHandler::render($users, $transformer);
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
 		} else { // List
 			// check authorization
 			Session::require_authorization(Permission::LIST_USERS);
 
 			try {
 				$model = new UserModel(Config::config());
+
 				$query = new UserQuery();
+
+				if(isset($_GET['include_inactive']) && !empty($_GET['include_inactive'])) {
+					$include_inactive = $_GET['include_inactive'] === 'true' ? 1 : 0;
+					$query->set_include_inactive($include_inactive);
+				}
+				if(isset($_GET['role_id']) && !empty($_GET['role_id'])) {
+					$query->set_role_id($_GET['role_id']);
+				}
+				if(isset($_GET['name']) && !empty($_GET['name'])) {
+					$query->set_name($_GET['name']);
+				}
+				if(isset($_GET['comment']) && !empty($_GET['comment'])) {
+					$query->set_comment($_GET['comment']);
+				}
 				if(isset($_GET['email']) && !empty($_GET['email'])) {
 					$query->set_email($_GET['email']);
 				}

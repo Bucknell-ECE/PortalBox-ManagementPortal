@@ -11,15 +11,22 @@
 		</div>
 		{{/create_user_permission}}
 	</header>
+	{{#search}}
 	<form class="advanced_search" id="user_search_form" onsubmit="return false;">
 		{{#sort}}<input type="hidden" name="sort" value="{{.}}" />{{/sort}}
 		<label for="name">Search for Name:</label>
-		<input name="name" id="name" onchange="app.search_users(this.form, 'admin')" value="{{name}}" autocomplete="off" />
+		<input name="name" id="name" onchange="app.search_users(this.form)" value="{{name}}" autocomplete="off" />
 		<label for="comment">Search for Comment:</label>
-		<input name="comment" id="comment" onchange="app.search_users(this.form, 'admin')" value="{{comment}}" autocomplete="off" />
+		<input name="comment" id="comment" onchange="app.search_users(this.form)" value="{{comment}}" autocomplete="off" />
+		<label for="role_id">User Role</label>
+		<select name="role_id" id="role_id" onchange="app.search_users(this.form)" value="{{role_id}}">
+			<option></option>
+			{{#roles}}<option value={{id}}>{{name}}</option>{{/roles}}
+		</select>
 		<label for="include_inactive">Include Inactive:</label>
 		<input type="checkbox" name="include_inactive" id="include_inactive" onchange="app.search_users(this.form)" {{#search.include_inactive}}checked {{/search.include_inactive}}/>
 	</form>
+	{{/search}}
 	<table>
 		<thead>
 			<tr>

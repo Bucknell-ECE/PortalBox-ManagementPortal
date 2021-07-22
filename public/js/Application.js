@@ -324,7 +324,7 @@ class Application extends Moostaka {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.users = true;
 			this.route("/users", _ => {
-				this.list_users(null);
+				this.list_users({search: {}});
 			});
 		}
 
@@ -1149,11 +1149,24 @@ class Application extends Moostaka {
 			queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
 		}
 
-		User.list(queryString).then(users => {
+		let p0 = User.list(queryString);
+		let p1 = Role.list();
+
+		Promise.all([p0,p1]).then(values => {
+			let users = values[0];
+			let roles = values[1];
+
 			if((params !== null) && 0 < Object.keys(params).length) {
 				params.customized = true;
 			}
-			this.render("#main", "authenticated/users/list", {"users": users, "search": params, "create_user_permission": this.user.has_permission(Permission.CREATE_USER)}, {}, () => {
+			this.render("#main", "authenticated/users/list", {
+				"users": users,
+				"search": params,
+				"roles": roles,
+				"create_user_permission": this.user.has_permission(Permission.CREATE_USER)
+			}, {}, () => {
+				let element = document.getElementById("role_id");
+				this.set_dropdown_selector(element, params.role_id);
 				this.set_icon_colors(document);
 			});
 		}).catch(e => this.handleError(e));
@@ -1282,6 +1295,14 @@ class Application extends Moostaka {
 				user_id_input.style.display = "none";
 				user_selector.disabled = true;
 				user_selector.required = false;
+		}
+	}
+
+	set_dropdown_selector(element, id) {
+		for(let i = 0; i < element.length; i++) {
+			if(element[i].value == id) {
+				element[i].selected = true;
+			}
 		}
 	}
 }

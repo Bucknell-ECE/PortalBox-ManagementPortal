@@ -230,6 +230,10 @@ class UserModel extends AbstractModel {
 			$where_clause_fragments[] = 'u.is_active = :is_active';
 			$parameters[':is_active'] = 1;
 		}
+		if(NULL !== $query->role_id()) {
+			$where_clause_fragments[] = 'role_id = :role_id';
+			$parameters[':role_id'] = $query->role_id();
+		}
 		if(NULL !== $query->email()) {
 			$where_clause_fragments[] = 'email = :email';
 			$parameters[':email'] = $query->email();

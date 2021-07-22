@@ -51,6 +51,13 @@ class UserQuery {
 	protected $include_inactive;
 
 	/**
+	 * Int for role id to search by
+	 * 
+	 * @var int
+	 */
+	protected $role_id;
+
+	/**
 	 * Get the email address of the user for which to search
 	 *
 	 * @return string|null - the email address of the user for which to search
@@ -135,6 +142,15 @@ class UserQuery {
 
 	public function set_include_inactive(int $include_inactive) : self {
 		$this->include_inactive = $include_inactive;
+		return $this;
+	}
+
+	public function role_id() : ?int {
+		return $this->role_id;
+	}
+
+	public function set_role_id(int $role_id) : self {
+		$this->role_id = $role_id;
 		return $this;
 	}
 }
