@@ -838,6 +838,15 @@ class Application extends Moostaka {
 		let p3 = EquipmentType.list();
 		
 		Promise.all([p0, p1, p2, p3]).then(values => {
+			let equipment_type = null;
+			if('equipment_type_id' in search) {
+				equipment_type = values[3].filter(e => e.id == search.equipment_type_id)[0];
+			}
+
+			if(equipment_type != null) {
+				values[1] = values[1].filter(e => e.type == equipment_type.name);
+			}
+
 			this.render("#main", "authenticated/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "equipment-type": values[3], "queryString":queryString}, {}, () => {
 				//fix up selects
 				if(search.hasOwnProperty("equipment_id")) {
@@ -898,7 +907,7 @@ class Application extends Moostaka {
 				search[k] = searchParams[k];
 			}
 		}
-		
+
 		if(0 < Object.keys(search).length) {
 			this.list_log(search);
 		}

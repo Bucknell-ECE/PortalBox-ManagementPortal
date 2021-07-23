@@ -21,15 +21,15 @@
 			<option></option>
 			{{#locations}}<option value="{{id}}">{{name}}</option>{{/locations}}
 		</select>
-		<label for="equipment_id">Equipment Name:</label>
-		<select name="equipment_id" id="equipment_id" onchange="app.search_log(this.form)" />
-			<option></option>
-			{{#equipment}}<option value="{{id}}">{{name}}</option>{{/equipment}}
-		</select>
 		<label for="equipment_type">Equipment Type:</label>
 		<select name="equipment_type_id" id="equipment_type_id" onchange="app.search_log(this.form)" />
 			<option></option>
 			{{#equipment-type}}<option value="{{id}}">{{name}}</option>{{/equipment-type}}
+		</select>
+		<label for="equipment_id">Equipment Name:</label>
+		<select name="equipment_id" id="equipment_id" onchange="app.search_log(this.form)" />
+			<option></option>
+			{{#equipment}}<option value="{{id}}">{{name}}</option>{{/equipment}}
 		</select>
 	</form>{{/search}}
 	<table>
