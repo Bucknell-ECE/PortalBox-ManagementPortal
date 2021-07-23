@@ -7,24 +7,26 @@
 {{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
 <article>
 	<header>
-		<h1>Location</h1>
+		<h1>Location: {{name}}</h1>
 		<div class="button-group">
 			{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
 		</div>
 	</header>
-	<dl>
-		<dt>Name:</dt>
-		<dd>{{name}}</dd>
-		<dt>Equipment:</dt>
-		<dd>
-			{{#equipment}}
-			<ul>
-				<li><a href="/equipment/{{id}}">{{name}} ({{type}})</a></li>
-			</ul>
-			{{/equipment}}
-			{{^equipment}}No equipment is currently located here{{/equipment}}
-		</dd>
-	</dl>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Type</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#equipment}}<tr class="link" onclick="go('/equipment/{{id}}', 'Equipment');">
+				<td>{{name}}</td>
+				<td>{{type}}</td>
+			</tr>{{/equipment}}
+			{{^equipment}}<tr><td colspan="5">No equipment found. <a href="/equipment/add">Add equipment now?</a></td></tr>{{/equipment}}
+		</tbody>
+	</table>
 </article>
 {{#editable}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
