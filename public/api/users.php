@@ -69,6 +69,9 @@ switch($_SERVER['REQUEST_METHOD']) {
 				if(isset($_GET['email']) && !empty($_GET['email'])) {
 					$query->set_email($_GET['email']);
 				}
+				if(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
+					$query->set_equipment_id($_GET['equipment_id']);
+				}
 
 				$users = $model->search($query);
 				$transformer = new UserTransformer();

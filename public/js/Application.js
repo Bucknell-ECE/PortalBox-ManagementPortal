@@ -646,23 +646,24 @@ class Application extends Moostaka {
 	 * @param {bool} editable - whether to show controls for editing the equipment.
 	 */
 	read_equipment(id, editable) {
-		let p0 = Equipment.read(id);
+
 		let p1 = EquipmentType.list();
 		let p2 = Location.list();
 		let p3 = null;
-		p0.then(value => {
+		Equipment.read(id).then(value => {
 			p3 = User.list("equipment_id="+value.type_id);
+			console.log(value.type_id);
 
-			Promise.all([p0, p1, p2, p3]).then(values => {
-				let equipment = values[0];
+			Promise.all([p1, p2, p3]).then(values => {
+				let equipment = value;
 				equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
-				let authorized_users = values[3];
+				let authorized_users = values[2];
 
 				this.render("#main", "authenticated/equipment/view", {
 					"equipment": equipment,
 					"users": authorized_users,
-					"types": values[1],
-					"locations": values[2],
+					"types": values[0],
+					"locations": values[1],
 					"editable":editable}, {}, () => {
 
 					document.getElementById("type_id").value = values[0].type_id;
