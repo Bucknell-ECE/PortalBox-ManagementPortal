@@ -353,13 +353,38 @@ class Application extends Moostaka {
 						return a.ts - b.ts
 					});
 
+					let formatter = new Intl.NumberFormat('en-US', {
+						style: 'currency',
+						currency: 'USD'
+					});
+
 					let total_charges = values[1].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
 					let total_payments = values[2].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
-					let balance = Number(Math.round((total_payments - total_charges)+'e2')+'e-2');
+					let total_balance = formatter.format(Number(Math.round((total_payments - total_charges)+'e2')+'e-2'));
 					let authorized_equipment_types = values[3].filter(type => user.authorizations.includes(type.id));
-					
+
+					ledger = ledger.reduce(function(new_ledger, transaction) {
+						transaction.amount = parseFloat(transaction.amount);
+						if("charge_policy" in transaction) {
+							transaction.amount *= -1;
+						}
+						
+						if(new_ledger.length > 0) {
+							transaction.balance = new_ledger[new_ledger.length-1].balance + transaction.amount;
+						} else {
+							transaction.balance = transaction.amount;
+						}
+
+						new_ledger.push(transaction);
+						return new_ledger;
+					}, []).map((transaction) => {
+						transaction.balance = formatter.format(transaction.balance);
+						transaction.amount = formatter.format(transaction.amount);
+						return transaction;
+					});
+
 					this.render("#main", "authenticated/profile", {
-						"balance": balance,
+						"total_balance": total_balance,
 						"equipment_type": authorized_equipment_types,
 						"ledger": ledger,
 						"user": user
@@ -652,7 +677,6 @@ class Application extends Moostaka {
 		let p3 = null;
 		Equipment.read(id).then(value => {
 			p3 = User.list("equipment_id="+value.type_id);
-			console.log(value.type_id);
 
 			Promise.all([p1, p2, p3]).then(values => {
 				let equipment = value;
@@ -1080,16 +1104,36 @@ class Application extends Moostaka {
 			let equipment_types = values[1];
 			let roles = values[2].filter(role => "unauthenticated" != role.name);
 			let authorized_equipment_types = equipment_types.filter(type => user.authorizations.includes(type.id));
+
 			let total_charges = values[3].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
 			let total_payments = values[4].map(e => Number.parseFloat(e.amount)).reduce((a, c) => a + c, 0.0);
-			let balance = currency_formatter.format(total_payments - total_charges);
-			let transactions = values[3].concat(values[4]).map(e => {
+			let balance = currency_formatter.format(Number(Math.round((total_payments - total_charges)+'e2')+'e-2'));
+			let ledger = values[3].concat(values[4]).map(e => {
 				e.ts = new Date(e.time);
 				e.time = date_formatter.format(e.ts);
-				e.amount = currency_formatter.format(e.amount);
 				return e;
 			}).sort((a, b) => {
 				return a.ts - b.ts;
+			});
+
+			ledger = ledger.reduce(function(new_ledger, transaction) {
+				transaction.amount = parseFloat(transaction.amount);
+				if("charge_policy" in transaction) {
+					transaction.amount *= -1;
+				}
+				
+				if(new_ledger.length > 0) {
+					transaction.balance = new_ledger[new_ledger.length-1].balance + transaction.amount;
+				} else {
+					transaction.balance = transaction.amount;
+				}
+
+				new_ledger.push(transaction);
+				return new_ledger;
+			}, []).map((transaction) => {
+				transaction.balance = currency_formatter.format(transaction.balance);
+				transaction.amount = currency_formatter.format(transaction.amount);
+				return transaction;
 			});
 
 			this.render("#main", "authenticated/users/view", {
@@ -1097,7 +1141,7 @@ class Application extends Moostaka {
 					"equipment_types":equipment_types,
 					"roles":roles,
 					"authorized_equipment_types":authorized_equipment_types,
-					"transactions":transactions,
+					"ledger":ledger,
 					"balance":balance,
 					"editable": editable,
 					"authorizable":authorizable,

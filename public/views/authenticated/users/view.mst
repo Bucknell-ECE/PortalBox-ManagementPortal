@@ -55,15 +55,16 @@
 			</div>
 			<table style="min-width:100%" id="transaction-table">
 				<thead class="collapsible-content">
-					<tr><th>Date</th><th>Equipment</th><th>Amount</th></tr>
+					<tr><th>Date</th><th>Equipment</th><th>Amount</th><th>Balance</th></tr>
 				</thead>
 				<tbody class="collapsible-content">
-					{{#transactions}}{{#equipment_id}}<tr class="debit link" onclick="go('/charges/{{id}}', {{name}});">{{/equipment_id}}{{^equipment_id}}<tr onclick="go('/payments/{{id}}', {{name}});">{{/equipment_id}}
+					{{#ledger}}{{#equipment_id}}<tr class="debit link" onclick="go('/charges/{{id}}', {{name}});">{{/equipment_id}}{{^equipment_id}}<tr onclick="go('/payments/{{id}}', {{name}});">{{/equipment_id}}
 						<td>{{time}}</td>
 						<td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>
 						<td>{{amount}}</td>
-					</tr>{{/transactions}}
-					{{^transactions}}<tr><td colspan="3">No account activity to date</td></tr>{{/transactions}}
+						<td>{{balance}}</td>
+					</tr>{{/ledger}}
+					{{^ledger}}<tr><td colspan="3">No account activity to date</td></tr>{{/ledger}}
 				</tbody>
 				<tfoot>
 					<tr><td colspan="2" style="text-align:right">Balance:</td><td>{{balance}}</td></tr>
