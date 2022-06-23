@@ -35,5 +35,7 @@
 		</select>
 		<label for="rate">Rate:</label>
 		<input type="number" name="charge_rate" id="charge_rate" min="0.00" step="0.01" {{#charge_rate}}value="{{.}}"{{/charge_rate}}{{^charge_rate}}value="0.00"{{/charge_rate}} required />
+		<label for="allow_proxy">Allow Proxy Cards:</label>
+		<input type="checkbox" name="allow_proxy" id="allow_proxy" checked />
 	</form>
 </article>

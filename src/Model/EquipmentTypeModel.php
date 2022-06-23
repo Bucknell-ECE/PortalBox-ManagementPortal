@@ -22,13 +22,14 @@ class EquipmentTypeModel extends AbstractModel {
 	 */
 	public function create(EquipmentType $type) : ?EquipmentType {
 		$connection = $this->configuration()->writable_db_connection();
-		$sql = 'INSERT INTO equipment_types (name, requires_training, charge_rate, charge_policy_id) VALUES (:name, :requires_training, :charge_rate, :charge_policy_id)';
+		$sql = 'INSERT INTO equipment_types (name, requires_training, charge_rate, charge_policy_id, allow_proxy) VALUES (:name, :requires_training, :charge_rate, :charge_policy_id, :allow_proxy)';
 		$query = $connection->prepare($sql);
 
 		$query->bindValue(':name', $type->name());
 		$query->bindValue(':requires_training', $type->requires_training(), PDO::PARAM_BOOL);
 		$query->bindValue(':charge_rate', $type->charge_rate());
 		$query->bindValue(':charge_policy_id', $type->charge_policy_id(), PDO::PARAM_INT);
+		$query->bindValue(':allow_proxy', $type->allow_proxy(), PDO::PARAM_BOOL);
 
 		if($query->execute()) {
 			return $type->set_id($connection->lastInsertId('equipment_types_id_seq'));
@@ -46,7 +47,7 @@ class EquipmentTypeModel extends AbstractModel {
 	 */
 	public function read(int $id) : ?EquipmentType {
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT id, name, requires_training, charge_rate, charge_policy_id FROM equipment_types WHERE id = :id';
+		$sql = 'SELECT id, name, requires_training, charge_rate, charge_policy_id, allow_proxy FROM equipment_types WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
@@ -69,7 +70,7 @@ class EquipmentTypeModel extends AbstractModel {
 	 */
 	public function update(EquipmentType $type) : ?EquipmentType {
 		$connection = $this->configuration()->writable_db_connection();
-		$sql = 'UPDATE equipment_types SET name = :name, requires_training = :requires_training, charge_rate = :charge_rate, charge_policy_id = :charge_policy_id WHERE id = :id';
+		$sql = 'UPDATE equipment_types SET name = :name, requires_training = :requires_training, charge_rate = :charge_rate, charge_policy_id = :charge_policy_id, allow_proxy = :allow_proxy WHERE id = :id';
 		$query = $connection->prepare($sql);
 
 		$query->bindValue(':id', $type->id(), PDO::PARAM_INT);
@@ -77,6 +78,7 @@ class EquipmentTypeModel extends AbstractModel {
 		$query->bindValue(':requires_training', $type->requires_training(), PDO::PARAM_BOOL);
 		$query->bindValue(':charge_rate', $type->charge_rate());
 		$query->bindValue(':charge_policy_id', $type->charge_policy_id(), PDO::PARAM_INT);
+		$query->bindValue(':allow_proxy', $type->allow_proxy(), PDO::PARAM_BOOL);
 
 		if($query->execute()) {
 			return $type;
@@ -117,7 +119,7 @@ class EquipmentTypeModel extends AbstractModel {
 	public function search() : ?array {
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate FROM equipment_types ORDER BY name';
+		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate, allow_proxy FROM equipment_types ORDER BY name';
 		$statement = $connection->prepare($sql);
 		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -137,7 +139,8 @@ class EquipmentTypeModel extends AbstractModel {
 					->set_name($data['name'])
 					->set_requires_training($data['requires_training'])
 					->set_charge_rate($data['charge_rate'])
-					->set_charge_policy_id($data['charge_policy_id']);
+					->set_charge_policy_id($data['charge_policy_id'])
+					->set_allow_proxy($data['allow_proxy']);
 	}
 
 	private function buildEquipmentTypesFromArrays(array $data) : array {

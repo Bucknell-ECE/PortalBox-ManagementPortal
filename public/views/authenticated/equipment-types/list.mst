@@ -18,6 +18,7 @@
 				<th>Charge Policy</th>
 				<th>Rate</th>
 				<th>Requires Training</th>
+				<th>Allows Proxy</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -26,6 +27,7 @@
 				<td>{{charge_policy}}</td>
 				<td>{{#charge_rate}}{{.}}{{/charge_rate}}</td>
 				<td>{{#requires_training}}Yes{{/requires_training}}{{^requires_training}}No{{/requires_training}}</td>
+				<td>{{#allow_proxy}}Yes{{/allow_proxy}}{{^allow_proxy}}No{{/allow_proxy}}</td>
 			</tr>{{/types}}
 			{{^types}}<tr><td colspan="3">No equipment types found. <a href="/equipment-types/add">Add one now?</a></td></tr>{{/types}}
 		</tbody>

@@ -41,6 +41,13 @@ class EquipmentType extends AbstractEntity {
 	protected $charge_policy_id;
 
 	/**
+	 * Whether this equipment type allows proxy cards
+	 *
+	 * @var bool
+	 */
+	protected $allow_proxy;
+
+	/**
 	 * Get the name of this equipment type
 	 *
 	 * @return string - the name of the equipment type
@@ -145,4 +152,23 @@ class EquipmentType extends AbstractEntity {
 		throw new InvalidArgumentException("charge_policy_id must be one of the public constants from ChargePolicy");
 	}
 
+	/**
+	 * Get whether this equipment type allows proxy cards
+	 *
+	 * @return bool - whether this equipment type allows proxy cards
+	 */
+	public function allow_proxy() : bool {
+		return $this->allow_proxy;
+	}
+
+	/**
+	 * Set whether this equipment type allows proxy cards
+	 *
+	 * @param bool allow_proxy - whether this equipment type allows proxy cards
+	 * @return self
+	 */
+	public function set_allow_proxy(bool $allow_proxy) : self {
+		$this->allow_proxy = $allow_proxy;
+		return $this;
+	}
 }
