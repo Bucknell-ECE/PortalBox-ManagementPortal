@@ -46,7 +46,17 @@ article > header > h1, section > header > h2 {
 .crumbs li:last-of-type::after { display:none }
 
 /* tables */
-table { border-spacing:0; border-collapse:collapse; }
+@media(max-width:500px) {
+	table { 
+		border-spacing:0; 
+		border-collapse:collapse; 
+		font-size: 3vw; 
+	}
+}
+@media(min-width:501px) {
+	table { border-spacing:0; border-collapse:collapse; }
+}
+
 th, td { margin:0; padding:0.2em 0.4em; }
 th, th a {
 	background:var(--default-primary-color); color:var(--text-invert-color); text-decoration:none;
