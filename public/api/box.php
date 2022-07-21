@@ -324,13 +324,41 @@ switch($_SERVER['REQUEST_METHOD']) {
 				throw new DatabaseException($query->errorInfo()[2]);
 			}
 		}
+		elseif($_GET['mode'] == "record_ip"){
+
+			if(!(isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))){
+				http_response_code(404);
+				die('missing params needs "equiment_id". Failed at "equiment_id"');	
+			}
+			if(!(isset($_GET['ip_address']) && !empty($_GET['ip_address']))){
+				http_response_code(404);
+				die('missing params needs "ip_address". Failed at "ip_address"');	
+			}
+			
+
+
+			$sql = 'UPDATE equipment
+					SET ip_address = :ip_address
+					WHERE id = :equiment_id';
+			$query = $connection->prepare($sql);
+			$query->bindValue(':equiment_id', $_GET['equipment_id']);
+			$query->bindValue(':ip_address', $_GET['ip_address']);
+			
+			if($query->execute()) {
+				echo "Completed succesfully";
+			} else {
+				echo "Database Exception: " . $query->errorInfo()[2];
+				throw new DatabaseException($query->errorInfo()[2]);
+			}
+
+		}
 		elseif(!(isset($_GET['mode']) && !empty($_GET['mode']))){
 			http_response_code(404);
-			die('Missing "mode", options are "log_access_attempt", "log_access_completion", "log_shutdown_status", and "log_started_status"');	
+			die('Missing "mode", options are "log_access_attempt", "log_access_completion", "log_shutdown_status", "log_started_status", and "record_ip"');	
 		}
 		else{
 			http_response_code(404);
-			die('Not a valid mode, options are "log_access_attempt", "log_access_completion", "log_shutdown_status", and "log_started_status"');				
+			die('Not a valid mode, options are "log_access_attempt", "log_access_completion", "log_shutdown_status", "log_started_status", and "record_ip"');				
 		}
 		break;
 	case 'PUT':		// Create

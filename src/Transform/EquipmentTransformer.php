@@ -87,7 +87,8 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 				'timeout' => $data->timeout(),
 				'in_service' => $data->is_in_service(),
 				'in_use' => $data->is_in_use(),
-				'service_minutes' => $data->service_minutes()
+				'service_minutes' => $data->service_minutes(),
+				'ip_address' => $data->ip_address()
 			];
 		} else {
 			return [
@@ -99,7 +100,8 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 				'timeout' => $data->timeout(),
 				'in_service' => $data->is_in_service(),
 				'in_use' => $data->is_in_use(),
-				'service_minutes' => $data->service_minutes()
+				'service_minutes' => $data->service_minutes(),
+				'ip_address' => $data->ip_address()
 			];
 		}
 	}

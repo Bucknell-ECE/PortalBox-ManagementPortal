@@ -29,6 +29,8 @@
 		<dd>{{#in_service}}<i class="material-icons">check_circle_outline</i>{{/in_service}}{{^in_service}}<i class="material-icons">highlight_off</i>{{/in_service}}</dd>
 		<dt>Service Time:</dt>
 		<dd>{{service_hours}}</dd>
+		<dt>IP Address:</dt>
+		<dd>{{ip_address}}</dd>
 	</dl>
 	</section>
 	<section>

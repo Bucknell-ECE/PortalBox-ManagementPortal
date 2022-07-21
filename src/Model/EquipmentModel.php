@@ -54,12 +54,16 @@ class EquipmentModel extends AbstractModel {
 	 */
 	public function read(int $id) : ?Equipment {
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes FROM equipment AS e LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
+		
+		$sql = 'SELECT e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes, e.ip_address FROM equipment AS e LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
+			
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
+				
 				return $this->buildEquipmentFromArray($data);
+				
 			} else {
 				return null;
 			}
@@ -160,7 +164,7 @@ class EquipmentModel extends AbstractModel {
 
 		$connection = $this->configuration()->readonly_db_connection();
 
-		$sql = 'SELECT e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
+		$sql = 'SELECT e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes, e.ip_address FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
 
 		$where_clause_fragments = array();
 		$parameters = array();
@@ -215,7 +219,8 @@ class EquipmentModel extends AbstractModel {
 					->set_timeout($data['timeout'])
 					->set_is_in_service($data['in_service'])
 					->set_is_in_use($data['in_use'])
-					->set_service_minutes($data['service_minutes']);
+					->set_service_minutes($data['service_minutes'])
+					->set_ip_address($data['ip_address']);
 	}
 
 	private function buildEquipmentFromArrays(array $data) : array {

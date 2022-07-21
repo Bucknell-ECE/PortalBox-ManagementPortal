@@ -83,6 +83,13 @@ class Equipment extends AbstractEntity {
 	protected $service_minutes;
 
 	/**
+	 * The ip Address of the box 
+	 *
+	 * @var string
+	 */
+	protected $ip_address;
+
+	/**
 	 * __construct - create a new defaulted instance
 	 */
 	public function __construct() {
@@ -303,6 +310,26 @@ class Equipment extends AbstractEntity {
 	 */
 	public function set_service_minutes(int $service_minutes) : self {
 		$this->service_minutes = $service_minutes;
+		return $this;
+	}
+
+	/**
+	 * Get the ip address
+	 *
+	 * @return string|null - the ip address
+	 */
+	public function ip_address() : ?string {
+		return $this->ip_address;
+	}
+
+	/**
+	 * Set the ip address
+	 *
+	 * @param string|null ip_address - the ip address
+	 * @return self
+	 */
+	public function set_ip_address(?string $ip_address) : self {
+		$this->ip_address = $ip_address;
 		return $this;
 	}
 

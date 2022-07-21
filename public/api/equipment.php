@@ -20,9 +20,10 @@ use Portalbox\Transform\EquipmentTransformer;
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
+			
 			// check authorization
 			Session::require_authorization(Permission::READ_EQUIPMENT);
-
+			
 			try {
 				$model = new EquipmentModel(Config::config());
 				$equipment = $model->read($_GET['id']);
@@ -37,6 +38,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 				http_response_code(500);
 				die('We experienced issues communicating with the database');
 			}
+			
 		} else { // List
 			// no authorization check as unauthenticated users may use
 
