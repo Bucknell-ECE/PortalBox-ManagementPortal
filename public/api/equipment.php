@@ -75,8 +75,8 @@ switch($_SERVER['REQUEST_METHOD']) {
 
 		// check authorization
 		Session::require_authorization(Permission::MODIFY_EQUIPMENT);
-
 		$data = json_decode(file_get_contents('php://input'), TRUE);
+
 		if(NULL !== $data) {
 			try {
 				$transformer = new EquipmentTransformer();

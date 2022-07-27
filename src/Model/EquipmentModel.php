@@ -84,6 +84,7 @@ class EquipmentModel extends AbstractModel {
 		$sql = 'UPDATE equipment SET name = :name, type_id = :type_id, mac_address = :mac_address, location_id = :location_id, timeout = :timeout, in_service = :in_service, service_minutes = :service_minutes WHERE id = :id';
 		$query = $connection->prepare($sql);
 
+
 		$query->bindValue(':id', $equipment->id(), PDO::PARAM_INT);
 		$query->bindValue(':name', $equipment->name());
 		$query->bindValue(':type_id', $equipment->type_id(), PDO::PARAM_INT);

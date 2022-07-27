@@ -687,11 +687,16 @@ class Application extends Moostaka {
 					"equipment": equipment,
 					"users": authorized_users,
 					"types": values[0],
+					"default_type" : values[0].find(type => type.id == value.type_id).name,
 					"locations": values[1],
+					"default_location" : values[1].find(location => location.id == value.location_id).name,
+					
 					"editable":editable}, {}, () => {
 
-					document.getElementById("type_id").value = values[0].type_id;
-					document.getElementById("location_id").value = values[0].location_id;
+					// Commented out since they were preventing a default value from being shown
+					// document.getElementById("type_id").value = values[0].type_id;
+					// document.getElementById("location_id").value = values[0].location_id;
+					
 					document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e, equipment); });
 
 					this.set_icon_colors(document);
@@ -710,6 +715,7 @@ class Application extends Moostaka {
 	update_equipment(id, event) {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
+		
 
 		Equipment.list().then(equipment_list => {
 			equipment_list = equipment_list.filter((equipment) => (equipment.id != id));

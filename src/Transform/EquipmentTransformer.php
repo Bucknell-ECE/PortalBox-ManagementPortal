@@ -61,7 +61,8 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 			->set_location($location)
 			->set_mac_address($data['mac_address'])
 			->set_timeout($data['timeout'])
-			->set_is_in_service($data['in_service']);
+			->set_is_in_service($data['in_service'])
+			->set_service_minutes($data["service_minutes"]);
 	}
 
 	/**
