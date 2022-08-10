@@ -37,12 +37,17 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 		if(!array_key_exists('charge_rate', $data)) {
 			throw new InvalidArgumentException('\'charge_rate\' is a required field');
 		}
+		if(!array_key_exists('allow_proxy', $data)) {
+			throw new InvalidArgumentException('\'allow_proxy\' is a required field');
+		}
+
 
 		return (new EquipmentType())
 			->set_name(htmlspecialchars($data['name']))
 			->set_requires_training($data['requires_training'])
 			->set_charge_rate($data['charge_rate'])
-			->set_charge_policy_id($data['charge_policy_id']);
+			->set_charge_policy_id($data['charge_policy_id'])
+			->set_allow_proxy($data['allow_proxy']);
 	}
 
 	/**
@@ -63,7 +68,8 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 				'requires_training' => $data->requires_training(),
 				'charge_rate' => $data->charge_rate(),
 				'charge_policy_id' => $data->charge_policy_id(),
-				'charge_policy' => $data->charge_policy()
+				'charge_policy' => $data->charge_policy(),
+				'allow_proxy' => $data->allow_proxy()
 			];
 		} else {
 			return [
@@ -71,7 +77,8 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 				'name' => $data->name(),
 				'requires_training' => $data->requires_training(),
 				'charge_rate' => $data->charge_rate(),
-				'charge_policy' => $data->charge_policy()
+				'charge_policy' => $data->charge_policy(),
+				'allow_proxy' => $data->allow_proxy()
 			];
 		}
 	}
@@ -84,6 +91,6 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {
-		return ['id', 'Name', 'Requires Training', 'Charge Rate', 'Charge Policy'];
+		return ['id', 'Name', 'Requires Training', 'Charge Rate', 'Charge Policy', "Allow Proxy"];
 	}
 }

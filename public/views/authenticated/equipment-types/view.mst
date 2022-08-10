@@ -23,6 +23,8 @@
 			<dd>{{charge_policy}}</dd>
 			{{#charge_rate}}<dt>Rate:</dt>
 			<dd>{{.}}</dd>{{/charge_rate}}
+			<dt>Allows Proxy:</dt>
+			<dd>{{#allow_proxy}}Yes{{/allow_proxy}}{{^allow_proxy}}No{{/allow_proxy}}</dd>
 		</dl>
 	</section>
 	<section>
@@ -87,6 +89,8 @@
 		</select>
 		<label for="rate">Rate:</label>
 		<input type="number" name="charge_rate" id="charge_rate" min="0.00" step="0.01"{{#charge_rate}} value="{{.}}"{{/charge_rate}} />
+		<label for="allow_proxy">Allow Proxy Cards:</label>
+		<input type="checkbox" name="allow_proxy" id="allow_proxy"{{#allow_proxy}} checked{{/allow_proxy}}/>
 	</form>
 </article>
 {{/editable}}

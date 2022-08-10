@@ -29,6 +29,8 @@
 		<dd>{{#in_service}}<i class="material-icons">check_circle_outline</i>{{/in_service}}{{^in_service}}<i class="material-icons">highlight_off</i>{{/in_service}}</dd>
 		<dt>Service Time:</dt>
 		<dd>{{service_hours}}</dd>
+		<dt>IP Address:</dt>
+		<dd>{{ip_address}}</dd>
 	</dl>
 	</section>
 	<section>
@@ -76,16 +78,17 @@
 		<input type="text" name="mac_address" id="mac_address" pattern="^[A-Fa-f0-9]{12}$" value="{{mac_address}}" required />
 		<label for="type_id">Type:</label>
 		<select name="type_id" id="type_id" required />
-			<option></option>
+			<option selected hidden value = "{{type_id}}">{{default_type}}</option>
 			{{#types}}<option value="{{id}}">{{name}}</option>{{/types}}
 		</select>
 		<label for="location_id">Location:</label>
 		<select name="location_id" id="location_id" required />
-			<option></option>
+			<option selected hidden value = "{{location_id}}">{{default_location}}</option>
 			{{#locations}}<option value="{{id}}">{{name}}</option>{{/locations}}
 		</select>
 		<label for="timeout">Time out:</label>
 		<input type="number" name="timeout" id="timeout" min="0" value="{{timeout}}" />
+
 		<div class="help">
 			<label for="equipment-timeout-help-toggle">
 				<i class="material-icons">help</i>
@@ -98,6 +101,9 @@
 				</div>
 			</div>
 		</div>
+		<label for="service_minutes">Service Time(minutes):</label>
+		<input type="number" name="service_minutes" id="service_minutes" min="0" value="{{service_minutes}}" />
+
 		<label for="in_service">In service:</label>
 		<input type="checkbox" name="in_service" id="in_service" {{#in_service}}checked {{/in_service}}/>
 	</form>

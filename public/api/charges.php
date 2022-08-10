@@ -18,6 +18,8 @@ use Portalbox\Transform\ChargeTransformer;
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
+			// echo "test";
+			
 			Session::require_authorization(Permission::READ_CHARGE);
 
 			try {
@@ -49,14 +51,17 @@ switch($_SERVER['REQUEST_METHOD']) {
 			try {
 				$model = new ChargeModel(Config::config());
 				$query = new ChargeQuery();
+				
 				if(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
 					$query->set_equipment_id($_GET['equipment_id']);
 				}
+				
 				if(NULL !== $user_id) {
 					$query->set_user_id($user_id);
 				} else if(isset($_GET['user_id']) && !empty($_GET['user_id'])) {
 					$query->set_user_id($_GET['user_id']);
 				}
+				
 				if(isset($_GET['after']) && !empty($_GET['after'])) {
 					$query->set_on_or_after($_GET['after']);
 				}

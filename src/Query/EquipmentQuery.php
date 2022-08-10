@@ -122,4 +122,24 @@ class EquipmentQuery {
 		$this->location_id = $location_id;
 		return $this;
 	}
+
+		/**
+	 * Get the ip address
+	 *
+	 * @return string|null - the ip address
+	 */
+	public function ip_address() : ?string {
+		return $this->ip_address;
+	}
+
+	/**
+	 * Set the ip address
+	 *
+	 * @param string|null ip_address - the ip address
+	 * @return self
+	 */
+	public function set_ip_address(?string $ip_address) : self {
+		$this->ip_address = $ip_address;
+		return $this;
+	}
 }

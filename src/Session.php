@@ -6,7 +6,7 @@ use Portalbox\Entity\User;
 use Portalbox\Model\Entity\User as PDOAwareUser;
 use Portalbox\Model\APIKeyModel;
 use Portalbox\Model\UserModel;
-use Portalbox\Queries\APIKeyQuery;
+use Portalbox\Query\APIKeyQuery;
 
 /**
  * Session by nature is a weird singleton that manifests a part of the request
@@ -28,17 +28,22 @@ class Session {
 	 */
 	public static function get_authenticated_user() : ?User {
 		if(!self::$authenticated_user) {
+			
 			$config = Config::config();
-
+			
 			// Check for Brearer token
 			if(array_key_exists('HTTP_AUTHORIZATION', $_SERVER) &&
 				8 < strlen($_SERVER['HTTP_AUTHORIZATION']) &&
 				0 == strcmp('Bearer ', substr($_SERVER['HTTP_AUTHORIZATION'], 0 , 7))) {
 				$token = substr($_SERVER['HTTP_AUTHORIZATION'], 7);
+				
 
 				$model = new APIKeyModel($config);
+				
 				$query = (new APIKeyQuery)->set_token($token);
+				
 				$keys = $model->search($query);
+				
 				if($keys && 0 < count($keys)) {
 					// get key 0 and construct a fake user for it.
 					self::$authenticated_user = (new PDOAwareUser($config))
@@ -51,7 +56,7 @@ class Session {
 					return self::$authenticated_user;
 				}
 			}
-
+			
 			// Check for cookie based session 
 			if(PHP_SESSION_ACTIVE !== session_status()) {
 				$success = session_start();
