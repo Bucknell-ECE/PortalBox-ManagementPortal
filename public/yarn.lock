@@ -7,10 +7,10 @@ file-saver@^2.0.2:
   resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-2.0.2.tgz#06d6e728a9ea2df2cce2f8d9e84dfcdc338ec17a"
   integrity sha512-Wz3c3XQ5xroCxd1G8b7yL0Ehkf0TC9oYC6buPFkNnU9EnaPlifeAFCyCh+iewXTyFRcg0a6j3J7FmJsIhlhBdw==
 
-hellojs@^1.18.1:
-  version "1.18.4"
-  resolved "https://registry.yarnpkg.com/hellojs/-/hellojs-1.18.4.tgz#0bfb2df0d3aefb674a512ec869ccb23199bdb4d4"
-  integrity sha512-h9s7cYE5TlojfgPtdMDXWAyYInQuBCC21jL9TwJGY3NN6wYOw4B83NrEC4p+R015kndQAqZamWe/VolOaQrLeQ==
+hellojs@^1.18.8:
+  version "1.18.8"
+  resolved "https://registry.yarnpkg.com/hellojs/-/hellojs-1.18.8.tgz#5149f90a78f2498697da8c7797dc4c1cc457b82a"
+  integrity sha512-XVNqU+p9APQkiRbjgrhVtGtw/zb4Ya+5JTfIN0opYWv8TbE/vV8y1ACob9IQnbksEdLJ6ruXRBLZ4/dvT3Ptqg==
 
 "moostaka@https://github.com/bu-tegan/moostaka.git#tegan-devel":
   version "1.0.2"
