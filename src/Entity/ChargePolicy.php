@@ -7,9 +7,9 @@ use ReflectionClass;
 /**
  * ChargePolicy represents how the equipment type charge rate in turned into a
  * charge when an activation session ends... as a stored procedure in the
- * database does the calculation, ChargePolicies occupy a privleged role
+ * database does the calculation, ChargePolicies occupy a privileged role
  * and are difficult to change so they are predefined
- * 
+ *
  * @package Portalbox\Entity
  */
 class ChargePolicy {
@@ -52,7 +52,7 @@ class ChargePolicy {
 
 	/**
 	 * Get the name for the charge policy
-	 * 
+	 *
 	 * @param int policy_id - the policy id to check
 	 * @return string - name for the charge policy
 	 */

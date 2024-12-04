@@ -11,7 +11,7 @@ final class LoggedEventTest extends TestCase {
 	public function testAgreement(): void {
 		$id = 981726354;
 		$time = '2020-05-10 09:54:12';
-		$type_id = LoggedEventType::SUCESSFUL_AUTHENTICATION;
+		$type_id = LoggedEventType::SUCCESSFUL_AUTHENTICATION;
 		$equipment_id = 42;
 		// $equipment = ???;
 		$card_id = 1234;
