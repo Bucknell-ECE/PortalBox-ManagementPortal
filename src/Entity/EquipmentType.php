@@ -3,11 +3,10 @@
 namespace Portalbox\Entity;
 
 use InvalidArgumentException;
-use ReflectionClass;
 
 /**
  * Equipment Type binds policy to equipment of the same type
- * 
+ *
  * @package Portalbox\Entity
  */
 class EquipmentType extends AbstractEntity {
@@ -36,7 +35,7 @@ class EquipmentType extends AbstractEntity {
 	/**
 	 * The id of the Charge policy for this equipment type
 	 *
-	 * @var 
+	 * @var
 	 */
 	protected $charge_policy_id;
 
@@ -148,7 +147,7 @@ class EquipmentType extends AbstractEntity {
 			$this->charge_policy_id = $charge_policy_id;
 			return $this;
 		}
-		
+
 		throw new InvalidArgumentException("charge_policy_id must be one of the public constants from ChargePolicy");
 	}
 

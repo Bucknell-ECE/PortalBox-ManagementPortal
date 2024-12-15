@@ -55,7 +55,8 @@ final class EquipmentTransformerTest extends TestCase {
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_rate($charge_rate)
-			->set_charge_policy_id($charge_policy_id);
+			->set_charge_policy_id($charge_policy_id)
+			->set_allow_proxy(false);
 
 		self::$type = $model->create($type);
 	}
@@ -70,6 +71,8 @@ final class EquipmentTransformerTest extends TestCase {
 		// deprovision location from the db
 		$model = new LocationModel($config);
 		$model->delete(self::$location->id());
+
+		parent::tearDownAfterClass();
 	}
 
 	public function testDeserialize(): void {
@@ -83,7 +86,9 @@ final class EquipmentTransformerTest extends TestCase {
 		$timeout = 240;
 		$in_service = true;
 		$in_use = false;
+		$service_minutes = 58;
 
+		// test without optional service_minutes
 		$data = [
 			'id' => $id,
 			'name' => $name,
@@ -104,6 +109,31 @@ final class EquipmentTransformerTest extends TestCase {
 		self::assertEquals($mac_address, $equipment->mac_address());
 		self::assertEquals($timeout, $equipment->timeout());
 		self::assertEquals($in_service, $equipment->is_in_service());
+		self::assertEquals(0, $equipment->service_minutes());
+
+		// test with optional service_minutes
+		$data = [
+			'id' => $id,
+			'name' => $name,
+			'type_id' => $type_id,
+			'location_id' => $location_id,
+			'mac_address' => $mac_address,
+			'timeout' => $timeout,
+			'in_service' => $in_service,
+			'in_use' => $in_use,
+			'service_minutes' => $service_minutes
+		];
+
+		$equipment = $transformer->deserialize($data);
+
+		self::assertNotNull($equipment);
+		self::assertNull($equipment->id());
+		self::assertEquals($type_id, $equipment->type_id());
+		self::assertEquals($location_id, $equipment->location_id());
+		self::assertEquals($mac_address, $equipment->mac_address());
+		self::assertEquals($timeout, $equipment->timeout());
+		self::assertEquals($in_service, $equipment->is_in_service());
+		self::assertEquals($service_minutes, $equipment->service_minutes());
 	}
 
 	public function testDeserializeInvalidDataName(): void {

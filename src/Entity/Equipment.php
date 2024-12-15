@@ -6,7 +6,7 @@ use InvalidArgumentException;
 
 /**
  * Equipment represents a machine connected to a Portalbox.
- * 
+ *
  * @package Portalbox\Entity
  */
 class Equipment extends AbstractEntity {
@@ -56,7 +56,7 @@ class Equipment extends AbstractEntity {
 	/**
 	 * The default maximum duration of an activation session for this
 	 * equipment in seconds
-	 * 
+	 *
 	 * @var int
 	 */
 	protected $timeout;
@@ -83,9 +83,9 @@ class Equipment extends AbstractEntity {
 	protected $service_minutes;
 
 	/**
-	 * The ip Address of the box 
+	 * The ip Address of the box
 	 *
-	 * @var string
+	 * @var ?string
 	 */
 	protected $ip_address;
 
@@ -94,6 +94,7 @@ class Equipment extends AbstractEntity {
 	 */
 	public function __construct() {
 		$this->set_service_minutes(0);
+		$this->set_ip_address(null);
 	}
 
 	/**

@@ -38,6 +38,9 @@ final class EquipmentTest extends TestCase {
 		$is_in_use = false;
 		$service_minutes = 500;
 
+		// nullables
+		$ip_address = '172.0.0.1';
+
 		$equipment = (new Equipment())
 			->set_id($id)
 			->set_name($name)
@@ -60,5 +63,9 @@ final class EquipmentTest extends TestCase {
 		self::assertEquals($is_in_service, $equipment->is_in_service());
 		self::assertEquals($is_in_use, $equipment->is_in_use());
 		self::assertEquals($service_minutes, $equipment->service_minutes());
+		self::assertNull($equipment->ip_address());
+
+		$equipment->set_ip_address($ip_address);
+		self::assertEquals($ip_address, $equipment->ip_address());
 	}
 }

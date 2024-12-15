@@ -2,8 +2,6 @@
 
 namespace Portalbox\Entity;
 
-use ReflectionClass;
-
 /**
  * ChargePolicy represents how the equipment type charge rate in turned into a
  * charge when an activation session ends... as a stored procedure in the
@@ -41,8 +39,13 @@ class ChargePolicy {
 	 * @param int policy_id - the policy id to check
 	 * @return bool - true iff the policy id is valid
 	 */
-	public static function is_valid(int $policy_id) {
-		$valid_values = array_values((new ReflectionClass(get_class()))->getConstants());
+	public static function is_valid(int $policy_id): bool {
+		$valid_values = [
+			self::MANUALLY_ADJUSTED,
+			self::NO_CHARGE,
+			self::PER_USE,
+			self::PER_MINUTE
+		];
 		if(in_array($policy_id, $valid_values)) {
 			return true;
 		}

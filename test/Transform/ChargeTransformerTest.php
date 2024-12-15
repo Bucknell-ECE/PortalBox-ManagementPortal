@@ -93,7 +93,8 @@ final class ChargeTransformerTest extends TestCase {
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_policy_id($charge_policy_id)
-			->set_charge_rate('2.00');
+			->set_charge_rate('2.00')
+			->set_allow_proxy(false);
 
 		self::$type = $model->create($type);
 
@@ -136,6 +137,8 @@ final class ChargeTransformerTest extends TestCase {
 		// deprovision an equipment type in the db
 		$model = new EquipmentTypeModel($config);
 		$model->delete(self::$type->id());
+
+		parent::tearDownAfterClass();
 	}
 
 	public function testDeserialize(): void {

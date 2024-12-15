@@ -5,15 +5,24 @@ namespace Portalbox\Entity;
 /**
  * Cards come in a number of types and when presented to a portalbox, the
  * portalbox shutsdown when presented with cards of this type.
- * 
+ *
  * @package Portalbox\Entity
  */
 class UserCard extends AbstractEntity implements Card {
 
 	/**
 	 * The id of the user this card was issued to
+	 *
+	 * @var int
 	 */
 	private $user_id;
+
+	/**
+	 * The user this card was issued to
+	 *
+	 * @var User|null
+	 */
+	private $user = null;
 
 	/**
 	 * Get the type of the card

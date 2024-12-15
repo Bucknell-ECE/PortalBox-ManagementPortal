@@ -4,37 +4,37 @@ namespace Portalbox\Query;
 
 /**
  * ChargeQuery presents a standard interface for Charge search queries
- * 
+ *
  * @package Portalbox\Query
  */
 class ChargeQuery {
 	/**
 	 * Find charges on or before this date
 	 *
-	 * @var string
+	 * @var ?string
 	 */
-	protected $on_or_before;
+	protected $on_or_before = null;
 
 	/**
 	 * Find charges on or before this date
 	 *
-	 * @var string
+	 * @var ?string
 	 */
-	protected $on_or_after;
+	protected $on_or_after = null;
 
 	/**
 	 * Find charges for this equipment
 	 *
-	 * @var int
+	 * @var ?int
 	 */
-	protected $equipment_id;
+	protected $equipment_id = null;
 
 	/**
 	 * Find charges for this user
 	 *
-	 * @var int
+	 * @var ?int
 	 */
-	protected $user_id;
+	protected $user_id = null;
 
 
 	/**

@@ -5,7 +5,7 @@ namespace Portalbox\Entity;
 /**
  * Payment represents a payment made by the user to the operator of the
  * portalbox network
- * 
+ *
  * @package Portalbox\Entity
  */
 class Payment extends AbstractEntity {
@@ -30,6 +30,13 @@ class Payment extends AbstractEntity {
 	 * @var string
 	 */
 	protected $time;
+
+	/**
+	 * The user who made this payment
+	 *
+	 * @var User|null
+	 */
+	private $user = null;
 
 	/**
 	 * Get the id of the user who paid

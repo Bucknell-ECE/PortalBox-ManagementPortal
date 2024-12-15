@@ -26,7 +26,7 @@ final class PaymentModelTest extends TestCase {
 	private static $config;
 
 	public static function setUpBeforeClass(): void {
-		parent::setUp();
+		parent::setUpBeforeClass();
 		self::$config = Config::config();
 
 		$model = new UserModel(self::$config);
@@ -54,6 +54,8 @@ final class PaymentModelTest extends TestCase {
 	public static function tearDownAfterClass() : void {
 		$model = new UserModel(self::$config);
 		$model->delete(self::$user->id());
+
+		parent::tearDownAfterClass();
 	}
 
 	public function testModel(): void {

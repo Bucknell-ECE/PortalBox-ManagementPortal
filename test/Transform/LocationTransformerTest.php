@@ -24,7 +24,7 @@ final class LocationTransformerTest extends TestCase {
 
 		self::assertNotNull($location);
 		self::assertNull($location->id());
-		self::assertEquals($name, $location->name());
+		self::assertEquals(htmlspecialchars($name), $location->name());
 	}
 
 	public function testDeserializeInvalidDataUserID(): void {

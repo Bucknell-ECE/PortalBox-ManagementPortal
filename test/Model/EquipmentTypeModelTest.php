@@ -17,12 +17,14 @@ final class EquipmentTypeModelTest extends TestCase {
 		$requires_training = TRUE;
 		$charge_rate = "0.01";
 		$charge_policy_id = ChargePolicy::PER_MINUTE;
+		$allow_proxy = true;
 
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_rate($charge_rate)
-			->set_charge_policy_id($charge_policy_id);
+			->set_charge_policy_id($charge_policy_id)
+			->set_allow_proxy($allow_proxy);
 
 		$type_as_created = $model->create($type);
 
@@ -32,6 +34,7 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($requires_training, $type_as_created->requires_training());
 		self::assertEquals($charge_rate, $type_as_created->charge_rate());
 		self::assertEquals($charge_policy_id, $type_as_created->charge_policy_id());
+		self::assertEquals($allow_proxy, $type_as_created->allow_proxy());
 
 		$type_as_found = $model->read($type_id);
 
@@ -41,17 +44,20 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($requires_training, $type_as_found->requires_training());
 		self::assertEquals($charge_rate, $type_as_found->charge_rate());
 		self::assertEquals($charge_policy_id, $type_as_found->charge_policy_id());
+		self::assertEquals($allow_proxy, $type_as_found->allow_proxy());
 
 		$name = '3D Clay Printer';
 		$requires_training = FALSE;
 		$charge_rate = '2.50';
 		$charge_policy_id = ChargePolicy::PER_USE;
+		$allow_proxy = false;
 
 		$type_as_found
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_rate($charge_rate)
-			->set_charge_policy_id($charge_policy_id);
+			->set_charge_policy_id($charge_policy_id)
+			->set_allow_proxy($allow_proxy);
 
 		$type_as_modified = $model->update($type_as_found);
 
@@ -61,6 +67,7 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($requires_training, $type_as_modified->requires_training());
 		self::assertEquals($charge_rate, $type_as_modified->charge_rate());
 		self::assertEquals($charge_policy_id, $type_as_modified->charge_policy_id());
+		self::assertEquals($allow_proxy, $type_as_modified->allow_proxy());
 
 		$types_as_found = $model->search();
 		self::assertIsArray($types_as_found);
@@ -75,9 +82,8 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($requires_training, $type_as_deleted->requires_training());
 		self::assertEquals($charge_rate, $type_as_deleted->charge_rate());
 		self::assertEquals($charge_policy_id, $type_as_deleted->charge_policy_id());
+		self::assertEquals($allow_proxy, $type_as_deleted->allow_proxy());
 
-		$type_as_not_found = $model->read($type_id);
-
-		self::assertNull($type_as_not_found);
+		self::assertNull($model->read($type_id));
 	}
 }

@@ -15,7 +15,7 @@ use PDO;
 
 /**
  * ChargeModel is our bridge between the database and higher level Entities.
- * 
+ *
  * @package Portalbox\Model
  */
 class ChargeModel extends AbstractModel {
@@ -98,7 +98,7 @@ class ChargeModel extends AbstractModel {
 	}
 
 	/**
-	 * Delete a charge secified by its unique ID
+	 * Delete a charge specified by its unique ID
 	 *
 	 * @param int id - the unique id of the charge
 	 * @throws DatabaseException - when the database can not be queried
@@ -122,7 +122,7 @@ class ChargeModel extends AbstractModel {
 
 	/**
 	 * Search for Charges
-	 * 
+	 *
 	 * @param ChargeQuery query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge[]|null - a list of charges which match the search query
@@ -132,30 +132,35 @@ class ChargeModel extends AbstractModel {
 			// no query... bail
 			return NULL;
 		}
-		
 
 		$connection = $this->configuration()->readonly_db_connection();
-		
-		$sql = 'SELECT c.id, c.user_id, u.name AS user_name, c.equipment_id, e.name AS equipment_name, c.time, c.amount, c.charge_policy_id, c.charge_rate, c.charged_time FROM charges AS c INNER JOIN equipment as e ON e.id = c.equipment_id INNER JOIN users AS u on u.id = c.user_id';
-		
+
+		$sql = <<<EOQ
+		SELECT
+			c.id, c.user_id, u.name AS user_name, c.equipment_id, e.name AS equipment_name, c.time, c.amount, c.charge_policy_id, c.charge_rate, c.charged_time
+		FROM charges AS c
+		INNER JOIN equipment as e ON e.id = c.equipment_id
+		INNER JOIN users AS u on u.id = c.user_id
+		EOQ;
+
 		$where_clause_fragments = array();
 		$parameters = array();
-		
-		if($query->equipment_id()) {
-			$where_clause_elements[] = 'c.equipment_id = :equipment_id';
+
+		if(NULL !== $query->equipment_id()) {
+			$where_clause_fragments[] = 'c.equipment_id = :equipment_id';
 			$parameters[':equipment_id'] = $query->equipment_id();
 		}
 		if(NULL !== $query->user_id()) {
 			$where_clause_fragments[] = 'c.user_id = :user_id';
 			$parameters[':user_id'] = $query->user_id();
 		}
-		
-		if($query->on_or_after()) {
-			$where_clause_elements[] = 'c.time >= :after';
+
+		if(NULL !== $query->on_or_after()) {
+			$where_clause_fragments[] = 'c.time >= :after';
 			$parameters[':after'] = $query->on_or_after();
 		}
-		if($query->on_or_before()) {
-			$where_clause_elements[] = 'c.time <= :before';
+		if(NULL !== $query->on_or_before()) {
+			$where_clause_fragments[] = 'c.time <= :before';
 			$parameters[':before'] = $query->on_or_before();
 		}
 		if(0 < count($where_clause_fragments)) {
@@ -169,21 +174,21 @@ class ChargeModel extends AbstractModel {
 		foreach($parameters as $k => $v) {
 			$statement->bindValue($k, $v);
 		}
-		
+
 
 		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			
+
 			if(FALSE !== $data) {
-				
+
 				return $this->buildChargesFromArrays($data);
-				
+
 			} else {
-				
+
 				return null;
 			}
 		} else {
-			
+
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
 	}
@@ -201,7 +206,7 @@ class ChargeModel extends AbstractModel {
 	}
 
 	private function buildChargesFromArrays(array $data) : array {
-		
+
 		$charges = [];
 		$machines = [];
 		$users = [];
@@ -210,7 +215,7 @@ class ChargeModel extends AbstractModel {
 		$u_model = new UserModel($this->Configuration());
 
 		$e_query = new EquipmentQuery();
-		$e_query->set_include_out_of_service(true);	
+		$e_query->set_include_out_of_service(true);
 		$u_query = new UserQuery();
 		$u_query->set_include_inactive(TRUE);
 
@@ -228,25 +233,25 @@ class ChargeModel extends AbstractModel {
 			// echo $charge->equipment_id() . "<br>";
 			// $x += 1;
 			$e_id = $charge->equipment_id();
-			
+
 			$machine = array_filter($machines,
 				function ($e) use ($e_id) {
 					return $e->id() == $e_id;
 				});
-				
+
 			// echo array_pop($machine)->id();
 			$charge->set_equipment(array_pop($machine));
-			
+
 			$u_id = $charge->user_id();
 
 			$user = array_filter($users,
 				function ($e) use ($u_id) {
 					return $e->id() == $u_id;
 				});
-				
+
 			$charge->set_user(array_pop($user));
 		}
-		
+
 		return $charges;
 	}
 }
