@@ -35,7 +35,7 @@ Occasionally, it may be necessary to provide a helper function for PHP. We suppo
 
 ## Installation
 1) Clone this repository somewhere convenient. This will henceforth be referred to as ${PROJECT_DIRECTORY}.
-2) Install the dependancies
+2) Install the dependencies
 	Using yarn (https://yarnpkg.com):
 
 	```sh
@@ -68,7 +68,7 @@ php -S localhost:8000
 You should then be able to use the requests available in the included [Postman](https://www.postman.com/) collection, see `documentation/api.postman_collection.json`, after setting reasonable collection variable values to test the API.
 
 ### Live Testing
-Various OAuth2 providers restrict the "redirect" URL to be a public URL. With these OAuth2 providers you may be able to test locally by adding an alias for your local machine to a nonexistant domain or subdomain of your domain in your `/etc/hosts` file and enter that same nonexistant domain/subdomain as an authorized redirect URI for your OAuth Client ID credential. E.g.
+Various OAuth2 providers restrict the "redirect" URL to be a public URL. With these OAuth2 providers you may be able to test locally by adding an alias for your local machine to a nonexistent domain or subdomain of your domain in your `/etc/hosts` file and enter that same nonexistent domain/subdomain as an authorized redirect URI for your OAuth Client ID credential. E.g.
 
 ```
 sudo echo "127.0.0.1	dev.bucknell.edu" >> /ect/hosts
@@ -79,7 +79,7 @@ php -S localhost:8000
 provided your API token has a redirect URL of: dev.bucknell.edu:8000
 
 ## Security
-You should take care to prevent the contents of the `config` directory from being publically accessible. Should you discover a security issue please send us an email: mlampart at bucknell dot edu and tom at tomegan dot tech. We will do our best to work with you to resolve the issue and credit you *or* create a pull request with a solution. Be aware we are volunteers and may not be able to respond immediately.
+You should take care to prevent the contents of the `config` directory from being publicly accessible. Should you discover a security issue please send us an email: mlampart at bucknell dot edu and tom at tomegan dot tech. We will do our best to work with you to resolve the issue and credit you *or* create a pull request with a solution. Be aware we are volunteers and may not be able to respond immediately.
 
 ## Author
 

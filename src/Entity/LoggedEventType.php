@@ -6,7 +6,7 @@ use ReflectionClass;
 
 /**
  * LoggedEventType represents the type of a log event.
- * 
+ *
  * @package Portalbox\Entity
  */
 class LoggedEventType {
@@ -14,14 +14,14 @@ class LoggedEventType {
 	 * A card was presented but misread, not in the system, or was assigned to
 	 * a user who did not have permission to use the equipment
 	 */
-	const UNSUCESSFUL_AUTHENTICATION = 1;
+	const UNSUCCESSFUL_AUTHENTICATION = 1;
 
 	/**
 	 * A user or training card activated the equipment
 	 */
-	const SUCESSFUL_AUTHENTICATION = 2;
+	const SUCCESSFUL_AUTHENTICATION = 2;
 
-	/** 
+	/**
 	 * The card keeping a portalbox activated was removed, not returned or
 	 * replaced with a proxy card thus the portalbox service ended the
 	 * equipment activation
@@ -56,14 +56,14 @@ class LoggedEventType {
 
 	/**
 	 * Get the name for the event type
-	 * 
+	 *
 	 * @param int type_id - the policy id to check
 	 * @return string - name for the event type
 	 */
 	public static function name_for_type(int $type_id) : string {
 		switch($type_id) {
-			case self::UNSUCESSFUL_AUTHENTICATION: return 'Failed Authentication';
-			case self::SUCESSFUL_AUTHENTICATION: return 'Activation Session Begun';
+			case self::UNSUCCESSFUL_AUTHENTICATION: return 'Failed Authentication';
+			case self::SUCCESSFUL_AUTHENTICATION: return 'Activation Session Begun';
 			case self::DEAUTHENTICATION: return 'Activation Session Ended';
 			case self::STARTUP_COMPLETE: return 'Startup Complete';
 			case self::PLANNED_SHUTDOWN: return 'Planned Shutdown';

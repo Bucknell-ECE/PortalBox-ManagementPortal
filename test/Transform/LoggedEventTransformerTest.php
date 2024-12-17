@@ -145,7 +145,7 @@ final class LoggedEventTransformerTest extends TestCase {
 		$id = 42;
 		$time = '2020-05-31 10:46:34';
 		$card_id = 1928376451092837465;
-		$type_id = LoggedEventType::SUCESSFUL_AUTHENTICATION;
+		$type_id = LoggedEventType::SUCCESSFUL_AUTHENTICATION;
 
 		$event = (new LoggedEvent())
 			->set_id($id)
