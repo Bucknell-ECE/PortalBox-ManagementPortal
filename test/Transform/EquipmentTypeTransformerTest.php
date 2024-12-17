@@ -18,13 +18,15 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		$charge_rate = "2.50";
 		$charge_policy_id = ChargePolicy::PER_USE;
 		$charge_policy = ChargePolicy::name_for_policy($charge_policy_id);
+		$allow_proxy = false;
 
 		$data = [
 			'id' => $id,
 			'name' => $name,
 			'requires_training' => $requires_training,
 			'charge_rate' => $charge_rate,
-			'charge_policy_id' => $charge_policy_id
+			'charge_policy_id' => $charge_policy_id,
+			'allow_proxy' => $allow_proxy
 		];
 
 		$type = $transformer->deserialize($data);
@@ -36,6 +38,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		self::assertEquals($charge_rate, $type->charge_rate());
 		self::assertEquals($charge_policy_id, $type->charge_policy_id());
 		self::assertEquals($charge_policy, $type->charge_policy());
+		self::assertEquals($allow_proxy, $type->allow_proxy());
 	}
 
 	public function testDeserializeInvalidDataName(): void {
@@ -45,12 +48,14 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		$requires_training = TRUE;
 		$charge_rate = "2.50";
 		$charge_policy_id = ChargePolicy::PER_USE;
+		$allow_proxy = false;
 
 		$data = [
 			'id' => $id,
 			'requires_training' => $requires_training,
 			'charge_rate' => $charge_rate,
-			'charge_policy_id' => $charge_policy_id
+			'charge_policy_id' => $charge_policy_id,
+			'allow_proxy' => $allow_proxy
 		];
 
 		$this->expectException(InvalidArgumentException::class);
@@ -64,12 +69,14 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		$name = 'laser scalpel';
 		$charge_rate = "2.50";
 		$charge_policy_id = ChargePolicy::PER_USE;
+		$allow_proxy = false;
 
 		$data = [
 			'id' => $id,
 			'name' => $name,
 			'charge_rate' => $charge_rate,
-			'charge_policy_id' => $charge_policy_id
+			'charge_policy_id' => $charge_policy_id,
+			'allow_proxy' => $allow_proxy
 		];
 
 		$this->expectException(InvalidArgumentException::class);
@@ -83,12 +90,14 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		$name = 'laser scalpel';
 		$requires_training = TRUE;
 		$charge_policy_id = ChargePolicy::PER_USE;
+		$allow_proxy = false;
 
 		$data = [
 			'id' => $id,
 			'name' => $name,
 			'requires_training' => $requires_training,
-			'charge_policy_id' => $charge_policy_id
+			'charge_policy_id' => $charge_policy_id,
+			'allow_proxy' => $allow_proxy
 		];
 
 		$this->expectException(InvalidArgumentException::class);
@@ -102,12 +111,35 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		$name = 'laser scalpel';
 		$requires_training = TRUE;
 		$charge_rate = "2.50";
+		$allow_proxy = false;
 
 		$data = [
 			'id' => $id,
 			'name' => $name,
 			'requires_training' => $requires_training,
-			'charge_rate' => $charge_rate
+			'charge_rate' => $charge_rate,
+			'allow_proxy' => $allow_proxy
+		];
+
+		$this->expectException(InvalidArgumentException::class);
+		$type = $transformer->deserialize($data);
+	}
+
+	public function testDeserializeInvalidDataAllowProxy(): void {
+		$transformer = new EquipmentTypeTransformer();
+
+		$id = 42;
+		$name = 'laser scalpel';
+		$requires_training = TRUE;
+		$charge_rate = "2.50";
+		$charge_policy_id = ChargePolicy::PER_USE;
+
+		$data = [
+			'id' => $id,
+			'name' => $name,
+			'requires_training' => $requires_training,
+			'charge_rate' => $charge_rate,
+			'charge_policy_id' => $charge_policy_id
 		];
 
 		$this->expectException(InvalidArgumentException::class);
@@ -123,13 +155,15 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		$charge_rate = "2.50";
 		$charge_policy_id = ChargePolicy::PER_USE;
 		$charge_policy = ChargePolicy::name_for_policy($charge_policy_id);
+		$allow_proxy = true;
 
 		$type = (new EquipmentType())
 			->set_id($id)
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_rate($charge_rate)
-			->set_charge_policy_id($charge_policy_id);
+			->set_charge_policy_id($charge_policy_id)
+			->set_allow_proxy($allow_proxy);
 
 		$data = $transformer->serialize($type, true);
 
@@ -146,5 +180,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		self::assertEquals($charge_policy_id, $data['charge_policy_id']);
 		self::assertArrayHasKey('charge_policy', $data);
 		self::assertEquals($charge_policy, $data['charge_policy']);
+		self::assertArrayHasKey('allow_proxy', $data);
+		self::assertEquals($allow_proxy, $data['allow_proxy']);
 	}
 }

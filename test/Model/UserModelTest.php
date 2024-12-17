@@ -29,7 +29,7 @@ final class UserModelTest extends TestCase {
 	private static $config;
 
 	public static function setUpBeforeClass(): void {
-		parent::setUp();
+		parent::setUpBeforeClass();
 		self::$config = Config::config();
 
 		// provision an equipment type in the db
@@ -42,7 +42,8 @@ final class UserModelTest extends TestCase {
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
-			->set_charge_policy_id($charge_policy_id);
+			->set_charge_policy_id($charge_policy_id)
+			->set_allow_proxy(false);
 
 		self::$type = $model->create($type);
 	}
@@ -51,6 +52,8 @@ final class UserModelTest extends TestCase {
 		// deprovision an equipment type in the db
 		$model = new EquipmentTypeModel(self::$config);
 		$model->delete(self::$type->id());
+
+		parent::tearDownAfterClass();
 	}
 
 	public function testModel(): void {
@@ -64,7 +67,7 @@ final class UserModelTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$active = TRUE;
+		$active = FALSE;
 		$authorizations = [self::$type->id()];
 		$num_authorizations = count($authorizations);
 
@@ -105,7 +108,7 @@ final class UserModelTest extends TestCase {
 		$name = 'Matt Lamparter';
 		$email = 'matt@ficticious.tld';
 		$comment = 'Test Hominid';
-		$active = FALSE;
+		$active = TRUE;
 
 		$user_as_found
 			->set_name($name)

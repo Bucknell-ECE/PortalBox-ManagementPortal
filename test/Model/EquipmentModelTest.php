@@ -32,7 +32,7 @@ final class EquipmentModelTest extends TestCase {
 	private static $config;
 
 	public static function setUpBeforeClass(): void {
-		parent::setUp();
+		parent::setUpBeforeClass();
 		self::$config = Config::config();
 
 		// provision a location in the db
@@ -55,7 +55,8 @@ final class EquipmentModelTest extends TestCase {
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
-			->set_charge_policy_id($charge_policy_id);
+			->set_charge_policy_id($charge_policy_id)
+			->set_allow_proxy(false);
 
 		self::$type = $model->create($type);
 	}
@@ -68,6 +69,8 @@ final class EquipmentModelTest extends TestCase {
 		// deprovision an equipment type in the db
 		$model = new EquipmentTypeModel(self::$config);
 		$model->delete(self::$type->id());
+
+		parent::tearDownAfterClass();
 	}
 
 	public function testCRUD(): void {
@@ -99,6 +102,7 @@ final class EquipmentModelTest extends TestCase {
 		self::assertEquals($timeout, $equipment_as_created->timeout());
 		self::assertEquals($is_in_service, $equipment_as_created->is_in_service());
 		self::assertEquals($service_minutes, $equipment_as_created->service_minutes());
+		self::assertNull($equipment_as_created->ip_address());
 
 		$equipment_as_found = $model->read($equipment_id);
 
@@ -111,6 +115,7 @@ final class EquipmentModelTest extends TestCase {
 		self::assertEquals($timeout, $equipment_as_found->timeout());
 		self::assertEquals($is_in_service, $equipment_as_found->is_in_service());
 		self::assertEquals($service_minutes, $equipment_as_found->service_minutes());
+		self::assertNull($equipment_as_found->ip_address());
 
 		$name = '2000W Floodlight';
 		$mac_address = 'cdef456789ab';
@@ -136,6 +141,7 @@ final class EquipmentModelTest extends TestCase {
 		self::assertEquals($timeout, $equipment_as_modified->timeout());
 		self::assertEquals($is_in_service, $equipment_as_modified->is_in_service());
 		self::assertEquals($service_minutes, $equipment_as_modified->service_minutes());
+		self::assertNull($equipment_as_modified->ip_address());
 
 		$equipment_as_deleted = $model->delete($equipment_id);
 
@@ -148,10 +154,9 @@ final class EquipmentModelTest extends TestCase {
 		self::assertEquals($timeout, $equipment_as_deleted->timeout());
 		self::assertEquals($is_in_service, $equipment_as_deleted->is_in_service());
 		self::assertEquals($service_minutes, $equipment_as_deleted->service_minutes());
+		self::assertNull($equipment_as_deleted->ip_address());
 
-		$equipment_as_not_found = $model->read($equipment_id);
-
-		self::assertNull($equipment_as_not_found);
+		self::assertNull($model->read($equipment_id));
 	}
 
 	public function testSearch(): void {

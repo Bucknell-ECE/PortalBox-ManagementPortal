@@ -6,10 +6,10 @@ use InvalidArgumentException;
 
 /**
  * Role represents an assignable group of permissions.
- * 
+ *
  * Every user is assigned a role and thus has a set of permissions restricting
  * what they can do in the web portal.
- * 
+ *
  * @package Portalbox\Entity
  */
 class Role extends AbstractEntity {
@@ -146,5 +146,5 @@ class Role extends AbstractEntity {
 			return FALSE;
 		}
 	}
-	
+
 }

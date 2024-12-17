@@ -11,7 +11,7 @@ use Portalbox\Exception\InvalidConfigurationException;
  * configuration so we make the configuration a singleton
  */
 class Config {
-	/** The singelton instance */
+	/** The singleton instance */
 	private static $instance;
 
 	/** Cached configuration data */
@@ -19,15 +19,15 @@ class Config {
 
 	/** Cached DB connection */
 	private $connection;
-	
+
 	/**
 	 * __construct - reads the specified config file or if one is not specified
 	 *     looks for a file named 'config.ini' in the include path. Using the
 	 *     settings in the config file it then creates a PDO database instance
 	 *
 	 * @param file - the name of the config file to read. Defaults to
-	 *     '../config/config.ini' ie a fle named 'config.ini' in a directory
-	 *     named 'config' in thesame directory as src.
+	 *     '../config/config.ini' ie a file named 'config.ini' in a directory
+	 *     named 'config' in the same directory as src.
 	 *
 	 * @sideeffect - if the config file can not be found and read, script
 	 *     execution will end abnormally
@@ -36,12 +36,9 @@ class Config {
 		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR . $file);
 		$this->settings = parse_ini_file($path, TRUE);
 	}
-	
+
 	/**
 	 * config - accessor to the configuration singleton
-	 *
-	 * @param file - the name of the config file to read. Defaults to
-	 *     '../config/config.ini'
 	 *
 	 * @return Config - the singleton configuration
 	 */
@@ -76,7 +73,7 @@ class Config {
 	/**
 	 * Get a database connection using the configured connection params
 	 * that can write (INSERT, UPDATE, DELETE) to the db
-	 * 
+	 *
 	 * In a scaled out deployment it may be necessary to have replication
 	 * slaves take some of the load. They can easily take read load without
 	 * a complicated replication setup. By using this method to get a writable
@@ -94,7 +91,7 @@ class Config {
 	/**
 	 * Get a database connection using the configured connection params
 	 * that can only read from the db
-	 * 
+	 *
 	 * In a scaled out deployment it may be necessary to have replication
 	 * slaves take some of the load. They can easily take read load without
 	 * a complicated replication setup. By using this method to get a read only

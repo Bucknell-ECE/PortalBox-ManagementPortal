@@ -54,6 +54,8 @@ final class PaymentTransformerTest extends TestCase {
 		// deprovision user from the db
 		$model = new UserModel($config);
 		$model->delete(self::$user->id());
+
+		parent::tearDownAfterClass();
 	}
 
 	public function testDeserialize(): void {

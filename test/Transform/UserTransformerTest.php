@@ -23,7 +23,7 @@ final class UserTransformerTest extends TestCase {
 	private static $type;
 
 	public static function setUpBeforeClass(): void {
-		parent::setUp();
+		parent::setUpBeforeClass();
 
 		// provision an equipment type in the db
 		$model = new EquipmentTypeModel(Config::config());
@@ -35,7 +35,8 @@ final class UserTransformerTest extends TestCase {
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
-			->set_charge_policy_id($charge_policy_id);
+			->set_charge_policy_id($charge_policy_id)
+			->set_allow_proxy(false);
 
 		self::$type = $model->create($type);
 	}
@@ -44,6 +45,8 @@ final class UserTransformerTest extends TestCase {
 		// deprovision an equipment type in the db
 		$model = new EquipmentTypeModel(Config::config());
 		$model->delete(self::$type->id());
+
+		parent::tearDownAfterClass();
 	}
 
 	public function testDeserialize(): void {

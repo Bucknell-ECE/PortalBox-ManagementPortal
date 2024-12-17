@@ -2,11 +2,9 @@
 
 namespace Portalbox\Entity;
 
-use ReflectionClass;
-
 /**
  * Permission represents a permission which a particular role may have
- * 
+ *
  * @package Portalbox\Entity
  */
 class Permission {
@@ -30,14 +28,14 @@ class Permission {
 
 	/**
 	 * Users with this permission can read equipment authorizations
-	 * 
+	 *
 	 * Currently unused; Listing is sufficient in the current design
 	 */
 	//const READ_EQUIPMENT_AUTHORIZATION = 102;
 
 	/**
 	 * Users with this permission can modify authorizations
-	 * 
+	 *
 	 * Currently unused; users have a list of authorizations... either they
 	 * have authorization or they don't. So creating and deleting a user's
 	 * authorizations are sufficient in the current model
@@ -103,7 +101,7 @@ class Permission {
 	/** Users with this permission can modify equipment access cards */
 	const MODIFY_CARD = 303;
 
-	/** 
+	/**
 	 * Users with this permission can delete equipment access cards
 	 *
 	 * Currently usused and probably never will be used as our logs have a
@@ -118,7 +116,7 @@ class Permission {
 	const LIST_OWN_CARDS = 306;
 
 	/** Users with this permission can create charge policies
-	 * 
+	 *
 	 * Charge policies play a special role in the system as designed. Stored
 	 * Procedures in the database make decisions based on charge policy thus
 	 * policies are implemented as constants in code.
@@ -126,7 +124,7 @@ class Permission {
 	const CREATE_CHARGE_POLICY = 401;
 
 	/** Users with this permission can read charge policies
-	 * 
+	 *
 	 * Charge policies play a special role in the system as designed. Stored
 	 * Procedures in the database make decisions based on charge policy thus
 	 * policies are implemented as constants in code.
@@ -134,7 +132,7 @@ class Permission {
 	const READ_CHARGE_POLICY = 402;
 
 	/** Users with this permission can modify charge policies
-	 * 
+	 *
 	 * Charge policies play a special role in the system as designed. Stored
 	 * Procedures in the database make decisions based on charge policy thus
 	 * policies are implemented as constants in code.
@@ -142,7 +140,7 @@ class Permission {
 	const MODIFY_CHARGE_POLICY = 403;
 
 	/** Users with this permission can delete charge policies
-	 * 
+	 *
 	 * Charge policies play a special role in the system as designed. Stored
 	 * Procedures in the database make decisions based on charge policy thus
 	 * policies are implemented as constants in code.
@@ -281,7 +279,7 @@ class Permission {
 
 	/** Users with this permission can view the roles page */
 	const VIEW_ROLES = 1107;
-	
+
 	/** Users with this permission can create users */
 	const CREATE_USER = 1201;
 
@@ -306,8 +304,70 @@ class Permission {
 	 * @param int permission - the permission to check
 	 * @return bool - true iff the permission is valid
 	 */
-	public static function is_valid(int $permission) {
-		$valid_values = array_values((new ReflectionClass(get_class()))->getConstants());
+	public static function is_valid(int $permission): bool {
+		$valid_values = [
+			self::CREATE_API_KEY,
+			self::READ_API_KEY,
+			self::MODIFY_API_KEY,
+			self::DELETE_API_KEY,
+			self::LIST_API_KEYS,
+			self::CREATE_EQUIPMENT_AUTHORIZATION,
+			self::DELETE_EQUIPMENT_AUTHORIZATION,
+			self::LIST_EQUIPMENT_AUTHORIZATIONS,
+			self::LIST_OWN_EQUIPMENT_AUTHORIZATIONS,
+			self::LIST_CARD_TYPES,
+			self::CREATE_CARD,
+			self::READ_CARD,
+			self::MODIFY_CARD,
+			self::LIST_CARDS,
+			self::LIST_OWN_CARDS,
+			self::CREATE_CHARGE_POLICY,
+			self::READ_CHARGE_POLICY,
+			self::MODIFY_CHARGE_POLICY,
+			self::DELETE_CHARGE_POLICY,
+			self::LIST_CHARGE_POLICIES,
+			self::CREATE_CHARGE,
+			self::READ_CHARGE,
+			self::MODIFY_CHARGE,
+			self::DELETE_CHARGE,
+			self::LIST_CHARGES,
+			self::LIST_OWN_CHARGES,
+			self::CREATE_EQUIPMENT_TYPE,
+			self::READ_EQUIPMENT_TYPE,
+			self::MODIFY_EQUIPMENT_TYPE,
+			self::DELETE_EQUIPMENT_TYPE,
+			self::LIST_EQUIPMENT_TYPES,
+			self::CREATE_EQUIPMENT,
+			self::READ_EQUIPMENT,
+			self::MODIFY_EQUIPMENT,
+			self::DELETE_EQUIPMENT,
+			self::LIST_EQUIPMENT,
+			self::CREATE_LOCATION,
+			self::READ_LOCATION,
+			self::MODIFY_LOCATION,
+			self::DELETE_LOCATION,
+			self::LIST_LOCATIONS,
+			self::READ_LOG,
+			self::LIST_LOGS,
+			self::CREATE_PAYMENT,
+			self::READ_PAYMENT,
+			self::MODIFY_PAYMENT,
+			self::DELETE_PAYMENT,
+			self::LIST_PAYMENTS,
+			self::LIST_OWN_PAYMENTS,
+			self::CREATE_ROLE,
+			self::READ_ROLE,
+			self::MODIFY_ROLE,
+			self::DELETE_ROLE,
+			self::LIST_ROLES,
+			self::VIEW_ROLES,
+			self::CREATE_USER,
+			self::READ_USER,
+			self::MODIFY_USER,
+			self::DELETE_USER,
+			self::LIST_USERS,
+			self::READ_OWN_USER,
+		];
 		if(in_array($permission, $valid_values)) {
 			return true;
 		}

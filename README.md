@@ -10,7 +10,7 @@ In some shell commands you may need to provide values left up to you. These valu
 This project is licensed under the Apache 2.0 License - see the LICENSE file for details
 
 ## Supported Server Environments
-Makerportal requires PHP version 5.4+ and is known to work with:
+Makerportal requires PHP version 7.4+ and is known to work with:
 
  - Apache 2.4 + mod_php
  - Nginx 1.12 + PHP-FPM
@@ -34,6 +34,13 @@ Occasionally, it may be necessary to provide a helper function for PHP. We suppo
 - validate_email - Provides for custom validation of email addresses. It take one string parameter, the email address to validate and returns the boolean constant FALSE if the email address could not be mapped to a valid email address otherwise it returns a string representing the email address to store in the database which may not be the same as the input email address.
 
 ## Installation
+
+If you have not already setup the database shared by the components of the portalbox ecosystem already start with that first.
+
+[Portalbox Database](https://github.com/Bucknell-ECE/PortalBox-database)
+
+Assuming you have setup the database shared by the PortalBox Ecosystem already:
+
 1) Clone this repository somewhere convenient. This will henceforth be referred to as ${PROJECT_DIRECTORY}.
 2) Install the dependencies
 	Using yarn (https://yarnpkg.com):
@@ -54,8 +61,16 @@ A unit test suite is included for testing PHP code. To use it you will need `php
 ```sh
 cd ${PROJECT_DIRECTORY}
 composer install
-vendor/bin/phpunit test
+vendor/bin/phpunit
 ```
+
+Note by default phpunit will attempt to use the database configured in `config/config.ini` to test database related modules. You can exclude the database tests by running
+
+```sh
+vendor/bin/phpunit --testsuite ci
+```
+
+instead.
 
 ### Integration Testing
 The REST API exposed by this project project can be tested on your development machine using the webserver built in to the PHP CLI. Assuming you have followed steps 1 through 4 under Installation, you can in theory open a command shell and issue:

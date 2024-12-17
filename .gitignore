@@ -2,8 +2,15 @@
 /config/config.ini
 /public/styles/palette.css
 
-# third party libraries... we manage these with yarn
+# third party libraries... we manage these with yarn/composer
+.composer.lock
 /public/vendor/
+/public/js/.bin/
+/public/js/file-saver/
+/public/js/hellojs/
+/public/js/moostaka/
+/public/js/mustache/
+/public/js/.yarn-integrity
 
 # third party libraries used only for testing... we manage these with composer
 /vendor/
@@ -14,9 +21,5 @@
 # ignore log files
 /logs/
 
-/public/js/.bin/
-/public/js/file-saver/
-/public/js/hellojs/
-/public/js/moostaka/
-/public/js/mustache/
-/public/js/.yarn-integrity
+# test results
+.phpunit.result.cache

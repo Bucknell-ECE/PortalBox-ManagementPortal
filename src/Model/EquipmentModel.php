@@ -11,7 +11,7 @@ use PDO;
 
 /**
  * EquipmentModel is our bridge between the database and higher level Entities.
- * 
+ *
  * @package Portalbox\Model
  */
 class EquipmentModel extends AbstractModel {
@@ -54,16 +54,16 @@ class EquipmentModel extends AbstractModel {
 	 */
 	public function read(int $id) : ?Equipment {
 		$connection = $this->configuration()->readonly_db_connection();
-		
+
 		$sql = 'SELECT e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes, e.ip_address FROM equipment AS e LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
-			
+
 			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				
+
 				return $this->buildEquipmentFromArray($data);
-				
+
 			} else {
 				return null;
 			}
@@ -104,7 +104,7 @@ class EquipmentModel extends AbstractModel {
 				->set_timeout($equipment->timeout())
 				->set_is_in_service($equipment->is_in_service())
 				->set_service_minutes($equipment->service_minutes());
-			
+
 			// fill in readonly fields...
 			$sql = 'SELECT iu.equipment_id IS NOT NULL AS in_use, e.service_minutes FROM equipment AS e LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
 			$query = $connection->prepare($sql);
@@ -128,7 +128,7 @@ class EquipmentModel extends AbstractModel {
 	}
 
 	/**
-	 * Delete an equipment secified by their unique ID
+	 * Delete an equipment specified by their unique ID
 	 *
 	 * @param int id - the unique id of the equipment
 	 * @throws DatabaseException - when the database can not be queried
@@ -152,7 +152,7 @@ class EquipmentModel extends AbstractModel {
 
 	/**
 	 * Search for Equipment
-	 * 
+	 *
 	 * @param EquipmentQuery query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Equipment[]|null - a list of equipment which match the search query
@@ -165,7 +165,15 @@ class EquipmentModel extends AbstractModel {
 
 		$connection = $this->configuration()->readonly_db_connection();
 
-		$sql = 'SELECT e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes, e.ip_address FROM equipment AS e JOIN equipment_types AS t ON e.type_id = t.id JOIN locations AS l ON e.location_id = l.id LEFT JOIN in_use AS iu ON e.id = iu.equipment_id';
+		$sql = <<<EOQ
+		SELECT
+			e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes, e.ip_address
+		FROM
+			equipment AS e
+		JOIN equipment_types AS t ON e.type_id = t.id
+		JOIN locations AS l ON e.location_id = l.id
+		LEFT JOIN in_use AS iu ON e.id = iu.equipment_id
+		EOQ;
 
 		$where_clause_fragments = array();
 		$parameters = array();
@@ -185,13 +193,13 @@ class EquipmentModel extends AbstractModel {
 		} else {
 			$where_clause_fragments[] = 'e.in_service = 1';
 		}
-		
+
 		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
 		$sql .= ' ORDER BY l.name, t.name, e.name';
-		
+
 		$statement = $connection->prepare($sql);
 		// run search
 		foreach($parameters as $k => $v) {

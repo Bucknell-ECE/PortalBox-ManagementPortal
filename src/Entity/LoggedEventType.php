@@ -2,8 +2,6 @@
 
 namespace Portalbox\Entity;
 
-use ReflectionClass;
-
 /**
  * LoggedEventType represents the type of a log event.
  *
@@ -45,8 +43,14 @@ class LoggedEventType {
 	 * @param int type - the type to check
 	 * @return bool - true iff the type is valid
 	 */
-	public static function is_valid(int $type) {
-		$valid_values = array_values((new ReflectionClass(get_class()))->getConstants());
+	public static function is_valid(int $type): bool {
+		$valid_values = [
+			self::UNSUCCESSFUL_AUTHENTICATION,
+			self::SUCCESSFUL_AUTHENTICATION,
+			self::DEAUTHENTICATION,
+			self::STARTUP_COMPLETE,
+			self::PLANNED_SHUTDOWN
+		];
 		if(in_array($type, $valid_values)) {
 			return true;
 		}

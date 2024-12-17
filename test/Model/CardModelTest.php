@@ -47,7 +47,7 @@ final class CardModelTest extends TestCase {
 	private static $config;
 
 	public static function setUpBeforeClass(): void {
-		parent::setUp();
+		parent::setUpBeforeClass();
 		self::$config = Config::config();
 
 		// provision a location in the db
@@ -70,7 +70,8 @@ final class CardModelTest extends TestCase {
 		$equipment_type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
-			->set_charge_policy_id($charge_policy_id);
+			->set_charge_policy_id($charge_policy_id)
+			->set_allow_proxy(false);
 
 		self::$equipment_type = $model->create($equipment_type);
 
@@ -109,6 +110,8 @@ final class CardModelTest extends TestCase {
 		// deprovision a user in the db
 		$model = new UserModel(self::$config);
 		$model->delete(self::$user->id());
+
+		parent::tearDownAfterClass();
 	}
 
 	public function testProxyCardModel(): void {
