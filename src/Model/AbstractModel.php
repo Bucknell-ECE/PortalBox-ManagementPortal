@@ -6,13 +6,11 @@ use Portalbox\Config;
 
 /**
  * Abstract model is the common foundation on which our object models are built.
- * 
- * @package Portalbox\Model
  */
 class AbstractModel {
 	/**
 	 * The configuration to use
-	 * 
+	 *
 	 * @var Config
 	 */
 	private $configuration;

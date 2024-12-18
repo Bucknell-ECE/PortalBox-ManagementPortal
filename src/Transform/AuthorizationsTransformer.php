@@ -12,13 +12,11 @@ use Portalbox\Model\EquipmentTypeModel;
 /**
  * AuthorizationsTransformer is our bridge between dictionary representations
  * of Authorizations lists and arrays of equipment ids
- * 
- * @package Portalbox\Transform
  */
 class AuthorizationsTransformer implements InputTransformer {
 	/**
 	 * Deserialize an Authorizations entity object from a dictionary
-	 * 
+	 *
 	 * @param array data - a dictionary representing an Authorizations list
 	 * @return array<int> - a list of authorization ids
 	 * @throws InvalidArgumentException if a required field is not specified

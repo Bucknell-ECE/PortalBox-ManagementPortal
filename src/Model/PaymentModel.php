@@ -10,8 +10,6 @@ use PDO;
 
 /**
  * PaymentModel is our bridge between the database and higher level Entities.
- * 
- * @package Portalbox\Model
  */
 class PaymentModel extends AbstractModel {
 	/**
@@ -109,7 +107,7 @@ class PaymentModel extends AbstractModel {
 
 	/**
 	 * Search for Payments
-	 * 
+	 *
 	 * @param PaymentQuery query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment[]|null - a list of payments which match the search query

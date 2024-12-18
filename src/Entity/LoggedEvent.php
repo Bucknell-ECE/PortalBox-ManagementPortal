@@ -4,8 +4,6 @@ namespace Portalbox\Entity;
 
 /**
  * LoggedEvent represents one Event in the event log
- * 
- * @package Portalbox\Entity
  */
 class LoggedEvent extends AbstractEntity {
 
@@ -22,7 +20,7 @@ class LoggedEvent extends AbstractEntity {
 	 * @var int
 	 */
 	protected $type_id;
-	
+
 	/**
 	 * The id of the card which triggered this event
 	 *
@@ -32,7 +30,7 @@ class LoggedEvent extends AbstractEntity {
 
 	/**
 	 * The card which triggered this event
-	 * 
+	 *
 	 * @var Card|null
 	 */
 	protected $card;
@@ -46,7 +44,7 @@ class LoggedEvent extends AbstractEntity {
 
 	/**
 	 * The user whose card which triggered this event
-	 * 
+	 *
 	 * @var User|null
 	 */
 	protected $user;
@@ -60,22 +58,22 @@ class LoggedEvent extends AbstractEntity {
 
 	/**
 	 * The name of the equipment which reported this event
-	 * 
+	 *
 	 * @var Equipment|null
 	 */
 	protected $equipment;
 
-	
+
 	/**
 	 * The id of the equipment type for this event
-	 * 
+	 *
 	 * @var int
 	 */
 	private $equipment_type_id;
 
 	/**
 	 * The name of the equipment type for this event
-	 * 
+	 *
 	 * @var string
 	 */
 	private $equipment_type;
@@ -154,7 +152,7 @@ class LoggedEvent extends AbstractEntity {
 	// a convenience method... see Model\Entity\LoggedEventModel ;)
 	/**
 	 * Get the name of the equipment which reported this event
-	 * 
+	 *
 	 * @return string - the name of the equipment
 	 */
 	public function equipment_name() : ?string {
@@ -262,7 +260,7 @@ class LoggedEvent extends AbstractEntity {
 	// a convenience method... see Model\Entity\LoggedEventModel ;)
 	/**
 	 * Get the name of the user whose action triggered this event
-	 * 
+	 *
 	 * @return string - the name of the user
 	 */
 	public function user_name() : ?string {
@@ -303,7 +301,7 @@ class LoggedEvent extends AbstractEntity {
 	/**
 	 * Get the name of the location where the equipment which triggerd this
 	 * event is located
-	 * 
+	 *
 	 * @return string - the name of the location
 	 */
 	public function location_name() : ?string {

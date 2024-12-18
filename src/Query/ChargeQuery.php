@@ -4,8 +4,6 @@ namespace Portalbox\Query;
 
 /**
  * ChargeQuery presents a standard interface for Charge search queries
- *
- * @package Portalbox\Query
  */
 class ChargeQuery {
 	/**

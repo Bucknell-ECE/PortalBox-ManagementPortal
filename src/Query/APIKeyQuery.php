@@ -4,8 +4,6 @@ namespace Portalbox\Query;
 
 /**
  * APIKeyQuery Presents a standard interface for APIKey search queries
- * 
- * @package Portalbox\Query
  */
 class APIKeyQuery {
 	/**
@@ -21,7 +19,7 @@ class APIKeyQuery {
 	 * @return string|null - the token for which to search
 	 */
 	public function token() : ?string {
-		
+
 		return $this->token;
 	}
 
@@ -32,7 +30,7 @@ class APIKeyQuery {
 	 * @return self
 	 */
 	public function set_token(string $token) : self {
-		
+
 		$this->token = $token;
 		return $this;
 	}

@@ -4,8 +4,6 @@ namespace Portalbox\Query;
 
 /**
  * LoggedEventQuery presents a standard interface for LoggedEvent search queries
- * 
- * @package Portalbox\Query
  */
 class LoggedEventQuery {
 	/**
@@ -45,7 +43,7 @@ class LoggedEventQuery {
 
 	/**
 	 * Find log events of a giben equipment type
-	 * 
+	 *
 	 * @var int
 	 */
 	protected $equipment_type_id;
@@ -152,7 +150,7 @@ class LoggedEventQuery {
 
 	/**
 	 * Get the equipment type id
-	 * 
+	 *
 	 * @return int - the equipment type id
 	 */
 	public function equipment_type_id() : ?int {
@@ -161,7 +159,7 @@ class LoggedEventQuery {
 
 	/**
 	 * Set the equipment type id
-	 * 
+	 *
 	 * @param int equipment_type_id - the equipment type id
 	 * @return self
 	 */

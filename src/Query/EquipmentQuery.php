@@ -4,8 +4,6 @@ namespace Portalbox\Query;
 
 /**
  * EquipmentQuery presents a standard interface for Equipment search queries
- * 
- * @package Portalbox\Query
  */
 class EquipmentQuery {
 	/**

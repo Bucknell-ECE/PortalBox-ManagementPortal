@@ -8,13 +8,11 @@ use Portalbox\Entity\APIKey;
 /**
  * APIKeyTransformer is our bridge between dictionary representations and
  * APIKey entity instances.
- * 
- * @package Portalbox\Transform
  */
 class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	/**
 	 * Deserialize an APIKey entity object from a dictionary
-	 * 
+	 *
 	 * @param array data - a dictionary representing a Payment
 	 * @return APIKey - a valid entity object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
@@ -31,7 +29,7 @@ class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	/**
 	 * Called to serialize a APIKey entity instance to a dictionary
 	 *
-	 * @param bool $traverse - traverse the object graph if true, otherwise 
+	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.
 	 * @return array -  a dictionary whose values are null, string, int, float
 	 *      dictionaries, or arrays with the compound types having the same
@@ -58,7 +56,7 @@ class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	 * Called to get the column headers for a tabular output format eg csv.
 	 * The column count should match the number of fields in an array returned
 	 * by serialize() when $traverse is false
-	 * 
+	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {

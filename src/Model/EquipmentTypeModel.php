@@ -9,8 +9,6 @@ use PDO;
 
 /**
  * EquipmentTypeModel is our bridge between the database and higher level Entities.
- * 
- * @package Portalbox\Model
  */
 class EquipmentTypeModel extends AbstractModel {
 	/**
@@ -112,7 +110,7 @@ class EquipmentTypeModel extends AbstractModel {
 
 	/**
 	 * Search for equipment types
-	 * 
+	 *
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location[]|null - a list of locations
 	 */

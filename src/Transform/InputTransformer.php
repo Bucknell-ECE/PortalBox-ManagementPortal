@@ -5,8 +5,6 @@ namespace Portalbox\Transform;
 /**
  * InputTransformers take a blob of data and reconstitute a valid Entity object
  * instance from the data
- * 
- * @package Portalbox\Transform
  */
 interface InputTransformer {
 

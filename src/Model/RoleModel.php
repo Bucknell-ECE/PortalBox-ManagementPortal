@@ -9,8 +9,6 @@ use PDO;
 
 /**
  * RoleModel is our bridge between the database and higher level Entities.
- * 
- * @package Portalbox\Model
  */
 class RoleModel extends AbstractModel {
 	/**
@@ -33,12 +31,12 @@ class RoleModel extends AbstractModel {
 			if($statement->execute()) {
 				// Add in permissions
 				$role_id = $connection->lastInsertId('roles_id_seq');
-	
+
 				$permissions = $role->permissions();
-	
+
 				$sql = 'INSERT INTO roles_x_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)';
 				$statement = $connection->prepare($sql);
-	
+
 				foreach($permissions as $permission_id) {
 					$statement->bindValue(':role_id', $role_id, PDO::PARAM_INT);
 					$statement->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
@@ -61,7 +59,7 @@ class RoleModel extends AbstractModel {
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
-		
+
 	}
 
 	/**
@@ -79,7 +77,7 @@ class RoleModel extends AbstractModel {
 		if($statement->execute()) {
 			if($data = $statement->fetch(PDO::FETCH_ASSOC)) {
 				$role = $this->buildRoleFromArray($data);
-				
+
 				$sql = 'SELECT permission_id FROM roles_x_permissions WHERE role_id = :role_id';
 				$statement = $connection->prepare($sql);
 				$statement->bindValue(':role_id', $data['id'], PDO::PARAM_INT);
@@ -128,10 +126,10 @@ class RoleModel extends AbstractModel {
 				$unchanged_permissions = array_intersect($old_permissions, $permissions);
 				$added_permissions = array_diff($permissions, $unchanged_permissions);
 				$removed_permissions = array_diff($old_permissions, $unchanged_permissions);
-	
+
 				$sql = 'INSERT INTO roles_x_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)';
 				$statement = $connection->prepare($sql);
-	
+
 				foreach($added_permissions as $permission_id) {
 					$statement->bindValue(':role_id', $role_id, PDO::PARAM_INT);
 					$statement->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
@@ -196,7 +194,7 @@ class RoleModel extends AbstractModel {
 
 	/**
 	 * Search for Roles
-	 * 
+	 *
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Role[]|null - a list of role which match the search query
 	 */

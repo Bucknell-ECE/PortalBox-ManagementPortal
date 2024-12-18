@@ -4,8 +4,6 @@ namespace Portalbox\Entity;
 
 /**
  * Permission represents a permission which a particular role may have
- *
- * @package Portalbox\Entity
  */
 class Permission {
 	/** Users with this permission can create API keys */

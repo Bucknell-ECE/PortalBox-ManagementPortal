@@ -5,8 +5,6 @@ namespace Portalbox\Entity;
 /**
  * AbstractEntity is the base class for the other entities in the system. It
  * "abstracts out" common functionality.
- *
- * @package Portalbox\Entity
  */
 class AbstractEntity {
 	/**

@@ -5,8 +5,6 @@ namespace Portalbox\Entity;
 /**
  * Charge represents a charge to a user for use of equipment in the
  * portalbox network
- * 
- * @package Portalbox\Entity
  */
 class Charge extends AbstractEntity {
 

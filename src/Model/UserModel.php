@@ -11,8 +11,6 @@ use PDO;
 
 /**
  * UserModel is our bridge between the database and higher level Entities.
- * 
- * @package Portalbox\Model
  */
 class UserModel extends AbstractModel {
 	/**
@@ -37,12 +35,12 @@ class UserModel extends AbstractModel {
 			if($statement->execute()) {
 				// Add in authorizations
 				$user_id = $connection->lastInsertId('users_id_seq');
-	
+
 				$authorizations = $user->authorizations();
-	
+
 				$sql = 'INSERT INTO authorizations (user_id, equipment_type_id) VALUES (:user_id, :equipment_type_id)';
 				$statement = $connection->prepare($sql);
-	
+
 				foreach($authorizations as $equipment_type_id) {
 					$statement->bindValue(':user_id', $user_id, PDO::PARAM_INT);
 					$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
@@ -131,7 +129,7 @@ class UserModel extends AbstractModel {
 					->set_comment($user->comment())
 					->set_is_active($user->is_active())
 					->set_role_id($user->role()->id());
-				
+
 				// Authorizations... There are three cases:
 				//	1) Authorizations which were removed -> delete
 				//	2) Authorizations which were added -> insert
@@ -140,10 +138,10 @@ class UserModel extends AbstractModel {
 				$unchanged_authorizations = array_intersect($old_authorizations, $authorizations);
 				$added_authorizations = array_diff($authorizations, $unchanged_authorizations);
 				$removed_authorizations = array_diff($old_authorizations, $unchanged_authorizations);
-	
+
 				$sql = 'INSERT INTO authorizations (user_id, equipment_type_id) VALUES (:user_id, :equipment_type_id)';
 				$statement = $connection->prepare($sql);
-	
+
 				foreach($added_authorizations as $equipment_type_id) {
 					$statement->bindValue(':user_id', $user_id, PDO::PARAM_INT);
 					$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
@@ -204,7 +202,7 @@ class UserModel extends AbstractModel {
 
 	/**
 	 * Search for a User or Users
-	 * 
+	 *
 	 * @param UserQuery query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User[]|null - a list of users which match the search query

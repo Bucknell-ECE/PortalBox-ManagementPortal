@@ -5,8 +5,6 @@ namespace Portalbox\Entity;
 /**
  * Payment represents a payment made by the user to the operator of the
  * portalbox network
- *
- * @package Portalbox\Entity
  */
 class Payment extends AbstractEntity {
 

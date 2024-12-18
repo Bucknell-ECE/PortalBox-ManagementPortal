@@ -9,8 +9,6 @@ use PDO;
 
 /**
  * LocationModel is our bridge between the database and higher level Entities.
- * 
- * @package Portalbox\Model
  */
 class LocationModel extends AbstractModel {
 	/**
@@ -104,7 +102,7 @@ class LocationModel extends AbstractModel {
 
 	/**
 	 * Search for locations
-	 * 
+	 *
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location[]|null - a list of locations
 	 */
