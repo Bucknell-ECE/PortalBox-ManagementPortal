@@ -9,15 +9,13 @@ use Portalbox\Entity\LoggedEvent;
 /**
  * LoggedEventTransformer is our bridge between dictionary representations and
  * LoggedEvent entity instances.
- * 
- * @package Portalbox\Transform
  */
 class LoggedEventTransformer implements OutputTransformer {
 
 	/**
 	 * Called to serialize LoggedEvent entity instance to a dictionary
 	 *
-	 * @param bool $traverse - traverse the object graph if true, otherwise 
+	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.
 	 * @return array -  a dictionary whose values are null, string, int, float
 	 *      dictionaries, or arrays with the compound types having the same
@@ -54,7 +52,7 @@ class LoggedEventTransformer implements OutputTransformer {
 	 * Called to get the column headers for a tabular output format eg csv.
 	 * The column count should match the number of fields in an array returned
 	 * by serialize() when $traverse is false
-	 * 
+	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
 	public function get_column_headers() : array {

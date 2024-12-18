@@ -15,8 +15,6 @@ use Portalbox\Model\LocationModel;
 /**
  * EquipmentTransformer is our bridge between dictionary representations and
  * Equipment entity instances.
- *
- * @package Portalbox\Transform
  */
 class EquipmentTransformer implements InputTransformer, OutputTransformer {
 	/**

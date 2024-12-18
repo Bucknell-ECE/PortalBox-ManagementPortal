@@ -15,8 +15,6 @@ use PDO;
 
 /**
  * ChargeModel is our bridge between the database and higher level Entities.
- *
- * @package Portalbox\Model
  */
 class ChargeModel extends AbstractModel {
 	/**

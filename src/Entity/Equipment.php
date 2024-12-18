@@ -6,8 +6,6 @@ use InvalidArgumentException;
 
 /**
  * Equipment represents a machine connected to a Portalbox.
- *
- * @package Portalbox\Entity
  */
 class Equipment extends AbstractEntity {
 

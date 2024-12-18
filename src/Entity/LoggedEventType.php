@@ -4,8 +4,6 @@ namespace Portalbox\Entity;
 
 /**
  * LoggedEventType represents the type of a log event.
- *
- * @package Portalbox\Entity
  */
 class LoggedEventType {
 	/**
