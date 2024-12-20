@@ -9,7 +9,8 @@ use InvalidArgumentException;
  *
  * @package Portalbox\Entity
  */
-class Equipment extends AbstractEntity {
+class Equipment {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * This user's name

@@ -8,7 +8,8 @@ namespace Portalbox\Entity;
  *
  * @package Portalbox\Entity
  */
-class Payment extends AbstractEntity {
+class Payment {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * The id of the user who paid

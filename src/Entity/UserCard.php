@@ -8,7 +8,7 @@ namespace Portalbox\Entity;
  *
  * @package Portalbox\Entity
  */
-class UserCard extends AbstractEntity implements Card {
+class UserCard extends Card {
 
 	/**
 	 * The id of the user this card was issued to
