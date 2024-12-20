@@ -12,7 +12,8 @@ use InvalidArgumentException;
  *
  * @package Portalbox\Entity
  */
-class Role extends AbstractEntity {
+class Role {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * The name of this role

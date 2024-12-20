@@ -5,16 +5,16 @@ namespace Portalbox\Entity;
 /**
  * Cards come in a number of types and when presented to a portalbox, the
  * portalbox takes action based on the card type.
- * 
+ *
  * @package Portalbox\Entity
  */
-interface Card {
+abstract class Card {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
-	 * Get the type of the card
-	 *
-	 * @return int - type one of the predefined constants exposed by CardType
+	 * Get the type of the card. Must be one of the predefined constants exposed
+	 * by CardType
 	 */
-	public function type_id();
+	abstract public function type_id(): int;
 
 }

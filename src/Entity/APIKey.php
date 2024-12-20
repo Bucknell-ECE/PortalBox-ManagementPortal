@@ -7,10 +7,11 @@ use InvalidArgumentException;
 /**
  * APIKey represents a token that can be used to authenticate to the REST API
  * without establishing a User Session
- * 
+ *
  * @package Portalbox\Entity
  */
-class APIKey extends AbstractEntity {
+class APIKey {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * The name of this API key

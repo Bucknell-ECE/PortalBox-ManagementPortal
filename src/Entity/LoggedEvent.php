@@ -4,13 +4,14 @@ namespace Portalbox\Entity;
 
 /**
  * LoggedEvent represents one Event in the event log
- * 
+ *
  * @package Portalbox\Entity
  */
-class LoggedEvent extends AbstractEntity {
+class LoggedEvent {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
-	 * The time this event occured
+	 * The time this event occurred
 	 *
 	 * @var string
 	 */
@@ -22,7 +23,7 @@ class LoggedEvent extends AbstractEntity {
 	 * @var int
 	 */
 	protected $type_id;
-	
+
 	/**
 	 * The id of the card which triggered this event
 	 *
@@ -32,7 +33,7 @@ class LoggedEvent extends AbstractEntity {
 
 	/**
 	 * The card which triggered this event
-	 * 
+	 *
 	 * @var Card|null
 	 */
 	protected $card;
@@ -46,7 +47,7 @@ class LoggedEvent extends AbstractEntity {
 
 	/**
 	 * The user whose card which triggered this event
-	 * 
+	 *
 	 * @var User|null
 	 */
 	protected $user;
@@ -60,40 +61,40 @@ class LoggedEvent extends AbstractEntity {
 
 	/**
 	 * The name of the equipment which reported this event
-	 * 
+	 *
 	 * @var Equipment|null
 	 */
 	protected $equipment;
 
-	
+
 	/**
 	 * The id of the equipment type for this event
-	 * 
+	 *
 	 * @var int
 	 */
 	private $equipment_type_id;
 
 	/**
 	 * The name of the equipment type for this event
-	 * 
+	 *
 	 * @var string
 	 */
 	private $equipment_type;
 
 
 	/**
-	 * Get the time this event occured
+	 * Get the time this event occurred
 	 *
-	 * @return string - the time this event occured
+	 * @return string - the time this event occurred
 	 */
 	public function time() : string {
 		return $this->time;
 	}
 
 	/**
-	 * Set the time this event occured
+	 * Set the time this event occurred
 	 *
-	 * @param string time - the time this event occured
+	 * @param string time - the time this event occurred
 	 * @return self
 	 */
 	public function set_time(string $time) : self {
@@ -154,7 +155,7 @@ class LoggedEvent extends AbstractEntity {
 	// a convenience method... see Model\Entity\LoggedEventModel ;)
 	/**
 	 * Get the name of the equipment which reported this event
-	 * 
+	 *
 	 * @return string - the name of the equipment
 	 */
 	public function equipment_name() : ?string {
@@ -262,7 +263,7 @@ class LoggedEvent extends AbstractEntity {
 	// a convenience method... see Model\Entity\LoggedEventModel ;)
 	/**
 	 * Get the name of the user whose action triggered this event
-	 * 
+	 *
 	 * @return string - the name of the user
 	 */
 	public function user_name() : ?string {
@@ -301,9 +302,9 @@ class LoggedEvent extends AbstractEntity {
 
 	// a convenience method... see Model\Entity\LoggedEventModel ;)
 	/**
-	 * Get the name of the location where the equipment which triggerd this
+	 * Get the name of the location where the equipment which triggered this
 	 * event is located
-	 * 
+	 *
 	 * @return string - the name of the location
 	 */
 	public function location_name() : ?string {

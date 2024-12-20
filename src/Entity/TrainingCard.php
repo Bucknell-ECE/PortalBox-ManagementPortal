@@ -8,7 +8,7 @@ namespace Portalbox\Entity;
  *
  * @package Portalbox\Entity
  */
-class TrainingCard extends AbstractEntity implements Card {
+class TrainingCard extends Card {
 
 	/**
 	 * The id of the type of equipment this card can activate for training
