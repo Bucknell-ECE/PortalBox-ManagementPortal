@@ -10,8 +10,6 @@ use InvalidArgumentException;
  * While a Makerspace might have only a single location, implementors like
  * a University might have multiple locations across campus with equipment
  * that they wish to outfit with Portal boxes as a single campus wide system.
- *
- * @package Portalbox\Entity
  */
 class Location {
 	use \Portalbox\Trait\HasIdProperty;

@@ -12,8 +12,6 @@ use Portalbox\Transform\OutputTransformer;
  * be subclassed to control the fields exposed in the response. Subclasses
  * may override json_encode_entity, json_encode_list, get_cvs_header,
  * list_item_to_array.
- *
- * @package Portalbox\Transformer
  */
 class ResponseHandler {
 

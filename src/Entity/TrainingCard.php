@@ -5,8 +5,6 @@ namespace Portalbox\Entity;
 /**
  * Cards come in a number of types and when presented to a portalbox, the
  * portalbox shuts down when presented with cards of this type.
- *
- * @package Portalbox\Entity
  */
 class TrainingCard extends Card {
 

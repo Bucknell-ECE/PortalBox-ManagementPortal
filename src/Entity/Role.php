@@ -9,8 +9,6 @@ use InvalidArgumentException;
  *
  * Every user is assigned a role and thus has a set of permissions restricting
  * what they can do in the web portal.
- *
- * @package Portalbox\Entity
  */
 class Role {
 	use \Portalbox\Trait\HasIdProperty;

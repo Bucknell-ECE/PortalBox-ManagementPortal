@@ -4,8 +4,6 @@ namespace Portalbox\Query;
 
 /**
  * PaymentQuery presents a standard interface for Charge search queries
- * 
- * @package Portalbox\Query
  */
 class PaymentQuery {
 	/**

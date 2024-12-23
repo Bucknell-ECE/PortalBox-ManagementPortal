@@ -7,8 +7,6 @@ namespace Portalbox\Entity;
  *
  *	Typically this class is used by requesting the authenticated user instance
  *	from the Session which will be an instance of this class
- *
- * @package Portalbox\Entity
  */
 class User {
 	use \Portalbox\Trait\HasIdProperty;

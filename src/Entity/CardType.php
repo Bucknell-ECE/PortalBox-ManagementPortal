@@ -7,8 +7,6 @@ use ReflectionClass;
 /**
  * CardType represents the kind of an equipment activation card... the IoT
  * application decides what to do based on CardType when presented with a card.
- * 
- * @package Portalbox\Entity
  */
 class CardType {
 	/** This card type can be used to shutdown Portalboxes */
@@ -68,7 +66,7 @@ class CardType {
 
 	/**
 	 * Get the name for the card type
-	 * 
+	 *
 	 * @param int type_id - the policy id to check
 	 * @return string - name for the event type
 	 */

@@ -6,8 +6,6 @@ use InvalidArgumentException;
 
 /**
  * Equipment Type binds policy to equipment of the same type
- *
- * @package Portalbox\Entity
  */
 class EquipmentType {
 	use \Portalbox\Trait\HasIdProperty;

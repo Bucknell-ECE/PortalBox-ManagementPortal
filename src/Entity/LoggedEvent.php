@@ -4,8 +4,6 @@ namespace Portalbox\Entity;
 
 /**
  * LoggedEvent represents one Event in the event log
- *
- * @package Portalbox\Entity
  */
 class LoggedEvent {
 	use \Portalbox\Trait\HasIdProperty;
