@@ -4,8 +4,6 @@ namespace Portalbox\Query;
 
 /**
  * CardQuery presents a standard interface for Card search queries
- * 
- * @package Portalbox\Query
  */
 class CardQuery {
 	/**
@@ -24,7 +22,7 @@ class CardQuery {
 
 	/**
 	 * Find cards for this id
-	 * 
+	 *
 	 * @var int
 	 */
 	protected $id;
@@ -71,7 +69,7 @@ class CardQuery {
 
 	/**
 	 * Get the card id
-	 * 
+	 *
 	 * @return int - the card id
 	 */
 	public function id() : ?int  {
@@ -80,7 +78,7 @@ class CardQuery {
 
 	/**
 	 * Set the card id
-	 * 
+	 *
 	 * @param int id - the card id
 	 * @return self
 	 */

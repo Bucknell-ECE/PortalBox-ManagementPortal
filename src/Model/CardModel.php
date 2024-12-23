@@ -20,8 +20,6 @@ use PDO;
 
 /**
  * CardModel is our bridge between the database and higher level Entities.
- * 
- * @package Portalbox\Model
  */
 class CardModel extends AbstractModel {
 	/**
@@ -168,7 +166,7 @@ class CardModel extends AbstractModel {
 
 	/**
 	 * Search for Cards
-	 * 
+	 *
 	 * @param CardQuery|null query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Card[]|null - a list of equipment which match the search query
@@ -226,9 +224,9 @@ class CardModel extends AbstractModel {
 					function ($e) use ($equipment_type_id) {
 						return $e->id() == $equipment_type_id;
 					});
-				
+
 				$equipment_type = array_pop($equipment_type);
-				
+
 				return $card = (new TrainingCard())
 					->set_id($data['id'])
 					->set_equipment_type_id($data['equipment_type_id'])
@@ -242,7 +240,7 @@ class CardModel extends AbstractModel {
 					});
 
 				$user = array_pop($user);
-				
+
 				return(new UserCard())
 					->set_id($data['id'])
 					->set_user_id($data['user_id'])
@@ -263,7 +261,7 @@ class CardModel extends AbstractModel {
 		$r_model = new RoleModel($this->configuration());
 
 		$u_query = new UserQuery();
-		
+
 		$equipment_types = $e_model->search();
 		$users = $u_model->search($u_query);
 		$roles = $r_model->search();

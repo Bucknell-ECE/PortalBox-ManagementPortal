@@ -10,8 +10,6 @@ use PDO;
 
 /**
  * APIKeyModel is our bridge between the database and higher level Entities.
- * 
- * @package Portalbox\Model
  */
 class APIKeyModel extends AbstractModel {
 	/**
@@ -121,7 +119,7 @@ class APIKeyModel extends AbstractModel {
 
 	/**
 	 * Search for an APIKey or APIKeys
-	 * 
+	 *
 	 * @param APIKeyQuery query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey[]|null - a list of api keys which match the search query
@@ -148,7 +146,7 @@ class APIKeyModel extends AbstractModel {
 		if(NULL !== $query->token()) {
 			$statement->bindValue(':token', $query->token());
 		}
-		
+
 		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
 			if(FALSE !== $data) {

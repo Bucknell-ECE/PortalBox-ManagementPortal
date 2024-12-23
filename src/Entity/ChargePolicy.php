@@ -7,8 +7,6 @@ namespace Portalbox\Entity;
  * charge when an activation session ends... as a stored procedure in the
  * database does the calculation, ChargePolicies occupy a privileged role
  * and are difficult to change so they are predefined
- *
- * @package Portalbox\Entity
  */
 class ChargePolicy {
 	/** This charge type indicates that a charge has been manually adjusted. */

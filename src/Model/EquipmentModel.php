@@ -11,8 +11,6 @@ use PDO;
 
 /**
  * EquipmentModel is our bridge between the database and higher level Entities.
- *
- * @package Portalbox\Model
  */
 class EquipmentModel extends AbstractModel {
 

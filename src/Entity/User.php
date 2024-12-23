@@ -4,11 +4,9 @@ namespace Portalbox\Entity;
 
 /**
  * User represents a User in the system.
- * 
+ *
  *	Typically this class is used by requesting the authenticated user instance
  *	from the Session which will be an instance of this class
- * 
- * @package Portalbox\Entity
  */
 class User extends AbstractEntity {
 	/**
@@ -41,14 +39,14 @@ class User extends AbstractEntity {
 
 	/**
 	 * The role of the user
-	 * 
+	 *
 	 * @var Role|null
 	 */
 	protected $role;
 
 	/**
 	 * Whether this user is active ie can login
-	 * 
+	 *
 	 * Log entries have a reference to the user so we can't delete users instead
 	 * we change them to inactive
 	 *
@@ -146,7 +144,7 @@ class User extends AbstractEntity {
 
 	/**
 	 * Get the user's role's name
-	 * 
+	 *
 	 * @return string - the name of the user's role
 	 */
 	public function role_name() : string {
