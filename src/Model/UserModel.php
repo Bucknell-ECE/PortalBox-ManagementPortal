@@ -177,7 +177,7 @@ class UserModel extends AbstractModel {
 	}
 
 	/**
-	 * Delete a user secified by their unique ID
+	 * Delete a user specified by their unique ID
 	 *
 	 * @param int id - the unique id of the user
 	 * @throws DatabaseException - when the database can not be queried

@@ -8,7 +8,7 @@ namespace Portalbox\Entity;
 class LoggedEvent extends AbstractEntity {
 
 	/**
-	 * The time this event occured
+	 * The time this event occurred
 	 *
 	 * @var string
 	 */
@@ -80,18 +80,18 @@ class LoggedEvent extends AbstractEntity {
 
 
 	/**
-	 * Get the time this event occured
+	 * Get the time this event occurred
 	 *
-	 * @return string - the time this event occured
+	 * @return string - the time this event occurred
 	 */
 	public function time() : string {
 		return $this->time;
 	}
 
 	/**
-	 * Set the time this event occured
+	 * Set the time this event occurred
 	 *
-	 * @param string time - the time this event occured
+	 * @param string time - the time this event occurred
 	 * @return self
 	 */
 	public function set_time(string $time) : self {
@@ -299,7 +299,7 @@ class LoggedEvent extends AbstractEntity {
 
 	// a convenience method... see Model\Entity\LoggedEventModel ;)
 	/**
-	 * Get the name of the location where the equipment which triggerd this
+	 * Get the name of the location where the equipment which triggered this
 	 * event is located
 	 *
 	 * @return string - the name of the location
