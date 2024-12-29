@@ -16,7 +16,7 @@ window.app = null;
  * @param (string)destination_url - the location to which the browser should
  *     "navigate"
  * @param (string)current_page_title - what the history entry for page where
- *     the click occured should be called
+ *     the click occurred should be called
  */
 window.go = function(destination_url, current_page_title) {
     app.navigate(destination_url);

@@ -31,7 +31,7 @@ export class User {
 	/**
 	 * Get whether the user has a specified permission
 	 * 
-	 * @param {interger} the permission for which to check
+	 * @param {integer} the permission for which to check
 	 * @return {bool} true iff the user has te permission
 	 */
 	has_permission(permission) {
@@ -92,7 +92,7 @@ export class User {
 	/**
 	 * Get a user by id
 	 *
-	 * @param int id the unique id of the User to retreive
+	 * @param int id the unique id of the User to retrieve
 	 * @return User specified by the id
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
