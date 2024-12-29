@@ -36,7 +36,7 @@ class AbstractModel {
 	 *
 	 * @param Config configuration - the configuration to use
 	 */
-	public function set_configuration(Config $configuration) {
+	public function set_configuration(Config $configuration) : void {
 		$this->configuration = $configuration;
 	}
 }

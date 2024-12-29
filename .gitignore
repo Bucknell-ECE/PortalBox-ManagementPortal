@@ -24,5 +24,6 @@
 # test results
 .phpunit.result.cache
 
-# exclude editor cruft
+# ignore editor settings
+.zed
 .phpactor.json

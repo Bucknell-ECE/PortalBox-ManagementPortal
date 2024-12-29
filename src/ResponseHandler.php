@@ -8,7 +8,7 @@ use Portalbox\Transform\NullOutputTransformer;
 use Portalbox\Transform\OutputTransformer;
 
 /**
- * OuptputTransformer - Is used to send encoded responses to a requestor. Can
+ * OuptputTransformer - Is used to send encoded responses to a requester. Can
  * be subclassed to control the fields exposed in the response. Subclasses
  * may override json_encode_entity, json_encode_list, get_cvs_header,
  * list_item_to_array.
@@ -16,18 +16,18 @@ use Portalbox\Transform\OutputTransformer;
 class ResponseHandler {
 
 	/**
-	 * Encodes and sends data to the requestor
+	 * Encodes and sends data to the requester
 	 *
-	 * @param AbstractEntity|array data - an Entity or list of entities to
+	 * @param AbstractEntity|array $data - an Entity or list of entities to
 	 *     render into an HTTP response
-	 * @param OutputTransformer|null transformer - a transformer which can
+	 * @param OutputTransformer|null $transformer - a transformer which can
 	 *     transform the $data entity object into a dictionary whose values
 	 *     are null, string, int, float, dictionaries, or arrays with the
 	 *     compound types having the same restrictions when $traverse is
 	 *     true or a dictionary whose values are null, string, int, and float
 	 *     otherwise
 	 */
-	public static function render($data, OutputTransformer $transformer = null) {
+	public static function render($data, ?OutputTransformer $transformer = null) {
 		if(NULL === $transformer) {
 			$transformer = new NullOutputTransformer();
 		}
@@ -47,7 +47,7 @@ class ResponseHandler {
 	 *
 	 * @param array $data - the list of entity instances to render into the response
 	 */
-	private static function render_list_response(OutputTransformer $transformer, $data) {
+	private static function render_list_response(OutputTransformer $transformer, $data): void {
 		// check request for desired encoding
 		switch($_SERVER['HTTP_ACCEPT']) {
 			case 'text/csv':
@@ -82,7 +82,7 @@ class ResponseHandler {
 	 *
 	 * @param AbstractEntity $data - the entity instance to render into the response
 	 */
-	private static function render_entity_response(OutputTransformer $transformer, $data) {
+	private static function render_entity_response(OutputTransformer $transformer, $data): void {
 		$encoded = json_encode($transformer->serialize($data, true));
 
 		if(false !== $encoded) {

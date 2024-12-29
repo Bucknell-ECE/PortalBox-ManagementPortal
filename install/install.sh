@@ -75,7 +75,7 @@ mariadb $db_name -e "GRANT ALL ON $db_name.* TO '$db_login'@'localhost';"
 mariadb $db_name -e "INSERT INTO users (name, email, role_id, is_active) VALUES ('$name', '$email', 3, 1);"
 
 
-cd $root/makerportal/public
+cd $root/makerportal
 yarn install
 
 reboot now
