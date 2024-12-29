@@ -14,16 +14,313 @@ import { CardType } from './CardType.js';
 
 import * as Permission from './Permission.js';
 
-class Application extends Moostaka {
-	constructor() {
-		super();
+/*
+ * In Javascript NULL and undefined values do not respond to .toLowerCase()
+ * in fact calling .toLowerCase() on NULL will raise an error stopping
+ * script execution which is problematic. lowerCase() is therefore a cover
+ * for .toLowerCase() which checks that the value is not falsy before invoking
+ * .toLowerCase()
+ */
+function lowerCase(value) {
+	if (value) {
+		return value.toLowerCase();
+	}
+	return value;
+}
 
-		this.user = null;
+class Application {
+	user = null;
+
+	/**
+	 * Instantiate the SPA
+	 *
+	 * @param {Object} opts - a dictionary of options. Supported keys are:
+	 *        {string} defaultRoute - the default route. defaults to '/'
+	 *        {string} viewLocation - a url fragment for locating page
+	 *                templates. defaults to '/views'
+	 */
+	constructor(opts) {
+		this.routes = [];
+
+		// define the defaults
+		this.defaultRoute = "/";
+		this.viewLocation = "/views";
+
+		// redirect to default route if none defined
+		if (location.pathname === "") {
+			history.pushState("data", this.defaultRoute, this.defaultRoute);
+		}
+
+		// override the defaults
+		if (opts) {
+			this.defaultRoute =
+				typeof opts.defaultRoute !== "undefined"
+					? opts.defaultRoute
+					: this.defaultRoute;
+			this.viewLocation =
+				typeof opts.viewLocation !== "undefined"
+					? opts.viewLocation
+					: this.viewLocation;
+		}
+
+		let self = this;
+		// hook up events
+		document.addEventListener(
+			"click",
+			(event) => {
+				if (event.target.matches("a[href], a[href] *")) {
+					// walk up the tree until we find the href
+					let element = event.target;
+					while (element instanceof HTMLElement) {
+						if (element.href) {
+							if (
+								element.href.startsWith(location.host) ||
+								element.href.startsWith(
+									location.protocol + "//" + location.host,
+								)
+							) {
+								// staying in application
+								event.preventDefault();
+								let url = element.href
+									.replace("http://", "")
+									.replace("https://", "")
+									.replace(location.host, "");
+								let text = document.title;
+								if (
+									element.title instanceof String &&
+									element.title != ""
+								) {
+									text = element.title;
+								} else if (
+									event.target.title instanceof String &&
+									event.target.title != ""
+								) {
+									text = event.target.title;
+								}
+								history.pushState({}, text, element.href);
+								self.navigate(url);
+							} // else do nothing so browser does the default thing ie browse to new location
+							return;
+						} else {
+							element = element.parentElement;
+						}
+					}
+				} // else not a link; ignore
+			},
+			false,
+		);
+
+		// pop state
+		window.onpopstate = (e) => {
+			self.navigate(location.pathname);
+		};
+	}
+
+	/**
+	 * handle navigation events routing to a "route" if one is defined which
+	 * matches the specified pathname
+	 *
+	 * @param {string} pathname the uri to change to
+	 */
+	navigate(pathname) {
+		if (this.onnavigate) {
+			this.onnavigate(pathname);
+		}
+
+		// if no path, go to default
+		if (!pathname || pathname === "/") {
+			pathname = this.defaultRoute;
+		}
+
+		let hashParts = pathname.split("/");
+		let params = {};
+		for (let i = 0, len = this.routes.length; i < len; i++) {
+			if (typeof this.routes[i].pattern === "string") {
+				let routeParts = this.routes[i].pattern.split("/");
+				let thisRouteMatch = true;
+
+				// if segment count is not equal the pattern will not match
+				if (routeParts.length !== hashParts.length) {
+					thisRouteMatch = false;
+				} else {
+					for (let x = 0; x < routeParts.length; x++) {
+						// A wildcard is found, lets break and return what we have already
+						if (routeParts[x] === "*") {
+							break;
+						}
+
+						// if not optional params we check it
+						if (routeParts[x].substring(0, 1) !== ":") {
+							if (
+								lowerCase(routeParts[x]) !==
+								lowerCase(hashParts[x])
+							) {
+								thisRouteMatch = false;
+							}
+						} else {
+							// this is an optional param that the user will want
+							let partName = routeParts[x].substring(1);
+							params[partName] = hashParts[x];
+						}
+					}
+				}
+
+				// if route is matched
+				if (thisRouteMatch === true) {
+					return this.routes[i].handler(params);
+				}
+			} else {
+				if (pathname.substring(1).match(this.routes[i].pattern)) {
+					return this.routes[i].handler({
+						hash: pathname.substring(1).split("/"),
+					});
+				}
+			}
+		}
+
+		// no routes were matched. try defaultRoute if that is not the route being attempted
+		if (this.defaultRoute != pathname) {
+			history.pushState("data", "home", this.defaultRoute);
+			this.navigate(this.defaultRoute);
+		} // else we should perhaps implement an error route?
+	}
+
+	/**
+	 * Render a template into a specified HTMLElement node
+	 *
+	 * @param {HTMLElement|string} an element node or a string specifying an
+	 *      HTMLElement node e.g. '#content' for <div id="content"></div>
+	 * @param {string} view - the name of an .mst file in the views location
+	 *      to use as a template
+	 * @param {?object} params - additional parameters for the Mustache template
+	 *      renderer
+	 * @param {?object} options - a dictionary of options. supported keys:
+	 *      {array<string>} tags - a list of delimiters for Mustache to use
+	 *      {bool} append - if true then new content to the element's contents
+	 *            otherwise replace the contents of element with the render
+	 *            output. Default: false
+	 * @param {?function} callback - a callback function to invoke once the
+	 *      template has been rendered into place
+	 */
+	render(element, view, params, options, callback) {
+		let destination = null;
+		if (element instanceof HTMLElement) {
+			destination = element;
+		} else {
+			destination = document.querySelector(element);
+		}
+		if (!params) {
+			params = {};
+		}
+		if (!options) {
+			options = {};
+		}
+		if (typeof options.tags === "undefined") {
+			Mustache.tags = ["{{", "}}"];
+		} else {
+			Mustache.tags = options.tags;
+		}
+		if (typeof options.append === "undefined") {
+			options.append = false;
+		}
+
+		let url = this.viewLocation + "/" + view.replace(".mst", "") + ".mst";
+		fetch(url)
+			.then((response) => {
+				return response.text();
+			})
+			.then((template) => {
+				if (options.append === true) {
+					destination.innerHTML += Mustache.render(template, params);
+				} else {
+					while (destination.firstChild) {
+						destination.removeChild(destination.firstChild);
+					}
+					destination.innerHTML = Mustache.render(template, params);
+				}
+				if (callback instanceof Function) {
+					callback();
+				}
+			});
+	}
+
+	/**
+	 * Render a template and the as rendered template to the callback as a
+	 * string parameter
+	 *
+	 * @param {string} view - the name of an .mst file in the views location
+	 *      to use as a template
+	 * @param {?object} params - additional parameters for the Mustache template
+	 *      renderer
+	 * @param {?object} options - a dictionary of options. supported keys:
+	 *      {array<string>} tags - a list of delimiters for Mustache to use
+	 *      {bool} markdown - if true and window.markdownit exists call
+	 *          window.markdownit.render() on the template data before
+	 *          rendering content with Mustache.
+	 * @param {function} callback - a callback function to invoke once the
+	 *      template has been rendered. The string value of the rendered
+	 *      template will be passed to the function as its first and only
+	 *      parameter
+	 */
+	getHtml(view, params, options, callback) {
+		if (!(callback instanceof Function)) {
+			throw new TypeError("callback is not a function");
+		}
+		if (!params) {
+			params = {};
+		}
+		if (!options) {
+			options = {};
+		}
+		if (typeof options.tags === "undefined") {
+			Mustache.tags = ["{{", "}}"];
+		} else {
+			Mustache.tags = options.tags;
+		}
+		if (typeof options.markdown === "undefined") {
+			options.markdown = false;
+		}
+
+		let url = this.viewLocation + "/" + view.replace(".mst", "") + ".mst";
+		fetch(url)
+			.then((response) => {
+				return response.text();
+			})
+			.then((template) => {
+				if (window.markdownit && options.markdown === true) {
+					let md = window.markdownit();
+					callback(Mustache.render(md.render(template), params));
+				} else {
+					callback(Mustache.render(template, params));
+				}
+			});
+	}
+
+	/**
+	 * Add a route to the SPA
+	 *
+	 * @param {string} pattern - a pattern string that if matched to the URI
+	 *      will cause the specified handler to be invoked
+	 * @param {function} handler - a callback function to invoke when the user
+	 *      navigates to this route.
+	 */
+	route(pattern, handler) {
+		// should check if pattern is already routed and if so
+		// throw error or overwrite?
+		this.routes.push({ pattern: pattern, handler: handler });
+	}
+
+	/**
+	 * clear all routes currently configured useful if transitioning between
+	 * authenticated and unauthenticated states
+	 */
+	flush() {
+		this.routes = [];
 	}
 
 	/**
 	 * handleError takes action based on the error reported.
-	 * 
+	 *
 	 * @param {*} error - the error being reported tyically from the fetch API
 	 *        but could also be a {string} message to report to the user
 	 */
@@ -119,7 +416,7 @@ class Application extends Moostaka {
 						let type_id_selector = document.getElementById("type_id");
 						type_id_selector.addEventListener('change', (event) => {
 							this.card_options_selector(event.target.value);
-						});						
+						});
 					});
 				}).catch(e => this.handleError(e));
 			});
@@ -332,7 +629,7 @@ class Application extends Moostaka {
 		if(this.user.has_permission(Permission.READ_USER)) {
 			// User needs MODIFY_USER to make use of /users/id for editing user attributes eg email address
 			// User needs CREATE_EQUIPMENT_AUTHORIZATION or DELETE_EQUIPMENT_AUTHORIZATION to manage authorizations
-			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER), 
+			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER),
 				this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION),
 				this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.CREATE_PAYMENT)));
 		}
@@ -368,7 +665,7 @@ class Application extends Moostaka {
 						if("charge_policy" in transaction) {
 							transaction.amount *= -1;
 						}
-						
+
 						if(new_ledger.length > 0) {
 							transaction.balance = new_ledger[new_ledger.length-1].balance + transaction.amount;
 						} else {
@@ -407,7 +704,7 @@ class Application extends Moostaka {
 			this.render("#main", "authenticated/top-menu", {"features":home_icons});
 		});
 	}
-	
+
 	/**
 	 * Private utility method for setting up routes when application is
 	 * configured without an authenticated user
@@ -425,7 +722,7 @@ class Application extends Moostaka {
 
 	/**
 	 * Set the current user
-	 * 
+	 *
 	 * @param User|null user - the authenticated user or null if no authenticated user
 	 */
 	set_user(user) {
@@ -449,10 +746,10 @@ class Application extends Moostaka {
 	 * Helper which iterates the fields in a form creating an object
 	 * which has key value pairs corresponding to the name and value
 	 * of the fields with a name attribute.
-	 * 
+	 *
 	 * If name is of the form
 	 * "foo.bar" then the value will be nested as ret["foo"]["bar"]
-	 * 
+	 *
 	 * @param HTMLFormElement form - the form from which to retrieve data
 	 * @return Object - an object with an attribute for each form input or
 	 *     group of inputs.
@@ -510,12 +807,12 @@ class Application extends Moostaka {
 
 	/**
 	 * Callback that handles deleting an api key from the backend. Bound to the
-	 * delete button in the View API Key view [views/admin/api-keys/view.mst] 
-	 * 
-	 * @param {string} id - the numeric id as a tring of the key to delete
+	 * delete button in the View API Key view [views/admin/api-keys/view.mst]
+	 *
+	 * @param {string} id - the numeric id as a string of the key to delete
 	 */
 	delete_api_key(id) {
-		if(window.confirm("Are you sure you want to delete the API key")) { 
+		if(window.confirm("Are you sure you want to delete the API key")) {
 			APIKey.delete(id).then(_ => {
 				this.navigate("/api-keys")
 			}).catch(e => this.handleError(e));
@@ -588,7 +885,7 @@ class Application extends Moostaka {
 
 	list_cards(params, auth_level) {
 		let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-		
+
 		Card.list(queryString).then(cards => {
 			this.render('#main', "authenticated/cards/list", {"cards": cards});
 		}).catch(e => this.handleError(e));
@@ -648,9 +945,9 @@ class Application extends Moostaka {
 	add_equipment(event) {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
-		
+
 		Equipment.list().then(equipment_list => {
-			
+
 			let contains = equipment_list.reduce((accumulator, equipment) => ((equipment.mac_address === data.mac_address) || accumulator), false);
 
 			if(contains) {
@@ -690,13 +987,13 @@ class Application extends Moostaka {
 					"default_type" : values[0].find(type => type.id == value.type_id).name,
 					"locations": values[1],
 					"default_location" : values[1].find(location => location.id == value.location_id).name,
-					
+
 					"editable":editable}, {}, () => {
 
 					// Commented out since they were preventing a default value from being shown
 					// document.getElementById("type_id").value = values[0].type_id;
 					// document.getElementById("location_id").value = values[0].location_id;
-					
+
 					document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e, equipment); });
 
 					this.set_icon_colors(document);
@@ -715,7 +1012,7 @@ class Application extends Moostaka {
 	update_equipment(id, event) {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
-		
+
 
 		Equipment.list().then(equipment_list => {
 			equipment_list = equipment_list.filter((equipment) => (equipment.id != id));
@@ -818,7 +1115,7 @@ class Application extends Moostaka {
 	read_location(id, editable) {
 		let p0 = Location.read(id);
 		let p1 = Equipment.list("location_id=" + id);
-		
+
 		Promise.all([p0,p1]).then(values => {
 			this.render("#main", "authenticated/locations/view", {"location": values[0], "equipment": values[1], "editable": editable}, {}, () => {
 				document
@@ -848,7 +1145,7 @@ class Application extends Moostaka {
 	/**
 	 * Retrieve the log and optionally filter it. By default, a filter is applied
 	 * to limit the log to just the past week
-	 * 
+	 *
 	 * @param {Object} search - a dictionary of filters (keys and the value to
 	 *     use when filtering)
 	 */
@@ -867,7 +1164,7 @@ class Application extends Moostaka {
 		let p1 = Equipment.list();
 		let p2 = Location.list();
 		let p3 = EquipmentType.list();
-		
+
 		Promise.all([p0, p1, p2, p3]).then(values => {
 			let equipment_type = null;
 			if('equipment_type_id' in search) {
@@ -923,7 +1220,7 @@ class Application extends Moostaka {
 	/**
 	 * Called when the search form inputs change. Determines if the form represents
 	 * a search and if so calls list_log to runthe search and display the results
-	 * 
+	 *
 	 * @param {HTMLFormElement} search_form - the form encapsulating the inputs
 	 *     which the user has used to indicate how they wish the log to be searched/
 	 *     filtered
@@ -997,12 +1294,12 @@ class Application extends Moostaka {
 
 	/**
 	 * Callback that handles deleting a role from the backend. Bound to the
-	 * delete button in the View API Key view [views/admin/roles/view.mst] 
-	 * 
-	 * @param {string} id - the numeric id as a tring of the key to delete
+	 * delete button in the View API Key view [views/admin/roles/view.mst]
+	 *
+	 * @param {string} id - the numeric id as a string of the key to delete
 	 */
 	// _delete_role(id) {
-	// 	if(window.confirm("Are you sure you want to delete the Role")) { 
+	// 	if(window.confirm("Are you sure you want to delete the Role")) {
 	// 		Role.delete(id).then(_ => {
 	// 			this.navigate("/roles")
 	// 		}).catch(e => this.handleError(e));
@@ -1127,7 +1424,7 @@ class Application extends Moostaka {
 				if("charge_policy" in transaction) {
 					transaction.amount *= -1;
 				}
-				
+
 				if(new_ledger.length > 0) {
 					transaction.balance = new_ledger[new_ledger.length-1].balance + transaction.amount;
 				} else {

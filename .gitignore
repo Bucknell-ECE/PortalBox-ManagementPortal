@@ -23,3 +23,7 @@
 
 # test results
 .phpunit.result.cache
+
+# ignore editor settings
+.zed
+.phpactor.json

@@ -35,7 +35,7 @@ Occasionally, it may be necessary to provide a helper function for PHP. We suppo
 
 ## Installation
 
-If you have not already setup the database shared by the components of the portalbox ecosystem already start with that first.
+If you have not already setup the database shared by the components of the portalbox ecosystem start with that first.
 
 [Portalbox Database](https://github.com/Bucknell-ECE/PortalBox-database)
 
@@ -46,7 +46,7 @@ Assuming you have setup the database shared by the PortalBox Ecosystem already:
 	Using yarn (https://yarnpkg.com):
 
 	```sh
-	cd ${PROJECT_DIRECTORY}/public
+	cd ${PROJECT_DIRECTORY}
 	yarn install
 	```
 3) Copy `config/example-config.ini` to `config/config.ini` and edit the config.ini file filling in your database connection settings and Google OAuth Client ID.

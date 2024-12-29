@@ -1,0 +1,12 @@
+{
+    "name": "maker-portal",
+    "version": "2.0.0",
+    "main": "index.html",
+    "author": "T.K.Egan",
+    "license": "MIT",
+    "dependencies": {
+        "file-saver": "^2.0.2",
+        "hellojs": "^1.18.8",
+        "mustache": "^4.2.0"
+    }
+}
