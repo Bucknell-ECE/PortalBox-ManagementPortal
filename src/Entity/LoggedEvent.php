@@ -5,7 +5,8 @@ namespace Portalbox\Entity;
 /**
  * LoggedEvent represents one Event in the event log
  */
-class LoggedEvent extends AbstractEntity {
+class LoggedEvent {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * The time this event occurred

@@ -11,7 +11,8 @@ use InvalidArgumentException;
  * a University might have multiple locations across campus with equipment
  * that they wish to outfit with Portal boxes as a single campus wide system.
  */
-class Location extends AbstractEntity {
+class Location {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * The name of this location

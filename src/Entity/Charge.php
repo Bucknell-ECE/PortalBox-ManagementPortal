@@ -6,7 +6,8 @@ namespace Portalbox\Entity;
  * Charge represents a charge to a user for use of equipment in the
  * portalbox network
  */
-class Charge extends AbstractEntity {
+class Charge {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * The id of the user who was charged

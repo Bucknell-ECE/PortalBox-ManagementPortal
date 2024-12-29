@@ -6,7 +6,7 @@ namespace Portalbox\Entity;
  * Cards come in a number of types and when presented to a portalbox, the
  * portalbox shuts down when presented with cards of this type.
  */
-class TrainingCard extends AbstractEntity implements Card {
+class TrainingCard extends Card {
 
 	/**
 	 * The id of the type of equipment this card can activate for training

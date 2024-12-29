@@ -7,7 +7,8 @@ use InvalidArgumentException;
 /**
  * Equipment represents a machine connected to a Portalbox.
  */
-class Equipment extends AbstractEntity {
+class Equipment {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * This user's name

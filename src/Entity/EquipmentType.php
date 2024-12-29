@@ -7,7 +7,8 @@ use InvalidArgumentException;
 /**
  * Equipment Type binds policy to equipment of the same type
  */
-class EquipmentType extends AbstractEntity {
+class EquipmentType {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * The name of this equipment type

@@ -6,7 +6,8 @@ namespace Portalbox\Entity;
  * Payment represents a payment made by the user to the operator of the
  * portalbox network
  */
-class Payment extends AbstractEntity {
+class Payment {
+	use \Portalbox\Trait\HasIdProperty;
 
 	/**
 	 * The id of the user who paid
