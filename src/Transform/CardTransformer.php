@@ -123,7 +123,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 					'card_type_id' => $card_type_id,
 					'card_type' => CardType::name_for_type($card_type_id),
 					'user_id' => $data->user_id(),
-					'user' => is_null($data->user) ? '' : $data->user->name(),
+					'user' => is_null($data->user()) ? '' : $data->user()->name(),
 					'equipment_type_id' => '',
 					'equipment_type' => ''
 				];

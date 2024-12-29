@@ -10,17 +10,13 @@ class UserCard extends Card {
 
 	/**
 	 * The id of the user this card was issued to
-	 *
-	 * @var int
 	 */
-	private $user_id;
+	private int $user_id;
 
 	/**
 	 * The user this card was issued to
-	 *
-	 * @var User|null
 	 */
-	private $user = null;
+	private ?User $user = null;
 
 	/**
 	 * Get the type of the card
