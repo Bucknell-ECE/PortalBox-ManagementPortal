@@ -479,16 +479,26 @@ class Application {
 				}
 
 				Equipment.list(searchParams.toString()).then(equipment => {
-					this.render("#main", "authenticated/equipment/list", {"equipment": equipment, "search":search, "create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)}, {}, () => {
-						this.set_icon_colors(document);
-					});
+					this.render(
+						"#main",
+						"authenticated/equipment/list",
+						{
+							"equipment": equipment,
+							"search":search,
+							"create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)
+						},
+						{},
+						() => {
+							this.set_icon_colors(document);
+						}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}
 
 		// User needs READ_EQUIPMENT to make use of /api-keys/id
 		if(this.user.has_permission(Permission.READ_EQUIPMENT)) {
-			// User needs MODIFY_EQUIPMENT to make use of /api-keys/id for editing
+			// User needs MODIFY_EQUIPMENT to make use of /equipment/id for editing
 			this.route("/equipment/:id", params => this.read_equipment(params.id, this.user.has_permission(Permission.MODIFY_EQUIPMENT)));
 		}
 
@@ -1023,6 +1033,7 @@ class Application {
 				this.handleError(Error('Cannot save equipment. MAC address already exists.'));
 			} else {
 				Equipment.modify(id, data).then(_ => {
+					history.pushState("", "", "/equipment");
 					this.navigate("/equipment");
 					// notify user of success
 				}).catch(e => this.handleError(e));
