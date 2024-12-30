@@ -4,13 +4,11 @@ import { User } from './User.js';
 window.app = null;
 
 /**
- * While Moostaka is pretty great; simple, open source, has made this SPA
- * possible; there is a shortcoming: it's design really only supports
- * navigation by HTML link elements. Unfortunately, linking table rows is not
- * part of the HTML standard so we need a bit of a work around. We will bind
- * the click event of table rows to this helper function making them work with
- * moostaka as if they are links.
- * 
+ * Our SPA router really only supports navigation by HTML link elements.
+ * Unfortunately, linking table rows is not part of the HTML standard so we need
+ * a bit of a work around. We will bind the click event of table rows to this
+ * helper function making them work as if they are links.
+ *
  * go - make the browser "navigate" to the given url even when when the url is
  *     virtual, ie only valid in the SPA
  * @param (string)destination_url - the location to which the browser should
