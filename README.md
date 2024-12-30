@@ -1,7 +1,7 @@
 # Maker Portal
 
 ## About
-This web application is the companion webite for a deployment of MakerSpace Portal Boxes. Consisting of two parts; a single page web application (SPA) built on the light weight moostaka+mustache framework with OAuth2 authentication using hellojs and a backend REST API built with PHP+PDO(mysql). By default, the website allows unauthenticated users to check the availability of equipment, authenticated users to check their account balances, and admins to administer the system. We have implemented a flexible role based access system allowing you to create new roles such as trainers or auditors.
+This web application is the companion webite for a deployment of MakerSpace Portal Boxes. Consisting of two parts; a single page web application (SPA) with OAuth2 authentication using hellojs and a backend REST API built with PHP+PDO(mysql). By default, the website allows unauthenticated users to check the availability of equipment, authenticated users to check their account balances, and admins to administer the system. We have implemented a flexible role based access system allowing you to create new roles such as trainers or auditors.
 
 ### Note on Conventions
 In some shell commands you may need to provide values left up to you. These values are denoted using the semi-standard shell variable syntax e.g. ${NAME_OF_DATA}
