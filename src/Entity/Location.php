@@ -14,18 +14,10 @@ use InvalidArgumentException;
 class Location {
 	use \Portalbox\Trait\HasIdProperty;
 
-	/**
-	 * The name of this location
-	 *
-	 * @var string
-	 */
-	protected $name;
+	/** The name of this location */
+	protected string $name = '';
 
-	/**
-	 * Get the name of this location
-	 *
-	 * @return string - the name of the location
-	 */
+	/** Get the name of this location */
 	public function name() : string {
 		return $this->name;
 	}
@@ -33,16 +25,14 @@ class Location {
 	/**
 	 * Set the name of this location
 	 *
-	 * @param string name - the name for this location
-	 * @return self
+	 * @throws InvalidArgumentException if the name is the empty string
 	 */
 	public function set_name(string $name) : self {
-		if(0 < strlen($name)) {
-			$this->name = $name;
-			return $this;
+		if($name === '') {
+			throw new InvalidArgumentException('You must specify the location\'s name');
 		}
 
-		throw new InvalidArgumentException('You must specify the location\'s name');
+		$this->name = $name;
+		return $this;
 	}
-
 }

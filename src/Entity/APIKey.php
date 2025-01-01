@@ -11,9 +11,7 @@ use InvalidArgumentException;
 class APIKey {
 	use \Portalbox\Trait\HasIdProperty;
 
-	/**
-	 * The name of this API key
-	 */
+	/** The name of this API key */
 	protected string $name = '';
 
 	/**
