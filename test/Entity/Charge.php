@@ -5,6 +5,8 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
 use Portalbox\Entity\Charge;
+use Portalbox\Entity\Equipment;
+use Portalbox\Entity\User;
 
 final class ChargeTest extends TestCase {
 	public function testAgreement(): void {
@@ -35,5 +37,29 @@ final class ChargeTest extends TestCase {
 		self::assertEquals($charge_policy_id, $charge->charge_policy_id());
 		self::assertEquals($charge_rate, $charge->charge_rate());
 		self::assertEquals($charged_time, $charge->charged_time());
+	}
+
+	public function testConvenienceMethods(): void {
+		$equipment_name = 'Squeaky Clean 5000';
+		$user_name = 'Joseph Fitzgerald O\'Malley Fitzpatrick O\'Donnell Quimby';
+
+		$equipment = (new Equipment())->set_name($equipment_name);
+		$user = (new User())->set_name($user_name);
+
+		$charge = new Charge();
+
+		self::assertNull($charge->equipment());
+		self::assertSame('', $charge->equipment_name());
+		self::assertNull($charge->user());
+		self::assertSame('', $charge->user_name());
+
+		$charge
+			->set_equipment($equipment)
+			->set_user($user);
+
+		self::assertSame($equipment, $charge->equipment());
+		self::assertSame($equipment_name, $charge->equipment_name());
+		self::assertSame($user, $charge->user());
+		self::assertSame($user_name, $charge->user_name());
 	}
 }

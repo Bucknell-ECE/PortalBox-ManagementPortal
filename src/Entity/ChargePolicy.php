@@ -7,29 +7,31 @@ namespace Portalbox\Entity;
  * charge when an activation session ends... as a stored procedure in the
  * database does the calculation, ChargePolicies occupy a privileged role
  * and are difficult to change so they are predefined
+ *
+ * @todo make this an Enum once we drop support for PHP < 8.1
  */
 class ChargePolicy {
 	/** This charge type indicates that a charge has been manually adjusted. */
-	const MANUALLY_ADJUSTED = 1;
+	public const MANUALLY_ADJUSTED = 1;
 
 	/**
 	 * Equipment Types with this Charge type do not generate a charge
 	 * when the portalbox signals the end of an activation
 	 */
-	const NO_CHARGE = 2;
+	public const NO_CHARGE = 2;
 
 	/**
 	 * Equipment Types with this charge type create a charge that is 1 times
 	 * the rate when the portalbox signals the end of an activation
 	 */
-	const PER_USE = 3;
+	public const PER_USE = 3;
 
 	/**
 	 * Equipment Types with this charge type create a charge that is session
 	 * duration in minutes times the rate when the portalbox signals the end
 	 * of an activation
 	 */
-	const PER_MINUTE = 4;
+	public const PER_MINUTE = 4;
 
 	/**
 	 * Determine if the policy id is valid
