@@ -4,36 +4,38 @@ namespace Portalbox\Entity;
 
 /**
  * LoggedEventType represents the type of a log event.
+ *
+ * @todo make this an Enum once we drop support for PHP < 8.1
  */
 class LoggedEventType {
 	/**
 	 * A card was presented but misread, not in the system, or was assigned to
 	 * a user who did not have permission to use the equipment
 	 */
-	const UNSUCCESSFUL_AUTHENTICATION = 1;
+	public const UNSUCCESSFUL_AUTHENTICATION = 1;
 
 	/**
 	 * A user or training card activated the equipment
 	 */
-	const SUCCESSFUL_AUTHENTICATION = 2;
+	public const SUCCESSFUL_AUTHENTICATION = 2;
 
 	/**
 	 * The card keeping a portalbox activated was removed, not returned or
 	 * replaced with a proxy card thus the portalbox service ended the
 	 * equipment activation
 	 */
-	const DEAUTHENTICATION = 3;
+	public const DEAUTHENTICATION = 3;
 
 	/**
 	 * A Portalbox started up and became ready
 	 */
-	const STARTUP_COMPLETE = 4;
+	public const STARTUP_COMPLETE = 4;
 
 	/**
 	 * A shutdown card was presented and the Portalbox service instucted the
 	 * Portalbox to shutdown
 	 */
-	const PLANNED_SHUTDOWN = 5;
+	public const PLANNED_SHUTDOWN = 5;
 
 	/**
 	 * Determine if the event log type is valid
