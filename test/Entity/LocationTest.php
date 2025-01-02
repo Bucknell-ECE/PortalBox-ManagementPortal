@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Entity\Location;
 
 final class LocationTest extends TestCase {
@@ -17,5 +16,10 @@ final class LocationTest extends TestCase {
 
 		self::assertEquals($id, $location->id());
 		self::assertEquals($name, $location->name());
+	}
+
+	public function testExceptionThrownOnInvalidName(): void {
+		self::expectException(InvalidArgumentException::class);
+		(new Location())->set_name('');
 	}
 }

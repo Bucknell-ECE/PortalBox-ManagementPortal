@@ -11,25 +11,17 @@ use InvalidArgumentException;
 class APIKey {
 	use \Portalbox\Trait\HasIdProperty;
 
-	/**
-	 * The name of this API key
-	 *
-	 * @var string
-	 */
-	protected $name;
+	/** The name of this API key */
+	protected string $name = '';
 
 	/**
 	 * The token that can be presented to authenticate to the API in the
 	 * absence of a User Session
-	 *
-	 * @var string
 	 */
-	protected $token;
+	protected ?string $token = NULL;
 
 	/**
 	 * Get the name of this API key
-	 *
-	 * @return string - the name of the API key
 	 */
 	public function name() : string {
 		return $this->name;
@@ -38,24 +30,20 @@ class APIKey {
 	/**
 	 * Set the name of this API key
 	 *
-	 * @param string name - the name for this API key
-	 * @return self
+	 * @throws InvalidArgumentException if the name is the empty string
 	 */
 	public function set_name(string $name) : self {
-		if(0 < strlen($name)) {
-			$this->name = $name;
-			return $this;
+		if($name === '') {
+			throw new InvalidArgumentException('You must specify the API key\'s name');
 		}
 
-		throw new InvalidArgumentException('You must specify the API key\'s name');
+		$this->name = $name;
+		return $this;
 	}
 
 	/**
 	 * Get token that can be presented to authenticate to the API in the
 	 * absence of a Session
-	 *
-	 * @return string - the token that can be presented to authenticate to
-	 *           the API in the absence of a Session
 	 */
 	public function token() : string {
 		if(NULL === $this->token) {
@@ -67,17 +55,13 @@ class APIKey {
 	/**
 	 * Set token that can be presented to authenticate to the API in the
 	 * absence of a Session
-	 *
-	 * @param string token - the token that can be presented to authenticate
-	 *           to the API in the absence of a Session
-	 * @return self
 	 */
 	public function set_token(string $token) : self {
 		$this->token = $token;
 		return $this;
 	}
 
-	private function create_token() {
+	private function create_token(): string {
 		// If libsodium is available use it :)
 		if(true === function_exists('random_bytes')) {
 			return bin2hex(random_bytes(16));

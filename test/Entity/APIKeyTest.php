@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Entity\APIKey;
 
 final class APIKeyTest extends TestCase {
@@ -20,5 +19,10 @@ final class APIKeyTest extends TestCase {
 		self::assertEquals($id, $key->id());
 		self::assertEquals($name, $key->name());
 		self::assertEquals($token, $key->token());
+	}
+
+	public function testExceptionThrownOnInvalidName(): void {
+		self::expectException(InvalidArgumentException::class);
+		(new APIKey())->set_name('');
 	}
 }
