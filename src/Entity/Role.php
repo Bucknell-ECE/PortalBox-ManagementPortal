@@ -13,89 +13,50 @@ use InvalidArgumentException;
 class Role {
 	use \Portalbox\Trait\HasIdProperty;
 
-	/**
-	 * The name of this role
-	 *
-	 * @var string
-	 */
-	protected $name;
+	/** The name of this role */
+	protected string $name = '';
 
-	/**
-	 * A flag indicating if this role is a system defined/required role
-	 *
-	 * @var bool
-	 */
-	protected $is_system_role;
+	/** A flag indicating if this role is a system defined/required role*/
+	protected bool $is_system_role = false;
 
-	/**
-	 * A human readable description of this role
-	 *
-	 * @var string
-	 */
-	protected $description;
+	/** A human readable description of this role */
+	protected string $description = '';
 
 	/**
 	 * A list of permissions assigned to this role
 	 *
-	 * @var array<int>|null
+	 * @var int[]|null
 	 */
-	protected $permissions;
+	protected ?array $permissions = NULL;
 
-	/**
-	 * Get the name of this role
-	 *
-	 * @return string - the name of the role
-	 */
+	/** Get the name of this role */
 	public function name() : string {
 		return $this->name;
 	}
 
-	/**
-	 * Set the name of this role
-	 *
-	 * @param string name - the name for this role
-	 * @return self
-	 */
+	/** Set the name of this role */
 	public function set_name(string $name) : self {
 		$this->name = $name;
 		return $this;
 	}
 
-	/**
-	 * Get whether this role is a system role
-	 *
-	 * @return bool - whether the role is a built in system role
-	 */
+	/** Get whether this role is a system role */
 	public function is_system_role() : bool {
 		return $this->is_system_role;
 	}
 
-	/**
-	 * Set whether this role is a system role
-	 *
-	 * @param bool is_system_role - whether this role is a system role
-	 * @return self
-	 */
+	/** Set whether this role is a system role */
 	public function set_is_system_role(bool $is_system_role) : self {
 		$this->is_system_role = $is_system_role;
 		return $this;
 	}
 
-	/**
-	 * Get the description of this role
-	 *
-	 * @return string - the description of the role
-	 */
+	/** Get the description of this role */
 	public function description() : string {
 		return $this->description;
 	}
 
-	/**
-	 * Set the description of this role
-	 *
-	 * @param string description - the description for this role
-	 * @return self
-	 */
+	/** Set the description of this role */
 	public function set_description(string $description) : self {
 		$this->description = $description;
 		return $this;
@@ -104,7 +65,7 @@ class Role {
 	/**
 	 * Get the permissions for this role
 	 *
-	 * @return array<int> - the list of the role's permissions
+	 * @return int[]  the list of the role's permissions
 	 */
 	public function permissions() : array {
 		if(NULL === $this->permissions) {
@@ -116,10 +77,9 @@ class Role {
 	/**
 	 * Set the permissions for this role
 	 *
-	 * @param array<int> $permissions - the permissions for this role
+	 * @param int[] $permissions  the permissions for this role
 	 * @throws InvalidArgumentException if any of the  specified permission are
 	 *             not not one of the public constants from Permission
-	 * @return self
 	 */
 	public function set_permissions(array $permissions) : self {
 		foreach($permissions as $permission) {
@@ -132,12 +92,7 @@ class Role {
 		return $this;
 	}
 
-	/**
-	 * Determine whether the role has a permission
-	 *
-	 * @param int permission - the permission to check for
-	 * @return bool - true iff the role has the specified permission
-	 */
+	/** Determine whether the role has a permission */
 	public function has_permission(int $permission) : bool {
 		if(is_array($this->permissions)) {
 			return in_array($permission, $this->permissions);
