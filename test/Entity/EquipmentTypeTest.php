@@ -32,9 +32,18 @@ final class EquipmentTypeTest extends TestCase {
 		self::assertEquals($allow_proxy, $type->allow_proxy());
 	}
 
-	public function testInvalidChargePolicyTriggersException(): void {
-		$this->expectException(InvalidArgumentException::class);
+	public function testInvalidNameTriggersException(): void {
+		self::expectException(InvalidArgumentException::class);
+		(new EquipmentType())->set_name('');
+	}
 
-		$card = (new EquipmentType())->set_charge_policy_id(-1);
+	public function testInvalidRateTriggersException(): void {
+		self::expectException(InvalidArgumentException::class);
+		(new EquipmentType())->set_charge_rate('');
+	}
+
+	public function testInvalidChargePolicyTriggersException(): void {
+		self::expectException(InvalidArgumentException::class);
+		(new EquipmentType())->set_charge_policy_id(-1);
 	}
 }

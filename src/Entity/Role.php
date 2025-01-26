@@ -116,7 +116,7 @@ class Role {
 	/**
 	 * Set the permissions for this role
 	 *
-	 * @param array<int> permissions - the permissions for this role
+	 * @param array<int> $permissions - the permissions for this role
 	 * @throws InvalidArgumentException if any of the  specified permission are
 	 *             not not one of the public constants from Permission
 	 * @return self

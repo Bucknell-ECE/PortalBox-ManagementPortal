@@ -49,7 +49,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 		} else if (CardType::TRAINING == $data['type_id']) {
 			$type = (new EquipmentTypeModel(Config::config()))->read($data['equipment_type_id']);
 			if(NULL === $type) {
-				throw new InvalidArgumentException('\'equipment_type_id\' must correspond to a valid equiment type');
+				throw new InvalidArgumentException('\'equipment_type_id\' must correspond to a valid equipment type');
 			}
 
 			return (new TrainingCard())
