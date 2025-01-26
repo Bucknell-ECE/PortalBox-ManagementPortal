@@ -52,7 +52,7 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 
 		$type = (new EquipmentTypeModel(Config::config()))->read($data['type_id']);
 		if(NULL === $type) {
-			throw new InvalidArgumentException('\'type_id\' must correspond to a valid equiment type');
+			throw new InvalidArgumentException('\'type_id\' must correspond to a valid equipment type');
 		}
 		$location = (new LocationModel(Config::config()))->read($data['location_id']);
 		if(NULL === $location) {
