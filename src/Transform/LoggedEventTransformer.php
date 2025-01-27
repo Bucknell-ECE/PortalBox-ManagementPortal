@@ -2,10 +2,6 @@
 
 namespace Portalbox\Transform;
 
-use Portalbox\Config;
-
-use Portalbox\Entity\LoggedEvent;
-
 /**
  * LoggedEventTransformer is our bridge between dictionary representations and
  * LoggedEvent entity instances.
