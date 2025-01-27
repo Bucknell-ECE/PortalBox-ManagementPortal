@@ -7,7 +7,6 @@ namespace Portalbox\Entity;
  * portalbox shutsdown when presented with cards of this type.
  */
 class UserCard extends Card {
-
 	/**
 	 * The id of the user this card was issued to
 	 */
