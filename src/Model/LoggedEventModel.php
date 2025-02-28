@@ -2,7 +2,6 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\CardType;
 use Portalbox\Entity\LoggedEvent;
 use Portalbox\Model\Entity\LoggedEvent as PDOAwareLoggedEvent;
 use Portalbox\Query\LoggedEventQuery;
@@ -24,15 +23,31 @@ class LoggedEventModel extends AbstractModel {
 	 */
 	public function read(int $id) : ?LoggedEvent {
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT el.id, el.time, el.event_type_id, el.card_id, c.type_id AS card_type_id, el.equipment_id, e.name AS equipment_name, l.name AS location_name, u.id AS user_id, IF(c.type_id = 4, u.name, UPPER(ct.name)) as user_name
+		$sql = <<<EOQ
+		SELECT
+			el.id,
+			el.time,
+			el.event_type_id,
+			el.card_id,
+			c.type_id AS card_type_id,
+			el.equipment_id,
+			e.name AS equipment_name,
+			et.id AS equipment_type_id,
+			et.name AS equipment_type,
+			l.name AS location_name,
+			u.id AS user_id,
+			IF(c.type_id = 4, u.name, UPPER(ct.name)) as user_name
 		FROM log AS el
 		INNER JOIN equipment AS e ON el.equipment_id = e.id
+		INNER JOIN equipment_types AS et ON e.type_id = et.id
 		INNER JOIN locations AS l ON e.location_id = l.id
 		INNER JOIN cards AS c ON el.card_id = c.id
 		INNER JOIN card_types AS ct ON c.type_id = ct.id
 		LEFT JOIN users_x_cards AS uxc ON el.card_id = uxc.card_id
 		LEFT JOIN users AS u ON u.id = uxc.user_id
-		WHERE el.id = :id';
+		WHERE
+			el.id = :id
+		EOQ;
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
 		if($query->execute()) {
@@ -60,7 +75,20 @@ class LoggedEventModel extends AbstractModel {
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT el.id, el.time, el.event_type_id, el.card_id, c.type_id AS card_type_id, el.equipment_id, e.name AS equipment_name, et.id AS equipment_type_id, et.name AS equipment_type, l.name AS location_name, u.id AS user_id, IF(c.type_id = 4, u.name, UPPER(ct.name)) as user_name
+		$sql = <<<EOQ
+		SELECT
+			el.id,
+			el.time,
+			el.event_type_id,
+			el.card_id,
+			c.type_id AS card_type_id,
+			el.equipment_id,
+			e.name AS equipment_name,
+			et.id AS equipment_type_id,
+			et.name AS equipment_type,
+			l.name AS location_name,
+			u.id AS user_id,
+			IF(c.type_id = 4, u.name, UPPER(ct.name)) as user_name
 		FROM log AS el
 		INNER JOIN equipment AS e ON el.equipment_id = e.id
 		INNER JOIN equipment_types AS et ON e.type_id = et.id
@@ -68,7 +96,8 @@ class LoggedEventModel extends AbstractModel {
 		INNER JOIN cards AS c ON el.card_id = c.id
 		INNER JOIN card_types AS ct ON c.type_id = ct.id
 		LEFT JOIN users_x_cards AS uxc ON el.card_id = uxc.card_id
-		LEFT JOIN users AS u ON u.id = uxc.user_id';
+		LEFT JOIN users AS u ON u.id = uxc.user_id
+		EOQ;
 
 		$where_clause_fragments = array();
 		$parameters = array();
@@ -121,19 +150,18 @@ class LoggedEventModel extends AbstractModel {
 	}
 
 	private function buildLoggedEventFromArray(array $data) : LoggedEvent {
-		// u.id AS user_id, u.name as user_name
 		return (new PDOAwareLoggedEvent($this->configuration()))
-					->set_id($data['id'])
-					->set_type_id($data['event_type_id'])
-					->set_card_id($data['card_id'])
-					->set_card_type_id($data['card_type_id'])
-					->set_equipment_id($data['equipment_id'])
-					->set_equipment_name($data['equipment_name'])
-					->set_equipment_type_id($data['equipment_type_id'])
-					->set_equipment_type($data['equipment_type'])
-					->set_location_name($data['location_name'])
-					->set_time($data['time'])
-					->set_user_name($data['user_name']);
+			->set_id($data['id'])
+			->set_type_id($data['event_type_id'])
+			->set_card_id($data['card_id'])
+			->set_card_type_id($data['card_type_id'])
+			->set_equipment_id($data['equipment_id'])
+			->set_equipment_name($data['equipment_name'])
+			->set_equipment_type_id($data['equipment_type_id'])
+			->set_equipment_type($data['equipment_type'])
+			->set_location_name($data['location_name'])
+			->set_time($data['time'])
+			->set_user_name($data['user_name']);
 	}
 
 	private function buildLoggedEventsFromArray(array $data) : array {
