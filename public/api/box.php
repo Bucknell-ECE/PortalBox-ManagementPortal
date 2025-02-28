@@ -29,17 +29,17 @@ use Portalbox\Transform\CardTransformer;
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
-	case 'GET':	
+	case 'GET':
 		Session::require_authorization(Permission::READ_EQUIPMENT);
-		
+
 		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR .'../../config/config.ini');
 		$settings = parse_ini_file($path, TRUE);
 		$dsn = 'host=' . $settings['database']['host'] . ';dbname=' . $settings['database']['database'];
 		$connection = new PDO($settings['database']['driver'] . ':' . $dsn, $settings['database']['username'], $settings['database']['password']);
-		
+
 		if($_GET['mode'] == "get_card_details"){
 			if((isset($_GET['card_id']) && !empty($_GET['card_id'])) && (isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))) {
-				//Get user details 
+				//Get user details
 				$card_id = $_GET['card_id'];
 				$e_id = $_GET['equipment_id'];
 
@@ -49,7 +49,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $card_id);	//BIGINT
 				$query->bindValue(':e_id', $e_id);	//BIGINT
-				
+
 				if($query->execute()) {
 					$user_auth = $query->fetch(PDO::FETCH_NUM)[0];
 				} else {
@@ -58,7 +58,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 				}
 
 
-				//What is the user's balance 
+				//What is the user's balance
 				$sql = 'SELECT get_user_balance_for_card(:card_id)';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $card_id);	//BIGINT
@@ -89,8 +89,8 @@ switch($_SERVER['REQUEST_METHOD']) {
 				} else {
 					echo "Database Exception: " . $query->errorInfo()[2];
 					throw new DatabaseException($query->errorInfo()[2]);
-				}		
-				
+				}
+
 				//Whats the user's role
 				$sql = 'SELECT role_id FROM users_x_cards AS c JOIN users AS u ON u.id = c.user_id WHERE c.card_id = :card_id';
 				$query = $connection->prepare($sql);
@@ -100,8 +100,8 @@ switch($_SERVER['REQUEST_METHOD']) {
 				} else {
 					echo "Database Exception: " . $query->errorInfo()[2];
 					throw new DatabaseException($query->errorInfo()[2]);
-				}	
-				
+				}
+
 				$r_array = [[
 					'user_auth' => $user_auth,
 					'user_balance' => $user_balance,
@@ -109,14 +109,14 @@ switch($_SERVER['REQUEST_METHOD']) {
 					'card_type' => $card_type,
 					'user_role' => $user_role
 				]];
-				
+
 				try{
 					ResponseHandler::render($r_array);
 				}
 				catch (Exception $e) {
 					echo 'Caught exception: ',  $e->getMessage(), "\n";
 				}
-				
+
 			}
 			else{
 				http_response_code(404);
@@ -125,10 +125,10 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		elseif($_GET['mode'] == "check_reg"){
 			if(isset($_GET['mac_adr']) && !empty($_GET['mac_adr'])){
-				
+
 				$mac_adr = $_GET['mac_adr'];
-			
-				//Check if the box is registered 
+
+				//Check if the box is registered
 				$sql = 'SELECT count(id) FROM equipment WHERE mac_address = :mac_adr';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':mac_adr', $mac_adr);	//BIGINT
@@ -147,11 +147,11 @@ switch($_SERVER['REQUEST_METHOD']) {
 		elseif($_GET['mode'] == "get_profile"){
 			if(isset($_GET['mac_adr']) && !empty($_GET['mac_adr'])){
 				$mac_adr = $_GET['mac_adr'];
-				//Check if the box is registered 
+				//Check if the box is registered
 				$sql = 'SELECT e.id, e.type_id, t.name, e.location_id, l.name, e.timeout, t.allow_proxy, t.requires_training, t.charge_policy_id > 2 AS "charge_policy"
-				FROM equipment AS e 
-				INNER JOIN equipment_types AS t ON e.type_id = t.id 
-				INNER JOIN locations AS l ON e.location_id =  l.id 
+				FROM equipment AS e
+				INNER JOIN equipment_types AS t ON e.type_id = t.id
+				INNER JOIN locations AS l ON e.location_id =  l.id
 				WHERE e.mac_address = :mac_adr';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':mac_adr', $mac_adr);
@@ -169,7 +169,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		elseif($_GET['mode'] == "get_equipment_name"){
 			if(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])){
-				//Check if the box is registered 
+				//Check if the box is registered
 				$sql = 'SELECT name FROM equipment WHERE id = :equipment_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':equipment_id', $_GET['equipment_id']);
@@ -187,7 +187,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		elseif($_GET['mode'] == "get_user"){
 			if(isset($_GET['card_id']) && !empty($_GET['card_id'])){
-				//Check if the box is registered 
+				//Check if the box is registered
 				$sql = 'SELECT u.name, u.email FROM users_x_cards AS c JOIN users AS u ON u.id = c.user_id WHERE c.card_id = :card_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $_GET['card_id']);
@@ -205,11 +205,11 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		elseif(!(isset($_GET['mode']) && !empty($_GET['mode']))){
 			http_response_code(404);
-			die('Missing "mode", options are "get_card_details", "check_reg", "get_equipment_name", and "get_profile"');	
+			die('Missing "mode", options are "get_card_details", "check_reg", "get_equipment_name", and "get_profile"');
 		}
 		else{
 			http_response_code(404);
-			die('Not a valid mode, options are "get_card_details", "check_reg", "get_equipment_name" and "get_profile"');				
+			die('Not a valid mode, options are "get_card_details", "check_reg", "get_equipment_name" and "get_profile"');
 		}
 		break;
 	case 'POST':	// Update
@@ -220,56 +220,56 @@ switch($_SERVER['REQUEST_METHOD']) {
 		$settings = parse_ini_file($path, TRUE);
 		$dsn = 'host=' . $settings['database']['host'] . ';dbname=' . $settings['database']['database'];
 		$connection = new PDO($settings['database']['driver'] . ':' . $dsn, $settings['database']['username'], $settings['database']['password']);
-		
+
 		if($_GET['mode'] == "log_access_attempt"){
 
 			if(!isset($_GET['successful'])){
 				http_response_code(404);
-				die('missing params needs "successful", "card_id", and "equiment_id". Failed at "successful"');	
+				die('missing params needs "successful", "card_id", and "equipment_id". Failed at "successful"');
 			}
 			if(!(isset($_GET['card_id']) && !empty($_GET['card_id']))){
 				http_response_code(404);
-				die('missing params needs "successful", "card_id", and "equiment_id". Failed at "card_id"');	
+				die('missing params needs "successful", "card_id", and "equipment_id". Failed at "card_id"');
 			}
 			if(!(isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))){
 				http_response_code(404);
-				die('missing params needs "successful", "card_id", and "equiment_id". Failed at "equiment_id"');	
+				die('missing params needs "successful", "card_id", and "equipment_id". Failed at "equipment_id"');
 			}
-			
 
 
-			$sql = "CALL log_access_attempt(:successful, :card_id, :equiment_id)";
+
+			$sql = "CALL log_access_attempt(:successful, :card_id, :equipment_id)";
 			$query = $connection->prepare($sql);
 			$query->bindValue(':successful', $_GET['successful']);
 			$query->bindValue(':card_id', $_GET['card_id']);
-			$query->bindValue(':equiment_id', $_GET['equipment_id']);
+			$query->bindValue(':equipment_id', $_GET['equipment_id']);
 			if($query->execute()) {
-				echo "completed succesfully";
+				echo "completed successfully";
 			} else {
 				echo "Database Exception: " . $query->errorInfo()[2];
 				throw new DatabaseException($query->errorInfo()[2]);
 			}
-			
+
 		}
 		elseif($_GET['mode'] == "log_access_completion"){
 
 			if(!(isset($_GET['card_id']) && !empty($_GET['card_id']))){
 				http_response_code(404);
-				die('missing params needs "card_id", and "equiment_id". Failed at "card_id"');	
+				die('missing params needs "card_id", and "equipment_id". Failed at "card_id"');
 			}
 			if(!(isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))){
 				http_response_code(404);
-				die('missing params needs "card_id", and "equiment_id". Failed at "equiment_id"');	
+				die('missing params needs "card_id", and "equipment_id". Failed at "equipment_id"');
 			}
-			
 
 
-			$sql = "CALL log_access_completion(:card_id, :equiment_id)";
+
+			$sql = "CALL log_access_completion(:card_id, :equipment_id)";
 			$query = $connection->prepare($sql);
 			$query->bindValue(':card_id', $_GET['card_id']);
-			$query->bindValue(':equiment_id', $_GET['equipment_id']);
+			$query->bindValue(':equipment_id', $_GET['equipment_id']);
 			if($query->execute()) {
-				echo "completed succesfully";
+				echo "completed successfully";
 			} else {
 				echo "Database Exception: " . $query->errorInfo()[2];
 				throw new DatabaseException($query->errorInfo()[2]);
@@ -279,24 +279,24 @@ switch($_SERVER['REQUEST_METHOD']) {
 
 			if(!(isset($_GET['card_id']) && !empty($_GET['card_id']))){
 				http_response_code(404);
-				die('missing params needs "card_id", and "equiment_id". Failed at "card_id"');	
+				die('missing params needs "card_id", and "equipment_id". Failed at "card_id"');
 			}
 			if(!(isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))){
 				http_response_code(404);
-				die('missing params needs "card_id", and "equiment_id". Failed at "equiment_id"');	
+				die('missing params needs "card_id", and "equipment_id". Failed at "equipment_id"');
 			}
-			
 
 
-			$sql = 'INSERT INTO log(event_type_id, equipment_id, card_id) 
-					(SELECT id, :equiment_id, :card_id FROM event_types 
+
+			$sql = 'INSERT INTO log(event_type_id, equipment_id, card_id)
+					(SELECT id, :equipment_id, :card_id FROM event_types
 					WHERE name = "Planned Shutdown")';
 			$query = $connection->prepare($sql);
-			$query->bindValue(':equiment_id', $_GET['equipment_id']);
+			$query->bindValue(':equipment_id', $_GET['equipment_id']);
 			$query->bindValue(':card_id', $_GET['card_id']);
-			
+
 			if($query->execute()) {
-				echo "completed succesfully";
+				echo "completed successfully";
 			} else {
 				echo "Database Exception: " . $query->errorInfo()[2];
 				throw new DatabaseException($query->errorInfo()[2]);
@@ -306,19 +306,19 @@ switch($_SERVER['REQUEST_METHOD']) {
 
 			if(!(isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))){
 				http_response_code(404);
-				die('missing params needs "equiment_id". Failed at "equiment_id"');	
+				die('missing params needs "equipment_id". Failed at "equipment_id"');
 			}
-			
 
 
-			$sql = 'INSERT INTO log(event_type_id, equipment_id) 
-					(SELECT id, :equiment_id FROM event_types 
+
+			$sql = 'INSERT INTO log(event_type_id, equipment_id)
+					(SELECT id, :equipment_id FROM event_types
 					WHERE name = "Startup Complete")';
 			$query = $connection->prepare($sql);
-			$query->bindValue(':equiment_id', $_GET['equipment_id']);
-			
+			$query->bindValue(':equipment_id', $_GET['equipment_id']);
+
 			if($query->execute()) {
-				echo "Completed succesfully";
+				echo "Completed successfully";
 			} else {
 				echo "Database Exception: " . $query->errorInfo()[2];
 				throw new DatabaseException($query->errorInfo()[2]);
@@ -328,24 +328,24 @@ switch($_SERVER['REQUEST_METHOD']) {
 
 			if(!(isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))){
 				http_response_code(404);
-				die('missing params needs "equiment_id". Failed at "equiment_id"');	
+				die('missing params needs "equipment_id". Failed at "equipment_id"');
 			}
 			if(!(isset($_GET['ip_address']) && !empty($_GET['ip_address']))){
 				http_response_code(404);
-				die('missing params needs "ip_address". Failed at "ip_address"');	
+				die('missing params needs "ip_address". Failed at "ip_address"');
 			}
-			
+
 
 
 			$sql = 'UPDATE equipment
 					SET ip_address = :ip_address
-					WHERE id = :equiment_id';
+					WHERE id = :equipment_id';
 			$query = $connection->prepare($sql);
-			$query->bindValue(':equiment_id', $_GET['equipment_id']);
+			$query->bindValue(':equipment_id', $_GET['equipment_id']);
 			$query->bindValue(':ip_address', $_GET['ip_address']);
-			
+
 			if($query->execute()) {
-				echo "Completed succesfully";
+				echo "Completed successfully";
 			} else {
 				echo "Database Exception: " . $query->errorInfo()[2];
 				throw new DatabaseException($query->errorInfo()[2]);
@@ -354,11 +354,11 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		elseif(!(isset($_GET['mode']) && !empty($_GET['mode']))){
 			http_response_code(404);
-			die('Missing "mode", options are "log_access_attempt", "log_access_completion", "log_shutdown_status", "log_started_status", and "record_ip"');	
+			die('Missing "mode", options are "log_access_attempt", "log_access_completion", "log_shutdown_status", "log_started_status", and "record_ip"');
 		}
 		else{
 			http_response_code(404);
-			die('Not a valid mode, options are "log_access_attempt", "log_access_completion", "log_shutdown_status", "log_started_status", and "record_ip"');				
+			die('Not a valid mode, options are "log_access_attempt", "log_access_completion", "log_shutdown_status", "log_started_status", and "record_ip"');
 		}
 		break;
 	case 'PUT':		// Create
@@ -369,16 +369,16 @@ switch($_SERVER['REQUEST_METHOD']) {
 		$settings = parse_ini_file($path, TRUE);
 		$dsn = 'host=' . $settings['database']['host'] . ';dbname=' . $settings['database']['database'];
 		$connection = new PDO($settings['database']['driver'] . ':' . $dsn, $settings['database']['username'], $settings['database']['password']);
-		
+
 		if($_GET['mode'] == "register"){
 			if(isset($_GET['mac_adr']) && !empty($_GET['mac_adr'])){
 				$mac_adr = $_GET['mac_adr'];
-				//Check if the box is registered 
+				//Check if the box is registered
 				$sql = 'INSERT INTO equipment (name, type_id, mac_address, location_id) VALUES ("New Portal Box", 1, :mac_adr, 1)';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':mac_adr', $mac_adr);
 				if($query->execute()) {
-					echo "Completed succesfully";
+					echo "Completed successfully";
 				} else {
 					echo "Database Exception: " . $query->errorInfo()[2];
 					throw new DatabaseException($query->errorInfo()[2]);
@@ -390,11 +390,11 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		elseif(!(isset($_GET['mode']) && !empty($_GET['mode']))){
 			http_response_code(404);
-			die('Missing "mode", options are "register"');	
+			die('Missing "mode", options are "register"');
 		}
 		else{
 			http_response_code(404);
-			die('Not a valid mode, options are "register"');				
+			die('Not a valid mode, options are "register"');
 		}
 		break;
 	case 'DELETE':	// Delete
