@@ -190,7 +190,7 @@ class LoggedEvent {
 		return $this->equipment_type_id;
 	}
 
-	public function set_equipment_type_id(int $equipment_type_id) : LoggedEvent {
+	public function set_equipment_type_id(int $equipment_type_id) : self {
 		$this->equipment_type_id = $equipment_type_id;
 		return $this;
 	}
@@ -199,7 +199,7 @@ class LoggedEvent {
 		return $this->equipment_type;
 	}
 
-	public function set_equipment_type(string $equipment_type) : LoggedEvent {
+	public function set_equipment_type(string $equipment_type) : self {
 		$this->equipment_type = $equipment_type;
 		return $this;
 	}
