@@ -128,6 +128,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 					'equipment_type' => ''
 				];
 			} else if (CardType::TRAINING == $card_type_id) {
+				$equipment_type = $data->equipment_type();
 				return [
 					'id' => $data->id(),
 					'card_type_id' => $card_type_id,
@@ -135,7 +136,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 					'user_id' => '',
 					'user' => '',
 					'equipment_type_id' => $data->equipment_type_id(),
-					'equipment_type' => is_null($data->equipment_type) ? '' : $data->equipment_type->name()
+					'equipment_type' => is_null($equipment_type) ? '' : $equipment_type->name()
 				];
 			} else if (CardType::PROXY == $card_type_id) {
 				return [
