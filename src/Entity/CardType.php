@@ -33,12 +33,12 @@ class CardType {
 	protected string $name = 'Invalid';
 
 	/** Get the card type's human readable name */
-	public function name() : string {
+	public function name(): string {
 		return $this->name;
 	}
 
 	/** Set the card type's human readable name */
-	private function set_name(string $name) : self {
+	private function set_name(string $name): self {
 		if(0 < strlen($name)) {
 			$this->name = $name;
 			return $this;
@@ -46,12 +46,12 @@ class CardType {
 	}
 
 	/** Get the card type's id */
-	public function id() : int {
+	public function id(): int {
 		return $this->id;
 	}
 
 	/** Set the card type's id */
-	public function set_id(int $id) : self {
+	public function set_id(int $id): self {
 		$this->id = $id;
 		$this->set_name(CardType::name_for_type($id));
 		return $this;
@@ -78,13 +78,18 @@ class CardType {
 	 * @param int type_id  the id of the card type
 	 * @return string  the name for the card type
 	 */
-	public static function name_for_type(int $type_id) : string {
+	public static function name_for_type(int $type_id): string {
 		switch($type_id) {
-			case self::SHUTDOWN: return 'Shutdown Card';
-			case self::PROXY: return 'Proxy Card';
-			case self::TRAINING: return 'Training Card';
-			case self::USER: return 'User Card';
-			default: return 'Invalid';
+			case self::SHUTDOWN:
+				return 'Shutdown Card';
+			case self::PROXY:
+				return 'Proxy Card';
+			case self::TRAINING:
+				return 'Training Card';
+			case self::USER:
+				return 'User Card';
+			default:
+				return 'Invalid';
 		}
 	}
 }

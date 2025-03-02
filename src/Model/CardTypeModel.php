@@ -8,7 +8,7 @@ use Portalbox\Exception\DatabaseException;
 use PDO;
 
 class CardTypeModel extends AbstractModel {
-    public function search() : ?array {
+    public function search(): ?array {
         $connection = $this->configuration()->readonly_db_connection();
         $sql = 'SELECT id, name FROM card_types';
         $statement = $connection->prepare($sql);
@@ -24,12 +24,12 @@ class CardTypeModel extends AbstractModel {
         }
     }
 
-    private function buildCardTypesFromArray(array $data) : CardType {
+    private function buildCardTypesFromArray(array $data): CardType {
         return (new CardType())
             ->set_id($data['id']);
     }
 
-    private function buildCardTypesFromArrays(array $data) : array {
+    private function buildCardTypesFromArrays(array $data): array {
         $card_types = array();
 
         foreach($data as $datum) {

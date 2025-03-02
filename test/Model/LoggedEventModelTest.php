@@ -108,7 +108,7 @@ final class LoggedEventModelTest extends TestCase {
 		);
 	}
 
-	public static function tearDownAfterClass() : void {
+	public static function tearDownAfterClass(): void {
 		$model = new CardModel(self::$config);
 		$model->delete(self::$card->id());
 

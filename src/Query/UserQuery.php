@@ -60,7 +60,7 @@ class UserQuery {
 	 *
 	 * @return string|null - the email address of the user for which to search
 	 */
-	public function email() : ?string {
+	public function email(): ?string {
 		return $this->email;
 	}
 
@@ -70,7 +70,7 @@ class UserQuery {
 	 * @param string email - the email address of the user for which to search
 	 * @return self
 	 */
-	public function set_email(string $email) : self {
+	public function set_email(string $email): self {
 		$this->email = $email;
 		return $this;
 	}
@@ -80,7 +80,7 @@ class UserQuery {
 	 *
 	 * @return string|null - the name of the user for which to search
 	 */
-	public function name() : ?string {
+	public function name(): ?string {
 		return $this->name;
 	}
 
@@ -90,7 +90,7 @@ class UserQuery {
 	 * @param string email - the name of the user for which to search
 	 * @return self
 	 */
-	public function set_name(string $name) : self {
+	public function set_name(string $name): self {
 		$this->name = $name;
 		return $this;
 	}
@@ -100,7 +100,7 @@ class UserQuery {
 	 *
 	 * @return string|null
 	 */
-	public function comment() : ?string {
+	public function comment(): ?string {
 		return $this->comment;
 	}
 	/**
@@ -109,7 +109,7 @@ class UserQuery {
 	 * @param string comment
 	 * @return self
 	 */
-	public function set_comment(string $comment) : self {
+	public function set_comment(string $comment): self {
 		$this->comment = $comment;
 		return $this;
 	}
@@ -119,7 +119,7 @@ class UserQuery {
 	 *
 	 * @return int|null
 	 */
-	public function equipment_id() : ?int {
+	public function equipment_id(): ?int {
 		return $this->equipment_id;
 	}
 
@@ -129,25 +129,25 @@ class UserQuery {
 	 * @param int equipment id
 	 * @return self
 	 */
-	public function set_equipment_id(int $equipment_id) : self {
+	public function set_equipment_id(int $equipment_id): self {
 		$this->equipment_id = $equipment_id;
 		return $this;
 	}
 
-	public function include_inactive() : ?int {
+	public function include_inactive(): ?int {
 		return $this->include_inactive;
 	}
 
-	public function set_include_inactive(int $include_inactive) : self {
+	public function set_include_inactive(int $include_inactive): self {
 		$this->include_inactive = $include_inactive;
 		return $this;
 	}
 
-	public function role_id() : ?int {
+	public function role_id(): ?int {
 		return $this->role_id;
 	}
 
-	public function set_role_id(int $role_id) : self {
+	public function set_role_id(int $role_id): self {
 		$this->role_id = $role_id;
 		return $this;
 	}

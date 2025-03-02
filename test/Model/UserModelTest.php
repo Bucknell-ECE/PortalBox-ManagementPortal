@@ -48,7 +48,7 @@ final class UserModelTest extends TestCase {
 		self::$type = $model->create($type);
 	}
 
-	public static function tearDownAfterClass() : void {
+	public static function tearDownAfterClass(): void {
 		// deprovision an equipment type in the db
 		$model = new EquipmentTypeModel(self::$config);
 		$model->delete(self::$type->id());

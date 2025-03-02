@@ -20,7 +20,7 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be saved
 	 */
-	public function create(User $user) : ?User {
+	public function create(User $user): ?User {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO users (name, email, comment, role_id, is_active) VALUES (:name, :email, :comment, :role_id, :is_active)';
 		$statement = $connection->prepare($sql);
@@ -72,7 +72,7 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be found
 	 */
-	public function read(int $id) : ?User {
+	public function read(int $id): ?User {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id WHERE u.id = :id';
 		$statement = $connection->prepare($sql);
@@ -104,7 +104,7 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be saved
 	 */
-	public function update(User $user) : ?User {
+	public function update(User $user): ?User {
 		$user_id = $user->id();
 		$authorizations = $user->authorizations();
 		$old_authorizations = $this->read($user_id)->authorizations();
@@ -183,7 +183,7 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be found
 	 */
-	public function delete(int $id) : ?User {
+	public function delete(int $id): ?User {
 		$user = $this->read($id);
 
 		if(NULL !== $user) {
@@ -207,7 +207,7 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User[]|null - a list of users which match the search query
 	 */
-	public function search(UserQuery $query) : ?array {
+	public function search(UserQuery $query): ?array {
 		if(NULL === $query) {
 			// no query... bail
 			return NULL;
@@ -269,7 +269,7 @@ class UserModel extends AbstractModel {
 		}
 	}
 
-	private function buildUserFromArray(array $data) : User {
+	private function buildUserFromArray(array $data): User {
 		return (new PDOAwareUser($this->configuration()))
 					->set_id($data['id'])
 					->set_name($data['name'])
@@ -280,7 +280,7 @@ class UserModel extends AbstractModel {
 					->set_role_name($data['role']);
 	}
 
-	private function buildUsersFromArrays(array $data) : array {
+	private function buildUsersFromArrays(array $data): array {
 		$users = array();
 
 		foreach($data as $datum) {

@@ -24,7 +24,7 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge|null - the charge or null if the charge could not be saved
 	 */
-	public function create(Charge $charge) : ?Charge {
+	public function create(Charge $charge): ?Charge {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO charges (user_id, equipment_id, time, amount, charge_policy_id, charge_rate, charged_time) VALUES (:user_id, :equipment_id, :time, :amount, :charge_policy_id, :charge_rate, :charged_time)';
 		$query = $connection->prepare($sql);
@@ -51,7 +51,7 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge|null - the charge or null if the charge could not be found
 	 */
-	public function read(int $id) : ?Charge {
+	public function read(int $id): ?Charge {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT c.id, c.user_id, u.name AS user_name, c.equipment_id, e.name AS equipment_name, c.time, c.amount, c.charge_policy_id, c.charge_rate, c.charged_time FROM charges AS c INNER JOIN equipment as e ON e.id = c.equipment_id INNER JOIN users AS u on u.id = c.user_id WHERE c.id = :id';
 		$query = $connection->prepare($sql);
@@ -74,7 +74,7 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge|null - the charge or null if the charge could not be saved
 	 */
-	public function update(Charge $charge) : ?Charge {
+	public function update(Charge $charge): ?Charge {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE charges SET user_id = :user_id, equipment_id = :equipment_id, time = :time, amount = :amount, charge_policy_id = :charge_policy_id, charge_rate = :charge_rate, charged_time = :charged_time WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -102,7 +102,7 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge|null - the charge or null if the charge could not be found
 	 */
-	public function delete(int $id) : ?Charge {
+	public function delete(int $id): ?Charge {
 		$charge = $this->read($id);
 
 		if(NULL !== $charge) {
@@ -125,7 +125,7 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge[]|null - a list of charges which match the search query
 	 */
-	public function search(ChargeQuery $query) : ?array {
+	public function search(ChargeQuery $query): ?array {
 		if(NULL === $query) {
 			// no query... bail
 			return NULL;
@@ -191,7 +191,7 @@ class ChargeModel extends AbstractModel {
 		}
 	}
 
-	private function buildChargeFromArray(array $data) : Charge {
+	private function buildChargeFromArray(array $data): Charge {
 		return (new Charge())
 					->set_id($data['id'])
 					->set_user_id($data['user_id'])
@@ -203,7 +203,7 @@ class ChargeModel extends AbstractModel {
 					->set_charged_time($data['charged_time']);
 	}
 
-	private function buildChargesFromArrays(array $data) : array {
+	private function buildChargesFromArrays(array $data): array {
 
 		$charges = [];
 		$machines = [];

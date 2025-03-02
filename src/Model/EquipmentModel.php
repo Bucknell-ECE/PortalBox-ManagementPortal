@@ -21,7 +21,7 @@ class EquipmentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Equipment|null - the equipment or null if the eqipment could not be saved
 	 */
-	public function create(Equipment $equipment) : ?Equipment {
+	public function create(Equipment $equipment): ?Equipment {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO equipment (name, type_id, mac_address, location_id, timeout, in_service, service_minutes) VALUES (:name, :type_id, :mac_address, :location_id, :timeout, :in_service, :service_minutes)';
 		$query = $connection->prepare($sql);
@@ -50,7 +50,7 @@ class EquipmentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Equipment|null - the equipment or null if the equipment could not be found
 	 */
-	public function read(int $id) : ?Equipment {
+	public function read(int $id): ?Equipment {
 		$connection = $this->configuration()->readonly_db_connection();
 
 		$sql = 'SELECT e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes, e.ip_address FROM equipment AS e LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
@@ -77,7 +77,7 @@ class EquipmentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Equipment|null - the equipment or null if the equipment could not be saved
 	 */
-	public function update(Equipment $equipment) : ?Equipment {
+	public function update(Equipment $equipment): ?Equipment {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE equipment SET name = :name, type_id = :type_id, mac_address = :mac_address, location_id = :location_id, timeout = :timeout, in_service = :in_service, service_minutes = :service_minutes WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -132,7 +132,7 @@ class EquipmentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Equipment|null - the equipment or null if the equipment could not be found
 	 */
-	public function delete(int $id) : ?Equipment {
+	public function delete(int $id): ?Equipment {
 		$equipment = $this->read($id);
 
 		if(NULL !== $equipment) {
@@ -155,7 +155,7 @@ class EquipmentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Equipment[]|null - a list of equipment which match the search query
 	 */
-	public function search(EquipmentQuery $query) : ?array {
+	public function search(EquipmentQuery $query): ?array {
 		if(NULL === $query) {
 			// no query... bail
 			return NULL;
@@ -216,7 +216,7 @@ class EquipmentModel extends AbstractModel {
 		}
 	}
 
-	private function buildEquipmentFromArray(array $data) : Equipment {
+	private function buildEquipmentFromArray(array $data): Equipment {
 		return (new PDOAwareEquipment($this->configuration()))
 					->set_id($data['id'])
 					->set_name($data['name'])
@@ -230,7 +230,7 @@ class EquipmentModel extends AbstractModel {
 					->set_ip_address($data['ip_address']);
 	}
 
-	private function buildEquipmentFromArrays(array $data) : array {
+	private function buildEquipmentFromArrays(array $data): array {
 		$equipment = [];
 
 		foreach($data as $datum) {

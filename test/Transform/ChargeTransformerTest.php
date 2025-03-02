@@ -119,7 +119,7 @@ final class ChargeTransformerTest extends TestCase {
 		self::$equipment = $model->create($equipment);
 	}
 
-	public static function tearDownAfterClass() : void {
+	public static function tearDownAfterClass(): void {
 		$config = Config::config();
 
 		// deprovision user from the db

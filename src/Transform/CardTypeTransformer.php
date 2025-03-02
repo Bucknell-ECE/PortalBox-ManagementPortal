@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use Portalbox\Entity\CardType;
 
 class CardTypeTransformer implements InputTransformer, OutputTransformer {
-    public function deserialize(array $data) : CardType {
+    public function deserialize(array $data): CardType {
         if(!array_key_exists('id', $data)) {
             throw new InvalidArgumentException('\'id\' is a required field');
         }
@@ -15,7 +15,7 @@ class CardTypeTransformer implements InputTransformer, OutputTransformer {
             ->set_id($data['id']);
     }
 
-    public function serialize($data, bool $traverse = false) : array {
+    public function serialize($data, bool $traverse = false): array {
         if($traverse) {
             return [
                 'id' => $data->id(),
@@ -29,7 +29,7 @@ class CardTypeTransformer implements InputTransformer, OutputTransformer {
         }
     }
 
-    public function get_column_headers() : array {
+    public function get_column_headers(): array {
         return ['id', 'Name'];
     }
 }

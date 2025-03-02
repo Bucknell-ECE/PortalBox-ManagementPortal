@@ -42,7 +42,7 @@ class Config {
 	 *
 	 * @return Config - the singleton configuration
 	 */
-	public static function config() : Config {
+	public static function config(): Config {
 		if(!self::$instance) {
 			self::$instance = new Config();
 		}
@@ -57,7 +57,7 @@ class Config {
 	 *		contain the necessary configuration parameters
 	 * @return PDO - a connection to the database
 	 */
-	private function connection() : PDO {
+	private function connection(): PDO {
 		$connection = null;
 
 		if(FALSE != $this->settings && array_key_exists('database', $this->settings)) {
@@ -84,7 +84,7 @@ class Config {
 	 *		contain the necessary configuration parameters
 	 * @return PDO - a connection to the database
 	 */
-	public function writable_db_connection() : PDO {
+	public function writable_db_connection(): PDO {
 		return $this->connection();
 	}
 
@@ -102,7 +102,7 @@ class Config {
 	 *		contain the necessary configuration parameters
 	 * @return PDO - a connection to the database
 	 */
-	public function readonly_db_connection() : PDO {
+	public function readonly_db_connection(): PDO {
 		return $this->connection();
 	}
 
@@ -110,7 +110,7 @@ class Config {
 	 * Get the settings for the web ui
 	 *
 	 */
-	public function web_ui_settings() : array {
+	public function web_ui_settings(): array {
 		if(FALSE != $this->settings && array_key_exists('oauth', $this->settings)) {
 			return $this->settings['oauth'];
 		}

@@ -48,7 +48,7 @@ final class PaymentTransformerTest extends TestCase {
 		self::$user = $model->create($user);
 	}
 
-	public static function tearDownAfterClass() : void {
+	public static function tearDownAfterClass(): void {
 		$config = Config::config();
 
 		// deprovision user from the db

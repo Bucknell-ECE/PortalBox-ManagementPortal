@@ -19,7 +19,7 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment|null - the payment or null if the payment could not be saved
 	 */
-	public function create(Payment $payment) : ?Payment {
+	public function create(Payment $payment): ?Payment {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO payments (user_id, amount, time) VALUES (:user_id, :amount, :time)';
 		$query = $connection->prepare($sql);
@@ -42,7 +42,7 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment|null - the payment or null if the payment could not be found
 	 */
-	public function read(int $id) : ?Payment {
+	public function read(int $id): ?Payment {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, user_id, amount, time FROM payments WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -65,7 +65,7 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment|null - the payment or null if the payment could not be saved
 	 */
-	public function update(Payment $payment) : ?Payment {
+	public function update(Payment $payment): ?Payment {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE payments SET user_id = :user_id, amount = :amount, time = :time WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -89,7 +89,7 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment|null - the payment or null if the payment could not be found
 	 */
-	public function delete(int $id) : ?Payment {
+	public function delete(int $id): ?Payment {
 		$payment = $this->read($id);
 
 		if(NULL !== $payment) {
@@ -112,7 +112,7 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment[]|null - a list of payments which match the search query
 	 */
-	public function search(PaymentQuery $query) : ?array {
+	public function search(PaymentQuery $query): ?array {
 		if(NULL === $query) {
 			// no query... bail
 			return NULL;
@@ -158,7 +158,7 @@ class PaymentModel extends AbstractModel {
 		}
 	}
 
-	private function buildPaymentFromArray(array $data) : Payment {
+	private function buildPaymentFromArray(array $data): Payment {
 		return (new Payment())
 				->set_id($data['id'])
 				->set_user_id($data['user_id'])
@@ -166,7 +166,7 @@ class PaymentModel extends AbstractModel {
 				->set_time($data['time']);
 	}
 
-	private function buildPaymentsFromArrays(array $data) : array {
+	private function buildPaymentsFromArrays(array $data): array {
 		$payments = array();
 
 		foreach($data as $datum) {

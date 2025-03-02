@@ -18,7 +18,7 @@ class RoleModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Role|null - the role or null if the role could not be saved
 	 */
-	public function create(Role $role) : ?Role {
+	public function create(Role $role): ?Role {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO roles (name, is_system_role, description) VALUES (:name, :is_system_role, :description)';
 		$statement = $connection->prepare($sql);
@@ -69,7 +69,7 @@ class RoleModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Role|null - the role or null if the role could not be found
 	 */
-	public function read(int $id) : ?Role {
+	public function read(int $id): ?Role {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, is_system_role, description FROM roles WHERE id = :id';
 		$statement = $connection->prepare($sql);
@@ -102,7 +102,7 @@ class RoleModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Role|null - the role or null if the role could not be saved
 	 */
-	public function update(Role $role) : Role {
+	public function update(Role $role): Role {
 		$role_id = $role->id();
 		$old_permissions = $this->read($role_id)->permissions();
 
@@ -171,7 +171,7 @@ class RoleModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Role|null - the role or null if the role could not be deleted
 	 */
-	public function delete(int $id) : ?Role {
+	public function delete(int $id): ?Role {
 		$role = $this->read($id);
 
 		if(NULL !== $role) {
@@ -198,7 +198,7 @@ class RoleModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Role[]|null - a list of role which match the search query
 	 */
-	public function search() : ?array {
+	public function search(): ?array {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, is_system_role, description FROM roles';
 		$statement = $connection->prepare($sql);
@@ -214,7 +214,7 @@ class RoleModel extends AbstractModel {
 		}
 	}
 
-	private function buildRoleFromArray(array $data) : Role {
+	private function buildRoleFromArray(array $data): Role {
 		return (new Role())
 					->set_id($data['id'])
 					->set_name($data['name'])
@@ -222,7 +222,7 @@ class RoleModel extends AbstractModel {
 					->set_description($data['description']);
 	}
 
-	private function buildRolesFromArrays(array $data) : array {
+	private function buildRolesFromArrays(array $data): array {
 		$roles = array();
 
 		foreach($data as $datum) {

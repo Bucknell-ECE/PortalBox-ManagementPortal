@@ -23,7 +23,7 @@ class PaymentTransformer implements InputTransformer, OutputTransformer {
 	 * @return Payment - a valid entity object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
-	public function deserialize(array $data) : Payment {
+	public function deserialize(array $data): Payment {
 		if(!array_key_exists('user_id', $data)) {
 			throw new InvalidArgumentException('\'user_id\' is a required field');
 		}
@@ -55,7 +55,7 @@ class PaymentTransformer implements InputTransformer, OutputTransformer {
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
 	 */
-	public function serialize($data, bool $traverse = false) : array {
+	public function serialize($data, bool $traverse = false): array {
 		if($traverse) {
 			return [
 				'id' => $data->id(),
@@ -80,7 +80,7 @@ class PaymentTransformer implements InputTransformer, OutputTransformer {
 	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
-	public function get_column_headers() : array {
+	public function get_column_headers(): array {
 		return ['id', 'User Id', 'Amount', 'Time'];
 	}
 }

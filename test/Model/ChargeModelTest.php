@@ -119,7 +119,7 @@ final class ChargeModelTest extends TestCase {
 		self::$equipment = $model->create($equipment);
 	}
 
-	public static function tearDownAfterClass() : void {
+	public static function tearDownAfterClass(): void {
 		// deprovision a location in the db
 		$model = new UserModel(self::$config);
 		$model->delete(self::$user->id());

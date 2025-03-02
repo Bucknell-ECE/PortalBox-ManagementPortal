@@ -18,7 +18,7 @@ class LoggedEventTransformer implements OutputTransformer {
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
 	 */
-	public function serialize($data, bool $traverse = false) : array {
+	public function serialize($data, bool $traverse = false): array {
 		if($traverse) {
 			$equipment_transformer = new EquipmentTransformer();
 			$user_transformer = new UserTransformer();
@@ -51,7 +51,7 @@ class LoggedEventTransformer implements OutputTransformer {
 	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
-	public function get_column_headers() : array {
+	public function get_column_headers(): array {
 		return ['id', 'Time', 'Type', 'Card', 'User', 'Equipment Name', 'Equipment Type', 'Location'];
 	}
 }

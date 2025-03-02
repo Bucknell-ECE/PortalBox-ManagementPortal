@@ -18,7 +18,7 @@ class EquipmentTypeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return EquipmentType|null - the equipment type or null if the type could not be saved
 	 */
-	public function create(EquipmentType $type) : ?EquipmentType {
+	public function create(EquipmentType $type): ?EquipmentType {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO equipment_types (name, requires_training, charge_rate, charge_policy_id, allow_proxy) VALUES (:name, :requires_training, :charge_rate, :charge_policy_id, :allow_proxy)';
 		$query = $connection->prepare($sql);
@@ -43,7 +43,7 @@ class EquipmentTypeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return EquipmentType|null - the equipment type or null if the type could not be found
 	 */
-	public function read(int $id) : ?EquipmentType {
+	public function read(int $id): ?EquipmentType {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, requires_training, charge_rate, charge_policy_id, allow_proxy FROM equipment_types WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -66,7 +66,7 @@ class EquipmentTypeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return EquipmentType|null - the equipment type or null if the equipment type could not be saved
 	 */
-	public function update(EquipmentType $type) : ?EquipmentType {
+	public function update(EquipmentType $type): ?EquipmentType {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE equipment_types SET name = :name, requires_training = :requires_training, charge_rate = :charge_rate, charge_policy_id = :charge_policy_id, allow_proxy = :allow_proxy WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -92,7 +92,7 @@ class EquipmentTypeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return EquipmentType|null - the equipment type or null if the equipment type could not be found
 	 */
-	public function delete(int $id) : ?EquipmentType {
+	public function delete(int $id): ?EquipmentType {
 		$type = $this->read($id);
 
 		if(NULL !== $type) {
@@ -114,7 +114,7 @@ class EquipmentTypeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location[]|null - a list of locations
 	 */
-	public function search() : ?array {
+	public function search(): ?array {
 
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate, allow_proxy FROM equipment_types ORDER BY name';
@@ -131,7 +131,7 @@ class EquipmentTypeModel extends AbstractModel {
 		}
 	}
 
-	private function buildEquipmentTypeFromArray(array $data) : EquipmentType {
+	private function buildEquipmentTypeFromArray(array $data): EquipmentType {
 		return (new EquipmentType())
 					->set_id($data['id'])
 					->set_name($data['name'])
@@ -141,7 +141,7 @@ class EquipmentTypeModel extends AbstractModel {
 					->set_allow_proxy($data['allow_proxy']);
 	}
 
-	private function buildEquipmentTypesFromArrays(array $data) : array {
+	private function buildEquipmentTypesFromArrays(array $data): array {
 		$locations = array();
 
 		foreach($data as $datum) {

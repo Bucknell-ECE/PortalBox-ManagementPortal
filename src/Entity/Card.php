@@ -14,5 +14,4 @@ abstract class Card {
 	 * by CardType
 	 */
 	abstract public function type_id(): int;
-
 }
