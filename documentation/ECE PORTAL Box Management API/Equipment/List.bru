@@ -1,0 +1,21 @@
+meta {
+  name: List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/api/equipment.php?location_id=1
+  body: none
+  auth: none
+}
+
+params:query {
+  location_id: 1
+  ~location: Test%20Lab
+  ~type: Freeze Ray
+}
+
+headers {
+  Cookie: {{auth_cookie}}
+}
