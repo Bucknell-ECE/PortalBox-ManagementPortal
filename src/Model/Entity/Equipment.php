@@ -12,7 +12,7 @@ use Portalbox\Model\LocationModel;
 class Equipment extends AbstractEquipment {
 	/**
 	 * The configuration to use
-	 * 
+	 *
 	 * @var Config
 	 */
 	private $configuration;
@@ -29,7 +29,7 @@ class Equipment extends AbstractEquipment {
 	 *
 	 * @return Config - the configuration to use
 	 */
-	public function configuration() : Config {
+	public function configuration(): Config {
 		return $this->configuration;
 	}
 
@@ -47,7 +47,7 @@ class Equipment extends AbstractEquipment {
 	 *
 	 * @return EquipmentType|null - the equipment's type
 	 */
-	public function type() : ?EquipmentType {
+	public function type(): ?EquipmentType {
 		if(NULL === $this->type) {
 			$this->type = (new EquipmentTypeModel($this->configuration()))->read($this->type_id());
 		}
@@ -60,7 +60,7 @@ class Equipment extends AbstractEquipment {
 	 *
 	 * @return Location|null - the equipment's location
 	 */
-	public function location() : ?Location {
+	public function location(): ?Location {
 		if(NULL === $this->location) {
 			$this->location = (new LocationModel($this->configuration()))->read($this->location_id());
 		}

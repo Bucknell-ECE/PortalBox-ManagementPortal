@@ -27,7 +27,7 @@ class AbstractModel {
 	 *
 	 * @return Config - the configuration to use
 	 */
-	public function configuration() : Config {
+	public function configuration(): Config {
 		return $this->configuration;
 	}
 
@@ -36,7 +36,7 @@ class AbstractModel {
 	 *
 	 * @param Config configuration - the configuration to use
 	 */
-	public function set_configuration(Config $configuration) : void {
+	public function set_configuration(Config $configuration): void {
 		$this->configuration = $configuration;
 	}
 }

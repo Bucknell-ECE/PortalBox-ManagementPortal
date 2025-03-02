@@ -8,7 +8,7 @@ namespace Portalbox\Entity;
  */
 class ShutdownCard extends Card {
 	/** Get the type of the card */
-	public function type_id() : int {
+	public function type_id(): int {
 		return CardType::SHUTDOWN;
 	}
 }

@@ -32,7 +32,7 @@ class PaymentQuery {
 	 *
 	 * @return string - the on or before date
 	 */
-	public function on_or_before() : ?string {
+	public function on_or_before(): ?string {
 		return $this->on_or_before;
 	}
 
@@ -42,7 +42,7 @@ class PaymentQuery {
 	 * @param string on_or_before - the on or before date
 	 * @return self
 	 */
-	public function set_on_or_before(string $on_or_before) : self {
+	public function set_on_or_before(string $on_or_before): self {
 		$this->on_or_before = $on_or_before;
 		return $this;
 	}
@@ -52,7 +52,7 @@ class PaymentQuery {
 	 *
 	 * @return string - the on or after date
 	 */
-	public function on_or_after() : ?string {
+	public function on_or_after(): ?string {
 		return $this->on_or_after;
 	}
 
@@ -62,7 +62,7 @@ class PaymentQuery {
 	 * @param string on_or_after - the on or after date
 	 * @return self
 	 */
-	public function set_on_or_after(string $on_or_after) : self {
+	public function set_on_or_after(string $on_or_after): self {
 		$this->on_or_after = $on_or_after;
 		return $this;
 	}
@@ -72,7 +72,7 @@ class PaymentQuery {
 	 *
 	 * @return int - the user id
 	 */
-	public function user_id() : ?int {
+	public function user_id(): ?int {
 		return $this->user_id;
 	}
 
@@ -82,7 +82,7 @@ class PaymentQuery {
 	 * @param int user_id - the user id
 	 * @return self
 	 */
-	public function set_user_id(int $user_id) : self {
+	public function set_user_id(int $user_id): self {
 		$this->user_id = $user_id;
 		return $this;
 	}

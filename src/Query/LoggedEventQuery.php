@@ -53,7 +53,7 @@ class LoggedEventQuery {
 	 *
 	 * @return string - the on or before date
 	 */
-	public function on_or_before() : ?string {
+	public function on_or_before(): ?string {
 		return $this->on_or_before;
 	}
 
@@ -63,7 +63,7 @@ class LoggedEventQuery {
 	 * @param string on_or_before - the on or before date
 	 * @return self
 	 */
-	public function set_on_or_before(string $on_or_before) : self {
+	public function set_on_or_before(string $on_or_before): self {
 		$this->on_or_before = $on_or_before;
 		return $this;
 	}
@@ -73,7 +73,7 @@ class LoggedEventQuery {
 	 *
 	 * @return string - the on or after date
 	 */
-	public function on_or_after() : ?string {
+	public function on_or_after(): ?string {
 		return $this->on_or_after;
 	}
 
@@ -83,7 +83,7 @@ class LoggedEventQuery {
 	 * @param string on_or_after - the on or after date
 	 * @return self
 	 */
-	public function set_on_or_after(string $on_or_after) : self {
+	public function set_on_or_after(string $on_or_after): self {
 		$this->on_or_after = $on_or_after;
 		return $this;
 	}
@@ -93,7 +93,7 @@ class LoggedEventQuery {
 	 *
 	 * @return int - the equipment id
 	 */
-	public function equipment_id() : ?int {
+	public function equipment_id(): ?int {
 		return $this->equipment_id;
 	}
 
@@ -103,7 +103,7 @@ class LoggedEventQuery {
 	 * @param int equipment_id - the equipment id
 	 * @return self
 	 */
-	public function set_equipment_id(int $equipment_id) : self {
+	public function set_equipment_id(int $equipment_id): self {
 		$this->equipment_id = $equipment_id;
 		return $this;
 	}
@@ -113,7 +113,7 @@ class LoggedEventQuery {
 	 *
 	 * @return int - the location id
 	 */
-	public function location_id() : ?int {
+	public function location_id(): ?int {
 		return $this->location_id;
 	}
 
@@ -123,7 +123,7 @@ class LoggedEventQuery {
 	 * @param int location_id - the location id
 	 * @return self
 	 */
-	public function set_location_id(int $location_id) : self {
+	public function set_location_id(int $location_id): self {
 		$this->location_id = $location_id;
 		return $this;
 	}
@@ -133,7 +133,7 @@ class LoggedEventQuery {
 	 *
 	 * @return int - the type id
 	 */
-	public function type_id() : ?int {
+	public function type_id(): ?int {
 		return $this->type_id;
 	}
 
@@ -143,7 +143,7 @@ class LoggedEventQuery {
 	 * @param int type_id - the type id
 	 * @return self
 	 */
-	public function set_type_id(int $type_id) : self {
+	public function set_type_id(int $type_id): self {
 		$this->type_id = $type_id;
 		return $this;
 	}
@@ -153,7 +153,7 @@ class LoggedEventQuery {
 	 *
 	 * @return int - the equipment type id
 	 */
-	public function equipment_type_id() : ?int {
+	public function equipment_type_id(): ?int {
 		return $this->equipment_type_id;
 	}
 
@@ -163,7 +163,7 @@ class LoggedEventQuery {
 	 * @param int equipment_type_id - the equipment type id
 	 * @return self
 	 */
-	public function set_equipment_type_id(int $equipment_type_id) : self {
+	public function set_equipment_type_id(int $equipment_type_id): self {
 		$this->equipment_type_id = $equipment_type_id;
 		return $this;
 	}

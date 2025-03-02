@@ -21,7 +21,7 @@ class LoggedEventModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return LoggedEvent|null - the location or null if the location could not be found
 	 */
-	public function read(int $id) : ?LoggedEvent {
+	public function read(int $id): ?LoggedEvent {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = <<<EOQ
 		SELECT
@@ -68,7 +68,7 @@ class LoggedEventModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return LoggedEvent[]|null - a list of logged events
 	 */
-	public function search(LoggedEventQuery $query) : ?array {
+	public function search(LoggedEventQuery $query): ?array {
 		if(NULL === $query) {
 			// no query... bail
 			return NULL;
@@ -149,7 +149,7 @@ class LoggedEventModel extends AbstractModel {
 		}
 	}
 
-	private function buildLoggedEventFromArray(array $data) : LoggedEvent {
+	private function buildLoggedEventFromArray(array $data): LoggedEvent {
 		return (new PDOAwareLoggedEvent($this->configuration()))
 			->set_id($data['id'])
 			->set_type_id($data['event_type_id'])
@@ -164,7 +164,7 @@ class LoggedEventModel extends AbstractModel {
 			->set_user_name($data['user_name']);
 	}
 
-	private function buildLoggedEventsFromArray(array $data) : array {
+	private function buildLoggedEventsFromArray(array $data): array {
 		$log = array();
 
 		foreach($data as $datum) {

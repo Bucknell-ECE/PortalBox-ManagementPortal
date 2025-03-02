@@ -98,7 +98,7 @@ final class CardModelTest extends TestCase {
 		self::$user = $model->create($user);
 	}
 
-	public static function tearDownAfterClass() : void {
+	public static function tearDownAfterClass(): void {
 		// deprovision a location in the db
 		$model = new LocationModel(self::$config);
 		$model->delete(self::$location->id());

@@ -18,7 +18,7 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location|null - the location or null if the location could not be saved
 	 */
-	public function create(Location $location) : ?Location {
+	public function create(Location $location): ?Location {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO locations (name) VALUES (:name)';
 		$query = $connection->prepare($sql);
@@ -39,7 +39,7 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location|null - the location or null if the location could not be found
 	 */
-	public function read(int $id) : ?Location {
+	public function read(int $id): ?Location {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name FROM locations WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -62,7 +62,7 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location|null - the location or null if the location could not be saved
 	 */
-	public function update(Location $location) : ?Location {
+	public function update(Location $location): ?Location {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE locations SET name = :name WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -84,7 +84,7 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location|null - the location or null if the location could not be found
 	 */
-	public function delete(int $id) : ?Location {
+	public function delete(int $id): ?Location {
 		$location = $this->read($id);
 
 		if(NULL !== $location) {
@@ -106,7 +106,7 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location[]|null - a list of locations
 	 */
-	public function search() : ?array {
+	public function search(): ?array {
 
 		$connection = $this->configuration()->readonly_db_connection();
 
@@ -124,13 +124,13 @@ class LocationModel extends AbstractModel {
 		}
 	}
 
-	private function buildLocationFromArray(array $data) : Location {
+	private function buildLocationFromArray(array $data): Location {
 		return (new Location())
 					->set_id($data['id'])
 					->set_name($data['name']);
 	}
 
-	private function buildLocationsFromArrays(array $data) : array {
+	private function buildLocationsFromArrays(array $data): array {
 		$locations = array();
 
 		foreach($data as $datum) {

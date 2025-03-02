@@ -18,7 +18,7 @@ class APIKeyQuery {
 	 *
 	 * @return string|null - the token for which to search
 	 */
-	public function token() : ?string {
+	public function token(): ?string {
 
 		return $this->token;
 	}
@@ -29,7 +29,7 @@ class APIKeyQuery {
 	 * @param string token - the token for which to search
 	 * @return self
 	 */
-	public function set_token(string $token) : self {
+	public function set_token(string $token): self {
 
 		$this->token = $token;
 		return $this;

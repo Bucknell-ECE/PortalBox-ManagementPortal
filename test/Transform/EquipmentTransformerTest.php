@@ -61,7 +61,7 @@ final class EquipmentTransformerTest extends TestCase {
 		self::$type = $model->create($type);
 	}
 
-	public static function tearDownAfterClass() : void {
+	public static function tearDownAfterClass(): void {
 		$config = Config::config();
 
 		// deprovision equipment type from the db

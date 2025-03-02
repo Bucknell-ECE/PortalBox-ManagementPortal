@@ -61,7 +61,7 @@ final class EquipmentModelTest extends TestCase {
 		self::$type = $model->create($type);
 	}
 
-	public static function tearDownAfterClass() : void {
+	public static function tearDownAfterClass(): void {
 		// deprovision a location in the db
 		$model = new LocationModel(self::$config);
 		$model->delete(self::$location->id());

@@ -64,7 +64,7 @@ class LoggedEventType {
 	 * @param int type_id - the policy id to check
 	 * @return string - name for the event type
 	 */
-	public static function name_for_type(int $type_id) : string {
+	public static function name_for_type(int $type_id): string {
 		switch($type_id) {
 			case self::UNSUCCESSFUL_AUTHENTICATION: return 'Failed Authentication';
 			case self::SUCCESSFUL_AUTHENTICATION: return 'Activation Session Begun';

@@ -19,7 +19,7 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey|null - the api key or null if the key could not be saved
 	 */
-	public function create(APIKey $key) : ?APIKey {
+	public function create(APIKey $key): ?APIKey {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO api_keys (name, token) VALUES (:name, :token)';
 		$statement = $connection->prepare($sql);
@@ -41,7 +41,7 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey|null - the api key or null if the key could not be found
 	 */
-	public function read(int $id) : ?APIKey {
+	public function read(int $id): ?APIKey {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, token FROM api_keys WHERE id = :id';
 		$statement = $connection->prepare($sql);
@@ -64,7 +64,7 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey|null - the key or null if the key could not be saved
 	 */
-	public function update(APIKey $key) : ?APIKey {
+	public function update(APIKey $key): ?APIKey {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE api_keys SET name = :name WHERE id = :id';
 		$statement = $connection->prepare($sql);
@@ -101,7 +101,7 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey|null - the api key or null if the key could not be found
 	 */
-	public function delete(int $id) : ?APIKey {
+	public function delete(int $id): ?APIKey {
 		$key = $this->read($id);
 
 		if(NULL !== $key) {
@@ -124,7 +124,7 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey[]|null - a list of api keys which match the search query
 	 */
-	public function search(APIKeyQuery $query) : ?array {
+	public function search(APIKeyQuery $query): ?array {
 		if(NULL === $query) {
 			// no query... bail
 			return NULL;
@@ -159,14 +159,14 @@ class APIKeyModel extends AbstractModel {
 		}
 	}
 
-	private function buildAPIKeyFromArray(array $data) : APIKey {
+	private function buildAPIKeyFromArray(array $data): APIKey {
 		return (new APIKey())
 			->set_id($data['id'])
 			->set_name($data['name'])
 			->set_token($data['token']);
 	}
 
-	private function buildAPIKeysFromArrays(array $data) : array {
+	private function buildAPIKeysFromArrays(array $data): array {
 		$keys = array();
 
 		foreach($data as $datum) {

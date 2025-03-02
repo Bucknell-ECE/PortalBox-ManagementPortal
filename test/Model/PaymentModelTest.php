@@ -51,7 +51,7 @@ final class PaymentModelTest extends TestCase {
 		self::$user = $model->create($user);
 	}
 
-	public static function tearDownAfterClass() : void {
+	public static function tearDownAfterClass(): void {
 		$model = new UserModel(self::$config);
 		$model->delete(self::$user->id());
 

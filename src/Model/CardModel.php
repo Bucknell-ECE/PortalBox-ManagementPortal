@@ -29,7 +29,7 @@ class CardModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Card|null - the card or null if the card could not be saved
 	 */
-	public function create(Card $card) : ?Card {
+	public function create(Card $card): ?Card {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO cards (id, type_id) VALUES (:id, :type_id)';
 		$query = $connection->prepare($sql);
@@ -88,7 +88,7 @@ class CardModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Card|null - the card or null if the card could not be found
 	 */
-	public function read(int $id) : ?Card {
+	public function read(int $id): ?Card {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT c.id, c.type_id, uxc.user_id, etxc.equipment_type_id FROM cards AS c LEFT JOIN users_x_cards AS uxc ON c.id = uxc.card_id LEFT JOIN equipment_type_x_cards AS etxc ON c.id = etxc.card_id WHERE c.id = :id';
 		$query = $connection->prepare($sql);
@@ -111,7 +111,7 @@ class CardModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Card|null - the card or null if the card could not be found
 	 */
-	public function delete(int $id) : ?Card {
+	public function delete(int $id): ?Card {
 		$card = $this->read($id);
 
 		if(NULL !== $card) {
@@ -171,7 +171,7 @@ class CardModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Card[]|null - a list of equipment which match the search query
 	 */
-	public function search(?CardQuery $query = null) : ?array {
+	public function search(?CardQuery $query = null): ?array {
 		$connection = $this->configuration()->readonly_db_connection();
 
 		$sql = 'SELECT c.id, c.type_id, uxc.user_id, etxc.equipment_type_id FROM cards AS c LEFT JOIN users_x_cards AS uxc ON c.id = uxc.card_id LEFT JOIN equipment_type_x_cards AS etxc ON c.id = etxc.card_id';
@@ -212,7 +212,7 @@ class CardModel extends AbstractModel {
 		}
 	}
 
-	private function buildCardFromArray(array $data, array $users, array $equipment_types) : ?Card {
+	private function buildCardFromArray(array $data, array $users, array $equipment_types): ?Card {
 		switch($data['type_id']) {
 			case CardType::PROXY:
 				return (new ProxyCard())->set_id($data['id']);
@@ -250,7 +250,7 @@ class CardModel extends AbstractModel {
 		}
 	}
 
-	private function buildCardsFromArrays(array $data) : array {
+	private function buildCardsFromArrays(array $data): array {
 		$cards = [];
 		$users = [];
 		$roles = [];

@@ -14,14 +14,14 @@ trait HasIdProperty {
 	/**
 	 * Get the id of this entity
 	 */
-	public function id() : ?int {
+	public function id(): ?int {
 		return $this->id;
 	}
 
 	/**
 	 * Set the unique id of this entity
 	 */
-	public function set_id(?int $id) : self {
+	public function set_id(?int $id): self {
 		$this->id = $id;
 		return $this;
 	}

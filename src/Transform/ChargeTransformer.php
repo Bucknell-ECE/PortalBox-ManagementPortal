@@ -25,7 +25,7 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 	 * @return Charge - a valid entity object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
-	public function deserialize(array $data) : Charge {
+	public function deserialize(array $data): Charge {
 		if(!array_key_exists('equipment_id', $data)) {
 			throw new InvalidArgumentException('\'equipment_id\' is a required field');
 		}
@@ -80,7 +80,7 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
 	 */
-	public function serialize($data, bool $traverse = false) : array {
+	public function serialize($data, bool $traverse = false): array {
 		if($traverse) {
 			$equipment_transformer = new EquipmentTransformer();
 			$user_transformer = new UserTransformer();
@@ -119,7 +119,7 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
-	public function get_column_headers() : array {
+	public function get_column_headers(): array {
 		return ['id', 'Equipment ID', 'Equipment', 'User ID', 'User', 'Amount', 'Time', 'Charge Policy ID', 'Charge Policy', 'Charge Rate', 'Charged Time'];
 	}
 }

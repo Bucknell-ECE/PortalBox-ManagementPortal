@@ -29,7 +29,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 	 * @return Card - a valid entity object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
-	public function deserialize(array $data) : Card {
+	public function deserialize(array $data): Card {
 		if(!array_key_exists('id', $data)) {
 			throw new InvalidArgumentException('\'id\' is a required field');
 		}
@@ -77,7 +77,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
 	 */
-	public function serialize($data, bool $traverse = false) : array {
+	public function serialize($data, bool $traverse = false): array {
 		$card_type_id = $data->type_id();
 
 		if($traverse) {
@@ -168,7 +168,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
-	public function get_column_headers() : array {
+	public function get_column_headers(): array {
 		return ['id', 'Card Type ID', 'Card Type', 'User ID', 'User', 'Equipment Type ID', 'Equipment Type'];
 	}
 }

@@ -27,7 +27,7 @@ class TrainingCard extends Card {
 	 *
 	 * @return int - type one of the predefined constants exposed by CardType
 	 */
-	public function type_id() : int {
+	public function type_id(): int {
 		return CardType::TRAINING;
 	}
 
@@ -37,7 +37,7 @@ class TrainingCard extends Card {
 	 * @return int - the id of the type of equipment this card can activate for
 	 *               training
 	 */
-	public function equipment_type_id() : int {
+	public function equipment_type_id(): int {
 		return $this->equipment_type_id;
 	}
 
@@ -48,7 +48,7 @@ class TrainingCard extends Card {
 	 *               can activate for training
 	 * @return self
 	 */
-	public function set_equipment_type_id(int $equipment_type_id) : self {
+	public function set_equipment_type_id(int $equipment_type_id): self {
 		$this->equipment_type_id = $equipment_type_id;
 		$this->equipment_type = NULL;
 		return $this;
@@ -60,11 +60,11 @@ class TrainingCard extends Card {
 	 * @return EquipmentType|null - the type of equipment this card can
 	 *               activate for training
 	 */
-	public function equipment_type() : ?EquipmentType {
+	public function equipment_type(): ?EquipmentType {
 		return $this->equipment_type;
 	}
 
-	public function set_equipment_type(?EquipmentType $equipment_type) : self{
+	public function set_equipment_type(?EquipmentType $equipment_type): self{
 		$this->equipment_type = $equipment_type;
 		return $this;
 	}
@@ -76,7 +76,7 @@ class TrainingCard extends Card {
 	 *               card can activate for training
 	 * @return self
 	 */
-	public function set_type(?EquipmentType $equipment_type) : self {
+	public function set_type(?EquipmentType $equipment_type): self {
 		$this->equipment_type = $equipment_type;
 		if(NULL === $equipment_type) {
 			$this->equipment_type_id = -1;

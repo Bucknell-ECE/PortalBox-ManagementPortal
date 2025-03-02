@@ -23,7 +23,7 @@ class APIKey {
 	/**
 	 * Get the name of this API key
 	 */
-	public function name() : string {
+	public function name(): string {
 		return $this->name;
 	}
 
@@ -32,7 +32,7 @@ class APIKey {
 	 *
 	 * @throws InvalidArgumentException if the name is the empty string
 	 */
-	public function set_name(string $name) : self {
+	public function set_name(string $name): self {
 		if($name === '') {
 			throw new InvalidArgumentException('You must specify the API key\'s name');
 		}
@@ -45,7 +45,7 @@ class APIKey {
 	 * Get token that can be presented to authenticate to the API in the
 	 * absence of a Session
 	 */
-	public function token() : string {
+	public function token(): string {
 		if(NULL === $this->token) {
 			$this->token = $this->create_token();
 		}
@@ -56,7 +56,7 @@ class APIKey {
 	 * Set token that can be presented to authenticate to the API in the
 	 * absence of a Session
 	 */
-	public function set_token(string $token) : self {
+	public function set_token(string $token): self {
 		$this->token = $token;
 		return $this;
 	}

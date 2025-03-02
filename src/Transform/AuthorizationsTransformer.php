@@ -21,7 +21,7 @@ class AuthorizationsTransformer implements InputTransformer {
 	 * @return array<int> - a list of authorization ids
 	 * @throws InvalidArgumentException if a required field is not specified
 	 */
-	public function deserialize(array $data) : array {
+	public function deserialize(array $data): array {
 		if(!array_key_exists('authorizations', $data)) {
 			throw new InvalidArgumentException('\'authorizations\' is a required field');
 		}

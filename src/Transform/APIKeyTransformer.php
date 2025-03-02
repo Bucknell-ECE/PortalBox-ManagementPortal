@@ -17,7 +17,7 @@ class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	 * @return APIKey - a valid entity object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
-	public function deserialize(array $data) : APIKey {
+	public function deserialize(array $data): APIKey {
 		if(!array_key_exists('name', $data)) {
 			throw new InvalidArgumentException('\'name\' is a required field');
 		}
@@ -36,7 +36,7 @@ class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
 	 */
-	public function serialize($data, bool $traverse = false) : array {
+	public function serialize($data, bool $traverse = false): array {
 		if($traverse) {
 			return [
 				'id' => $data->id(),
@@ -59,7 +59,7 @@ class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
-	public function get_column_headers() : array {
+	public function get_column_headers(): array {
 		return ['id', 'Name', 'Token'];
 	}
 }

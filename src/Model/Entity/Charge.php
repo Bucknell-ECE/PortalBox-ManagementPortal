@@ -14,7 +14,7 @@ use Portalbox\Model\UserModel;
 class Charge extends AbstractCharge {
 	/**
 	 * The configuration to use
-	 * 
+	 *
 	 * @var Config
 	 */
 	private $configuration;
@@ -33,7 +33,7 @@ class Charge extends AbstractCharge {
 	 */
 	private $user_name;
 
-	
+
 	/**
 	 * @param Config configuration - the configuration to use
 	 */
@@ -46,7 +46,7 @@ class Charge extends AbstractCharge {
 	 *
 	 * @return Config - the configuration to use
 	 */
-	public function configuration() : Config {
+	public function configuration(): Config {
 		return $this->configuration;
 	}
 
@@ -64,16 +64,16 @@ class Charge extends AbstractCharge {
 	 *
 	 * @return string - the name of the equipment the user used to incur the Charge
 	 */
-	public function equipment_name() : ?string {
+	public function equipment_name(): ?string {
 		return $this->equipment_name;
 	}
 
 	/**
 	 * Set the name of the equipment the user used to incur the Charge
-	 * 
+	 *
 	 * @param string name - the name of the equipment the user used to incur the Charge
 	 */
-	public function set_equipment_name(string $equipment_name) : Charge {
+	public function set_equipment_name(string $equipment_name): Charge {
 		$this->equipment_name = $equipment_name;
 		return $this;
 	}
@@ -83,7 +83,7 @@ class Charge extends AbstractCharge {
 	 *
 	 * @return Equipment|null - the equipment the user used to incur the Charge
 	 */
-	public function equipment() : ?Equipment {
+	public function equipment(): ?Equipment {
 		if(NULL === $this->equipment) {
 			$this->equipment = (new EquipmentModel($this->configuration()))->read($this->equipment_id());
 		}
@@ -96,16 +96,16 @@ class Charge extends AbstractCharge {
 	 *
 	 * @return string - the charged user's name
 	 */
-	public function user_name() : ?string {
+	public function user_name(): ?string {
 		return $this->user_name;
 	}
 
 	/**
 	 * Set the charged user's name
-	 * 
+	 *
 	 * @param string name - the charged user's name
 	 */
-	public function set_user_name(?string $user_name) : Charge {
+	public function set_user_name(?string $user_name): Charge {
 		$this->user_name = $user_name;
 		return $this;
 	}
@@ -115,7 +115,7 @@ class Charge extends AbstractCharge {
 	 *
 	 * @return User|null - the charged user
 	 */
-	public function user() : ?User {
+	public function user(): ?User {
 		if(NULL === $this->user) {
 			$this->user = (new UserModel($this->configuration()))->read($this->user_id());
 		}
