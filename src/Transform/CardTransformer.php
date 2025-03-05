@@ -3,16 +3,13 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-
 use Portalbox\Config;
-
 use Portalbox\Entity\Card;
 use Portalbox\Entity\CardType;
 use Portalbox\Entity\ProxyCard;
 use Portalbox\Entity\ShutdownCard;
 use Portalbox\Entity\TrainingCard;
 use Portalbox\Entity\UserCard;
-
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\UserModel;
@@ -30,16 +27,16 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Card {
-		if(!array_key_exists('id', $data)) {
+		if (!array_key_exists('id', $data)) {
 			throw new InvalidArgumentException('\'id\' is a required field');
 		}
-		if(!array_key_exists('type_id', $data)) {
+		if (!array_key_exists('type_id', $data)) {
 			throw new InvalidArgumentException('\'type_id\' is a required field');
 		}
 
-		if(CardType::USER == $data['type_id']) {
+		if (CardType::USER == $data['type_id']) {
 			$user = (new UserModel(Config::config()))->read($data['user_id']);
-			if(NULL === $user) {
+			if (null === $user) {
 				throw new InvalidArgumentException('\'user_id\' must correspond to a valid user');
 			}
 
@@ -48,7 +45,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 				->set_user_id($data['user_id']);
 		} else if (CardType::TRAINING == $data['type_id']) {
 			$type = (new EquipmentTypeModel(Config::config()))->read($data['equipment_type_id']);
-			if(NULL === $type) {
+			if (null === $type) {
 				throw new InvalidArgumentException('\'equipment_type_id\' must correspond to a valid equipment type');
 			}
 
@@ -80,15 +77,15 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 	public function serialize($data, bool $traverse = false): array {
 		$card_type_id = $data->type_id();
 
-		if($traverse) {
-			if(CardType::USER == $card_type_id) {
+		if ($traverse) {
+			if (CardType::USER == $card_type_id) {
 				$user_transformer = new UserTransformer();
 				return [
 					'id' => $data->id(),
 					'card_type_id' => $card_type_id,
 					'card_type' => CardType::name_for_type($card_type_id),
-					'user' => is_null($data->user()) ? NULL : $user_transformer->serialize($data->user(), $traverse),
-					'equipment_type' => NULL
+					'user' => is_null($data->user()) ? null : $user_transformer->serialize($data->user(), $traverse),
+					'equipment_type' => null
 				];
 			} else if (CardType::TRAINING == $card_type_id) {
 				$equipment_type_transformer = new EquipmentTypeTransformer();
@@ -96,28 +93,28 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 					'id' => $data->id(),
 					'card_type_id' => $card_type_id,
 					'card_type' => CardType::name_for_type($card_type_id),
-					'user' => NULL,
-					'equipment_type' => is_null($data->equipment_type()) ? NULL : $equipment_type_transformer->serialize($data->equipment_type(), $traverse)
+					'user' => null,
+					'equipment_type' => is_null($data->equipment_type()) ? null : $equipment_type_transformer->serialize($data->equipment_type(), $traverse)
 				];
 			} else if (CardType::PROXY == $card_type_id) {
 				return [
 					'id' => $data->id(),
 					'card_type_id' => $card_type_id,
 					'card_type' => CardType::name_for_type($card_type_id),
-					'user' => NULL,
-					'equipment_type' => NULL
+					'user' => null,
+					'equipment_type' => null
 				];
 			} else if (CardType::SHUTDOWN == $card_type_id) {
 				return [
 					'id' => $data->id(),
 					'card_type_id' => $card_type_id,
 					'card_type' => CardType::name_for_type($card_type_id),
-					'user' => NULL,
-					'equipment_type' => NULL
+					'user' => null,
+					'equipment_type' => null
 				];
 			}
 		} else {
-			if(CardType::USER == $card_type_id) {
+			if (CardType::USER == $card_type_id) {
 				return [
 					'id' => $data->id(),
 					'card_type_id' => $card_type_id,

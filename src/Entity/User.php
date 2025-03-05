@@ -78,13 +78,13 @@ class User {
 	/** Set the user's role id */
 	public function set_role_id(int $role_id): self {
 		$this->role_id = $role_id;
-		$this->role = NULL;
+		$this->role = null;
 		return $this;
 	}
 
 	/** Get the user's role's name */
 	public function role_name(): string {
-		if(NULL === $this->role) {
+		if (null === $this->role) {
 			return '';
 		} else {
 			return $this->role->name();
@@ -99,7 +99,7 @@ class User {
 	/** Set the user's role */
 	public function set_role(?Role $role): self {
 		$this->role = $role;
-		if(NULL === $role) {
+		if (null === $role) {
 			$this->role_id = -1;
 		} else {
 			$this->role_id = $role->id();
@@ -121,7 +121,7 @@ class User {
 
 	/** Get the authorizations for this user */
 	public function authorizations(): array {
-		if(NULL === $this->authorizations) {
+		if (null === $this->authorizations) {
 			return array();
 		}
 		return $this->authorizations;

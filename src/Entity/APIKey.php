@@ -18,7 +18,7 @@ class APIKey {
 	 * The token that can be presented to authenticate to the API in the
 	 * absence of a User Session
 	 */
-	protected ?string $token = NULL;
+	protected ?string $token = null;
 
 	/**
 	 * Get the name of this API key
@@ -33,7 +33,7 @@ class APIKey {
 	 * @throws InvalidArgumentException if the name is the empty string
 	 */
 	public function set_name(string $name): self {
-		if($name === '') {
+		if ($name === '') {
 			throw new InvalidArgumentException('You must specify the API key\'s name');
 		}
 
@@ -46,7 +46,7 @@ class APIKey {
 	 * absence of a Session
 	 */
 	public function token(): string {
-		if(NULL === $this->token) {
+		if (null === $this->token) {
 			$this->token = $this->create_token();
 		}
 		return $this->token;
@@ -63,7 +63,7 @@ class APIKey {
 
 	private function create_token(): string {
 		// If libsodium is available use it :)
-		if(true === function_exists('random_bytes')) {
+		if (true === function_exists('random_bytes')) {
 			return bin2hex(random_bytes(16));
 		} else {
 			return sprintf('%04X%04X%04X%04X%04X%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));

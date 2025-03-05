@@ -3,7 +3,6 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
 
@@ -20,22 +19,22 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): EquipmentType {
-		if(!array_key_exists('name', $data)) {
+		if (!array_key_exists('name', $data)) {
 			throw new InvalidArgumentException('\'name\' is a required field');
 		}
-		if(!array_key_exists('requires_training', $data)) {
+		if (!array_key_exists('requires_training', $data)) {
 			throw new InvalidArgumentException('\'requires_training\' is a required field');
 		}
-		if(!array_key_exists('charge_policy_id', $data)) {
+		if (!array_key_exists('charge_policy_id', $data)) {
 			throw new InvalidArgumentException('\'charge_policy_id\' is a required field');
 		}
-		if(!ChargePolicy::is_valid($data['charge_policy_id'])) {
+		if (!ChargePolicy::is_valid($data['charge_policy_id'])) {
 			throw new InvalidArgumentException('\'charge_policy_id\' must be a valid charge policy id');
 		}
-		if(!array_key_exists('charge_rate', $data)) {
+		if (!array_key_exists('charge_rate', $data)) {
 			throw new InvalidArgumentException('\'charge_rate\' is a required field');
 		}
-		if(!array_key_exists('allow_proxy', $data)) {
+		if (!array_key_exists('allow_proxy', $data)) {
 			throw new InvalidArgumentException('\'allow_proxy\' is a required field');
 		}
 
@@ -59,7 +58,7 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 	 *      are null, string, int, and float otherwise
 	 */
 	public function serialize($data, bool $traverse = false): array {
-		if($traverse) {
+		if ($traverse) {
 			return [
 				'id' => $data->id(),
 				'name' => $data->name(),

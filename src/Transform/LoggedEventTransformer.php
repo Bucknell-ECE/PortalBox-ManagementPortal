@@ -7,7 +7,6 @@ namespace Portalbox\Transform;
  * LoggedEvent entity instances.
  */
 class LoggedEventTransformer implements OutputTransformer {
-
 	/**
 	 * Called to serialize LoggedEvent entity instance to a dictionary
 	 *
@@ -19,7 +18,7 @@ class LoggedEventTransformer implements OutputTransformer {
 	 *      are null, string, int, and float otherwise
 	 */
 	public function serialize($data, bool $traverse = false): array {
-		if($traverse) {
+		if ($traverse) {
 			$equipment_transformer = new EquipmentTransformer();
 			$user_transformer = new UserTransformer();
 			return [
@@ -34,7 +33,7 @@ class LoggedEventTransformer implements OutputTransformer {
 			return [
 				'id' => $data->id(),
 				'time' => $data->time(),
-				'type' =>$data->type(),
+				'type' => $data->type(),
 				'card' => $data->card_id(),
 				'user' => $data->user_name(),
 				'equipment_name' => $data->equipment_name(),

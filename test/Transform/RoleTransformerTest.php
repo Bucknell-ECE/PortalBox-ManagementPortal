@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use PortalBox\Entity\Permission;
 use PortalBox\Entity\Role;
 use Portalbox\Transform\RoleTransformer;
@@ -14,7 +13,7 @@ final class RoleTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'admin';
-		$is_system_role = TRUE;
+		$is_system_role = true;
 		$description = 'Users with this role have no restrictions.';
 		$permissions = [
 			Permission::LIST_OWN_EQUIPMENT_AUTHORIZATIONS,
@@ -45,7 +44,7 @@ final class RoleTransformerTest extends TestCase {
 		$transformer = new RoleTransformer();
 
 		$id = 42;
-		$is_system_role = TRUE;
+		$is_system_role = true;
 		$description = 'Users with this role have no restrictions.';
 		$permissions = [
 			Permission::LIST_OWN_EQUIPMENT_AUTHORIZATIONS,
@@ -68,7 +67,7 @@ final class RoleTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'admin';
-		$is_system_role = TRUE;
+		$is_system_role = true;
 		$permissions = [
 			Permission::LIST_OWN_EQUIPMENT_AUTHORIZATIONS,
 			Permission::LIST_OWN_CARDS
@@ -90,7 +89,7 @@ final class RoleTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'admin';
-		$is_system_role = TRUE;
+		$is_system_role = true;
 		$description = 'Users with this role have no restrictions.';
 
 		$data = [
@@ -109,7 +108,7 @@ final class RoleTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'admin';
-		$is_system_role = TRUE;
+		$is_system_role = true;
 		$description = 'Users with this role have no restrictions.';
 		$permissions = [
 			Permission::LIST_OWN_EQUIPMENT_AUTHORIZATIONS,

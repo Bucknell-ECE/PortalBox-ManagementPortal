@@ -7,7 +7,6 @@ namespace Portalbox\Transform;
  * Transformed into a variety of output encodings
  */
 interface OutputTransformer {
-
 	/**
 	 * Called to serialize an entity
 	 *

@@ -21,7 +21,6 @@ class NullOutputTransformer implements OutputTransformer {
 	 */
 	public function serialize($data, bool $traverse = false): array {
 		return $data;
-
 	}
 
 	/**

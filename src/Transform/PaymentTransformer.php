@@ -3,11 +3,8 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-
 use Portalbox\Config;
-
 use Portalbox\Entity\Payment;
-
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\UserModel;
 
@@ -24,18 +21,18 @@ class PaymentTransformer implements InputTransformer, OutputTransformer {
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Payment {
-		if(!array_key_exists('user_id', $data)) {
+		if (!array_key_exists('user_id', $data)) {
 			throw new InvalidArgumentException('\'user_id\' is a required field');
 		}
-		if(!array_key_exists('amount', $data)) {
+		if (!array_key_exists('amount', $data)) {
 			throw new InvalidArgumentException('\'amount\' is a required field');
 		}
-		if(!array_key_exists('time', $data)) {
+		if (!array_key_exists('time', $data)) {
 			throw new InvalidArgumentException('\'time\' is a required field');
 		}
 
 		$user = (new UserModel(Config::config()))->read($data['user_id']);
-		if(NULL === $user) {
+		if (null === $user) {
 			throw new InvalidArgumentException('\'user_id\' must correspond to a valid user');
 		}
 
@@ -56,7 +53,7 @@ class PaymentTransformer implements InputTransformer, OutputTransformer {
 	 *      are null, string, int, and float otherwise
 	 */
 	public function serialize($data, bool $traverse = false): array {
-		if($traverse) {
+		if ($traverse) {
 			return [
 				'id' => $data->id(),
 				'user_id' => $data->user_id(),

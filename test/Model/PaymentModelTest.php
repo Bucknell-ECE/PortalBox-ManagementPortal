@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Config;
 use Portalbox\Entity\Payment;
 use Portalbox\Entity\Role;
@@ -39,7 +38,7 @@ final class PaymentModelTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$active = TRUE;
+		$active = true;
 
 		$user = (new User())
 			->set_name($name)

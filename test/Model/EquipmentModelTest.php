@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Config;
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\Equipment;
@@ -49,7 +48,7 @@ final class EquipmentModelTest extends TestCase {
 		$model = new EquipmentTypeModel(self::$config);
 
 		$name = 'Floodlight';
-		$requires_training = FALSE;
+		$requires_training = false;
 		$charge_policy_id = ChargePolicy::NO_CHARGE;
 
 		$type = (new EquipmentType())
@@ -79,7 +78,7 @@ final class EquipmentModelTest extends TestCase {
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789ab';
 		$timeout = 0;
-		$is_in_service = TRUE;
+		$is_in_service = true;
 		$service_minutes = 500;
 
 		$equipment = (new Equipment())
@@ -120,7 +119,7 @@ final class EquipmentModelTest extends TestCase {
 		$name = '2000W Floodlight';
 		$mac_address = 'cdef456789ab';
 		$timeout = 120;
-		$is_in_service = FALSE;
+		$is_in_service = false;
 		$service_minutes = 700;
 
 		$equipment_as_found
@@ -165,7 +164,7 @@ final class EquipmentModelTest extends TestCase {
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789AB';
 		$timeout = 0;
-		$is_in_service = TRUE;
+		$is_in_service = true;
 		$service_minutes = 500;
 
 		$equipment = (new Equipment())

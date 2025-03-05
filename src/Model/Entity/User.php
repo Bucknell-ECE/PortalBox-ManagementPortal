@@ -72,7 +72,7 @@ class User extends AbstractUser {
 	 * @return Role|null - the user's role
 	 */
 	public function role(): ?Role {
-		if(NULL === $this->role) {
+		if (null === $this->role) {
 			$this->role = (new RoleModel($this->configuration()))->read($this->role_id());
 		}
 

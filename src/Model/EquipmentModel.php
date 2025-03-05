@@ -6,14 +6,12 @@ use Portalbox\Entity\Equipment;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Model\Entity\Equipment as PDOAwareEquipment;
 use Portalbox\Query\EquipmentQuery;
-
 use PDO;
 
 /**
  * EquipmentModel is our bridge between the database and higher level Entities.
  */
 class EquipmentModel extends AbstractModel {
-
 	/**
 	 * Save a newly created Equipment to the database
 	 *
@@ -34,7 +32,7 @@ class EquipmentModel extends AbstractModel {
 		$query->bindValue(':in_service', $equipment->is_in_service(), PDO::PARAM_BOOL);
 		$query->bindValue(':service_minutes', $equipment->service_minutes(), PDO::PARAM_INT);
 
-		if($query->execute()) {
+		if ($query->execute()) {
 			return $equipment
 					->set_id($connection->lastInsertId('equipment_id_seq'))
 					->set_is_in_use(false);
@@ -56,12 +54,9 @@ class EquipmentModel extends AbstractModel {
 		$sql = 'SELECT e.id, e.name, e.type_id, e.mac_address, e.location_id, e.timeout, e.in_service, iu.equipment_id IS NOT NULL AS in_use, e.service_minutes, e.ip_address FROM equipment AS e LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
-		if($query->execute()) {
-
-			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
-
+		if ($query->execute()) {
+			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
 				return $this->buildEquipmentFromArray($data);
-
 			} else {
 				return null;
 			}
@@ -92,7 +87,7 @@ class EquipmentModel extends AbstractModel {
 		$query->bindValue(':in_service', $equipment->is_in_service(), PDO::PARAM_BOOL);
 		$query->bindValue(':service_minutes', $equipment->service_minutes(), PDO::PARAM_INT);
 
-		if($query->execute()) {
+		if ($query->execute()) {
 			$equipment = (new PDOAwareEquipment($this->configuration()))
 				->set_id($equipment->id())
 				->set_name($equipment->name())
@@ -107,8 +102,8 @@ class EquipmentModel extends AbstractModel {
 			$sql = 'SELECT iu.equipment_id IS NOT NULL AS in_use, e.service_minutes FROM equipment AS e LEFT JOIN in_use AS iu ON e.id = iu.equipment_id WHERE e.id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $equipment->id(), PDO::PARAM_INT);
-			if($query->execute()) {
-				if($data = $query->fetch(PDO::FETCH_ASSOC)) {
+			if ($query->execute()) {
+				if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
 					$equipment
 						->set_is_in_use($data['in_use'])
 						->set_service_minutes($data['service_minutes']);
@@ -135,12 +130,12 @@ class EquipmentModel extends AbstractModel {
 	public function delete(int $id): ?Equipment {
 		$equipment = $this->read($id);
 
-		if(NULL !== $equipment) {
+		if (null !== $equipment) {
 			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM equipment WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);
-			if(!$query->execute()) {
+			if (!$query->execute()) {
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
@@ -156,9 +151,9 @@ class EquipmentModel extends AbstractModel {
 	 * @return Equipment[]|null - a list of equipment which match the search query
 	 */
 	public function search(EquipmentQuery $query): ?array {
-		if(NULL === $query) {
+		if (null === $query) {
 			// no query... bail
-			return NULL;
+			return null;
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
@@ -175,24 +170,24 @@ class EquipmentModel extends AbstractModel {
 
 		$where_clause_fragments = array();
 		$parameters = array();
-		if(NULL !== $query->location_id()) {
+		if (null !== $query->location_id()) {
 			$where_clause_fragments[] = 'l.id = :location';
 			$parameters[':location'] = $query->location_id();
-		} else if(NULL !== $query->location()) {
+		} else if (null !== $query->location()) {
 			$where_clause_fragments[] = 'l.name = :location';
 			$parameters[':location'] = $query->location();
 		}
-		if(NULL !== $query->type()) {
+		if (null !== $query->type()) {
 			$where_clause_fragments[] = 't.name = :type';
 			$parameters[':type'] = $query->type();
 		}
-		if($query->include_out_of_service()) {
+		if ($query->include_out_of_service()) {
 			// do nothing i.e. do not filter for in service only
 		} else {
 			$where_clause_fragments[] = 'e.in_service = 1';
 		}
 
-		if(0 < count($where_clause_fragments)) {
+		if (0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
@@ -200,13 +195,13 @@ class EquipmentModel extends AbstractModel {
 
 		$statement = $connection->prepare($sql);
 		// run search
-		foreach($parameters as $k => $v) {
+		foreach ($parameters as $k => $v) {
 			$statement->bindValue($k, $v);
 		}
 
-		if($statement->execute()) {
+		if ($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if(FALSE !== $data) {
+			if (false !== $data) {
 				return $this->buildEquipmentFromArrays($data);
 			} else {
 				return null;
@@ -233,7 +228,7 @@ class EquipmentModel extends AbstractModel {
 	private function buildEquipmentFromArrays(array $data): array {
 		$equipment = [];
 
-		foreach($data as $datum) {
+		foreach ($data as $datum) {
 			$equipment[] = $this->buildEquipmentFromArray($datum);
 		}
 

@@ -4,7 +4,6 @@ namespace Portalbox\Model;
 
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Exception\DatabaseException;
-
 use PDO;
 
 /**
@@ -29,7 +28,7 @@ class EquipmentTypeModel extends AbstractModel {
 		$query->bindValue(':charge_policy_id', $type->charge_policy_id(), PDO::PARAM_INT);
 		$query->bindValue(':allow_proxy', $type->allow_proxy(), PDO::PARAM_BOOL);
 
-		if($query->execute()) {
+		if ($query->execute()) {
 			return $type->set_id($connection->lastInsertId('equipment_types_id_seq'));
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -48,8 +47,8 @@ class EquipmentTypeModel extends AbstractModel {
 		$sql = 'SELECT id, name, requires_training, charge_rate, charge_policy_id, allow_proxy FROM equipment_types WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
-		if($query->execute()) {
-			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
+		if ($query->execute()) {
+			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
 				return $this->buildEquipmentTypeFromArray($data);
 			} else {
 				return null;
@@ -78,7 +77,7 @@ class EquipmentTypeModel extends AbstractModel {
 		$query->bindValue(':charge_policy_id', $type->charge_policy_id(), PDO::PARAM_INT);
 		$query->bindValue(':allow_proxy', $type->allow_proxy(), PDO::PARAM_BOOL);
 
-		if($query->execute()) {
+		if ($query->execute()) {
 			return $type;
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -95,12 +94,12 @@ class EquipmentTypeModel extends AbstractModel {
 	public function delete(int $id): ?EquipmentType {
 		$type = $this->read($id);
 
-		if(NULL !== $type) {
+		if (null !== $type) {
 			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM equipment_types WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);
-			if(!$query->execute()) {
+			if (!$query->execute()) {
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
@@ -119,9 +118,9 @@ class EquipmentTypeModel extends AbstractModel {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate, allow_proxy FROM equipment_types ORDER BY name';
 		$statement = $connection->prepare($sql);
-		if($statement->execute()) {
+		if ($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if(FALSE !== $data) {
+			if (false !== $data) {
 				return $this->buildEquipmentTypesFromArrays($data);
 			} else {
 				return null;
@@ -144,7 +143,7 @@ class EquipmentTypeModel extends AbstractModel {
 	private function buildEquipmentTypesFromArrays(array $data): array {
 		$locations = array();
 
-		foreach($data as $datum) {
+		foreach ($data as $datum) {
 			$locations[] = $this->buildEquipmentTypeFromArray($datum);
 		}
 

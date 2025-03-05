@@ -3,11 +3,8 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-
 use Portalbox\Config;
-
 use Portalbox\Entity\User;
-
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
@@ -25,21 +22,21 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): User {
-		if(!array_key_exists('role_id', $data)) {
+		if (!array_key_exists('role_id', $data)) {
 			throw new InvalidArgumentException('\'role_id\' is a required field');
 		}
-		if(!array_key_exists('name', $data)) {
+		if (!array_key_exists('name', $data)) {
 			throw new InvalidArgumentException('\'name\' is a required field');
 		}
-		if(!array_key_exists('email', $data)) {
+		if (!array_key_exists('email', $data)) {
 			throw new InvalidArgumentException('\'email\' is a required field');
 		}
-		if(!array_key_exists('is_active', $data)) {
+		if (!array_key_exists('is_active', $data)) {
 			throw new InvalidArgumentException('\'is_active\' is a required field');
 		}
 
 		$role = (new RoleModel(Config::config()))->read($data['role_id']);
-		if(NULL === $role) {
+		if (null === $role) {
 			throw new InvalidArgumentException('\'role_id\' must correspond to a valid role');
 		}
 
@@ -50,18 +47,18 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 					->set_role($role);
 
 		// add in optional fields
-		if(array_key_exists('comment', $data)) {
+		if (array_key_exists('comment', $data)) {
 			$user->set_comment($data['comment']);
 		}
-		if(array_key_exists('authorizations', $data)) {
-			if(!is_array($data['authorizations'])) {
+		if (array_key_exists('authorizations', $data)) {
+			if (!is_array($data['authorizations'])) {
 				throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
 			}
 
 			$model = new EquipmentTypeModel(Config::config());
-			foreach($data['authorizations'] as $equipment_type_id) {
+			foreach ($data['authorizations'] as $equipment_type_id) {
 				$equipment_type = $model->read($equipment_type_id);
-				if(NULL === $equipment_type) {
+				if (null === $equipment_type) {
 					throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
 				}
 			}
@@ -83,14 +80,14 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 	 *      are null, string, int, and float otherwise
 	 */
 	public function serialize($data, bool $traverse = false): array {
-		if($traverse) {
+		if ($traverse) {
 			$role_transformer = new RoleTransformer();
 			return [
 				'id' => $data->id(),
 				'name' => $data->name(),
 				'email' => $data->email(),
 				'comment' => $data->comment(),
-				'role' => is_null($data->role()) ? NULL : $role_transformer->serialize($data->role(), $traverse),
+				'role' => is_null($data->role()) ? null : $role_transformer->serialize($data->role(), $traverse),
 				'is_active' => $data->is_active(),
 				'authorizations' => $data->authorizations()
 			];

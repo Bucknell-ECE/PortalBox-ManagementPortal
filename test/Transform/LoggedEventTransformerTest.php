@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Config;
-
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\Equipment;
 use Portalbox\Entity\EquipmentType;
@@ -14,12 +12,10 @@ use Portalbox\Entity\LoggedEvent;
 use Portalbox\Entity\LoggedEventType;
 use Portalbox\Entity\Role;
 use Portalbox\Entity\User;
-
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
-
 use Portalbox\Transform\LoggedEventTransformer;
 
 final class LoggedEventTransformerTest extends TestCase {
@@ -62,7 +58,7 @@ final class LoggedEventTransformerTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$active = TRUE;
+		$active = true;
 
 		$user = (new User())
 			->set_name($name)
@@ -87,7 +83,7 @@ final class LoggedEventTransformerTest extends TestCase {
 		$model = new EquipmentTypeModel($config);
 
 		$name = 'Floodlight';
-		$requires_training = FALSE;
+		$requires_training = false;
 		$event_policy_id = ChargePolicy::PER_USE;
 
 		$type = (new EquipmentType())
@@ -105,7 +101,7 @@ final class LoggedEventTransformerTest extends TestCase {
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789AB';
 		$timeout = 0;
-		$is_in_service = TRUE;
+		$is_in_service = true;
 		$service_minutes = 500;
 
 		$equipment = (new Equipment())

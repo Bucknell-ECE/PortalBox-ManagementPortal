@@ -43,7 +43,7 @@ class UserCard extends Card {
 	 */
 	public function set_user_id(?int $user_id): self {
 		$this->user_id = $user_id;
-		$this->user = NULL; //Create new user from user_id
+		$this->user = null; //Create new user from user_id
 		return $this;
 	}
 
@@ -64,7 +64,7 @@ class UserCard extends Card {
 	 */
 	public function set_user(?User $user): self {
 		$this->user = $user;
-		if(NULL === $user) {
+		if (null === $user) {
 			$this->user_id = -1;
 		} else {
 			$this->user_id = $user->id();

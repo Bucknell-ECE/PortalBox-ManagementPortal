@@ -34,7 +34,7 @@ class Config {
 	 */
 	public function __construct($file = '../config/config.ini') {
 		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR . $file);
-		$this->settings = parse_ini_file($path, TRUE);
+		$this->settings = parse_ini_file($path, true);
 	}
 
 	/**
@@ -43,7 +43,7 @@ class Config {
 	 * @return Config - the singleton configuration
 	 */
 	public static function config(): Config {
-		if(!self::$instance) {
+		if (!self::$instance) {
 			self::$instance = new Config();
 		}
 
@@ -60,7 +60,7 @@ class Config {
 	private function connection(): PDO {
 		$connection = null;
 
-		if(FALSE != $this->settings && array_key_exists('database', $this->settings)) {
+		if (false != $this->settings && array_key_exists('database', $this->settings)) {
 			// should throw exception if host, database or user keys are missing
 			// should support no password if key is not provided
 			$dsn = 'host=' . $this->settings['database']['host'] . ';dbname=' . $this->settings['database']['database'];
@@ -111,7 +111,7 @@ class Config {
 	 *
 	 */
 	public function web_ui_settings(): array {
-		if(FALSE != $this->settings && array_key_exists('oauth', $this->settings)) {
+		if (false != $this->settings && array_key_exists('oauth', $this->settings)) {
 			return $this->settings['oauth'];
 		}
 

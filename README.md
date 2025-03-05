@@ -110,6 +110,12 @@ You should take care to prevent the contents of the `config` directory from bein
 
 Since 2019 Tom Egan <tom@tomegan.tech>
 
+## Contributing
+
+We welcome contributes. Please open a Pull Request (PR) and request review from @mlamparter or @tkegan
+
+We would prefer if you used our coding standards but are in the process of formalizing them so if unsure check the "allow maintainers to modify PR" checkbox when creating your PR and we'll help you out.
+
 ## Roadmap
 
 - modernize code
@@ -119,3 +125,4 @@ Since 2019 Tom Egan <tom@tomegan.tech>
 - add a way to set a logo other than editing index.html
 - add visualizations of usage data
 - automate Integration testing with Bruno
+- document coding standards for PHP (PSR-12 except with cuddled braces and tab indents) and Javascript (ESlint baseline except with tab indents)

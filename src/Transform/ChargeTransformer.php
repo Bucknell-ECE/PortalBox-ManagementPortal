@@ -3,12 +3,9 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-
 use Portalbox\Config;
-
 use Portalbox\Entity\Charge;
 use Portalbox\Entity\ChargePolicy;
-
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\UserModel;
@@ -26,37 +23,37 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Charge {
-		if(!array_key_exists('equipment_id', $data)) {
+		if (!array_key_exists('equipment_id', $data)) {
 			throw new InvalidArgumentException('\'equipment_id\' is a required field');
 		}
-		if(!array_key_exists('user_id', $data)) {
+		if (!array_key_exists('user_id', $data)) {
 			throw new InvalidArgumentException('\'user_id\' is a required field');
 		}
-		if(!array_key_exists('amount', $data)) {
+		if (!array_key_exists('amount', $data)) {
 			throw new InvalidArgumentException('\'amount\' is a required field');
 		}
-		if(!array_key_exists('time', $data)) {
+		if (!array_key_exists('time', $data)) {
 			throw new InvalidArgumentException('\'time\' is a required field');
 		}
-		if(!array_key_exists('charge_policy_id', $data)) {
+		if (!array_key_exists('charge_policy_id', $data)) {
 			throw new InvalidArgumentException('\'charge_policy_id\' is a required field');
 		}
-		if(!ChargePolicy::is_valid($data['charge_policy_id'])) {
+		if (!ChargePolicy::is_valid($data['charge_policy_id'])) {
 			throw new InvalidArgumentException('\'charge_policy_id\' must be a valid charge policy id');
 		}
-		if(!array_key_exists('charge_rate', $data)) {
+		if (!array_key_exists('charge_rate', $data)) {
 			throw new InvalidArgumentException('\'charge_rate\' is a required field');
 		}
-		if(!array_key_exists('charged_time', $data)) {
+		if (!array_key_exists('charged_time', $data)) {
 			throw new InvalidArgumentException('\'charged_time\' is a required field');
 		}
 
 		$equipment = (new EquipmentModel(Config::config()))->read($data['equipment_id']);
-		if(NULL === $equipment) {
+		if (null === $equipment) {
 			throw new InvalidArgumentException('\'equipment_id\' must correspond to a valid equipment');
 		}
 		$user = (new UserModel(Config::config()))->read($data['user_id']);
-		if(NULL === $user) {
+		if (null === $user) {
 			throw new InvalidArgumentException('\'user_id\' must correspond to a valid user');
 		}
 
@@ -81,7 +78,7 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 	 *      are null, string, int, and float otherwise
 	 */
 	public function serialize($data, bool $traverse = false): array {
-		if($traverse) {
+		if ($traverse) {
 			$equipment_transformer = new EquipmentTransformer();
 			$user_transformer = new UserTransformer();
 

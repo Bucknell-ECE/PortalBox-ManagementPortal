@@ -28,7 +28,7 @@ class Location {
 	 * @throws InvalidArgumentException if the name is the empty string
 	 */
 	public function set_name(string $name): self {
-		if($name === '') {
+		if ($name === '') {
 			throw new InvalidArgumentException('You must specify the location\'s name');
 		}
 

@@ -18,13 +18,13 @@ class RoleTransformer implements InputTransformer, OutputTransformer {
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Role {
-		if(!array_key_exists('name', $data)) {
+		if (!array_key_exists('name', $data)) {
 			throw new InvalidArgumentException('\'name\' is a required field');
 		}
-		if(!array_key_exists('description', $data)) {
+		if (!array_key_exists('description', $data)) {
 			throw new InvalidArgumentException('\'description\' is a required field');
 		}
-		if(!array_key_exists('permissions', $data)) {
+		if (!array_key_exists('permissions', $data)) {
 			throw new InvalidArgumentException('\'permissions\' is a required field');
 		}
 
@@ -46,7 +46,7 @@ class RoleTransformer implements InputTransformer, OutputTransformer {
 	 *      are null, string, int, and float otherwise
 	 */
 	public function serialize($data, bool $traverse = false): array {
-		if($traverse) {
+		if ($traverse) {
 			return [
 				'id' => $data->id(),
 				'name' => $data->name(),

@@ -82,12 +82,12 @@ final class EquipmentTest extends TestCase {
 		self::assertEquals($location, $equipment->location());
 	}
 
-	public function testThrowsExceptionOnInvalidName():void {
+	public function testThrowsExceptionOnInvalidName(): void {
 		self::expectException(InvalidArgumentException::class);
 		(new Equipment())->set_name('');
 	}
 
-	public function testThrowsExceptionOnInvalidMACAddress():void {
+	public function testThrowsExceptionOnInvalidMACAddress(): void {
 		self::expectException(InvalidArgumentException::class);
 		(new Equipment())->set_mac_address('OO:OO:OO:OO:OO:OO'); // Capital O not 0
 	}
