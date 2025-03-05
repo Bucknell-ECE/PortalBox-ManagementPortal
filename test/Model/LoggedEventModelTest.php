@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Config;
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\Equipment;
@@ -67,7 +66,7 @@ final class LoggedEventModelTest extends TestCase {
 		$model = new EquipmentTypeModel(self::$config);
 
 		$name = 'Floodlight';
-		$requires_training = FALSE;
+		$requires_training = false;
 		$charge_policy_id = ChargePolicy::NO_CHARGE;
 
 		self::$type = $model->create(
@@ -84,7 +83,7 @@ final class LoggedEventModelTest extends TestCase {
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789ab';
 		$timeout = 0;
-		$is_in_service = TRUE;
+		$is_in_service = true;
 		$service_minutes = 500;
 
 		self::$equipment = $model->create(

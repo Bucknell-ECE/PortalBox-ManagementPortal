@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Query\EquipmentQuery;
 
 final class EquipmentQueryTest extends TestCase {

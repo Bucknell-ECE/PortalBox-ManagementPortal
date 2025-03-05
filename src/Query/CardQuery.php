@@ -72,7 +72,7 @@ class CardQuery {
 	 *
 	 * @return int - the card id
 	 */
-	public function id(): ?int  {
+	public function id(): ?int {
 		return $this->id;
 	}
 

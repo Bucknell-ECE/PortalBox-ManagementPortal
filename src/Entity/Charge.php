@@ -13,13 +13,13 @@ class Charge {
 	protected int $user_id = -1;
 
 	/** The the user who was charged */
-	protected ?User $user = NULL;
+	protected ?User $user = null;
 
 	/** The id of the equipment the user used */
 	protected int $equipment_id = -1;
 
 	/** The the equipment the user used */
-	protected ?Equipment $equipment = NULL;
+	protected ?Equipment $equipment = null;
 
 	/** The time of this charge */
 	protected string $time = '';
@@ -55,7 +55,7 @@ class Charge {
 	/** Get the charged user's name */
 	public function user_name(): string {
 		$user = $this->user();
-		if ($user === NULL) {
+		if ($user === null) {
 			return '';
 		}
 
@@ -88,7 +88,7 @@ class Charge {
 	/** Get the name of the equipment the user used to incur the Charge */
 	public function equipment_name(): string {
 		$equipment = $this->equipment();
-		if ($equipment === NULL) {
+		if ($equipment === null) {
 			return '';
 		}
 

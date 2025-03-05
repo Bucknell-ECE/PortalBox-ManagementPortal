@@ -39,7 +39,7 @@ class CardType {
 
 	/** Set the card type's human readable name */
 	private function set_name(string $name): self {
-		if(0 < strlen($name)) {
+		if (0 < strlen($name)) {
 			$this->name = $name;
 			return $this;
 		}
@@ -65,7 +65,7 @@ class CardType {
 	 */
 	public static function is_valid(int $type): bool {
 		$valid_values = array_values((new ReflectionClass(get_class()))->getConstants());
-		if(in_array($type, $valid_values)) {
+		if (in_array($type, $valid_values)) {
 			return true;
 		}
 
@@ -79,7 +79,7 @@ class CardType {
 	 * @return string  the name for the card type
 	 */
 	public static function name_for_type(int $type_id): string {
-		switch($type_id) {
+		switch ($type_id) {
 			case self::SHUTDOWN:
 				return 'Shutdown Card';
 			case self::PROXY:

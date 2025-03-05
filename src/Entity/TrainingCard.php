@@ -7,7 +7,6 @@ namespace Portalbox\Entity;
  * portalbox shuts down when presented with cards of this type.
  */
 class TrainingCard extends Card {
-
 	/**
 	 * The id of the type of equipment this card can activate for training
 	 *
@@ -50,7 +49,7 @@ class TrainingCard extends Card {
 	 */
 	public function set_equipment_type_id(int $equipment_type_id): self {
 		$this->equipment_type_id = $equipment_type_id;
-		$this->equipment_type = NULL;
+		$this->equipment_type = null;
 		return $this;
 	}
 
@@ -64,7 +63,7 @@ class TrainingCard extends Card {
 		return $this->equipment_type;
 	}
 
-	public function set_equipment_type(?EquipmentType $equipment_type): self{
+	public function set_equipment_type(?EquipmentType $equipment_type): self {
 		$this->equipment_type = $equipment_type;
 		return $this;
 	}
@@ -78,7 +77,7 @@ class TrainingCard extends Card {
 	 */
 	public function set_type(?EquipmentType $equipment_type): self {
 		$this->equipment_type = $equipment_type;
-		if(NULL === $equipment_type) {
+		if (null === $equipment_type) {
 			$this->equipment_type_id = -1;
 		} else {
 			$this->equipment_type_id = $equipment_type->id();

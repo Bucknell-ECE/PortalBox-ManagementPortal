@@ -17,7 +17,7 @@ class EquipmentType {
 	protected bool $requires_training = true;
 
 	/** The rate to charge */
-	protected ?string $charge_rate = NULL;
+	protected ?string $charge_rate = null;
 
 	/** The id of the Charge policy for this equipment type */
 	protected int $charge_policy_id = ChargePolicy::MANUALLY_ADJUSTED;
@@ -32,7 +32,7 @@ class EquipmentType {
 
 	/** Set the name of this equipment type */
 	public function set_name(string $name): self {
-		if($name === '') {
+		if ($name === '') {
 			throw new InvalidArgumentException('You must specify the equipment type\'s name');
 		}
 
@@ -58,7 +58,7 @@ class EquipmentType {
 
 	/** Set the charge rate of this equipment type */
 	public function set_charge_rate(?string $charge_rate): self {
-		if(NULL === $charge_rate || $charge_rate !== '') {
+		if (null === $charge_rate || $charge_rate !== '') {
 			$this->charge_rate = $charge_rate;
 			return $this;
 		}
@@ -85,7 +85,7 @@ class EquipmentType {
 	 *             public constants from ChargePolicy
 	 */
 	public function set_charge_policy_id(int $charge_policy_id): self {
-		if(ChargePolicy::is_valid($charge_policy_id)) {
+		if (ChargePolicy::is_valid($charge_policy_id)) {
 			$this->charge_policy_id = $charge_policy_id;
 			return $this;
 		}

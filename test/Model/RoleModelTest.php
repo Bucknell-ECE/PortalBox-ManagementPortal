@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Config;
 use Portalbox\Entity\Permission;
 use Portalbox\Entity\Role;
@@ -14,7 +13,7 @@ final class RoleModelTest extends TestCase {
 		$model = new RoleModel(Config::config());
 
 		$name = 'Test Role';
-		$is_system_role = FALSE;
+		$is_system_role = false;
 		$description = 'A pointless role';
 
 		$role = (new Role())

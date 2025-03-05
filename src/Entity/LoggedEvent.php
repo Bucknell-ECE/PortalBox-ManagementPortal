@@ -18,19 +18,19 @@ class LoggedEvent {
 	protected int $card_id = -1;
 
 	/** The card which triggered this event */
-	protected ?Card $card = NULL;
+	protected ?Card $card = null;
 
 	/** The id of the user whose card which triggered this event */
 	protected int $user_id = -1;
 
 	/** The user whose card which triggered this event */
-	protected ?User $user = NULL;
+	protected ?User $user = null;
 
 	/** The id of the equipment which reported this event */
 	protected int $equipment_id = -1;
 
 	/** The name of the equipment which reported this event */
-	protected ?Equipment $equipment = NULL;
+	protected ?Equipment $equipment = null;
 
 	/** The id of the equipment type for this event */
 	private int $equipment_type_id = -1;
@@ -74,14 +74,14 @@ class LoggedEvent {
 	/** Set the id of the equipment which reported this event */
 	public function set_equipment_id(int $equipment_id): self {
 		$this->equipment_id = $equipment_id;
-		$this->equipment = NULL;
+		$this->equipment = null;
 		return $this;
 	}
 
 	// a convenience method... see Model\Entity\LoggedEventModel ;)
 	/** Get the name of the equipment which reported this event */
 	public function equipment_name(): ?string {
-		if(NULL === $this->equipment) {
+		if (null === $this->equipment) {
 			return '';
 		}
 
@@ -96,7 +96,7 @@ class LoggedEvent {
 	/** Set the equipment which reported this event */
 	public function set_equipment(?Equipment $equipment): self {
 		$this->equipment = $equipment;
-		if(NULL === $equipment) {
+		if (null === $equipment) {
 			$this->equipment_id = -1;
 		} else {
 			$this->equipment_id = $equipment->id();
@@ -113,7 +113,7 @@ class LoggedEvent {
 	/** Set the id of the card which triggered this event */
 	public function set_card_id(int $card_id): self {
 		$this->card_id = $card_id;
-		$this->card = NULL;
+		$this->card = null;
 		return $this;
 	}
 
@@ -125,7 +125,7 @@ class LoggedEvent {
 	/** Set the card which triggered this event */
 	public function set_card(?Card $card): self {
 		$this->card = $card;
-		if(NULL === $card) {
+		if (null === $card) {
 			$this->card_id = -1;
 		} else {
 			$this->card_id = $card->id();
@@ -142,14 +142,14 @@ class LoggedEvent {
 	/** Set the id of the user whose card which triggered this event */
 	public function set_user_id(int $user_id): self {
 		$this->user_id = $user_id;
-		$this->user = NULL;
+		$this->user = null;
 		return $this;
 	}
 
 	// a convenience method... see Model\Entity\LoggedEventModel ;)
 	/** Get the name of the user whose action triggered this event */
 	public function user_name(): string {
-		if(NULL === $this->user) {
+		if (null === $this->user) {
 			return '';
 		}
 
@@ -164,7 +164,7 @@ class LoggedEvent {
 	/** Set the user whose card which triggered this event */
 	public function set_user(?User $user): self {
 		$this->user = $user;
-		if(NULL === $user) {
+		if (null === $user) {
 			$this->user_id = -1;
 		} else {
 			$this->user_id = $user->id();
@@ -179,7 +179,7 @@ class LoggedEvent {
 	 * event is located
 	 */
 	public function location_name(): ?string {
-		if(NULL === $this->equipment) {
+		if (null === $this->equipment) {
 			return '';
 		}
 

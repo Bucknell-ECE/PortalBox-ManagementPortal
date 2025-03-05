@@ -6,14 +6,12 @@ use Portalbox\Entity\LoggedEvent;
 use Portalbox\Model\Entity\LoggedEvent as PDOAwareLoggedEvent;
 use Portalbox\Query\LoggedEventQuery;
 use Portalbox\Exception\DatabaseException;
-
 use PDO;
 
 /**
  * LoggedEventModel is our bridge between the database and higher level Entities.
  */
 class LoggedEventModel extends AbstractModel {
-
 	/**
 	 * Read a logged event by its unique ID
 	 *
@@ -50,8 +48,8 @@ class LoggedEventModel extends AbstractModel {
 		EOQ;
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
-		if($query->execute()) {
-			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
+		if ($query->execute()) {
+			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
 				return $this->buildLoggedEventFromArray($data);
 			} else {
 				return null;
@@ -69,9 +67,9 @@ class LoggedEventModel extends AbstractModel {
 	 * @return LoggedEvent[]|null - a list of logged events
 	 */
 	public function search(LoggedEventQuery $query): ?array {
-		if(NULL === $query) {
+		if (null === $query) {
 			// no query... bail
-			return NULL;
+			return null;
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
@@ -101,31 +99,31 @@ class LoggedEventModel extends AbstractModel {
 
 		$where_clause_fragments = array();
 		$parameters = array();
-		if($query->equipment_id()) {
+		if ($query->equipment_id()) {
 			$where_clause_fragments[] = 'el.equipment_id = :equipment_id';
 			$parameters[':equipment_id'] = $query->equipment_id();
 		}
-		if($query->equipment_type_id()) {
+		if ($query->equipment_type_id()) {
 			$where_clause_fragments[] = 'et.id = :equipment_type_id';
 			$parameters[':equipment_type_id'] = $query->equipment_type_id();
 		}
-		if($query->location_id()) {
+		if ($query->location_id()) {
 			$where_clause_fragments[] = 'e.location_id = :location_id';
 			$parameters[':location_id'] = $query->location_id();
 		}
-		if($query->type_id()) {
+		if ($query->type_id()) {
 			$where_clause_fragments[] = 'el.event_type_id = :event_type_id';
 			$parameters[':event_type_id'] = $query->type_id();
 		}
-		if($query->on_or_after()) {
+		if ($query->on_or_after()) {
 			$where_clause_fragments[] = 'el.time >= :after';
 			$parameters[':after'] = $query->on_or_after();
 		}
-		if($query->on_or_before()) {
+		if ($query->on_or_before()) {
 			$where_clause_fragments[] = 'el.time <= :before';
 			$parameters[':before'] = $query->on_or_before();
 		}
-		if(0 < count($where_clause_fragments)) {
+		if (0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
@@ -133,13 +131,13 @@ class LoggedEventModel extends AbstractModel {
 
 		$statement = $connection->prepare($sql);
 		// run search
-		foreach($parameters as $k => $v) {
+		foreach ($parameters as $k => $v) {
 			$statement->bindValue($k, $v);
 		}
 
-		if($statement->execute()) {
+		if ($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if(FALSE !== $data) {
+			if (false !== $data) {
 				return $this->buildLoggedEventsFromArray($data);
 			} else {
 				return null;
@@ -167,7 +165,7 @@ class LoggedEventModel extends AbstractModel {
 	private function buildLoggedEventsFromArray(array $data): array {
 		$log = array();
 
-		foreach($data as $datum) {
+		foreach ($data as $datum) {
 			$log[] = $this->buildLoggedEventFromArray($datum);
 		}
 

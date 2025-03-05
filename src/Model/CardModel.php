@@ -8,14 +8,10 @@ use Portalbox\Entity\ProxyCard;
 use Portalbox\Entity\ShutdownCard;
 use Portalbox\Entity\TrainingCard;
 use Portalbox\Entity\UserCard;
-
 use Portalbox\Exception\DatabaseException;
-
 use Portalbox\Query\CardQuery;
 use Portalbox\Query\UserQuery;
-
 use Exception;
-
 use PDO;
 
 /**
@@ -37,30 +33,30 @@ class CardModel extends AbstractModel {
 		$query->bindValue(':id', $card->id());	//BIGINT
 		$query->bindValue(':type_id', $card->type_id(), PDO::PARAM_INT);
 
-		if($connection->beginTransaction()) {
-			if($query->execute()) {
-				if(CardType::USER == $card->type_id()) {
+		if ($connection->beginTransaction()) {
+			if ($query->execute()) {
+				if (CardType::USER == $card->type_id()) {
 					$sql = 'INSERT INTO users_x_cards (user_id, card_id) VALUES (:user_id, :card_id)';
 					$query = $connection->prepare($sql);
 
 					$query->bindValue(':card_id', $card->id());	//BIGINT
 					$query->bindValue(':user_id', $card->user_id(), PDO::PARAM_INT);
 
-					if(!$query->execute()) {
+					if (!$query->execute()) {
 						// cancel transaction
 						$connection->rollBack();
 						return null;
 					}
 				}
 
-				if(CardType::TRAINING == $card->type_id()) {
+				if (CardType::TRAINING == $card->type_id()) {
 					$sql = 'INSERT INTO equipment_type_x_cards (equipment_type_id, card_id) VALUES (:equipment_type_id, :card_id)';
 					$query = $connection->prepare($sql);
 
 					$query->bindValue(':card_id', $card->id());	//BIGINT
 					$query->bindValue(':equipment_type_id', $card->equipment_type_id(), PDO::PARAM_INT);
 
-					if(!$query->execute()) {
+					if (!$query->execute()) {
 						// cancel transaction
 						$connection->rollBack();
 						return null;
@@ -93,8 +89,8 @@ class CardModel extends AbstractModel {
 		$sql = 'SELECT c.id, c.type_id, uxc.user_id, etxc.equipment_type_id FROM cards AS c LEFT JOIN users_x_cards AS uxc ON c.id = uxc.card_id LEFT JOIN equipment_type_x_cards AS etxc ON c.id = etxc.card_id WHERE c.id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id);	//BIGINT
-		if($query->execute()) {
-			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
+		if ($query->execute()) {
+			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
 				return $this->buildCardsFromArrays(array($data))[0];
 			} else {
 				return null;
@@ -114,30 +110,30 @@ class CardModel extends AbstractModel {
 	public function delete(int $id): ?Card {
 		$card = $this->read($id);
 
-		if(NULL !== $card) {
+		if (null !== $card) {
 			$connection = $this->configuration()->writable_db_connection();
 
-			if($connection->beginTransaction()) {
-				if(CardType::USER == $card->type_id()) {
+			if ($connection->beginTransaction()) {
+				if (CardType::USER == $card->type_id()) {
 					$sql = 'DELETE FROM users_x_cards WHERE card_id = :id';
 					$query = $connection->prepare($sql);
 
 					$query->bindValue(':id', $card->id());	//BIGINT
 
-					if(!$query->execute()) {
+					if (!$query->execute()) {
 						// cancel transaction
 						$connection->rollBack();
 						return null;
 					}
 				}
 
-				if(CardType::TRAINING == $card->type_id()) {
+				if (CardType::TRAINING == $card->type_id()) {
 					$sql = 'DELETE FROM equipment_type_x_cards WHERE card_id = :id';
 					$query = $connection->prepare($sql);
 
 					$query->bindValue(':id', $card->id());
 
-					if(!$query->execute()) {
+					if (!$query->execute()) {
 						// cancel transaction
 						$connection->rollBack();
 						return null;
@@ -147,7 +143,7 @@ class CardModel extends AbstractModel {
 				$sql = 'DELETE FROM cards WHERE id = :id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':id', $id, PDO::PARAM_INT);
-				if($query->execute()) {
+				if ($query->execute()) {
 					$connection->commit();
 					return $card;
 				} else {
@@ -178,31 +174,31 @@ class CardModel extends AbstractModel {
 
 		$where_clause_fragments = array();
 		$parameters = array();
-		if(NULL !== $query && NULL !== $query->equipment_type_id()) {
+		if (null !== $query && null !== $query->equipment_type_id()) {
 			$where_clause_fragments[] = 'etxc.equipment_type_id = :equipment_type_id';
 			$parameters[':equipment_type_id'] = $query->equipment_type_id();
 		}
-		if(NULL !== $query && NULL !== $query->user_id()) {
+		if (null !== $query && null !== $query->user_id()) {
 			$where_clause_fragments[] = 'uxc.user_id = :user_id';
 			$parameters[':user_id'] = $query->user_id();
 		}
-		if(NULL !== $query && NULL !== $query->id()) {
+		if (null !== $query && null !== $query->id()) {
 			$where_clause_fragments[] = 'c.id LIKE :id';
 			$parameters[':id'] = '%' . $query->id() . '%';
 		}
-		if(0 < count($where_clause_fragments)) {
+		if (0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
 		$statement = $connection->prepare($sql);
 		// run search
-		foreach($parameters as $k => $v) {
+		foreach ($parameters as $k => $v) {
 			$statement->bindValue($k, $v);
 		}
 
-		if($statement->execute()) {
+		if ($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if(FALSE !== $data) {
+			if (false !== $data) {
 				return $this->buildCardsFromArrays($data);
 			} else {
 				return null;
@@ -213,17 +209,19 @@ class CardModel extends AbstractModel {
 	}
 
 	private function buildCardFromArray(array $data, array $users, array $equipment_types): ?Card {
-		switch($data['type_id']) {
+		switch ($data['type_id']) {
 			case CardType::PROXY:
 				return (new ProxyCard())->set_id($data['id']);
 			case CardType::SHUTDOWN:
 				return (new ShutdownCard())->set_id($data['id']);
 			case CardType::TRAINING:
 				$equipment_type_id = $data['equipment_type_id'];
-				$equipment_type = array_filter($equipment_types,
+				$equipment_type = array_filter(
+					$equipment_types,
 					function ($e) use ($equipment_type_id) {
 						return $e->id() == $equipment_type_id;
-					});
+					}
+				);
 
 				$equipment_type = array_pop($equipment_type);
 
@@ -234,10 +232,12 @@ class CardModel extends AbstractModel {
 
 			case CardType::USER:
 				$user_id = $data['user_id'];
-				$user = array_filter($users,
+				$user = array_filter(
+					$users,
 					function ($e) use ($user_id) {
 						return $e->id() == $user_id;
-					});
+					}
+				);
 
 				$user = array_pop($user);
 
@@ -266,17 +266,19 @@ class CardModel extends AbstractModel {
 		$users = $u_model->search($u_query);
 		$roles = $r_model->search();
 
-		foreach($users as $user) {
+		foreach ($users as $user) {
 			$r_id = $user->role_id();
 
-			$role = array_filter($roles,
+			$role = array_filter(
+				$roles,
 				function ($e) use ($r_id) {
 					return $e->id() == $r_id;
-				});
+				}
+			);
 			$user->set_role(array_pop($role));
 		}
 
-		foreach($data as $datum) {
+		foreach ($data as $datum) {
 			$cards[] = $this->buildCardFromArray($datum, $users, $equipment_types);
 		}
 

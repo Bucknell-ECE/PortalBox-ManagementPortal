@@ -27,7 +27,7 @@ class Role {
 	 *
 	 * @var int[]|null
 	 */
-	protected ?array $permissions = NULL;
+	protected ?array $permissions = null;
 
 	/** Get the name of this role */
 	public function name(): string {
@@ -68,7 +68,7 @@ class Role {
 	 * @return int[]  the list of the role's permissions
 	 */
 	public function permissions(): array {
-		if(NULL === $this->permissions) {
+		if (null === $this->permissions) {
 			return array();
 		}
 		return $this->permissions;
@@ -82,8 +82,8 @@ class Role {
 	 *             not not one of the public constants from Permission
 	 */
 	public function set_permissions(array $permissions): self {
-		foreach($permissions as $permission) {
-			if(!Permission::is_valid($permission)) {
+		foreach ($permissions as $permission) {
+			if (!Permission::is_valid($permission)) {
 				throw new InvalidArgumentException('permission must be one of the public constants from Permission');
 			}
 		}
@@ -94,11 +94,10 @@ class Role {
 
 	/** Determine whether the role has a permission */
 	public function has_permission(int $permission): bool {
-		if(is_array($this->permissions)) {
+		if (is_array($this->permissions)) {
 			return in_array($permission, $this->permissions);
 		} else {
-			return FALSE;
+			return false;
 		}
 	}
-
 }

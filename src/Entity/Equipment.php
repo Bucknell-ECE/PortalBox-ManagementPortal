@@ -17,16 +17,16 @@ class Equipment {
 	protected int $type_id = -1;
 
 	/** This equipment's type */
-	protected ?EquipmentType $type = NULL;
+	protected ?EquipmentType $type = null;
 
 	/** The MAC address of the portalbox the equipment is connected to */
-	protected ?string $mac_address = NULL;
+	protected ?string $mac_address = null;
 
 	/** The id for the location where the equipment is located */
 	protected int $location_id = -1;
 
 	/** The location where the equipment is located */
-	protected ?Location $location = NULL;
+	protected ?Location $location = null;
 
 	/**
 	 * The default maximum duration of an activation session for this
@@ -44,7 +44,7 @@ class Equipment {
 	protected int $service_minutes = 0;
 
 	/** The ip Address of the box */
-	protected ?string $ip_address = NULL;
+	protected ?string $ip_address = null;
 
 	/** Get the name of this equipment */
 	public function name(): string {
@@ -57,7 +57,7 @@ class Equipment {
 	 * @throws InvalidArgumentException  if the parameter is the empty string
 	 */
 	public function set_name(string $name): self {
-		if($name === '') {
+		if ($name === '') {
 			throw new InvalidArgumentException('You must specify the equipment\'s name');
 		}
 
@@ -73,7 +73,7 @@ class Equipment {
 	/** Set the equipment's type id */
 	public function set_type_id(int $type_id): self {
 		$this->type_id = $type_id;
-		$this->type = NULL;
+		$this->type = null;
 		return $this;
 	}
 
@@ -101,12 +101,12 @@ class Equipment {
 	 *     address.
 	 */
 	public function set_mac_address(?string $mac_address): self {
-		if(is_null($mac_address)) {
-			$this->mac_address = NULL;
+		if (is_null($mac_address)) {
+			$this->mac_address = null;
 			return $this;
 		}
 
-		if(!preg_match('/^([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})$/', $mac_address)) {
+		if (!preg_match('/^([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})$/', $mac_address)) {
 			throw new InvalidArgumentException('The specified MAC Address must be valid');
 		}
 
@@ -122,7 +122,7 @@ class Equipment {
 	/** Set the equipment's location id */
 	public function set_location_id(int $location_id): self {
 		$this->location_id = $location_id;
-		$this->location = NULL;
+		$this->location = null;
 		return $this;
 	}
 
@@ -192,5 +192,4 @@ class Equipment {
 		$this->ip_address = $ip_address;
 		return $this;
 	}
-
 }

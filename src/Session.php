@@ -27,24 +27,25 @@ class Session {
 	 *     is not a currently authenticated user
 	 */
 	public static function get_authenticated_user(): ?User {
-		if(!self::$authenticated_user) {
-
+		if (!self::$authenticated_user) {
 			$config = Config::config();
 
 			// Check for Brearer token
-			if(array_key_exists('HTTP_AUTHORIZATION', $_SERVER) &&
+			if (
+				array_key_exists('HTTP_AUTHORIZATION', $_SERVER) &&
 				8 < strlen($_SERVER['HTTP_AUTHORIZATION']) &&
-				0 == strcmp('Bearer ', substr($_SERVER['HTTP_AUTHORIZATION'], 0 , 7))) {
+				0 == strcmp('Bearer ', substr($_SERVER['HTTP_AUTHORIZATION'], 0, 7))
+			) {
 				$token = substr($_SERVER['HTTP_AUTHORIZATION'], 7);
 
 
 				$model = new APIKeyModel($config);
 
-				$query = (new APIKeyQuery)->set_token($token);
+				$query = (new APIKeyQuery())->set_token($token);
 
 				$keys = $model->search($query);
 
-				if($keys && 0 < count($keys)) {
+				if ($keys && 0 < count($keys)) {
 					// get key 0 and construct a fake user for it.
 					self::$authenticated_user = (new PDOAwareUser($config))
 						->set_name($keys[0]->name())
@@ -58,20 +59,20 @@ class Session {
 			}
 
 			// Check for cookie based session
-			if(PHP_SESSION_ACTIVE !== session_status()) {
+			if (PHP_SESSION_ACTIVE !== session_status()) {
 				$success = session_start();
-				if(!$success) {
+				if (!$success) {
 					session_abort();	// should shutdown execution but just in case...
 					http_response_code(500);
 					die('The operating evnvironment is improperly configured for tracking user sessions. Please notify the administrator');
 				}
 			}
 
-			if(array_key_exists('user_id', $_SESSION)) {
+			if (array_key_exists('user_id', $_SESSION)) {
 				$model = new UserModel($config);
 				self::$authenticated_user = $model->read($_SESSION['user_id']);
 			} else {
-				return NULL;
+				return null;
 			}
 		}
 
@@ -83,7 +84,7 @@ class Session {
 	 * an authenticated user.
 	 */
 	public static function require_authentication() {
-		if(NULL === self::get_authenticated_user()) {
+		if (null === self::get_authenticated_user()) {
 			http_response_code(403);
 			die('Your session is invalid. Perhaps you need to reauthenticate.');
 		}
@@ -111,7 +112,7 @@ class Session {
 	 * not authorized.
 	 */
 	public static function require_authorization(int $permission) {
-		if(!self::check_authorization($permission)) {
+		if (!self::check_authorization($permission)) {
 			http_response_code(403);
 			die('You have not been granted access to this information.');
 		}

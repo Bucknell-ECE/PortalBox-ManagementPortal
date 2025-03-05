@@ -51,7 +51,7 @@ class LoggedEventType {
 			self::STARTUP_COMPLETE,
 			self::PLANNED_SHUTDOWN
 		];
-		if(in_array($type, $valid_values)) {
+		if (in_array($type, $valid_values)) {
 			return true;
 		}
 
@@ -65,13 +65,19 @@ class LoggedEventType {
 	 * @return string - name for the event type
 	 */
 	public static function name_for_type(int $type_id): string {
-		switch($type_id) {
-			case self::UNSUCCESSFUL_AUTHENTICATION: return 'Failed Authentication';
-			case self::SUCCESSFUL_AUTHENTICATION: return 'Activation Session Begun';
-			case self::DEAUTHENTICATION: return 'Activation Session Ended';
-			case self::STARTUP_COMPLETE: return 'Startup Complete';
-			case self::PLANNED_SHUTDOWN: return 'Planned Shutdown';
-			default: return 'Invalid';
+		switch ($type_id) {
+			case self::UNSUCCESSFUL_AUTHENTICATION:
+				return 'Failed Authentication';
+			case self::SUCCESSFUL_AUTHENTICATION:
+				return 'Activation Session Begun';
+			case self::DEAUTHENTICATION:
+				return 'Activation Session Ended';
+			case self::STARTUP_COMPLETE:
+				return 'Startup Complete';
+			case self::PLANNED_SHUTDOWN:
+				return 'Planned Shutdown';
+			default:
+				return 'Invalid';
 		}
 	}
 }

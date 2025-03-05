@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Entity\User;
 
 final class UserTest extends TestCase {
@@ -12,7 +11,7 @@ final class UserTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@tomegan.tech';
 		$comment = 'Test Monkey';
-		$active = FALSE;
+		$active = false;
 		$authorizations = array(
 			34,
 			23

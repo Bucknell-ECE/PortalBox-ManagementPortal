@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
 
@@ -11,7 +10,7 @@ final class EquipmentTypeTest extends TestCase {
 	public function testAgreement(): void {
 		$id = 42;
 		$name = 'laser scalpel';
-		$requires_training = TRUE;
+		$requires_training = true;
 		$charge_rate = "2.50";
 		$charge_policy_id = ChargePolicy::PER_USE;
 		$allow_proxy = true;

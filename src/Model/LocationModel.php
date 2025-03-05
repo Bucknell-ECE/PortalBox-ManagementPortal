@@ -4,7 +4,6 @@ namespace Portalbox\Model;
 
 use Portalbox\Entity\Location;
 use Portalbox\Exception\DatabaseException;
-
 use PDO;
 
 /**
@@ -25,7 +24,7 @@ class LocationModel extends AbstractModel {
 
 		$query->bindValue(':name', $location->name());
 
-		if($query->execute()) {
+		if ($query->execute()) {
 			return $location->set_id($connection->lastInsertId('locations_id_seq'));
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -44,8 +43,8 @@ class LocationModel extends AbstractModel {
 		$sql = 'SELECT id, name FROM locations WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
-		if($query->execute()) {
-			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
+		if ($query->execute()) {
+			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
 				return $this->buildLocationFromArray($data);
 			} else {
 				return null;
@@ -70,7 +69,7 @@ class LocationModel extends AbstractModel {
 		$query->bindValue(':id', $location->id(), PDO::PARAM_INT);
 		$query->bindValue(':name', $location->name());
 
-		if($query->execute()) {
+		if ($query->execute()) {
 			return $location;
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -87,12 +86,12 @@ class LocationModel extends AbstractModel {
 	public function delete(int $id): ?Location {
 		$location = $this->read($id);
 
-		if(NULL !== $location) {
+		if (null !== $location) {
 			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM locations WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);
-			if(!$query->execute()) {
+			if (!$query->execute()) {
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
@@ -112,9 +111,9 @@ class LocationModel extends AbstractModel {
 
 		$sql = 'SELECT id, name FROM locations';
 		$statement = $connection->prepare($sql);
-		if($statement->execute()) {
+		if ($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if(FALSE !== $data) {
+			if (false !== $data) {
 				return $this->buildLocationsFromArrays($data);
 			} else {
 				return null;
@@ -133,7 +132,7 @@ class LocationModel extends AbstractModel {
 	private function buildLocationsFromArrays(array $data): array {
 		$locations = array();
 
-		foreach($data as $datum) {
+		foreach ($data as $datum) {
 			$locations[] = $this->buildLocationFromArray($datum);
 		}
 

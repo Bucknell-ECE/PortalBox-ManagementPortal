@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Entity\Permission;
 use Portalbox\Entity\Role;
 
@@ -11,7 +10,7 @@ final class RoleTest extends TestCase {
 	public function testAgreement(): void {
 		$id = 42;
 		$name = 'admin';
-		$is_system_role = TRUE;
+		$is_system_role = true;
 		$description = 'Users with this role have no restrictions.';
 		$permissions = array(
 			Permission::READ_API_KEY,

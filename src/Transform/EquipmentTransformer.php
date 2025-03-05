@@ -3,11 +3,8 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-
 use Portalbox\Config;
-
 use Portalbox\Entity\Equipment;
-
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
@@ -25,37 +22,37 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Equipment {
-		if(!array_key_exists('name', $data)) {
+		if (!array_key_exists('name', $data)) {
 			throw new InvalidArgumentException('\'name\' is a required field');
 		}
-		if(!array_key_exists('type_id', $data)) {
+		if (!array_key_exists('type_id', $data)) {
 			throw new InvalidArgumentException('\'type_id\' is a required field');
 		}
-		if(!array_key_exists('location_id', $data)) {
+		if (!array_key_exists('location_id', $data)) {
 			throw new InvalidArgumentException('\'location_id\' is a required field');
 		}
-		if(!array_key_exists('mac_address', $data)) {
+		if (!array_key_exists('mac_address', $data)) {
 			throw new InvalidArgumentException('\'mac_address\' is a required field');
 		}
-		if(!array_key_exists('timeout', $data)) {
+		if (!array_key_exists('timeout', $data)) {
 			throw new InvalidArgumentException('\'timeout\' is a required field');
 		}
-		if(!array_key_exists('in_service', $data)) {
+		if (!array_key_exists('in_service', $data)) {
 			throw new InvalidArgumentException('\'in_service\' is a required field');
 		}
 
 		// service minutes is optional and should default to 0
 		$service_minutes = 0;
-		if(array_key_exists('service_minutes', $data)) {
+		if (array_key_exists('service_minutes', $data)) {
 			$service_minutes = intval($data["service_minutes"]);
 		}
 
 		$type = (new EquipmentTypeModel(Config::config()))->read($data['type_id']);
-		if(NULL === $type) {
+		if (null === $type) {
 			throw new InvalidArgumentException('\'type_id\' must correspond to a valid equipment type');
 		}
 		$location = (new LocationModel(Config::config()))->read($data['location_id']);
-		if(NULL === $location) {
+		if (null === $location) {
 			throw new InvalidArgumentException('\'location_id\' must correspond to a valid location');
 		}
 
@@ -80,13 +77,13 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 	 *      are null, string, int, and float otherwise
 	 */
 	public function serialize($data, bool $traverse = false): array {
-		if($traverse) {
+		if ($traverse) {
 			return [
 				'id' => $data->id(),
 				'name' => $data->name(),
 				'type_id' => $data->type_id(),
 				'type' => $data->type()->name(),
-				'mac_address' => is_null($data->mac_address()) ? NULL :$data->mac_address(),
+				'mac_address' => is_null($data->mac_address()) ? null : $data->mac_address(),
 				'location_id' => $data->location_id(),
 				'location' => $data->location()->name(),
 				'timeout' => $data->timeout(),
@@ -100,7 +97,7 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 				'id' => $data->id(),
 				'name' => $data->name(),
 				'type' => $data->type()->name(),
-				'mac_address' => is_null($data->mac_address()) ? '' :$data->mac_address(),
+				'mac_address' => is_null($data->mac_address()) ? '' : $data->mac_address(),
 				'location' => $data->location()->name(),
 				'timeout' => $data->timeout(),
 				'in_service' => $data->is_in_service(),

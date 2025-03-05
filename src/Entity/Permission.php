@@ -368,7 +368,7 @@ class Permission {
 			self::LIST_USERS,
 			self::READ_OWN_USER,
 		];
-		if(in_array($permission, $valid_values)) {
+		if (in_array($permission, $valid_values)) {
 			return true;
 		}
 

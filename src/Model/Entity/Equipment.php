@@ -48,7 +48,7 @@ class Equipment extends AbstractEquipment {
 	 * @return EquipmentType|null - the equipment's type
 	 */
 	public function type(): ?EquipmentType {
-		if(NULL === $this->type) {
+		if (null === $this->type) {
 			$this->type = (new EquipmentTypeModel($this->configuration()))->read($this->type_id());
 		}
 
@@ -61,7 +61,7 @@ class Equipment extends AbstractEquipment {
 	 * @return Location|null - the equipment's location
 	 */
 	public function location(): ?Location {
-		if(NULL === $this->location) {
+		if (null === $this->location) {
 			$this->location = (new LocationModel($this->configuration()))->read($this->location_id());
 		}
 

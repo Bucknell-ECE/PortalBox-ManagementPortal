@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
-
 use Portalbox\Entity\ChargePolicy;
 
 final class ChargePolicyTest extends TestCase {
