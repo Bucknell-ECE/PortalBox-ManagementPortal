@@ -26,7 +26,7 @@ export class APIKey {
 	/**
 	 * Get an api key by id
 	 *
-	 * @param int id the unique id of the APIKey to retreive
+	 * @param int id the unique id of the APIKey to retrieve
 	 * @return APIKey specified by the id
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
@@ -64,7 +64,7 @@ export class APIKey {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save new api key";
 		});
 	}
@@ -91,13 +91,17 @@ export class APIKey {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save api key";
 		});
 	}
 
 	/**
-	 * 
+	 * Delete the api key specified by id
+	 *
+	 * @param int id the unique id of the APIKey to modify
+	 * @throws SessionTimeOutError if the user session has expired
+	 * @throws String if any other error occurs
 	 */
 	static delete(id) {
 		return fetch("/api/api-keys.php?id=" + id, {

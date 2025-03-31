@@ -1,5 +1,5 @@
 /**
- * An Enumeration of the permissions a user's role might have 
+ * An Enumeration of the permissions a user's role might have
  */
 
 /** Users with this permission can create API keys */
@@ -22,14 +22,14 @@ export const CREATE_EQUIPMENT_AUTHORIZATION = 101;
 
 /**
  * Users with this permission can read equipment authorizations
- * 
+ *
  * Currently unused; Listing is sufficient in the current design
  */
 //export const READ_EQUIPMENT_AUTHORIZATION = 102;
 
 /**
  * Users with this permission can modify authorizations
- * 
+ *
  * Currently unused; users have a list of authorizations... either they
  * have authorization or they don't. So creating and deleting a user's
  * authorizations are sufficient in the current model
@@ -95,11 +95,12 @@ export const READ_CARD = 302;
 /** Users with this permission can modify equipment access cards */
 export const MODIFY_CARD = 303;
 
-/** 
+/**
  * Users with this permission can delete equipment access cards
  *
- * Currently usused and probably never will be used as our logs have a
- * foreign key relationship to cards.
+ * Currently unused and probably never will be used as our logs have a
+ * foreign key relationship to cards so we can't delete cards and leave the logs
+ * intact
  */
 // export const DELETE_CARD = 304;
 
@@ -111,7 +112,7 @@ export const LIST_OWN_CARDS = 306;
 
 /**
  * Users with this permission can create charge policies
- * 
+ *
  * Charge policies play a special role in the system as designed. Stored
  * Procedures in the database make decisions based on charge policy thus
  * policies are implemented as constants in code.
@@ -120,7 +121,7 @@ export const LIST_OWN_CARDS = 306;
 
 /**
  * Users with this permission can read charge policies
- * 
+ *
  * Charge policies play a special role in the system as designed. Stored
  * Procedures in the database make decisions based on charge policy thus
  * policies are implemented as constants in code.
@@ -129,7 +130,7 @@ export const LIST_OWN_CARDS = 306;
 
 /**
  * Users with this permission can modify charge policies
- * 
+ *
  * Charge policies play a special role in the system as designed. Stored
  * Procedures in the database make decisions based on charge policy thus
  * policies are implemented as constants in code.
@@ -138,7 +139,7 @@ export const LIST_OWN_CARDS = 306;
 
 /**
  * Users with this permission can delete charge policies
- * 
+ *
  * Charge policies play a special role in the system as designed. Stored
  * Procedures in the database make decisions based on charge policy thus
  * policies are implemented as constants in code.
@@ -216,7 +217,7 @@ export const LIST_LOCATIONS = 805;
 /**
  * Users with this permission can create log entries
  *
- * Currently usused
+ * Currently unused
  */
 //export const CREATE_LOG = 901;
 
@@ -226,7 +227,7 @@ export const READ_LOG = 902;
 /**
  * Users with this permission can modify log entries
  *
- * Currently usused and probably never will be used as our logs are
+ * Currently unused and probably never will be used as our logs are
  * designed to be append only
  */
 //export const MODIFY_LOG = 903;
@@ -234,7 +235,7 @@ export const READ_LOG = 902;
 /**
  * Users with this permission can delete log entries
  *
- * Currently usused and probably never will be used as our logs are
+ * Currently unused and probably never will be used as our logs are
  * designed to be append only
  */
 //export const DELETE_LOG = 904;
@@ -375,7 +376,7 @@ export function list() { return Promise.resolve(Object.values(permissions)); };
 
 /**
  * Get the string version of a permission
- * 
+ *
  * @param {int} permission - the unique id of the permission
  * @return {String} - human readable text describing the permission
  * @throws {String} when permission is not the unique id of a permission

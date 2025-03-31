@@ -27,7 +27,7 @@ export class Payment {
 	/**
 	 * Get a payment by id
 	 *
-	 * @param int id the unique id of the Payment to retreive
+	 * @param int id the unique id of the Payment to retrieve
 	 * @return Payment specified by the id
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
@@ -65,7 +65,7 @@ export class Payment {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save new payment";
 		});
 	}
@@ -92,7 +92,7 @@ export class Payment {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save payment";
 		});
 	}

@@ -26,7 +26,7 @@ export class Card {
 	/**
 	 * Get a card by id
 	 *
-	 * @param int id the unique id of the Card to retreive
+	 * @param int id the unique id of the Card to retrieve
 	 * @return Card specified by the id
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
@@ -64,7 +64,7 @@ export class Card {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save new card";
 		});
 	}

@@ -83,7 +83,7 @@ class Session {
 	 * A convenience method that returns an HTTP 403 response if there is not
 	 * an authenticated user.
 	 */
-	public static function require_authentication() {
+	public static function require_authentication(): void {
 		if (null === self::get_authenticated_user()) {
 			http_response_code(403);
 			die('Your session is invalid. Perhaps you need to reauthenticate.');
@@ -111,7 +111,7 @@ class Session {
 	 * A convenience method that returns an HTTP 403 response if the user is
 	 * not authorized.
 	 */
-	public static function require_authorization(int $permission) {
+	public static function require_authorization(int $permission): void {
 		if (!self::check_authorization($permission)) {
 			http_response_code(403);
 			die('You have not been granted access to this information.');
