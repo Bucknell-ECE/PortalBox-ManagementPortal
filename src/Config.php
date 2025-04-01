@@ -25,14 +25,13 @@ class Config {
 	 *     looks for a file named 'config.ini' in the include path. Using the
 	 *     settings in the config file it then creates a PDO database instance
 	 *
-	 * @param file - the name of the config file to read. Defaults to
+	 * @param string file  the name of the config file to read. Defaults to
 	 *     '../config/config.ini' ie a file named 'config.ini' in a directory
 	 *     named 'config' in the same directory as src.
-	 *
 	 * @sideeffect - if the config file can not be found and read, script
 	 *     execution will end abnormally
 	 */
-	public function __construct($file = '../config/config.ini') {
+	public function __construct(string $file = '../config/config.ini') {
 		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR . $file);
 		$this->settings = parse_ini_file($path, true);
 	}
@@ -109,6 +108,7 @@ class Config {
 	/**
 	 * Get the settings for the web ui
 	 *
+	 * @return array  the stettings that are needed client side
 	 */
 	public function web_ui_settings(): array {
 		if (false != $this->settings && array_key_exists('oauth', $this->settings)) {
@@ -116,5 +116,6 @@ class Config {
 		}
 
 		// should toss exception?
+		return [];
 	}
 }

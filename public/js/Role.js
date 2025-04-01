@@ -27,7 +27,7 @@ export class Role {
 	/**
 	 * Get a role by id
 	 *
-	 * @param {int} id - the unique id of the Role to retreive
+	 * @param {int} id - the unique id of the Role to retrieve
 	 * @return {Role} - the role specified by the id
 	 * @throws {SessionTimeOutError} if the user session has expired
 	 * @throws {String} if any other error occurs
@@ -66,7 +66,7 @@ export class Role {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save new role";
 		});
 	}
@@ -94,7 +94,7 @@ export class Role {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save role";
 		});
 	}

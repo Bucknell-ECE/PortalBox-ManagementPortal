@@ -27,7 +27,7 @@ export class Charge {
 	/**
 	 * Get a charge by id
 	 *
-	 * @param int id the unique id of the Charge to retreive
+	 * @param int id the unique id of the Charge to retrieve
 	 * @return Charge specified by the id
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs

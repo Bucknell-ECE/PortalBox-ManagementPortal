@@ -8,14 +8,14 @@ export class User {
 	 * Creates a new User model instance.
 	 *
 	 * @param {integer} id - The unique id of the User.
-	 * @param (object)  role - the user's role
+	 * @param {object}  role - the user's role
 	 * @param {string}  name
 	 * @param {string}  email
 	 * @param {string}  comment
 	 * @param {string}  profile_image_url
 	 * @param {bool}    is_active
 	 * @param {array}   authorizations
-	 * 
+	 *
 	 */
 	constructor(id, role, name, email, comment, profile_image_url, is_active, authorizations) {
 		this.id = id;
@@ -30,7 +30,7 @@ export class User {
 
 	/**
 	 * Get whether the user has a specified permission
-	 * 
+	 *
 	 * @param {integer} the permission for which to check
 	 * @return {bool} true iff the user has te permission
 	 */
@@ -130,7 +130,7 @@ export class User {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save new user";
 		});
 	}
@@ -157,7 +157,7 @@ export class User {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save user";
 		});
 	}
@@ -184,7 +184,7 @@ export class User {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save user";
 		});
 	}

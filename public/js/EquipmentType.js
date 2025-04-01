@@ -27,7 +27,7 @@ export class EquipmentType {
 	/**
 	 * Get an equipment type by id
 	 *
-	 * @param int id the unique id of the EquipmentType to retreive
+	 * @param int id the unique id of the EquipmentType to retrieve
 	 * @return EquipmentType specified by the id
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
@@ -65,7 +65,7 @@ export class EquipmentType {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save new equipment type";
 		});
 	}
@@ -92,7 +92,7 @@ export class EquipmentType {
 			} else if(403 == response.status) {
 				throw new SessionTimeOutError();
 			}
-	
+
 			throw "API was unable to save equipment";
 		});
 	}

@@ -7,7 +7,7 @@ use Portalbox\Transform\NullOutputTransformer;
 use Portalbox\Transform\OutputTransformer;
 
 /**
- * OuptputTransformer - Is used to send encoded responses to a requester. Can
+ * OutputTransformer - Is used to send encoded responses to a requester. Can
  * be subclassed to control the fields exposed in the response. Subclasses
  * may override json_encode_entity, json_encode_list, get_cvs_header,
  * list_item_to_array.
@@ -25,7 +25,7 @@ class ResponseHandler {
 	 *     true or a dictionary whose values are null, string, int, and float
 	 *     otherwise
 	 */
-	public static function render($data, ?OutputTransformer $transformer = null) {
+	public static function render($data, ?OutputTransformer $transformer = null): void {
 		if (null === $transformer) {
 			$transformer = new NullOutputTransformer();
 		}
