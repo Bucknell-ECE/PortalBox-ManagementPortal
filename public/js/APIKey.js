@@ -11,16 +11,18 @@ export class APIKey {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static list() {
-		return fetch("/api/api-keys.php", {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async list() {
+		const response = await fetch("/api/api-keys.php", { "credentials": "same-origin" });
 
-			throw "API was unable to list api keys";
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to list api keys";
 	}
 
 	/**
@@ -31,16 +33,18 @@ export class APIKey {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static read(id) {
-		return fetch("/api/api-keys.php?id=" + id, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async read(id) {
+		const response = await fetch("/api/api-keys.php?id=" + id, { "credentials": "same-origin" });
 
-			throw "API was unable to find api key: " + id;
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to find api key: " + id;
 	}
 
 	/**
@@ -50,23 +54,25 @@ export class APIKey {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static create(data) {
-		return fetch("/api/api-keys.php", {
+	static async create(data) {
+		const response = await fetch("/api/api-keys.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "PUT"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save new api key";
 		});
+
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to save new api key";
 	}
 
 	/**
@@ -77,23 +83,25 @@ export class APIKey {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static modify(id, data) {
-		return fetch("/api/api-keys.php?id=" + id, {
+	static async modify(id, data) {
+		const response = await fetch("/api/api-keys.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save api key";
 		});
+
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to save api key";
 	}
 
 	/**
@@ -103,18 +111,20 @@ export class APIKey {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static delete(id) {
-		return fetch("/api/api-keys.php?id=" + id, {
+	static async delete(id) {
+		const response = await fetch("/api/api-keys.php?id=" + id, {
 			credentials: "include",
 			method: "DELETE"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+		});
 
-			throw "API was unable to delete API key";
-		})
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to delete API key";
 	}
 }

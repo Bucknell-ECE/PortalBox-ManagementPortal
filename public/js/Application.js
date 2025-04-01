@@ -245,58 +245,6 @@ class Application {
 	}
 
 	/**
-	 * Render a template and the as rendered template to the callback as a
-	 * string parameter
-	 *
-	 * @param {string} view - the name of an .mst file in the views location
-	 *      to use as a template
-	 * @param {?object} params - additional parameters for the Mustache template
-	 *      renderer
-	 * @param {?object} options - a dictionary of options. supported keys:
-	 *      {array<string>} tags - a list of delimiters for Mustache to use
-	 *      {bool} markdown - if true and window.markdownit exists call
-	 *          window.markdownit.render() on the template data before
-	 *          rendering content with Mustache.
-	 * @param {function} callback - a callback function to invoke once the
-	 *      template has been rendered. The string value of the rendered
-	 *      template will be passed to the function as its first and only
-	 *      parameter
-	 */
-	getHtml(view, params, options, callback) {
-		if (!(callback instanceof Function)) {
-			throw new TypeError("callback is not a function");
-		}
-		if (!params) {
-			params = {};
-		}
-		if (!options) {
-			options = {};
-		}
-		if (typeof options.tags === "undefined") {
-			Mustache.tags = ["{{", "}}"];
-		} else {
-			Mustache.tags = options.tags;
-		}
-		if (typeof options.markdown === "undefined") {
-			options.markdown = false;
-		}
-
-		let url = this.viewLocation + "/" + view.replace(".mst", "") + ".mst";
-		fetch(url)
-			.then((response) => {
-				return response.text();
-			})
-			.then((template) => {
-				if (window.markdownit && options.markdown === true) {
-					let md = window.markdownit();
-					callback(Mustache.render(md.render(template), params));
-				} else {
-					callback(Mustache.render(template, params));
-				}
-			});
-	}
-
-	/**
 	 * Add a route to the SPA
 	 *
 	 * @param {string} pattern - a pattern string that if matched to the URI
@@ -336,8 +284,10 @@ class Application {
 	/**
 	 * Private utility method for setting up routes when application is
 	 * configured with an authenticated user
+	 *
+	 * @private
 	 */
-	_init_routes_for_authenticated_user() {
+	#init_routes_for_authenticated_user() {
 		this.flush();
 
 		let manage_icons = {
@@ -718,8 +668,10 @@ class Application {
 	/**
 	 * Private utility method for setting up routes when application is
 	 * configured without an authenticated user
+	 *
+	 * @private
 	 */
-	_init_routes_for_unauthenticated_user() {
+	#init_routes_for_unauthenticated_user() {
 		this.flush();
 		this.route("/", _params => {
 			Equipment.list().then(equipment => {
@@ -739,14 +691,14 @@ class Application {
 		if(user) {
 			// Transition to authenticated user session
 			this.user = user;
-			this._init_routes_for_authenticated_user();
+			this.#init_routes_for_authenticated_user();
 			this.render("#page-menu", "authenticated/menu", {"user": user});
 			this.navigate(location.pathname); // need to explicitly update content
 		} else {
 			// Transition to unauthenticated session
 			this.user = null;
 			document.getElementById("page-menu").innerHTML = "";
-			this._init_routes_for_unauthenticated_user();
+			this.#init_routes_for_unauthenticated_user();
 			this.render("#page-menu", "unauthenticated/menu", {});
 			this.navigate(location.pathname);
 		}

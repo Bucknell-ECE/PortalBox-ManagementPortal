@@ -371,7 +371,11 @@ let permissions = {
 	1206:{id:READ_OWN_USER, name:"View user's own profile"}
 };
 
-/**  */
+/**
+ * Get the list of all permissions
+ *
+ * @return {array}
+ */
 export function list() { return Promise.resolve(Object.values(permissions)); };
 
 /**
