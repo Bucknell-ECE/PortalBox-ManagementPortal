@@ -11,16 +11,18 @@ export class Card {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static list(query = '') {
-		return fetch("/api/cards.php?" + query, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async list(query = '') {
+		const response = await fetch("/api/cards.php?" + query, { "credentials": "same-origin" });
 
-			throw "API was unable to list cards";
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to list cards";
 	}
 
 	/**
@@ -31,16 +33,18 @@ export class Card {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static read(id) {
-		return fetch("/api/cards.php?id=" + id, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async read(id) {
+		const response = await fetch("/api/cards.php?id=" + id, { "credentials": "same-origin" });
 
-			throw "API was unable to find card: " + id;
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to find card: " + id;
 	}
 
 	/**
@@ -50,23 +54,24 @@ export class Card {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static create(data) {
-		return fetch("/api/cards.php", {
+	static async create(data) {
+		const response = await fetch("/api/cards.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "PUT"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save new card";
 		});
-	}
 
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to save new card";
+	}
 }

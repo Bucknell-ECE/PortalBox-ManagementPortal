@@ -12,16 +12,18 @@ export class Equipment {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static list(query = '') {
-		return fetch("/api/equipment.php?" + query, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async list(query = '') {
+		const response = await fetch("/api/equipment.php?" + query, { "credentials": "same-origin" });
 
-			throw "API was unable to list equipment";
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to list equipment";
 	}
 
 	/**
@@ -32,16 +34,18 @@ export class Equipment {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static read(id) {
-		return fetch("/api/equipment.php?id=" + id, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async read(id) {
+		const response = await fetch("/api/equipment.php?id=" + id, { "credentials": "same-origin" });
 
-			throw "API was unable to find equipment: " + id;
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to find equipment: " + id;
 	}
 
 	/**
@@ -51,23 +55,25 @@ export class Equipment {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static create(data) {
-		return fetch("/api/equipment.php", {
+	static async create(data) {
+		const response = await fetch("/api/equipment.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "PUT"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save new equipment";
 		});
+
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to save new equipment";
 	}
 
 	/**
@@ -78,22 +84,24 @@ export class Equipment {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static modify(id, data) {
-		return fetch("/api/equipment.php?id=" + id, {
+	static async modify(id, data) {
+		const response = await fetch("/api/equipment.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save equipment";
 		});
+
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to save equipment";
 	}
 }

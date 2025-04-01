@@ -12,16 +12,18 @@ export class Location {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static list(query = '') {
-		return fetch("/api/locations.php?" + query, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async list(query = '') {
+		const response = await fetch("/api/locations.php?" + query, { "credentials": "same-origin" });
 
-			throw "API was unable to list locations";
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to list locations";
 	}
 
 	/**
@@ -32,16 +34,18 @@ export class Location {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static read(id) {
-		return fetch("/api/locations.php?id=" + id, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async read(id) {
+		const response = await fetch("/api/locations.php?id=" + id, { "credentials": "same-origin" });
 
-			throw "API was unable to find location: " + id;
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to find location: " + id;
 	}
 
 	/**
@@ -51,23 +55,25 @@ export class Location {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static create(data) {
-		return fetch("/api/locations.php", {
+	static async create(data) {
+		const response = await fetch("/api/locations.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "PUT"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save new location";
 		});
+
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to save new location";
 	}
 
 	/**
@@ -78,22 +84,24 @@ export class Location {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static modify(id, data) {
-		return fetch("/api/locations.php?id=" + id, {
+	static async modify(id, data) {
+		const response = await fetch("/api/locations.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save location";
 		});
+
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to save location";
 	}
 }

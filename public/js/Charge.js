@@ -12,16 +12,18 @@ export class Charge {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static list(query = '') {
-		return fetch("/api/charges.php?" + query, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async list(query = '') {
+		const response = await fetch("/api/charges.php?" + query, { "credentials": "same-origin" });
 
-			throw "API was unable to list charges";
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to list charges";
 	}
 
 	/**
@@ -32,16 +34,17 @@ export class Charge {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static read(id) {
-		return fetch("/api/charges.php?id=" + id, {"credentials": "same-origin"}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
+	static async read(id) {
+		const response = await fetch("/api/charges.php?id=" + id, { "credentials": "same-origin" });
 
-			throw "API was unable to find charge: " + id;
-		});
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to find charge: " + id;
 	}
-
 }
