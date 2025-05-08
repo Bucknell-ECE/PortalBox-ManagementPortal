@@ -7,8 +7,10 @@ use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\ChargeQuery;
 use Portalbox\Query\EquipmentQuery;
 use Portalbox\Query\UserQuery;
+
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\UserModel;
+
 use PDO;
 
 /**
@@ -22,7 +24,7 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge|null - the charge or null if the charge could not be saved
 	 */
-	public function create(Charge $charge): ?Charge {
+	public function create(Charge $charge) : ?Charge {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO charges (user_id, equipment_id, time, amount, charge_policy_id, charge_rate, charged_time) VALUES (:user_id, :equipment_id, :time, :amount, :charge_policy_id, :charge_rate, :charged_time)';
 		$query = $connection->prepare($sql);
@@ -35,7 +37,7 @@ class ChargeModel extends AbstractModel {
 		$query->bindValue(':charge_rate', $charge->charge_rate());
 		$query->bindValue(':charged_time', $charge->charged_time());
 
-		if ($query->execute()) {
+		if($query->execute()) {
 			return $charge->set_id($connection->lastInsertId('charges_id_seq'));
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -49,13 +51,13 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge|null - the charge or null if the charge could not be found
 	 */
-	public function read(int $id): ?Charge {
+	public function read(int $id) : ?Charge {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT c.id, c.user_id, u.name AS user_name, c.equipment_id, e.name AS equipment_name, c.time, c.amount, c.charge_policy_id, c.charge_rate, c.charged_time FROM charges AS c INNER JOIN equipment as e ON e.id = c.equipment_id INNER JOIN users AS u on u.id = c.user_id WHERE c.id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
-		if ($query->execute()) {
-			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
+		if($query->execute()) {
+			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
 				return $this->buildChargeFromArray($data);
 			} else {
 				return null;
@@ -72,7 +74,7 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge|null - the charge or null if the charge could not be saved
 	 */
-	public function update(Charge $charge): ?Charge {
+	public function update(Charge $charge) : ?Charge {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE charges SET user_id = :user_id, equipment_id = :equipment_id, time = :time, amount = :amount, charge_policy_id = :charge_policy_id, charge_rate = :charge_rate, charged_time = :charged_time WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -86,7 +88,7 @@ class ChargeModel extends AbstractModel {
 		$query->bindValue(':charge_rate', $charge->charge_rate());
 		$query->bindValue(':charged_time', $charge->charged_time());
 
-		if ($query->execute()) {
+		if($query->execute()) {
 			return $charge;
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -100,15 +102,15 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge|null - the charge or null if the charge could not be found
 	 */
-	public function delete(int $id): ?Charge {
+	public function delete(int $id) : ?Charge {
 		$charge = $this->read($id);
 
-		if (null !== $charge) {
+		if(NULL !== $charge) {
 			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM charges WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);
-			if (!$query->execute()) {
+			if(!$query->execute()) {
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
@@ -123,10 +125,10 @@ class ChargeModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Charge[]|null - a list of charges which match the search query
 	 */
-	public function search(ChargeQuery $query): ?array {
-		if (null === $query) {
+	public function search(ChargeQuery $query) : ?array {
+		if(NULL === $query) {
 			// no query... bail
-			return null;
+			return NULL;
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
@@ -142,24 +144,24 @@ class ChargeModel extends AbstractModel {
 		$where_clause_fragments = array();
 		$parameters = array();
 
-		if (null !== $query->equipment_id()) {
+		if(NULL !== $query->equipment_id()) {
 			$where_clause_fragments[] = 'c.equipment_id = :equipment_id';
 			$parameters[':equipment_id'] = $query->equipment_id();
 		}
-		if (null !== $query->user_id()) {
+		if(NULL !== $query->user_id()) {
 			$where_clause_fragments[] = 'c.user_id = :user_id';
 			$parameters[':user_id'] = $query->user_id();
 		}
 
-		if (null !== $query->on_or_after()) {
+		if(NULL !== $query->on_or_after()) {
 			$where_clause_fragments[] = 'c.time >= :after';
 			$parameters[':after'] = $query->on_or_after();
 		}
-		if (null !== $query->on_or_before()) {
+		if(NULL !== $query->on_or_before()) {
 			$where_clause_fragments[] = 'c.time <= :before';
 			$parameters[':before'] = $query->on_or_before();
 		}
-		if (0 < count($where_clause_fragments)) {
+		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
@@ -167,25 +169,29 @@ class ChargeModel extends AbstractModel {
 
 		$statement = $connection->prepare($sql);
 		// run search
-		foreach ($parameters as $k => $v) {
+		foreach($parameters as $k => $v) {
 			$statement->bindValue($k, $v);
 		}
 
 
-		if ($statement->execute()) {
+		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-			if (false !== $data) {
+			if(FALSE !== $data) {
+
 				return $this->buildChargesFromArrays($data);
+
 			} else {
+
 				return null;
 			}
 		} else {
+
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
 	}
 
-	private function buildChargeFromArray(array $data): Charge {
+	private function buildChargeFromArray(array $data) : Charge {
 		return (new Charge())
 					->set_id($data['id'])
 					->set_user_id($data['user_id'])
@@ -197,7 +203,7 @@ class ChargeModel extends AbstractModel {
 					->set_charged_time($data['charged_time']);
 	}
 
-	private function buildChargesFromArrays(array $data): array {
+	private function buildChargesFromArrays(array $data) : array {
 
 		$charges = [];
 		$machines = [];
@@ -209,41 +215,37 @@ class ChargeModel extends AbstractModel {
 		$e_query = new EquipmentQuery();
 		$e_query->set_include_out_of_service(true);
 		$u_query = new UserQuery();
-		$u_query->set_include_inactive(true);
+		$u_query->set_include_inactive(TRUE);
 
 		$machines = $e_model->search($e_query);
 		$users = $u_model->search($u_query);
 
-		foreach ($data as $datum) {
+		foreach($data as $datum) {
 			$charges[] = $this->buildChargeFromArray($datum);
 			// echo print_r($datum, true) . "<br>";
 		}
 		// echo count($charges). "<br>";
 		// $x = 0;
-		foreach ($charges as $charge) {
+		foreach($charges as $charge) {
 			// echo $x . ":";
 			// echo $charge->equipment_id() . "<br>";
 			// $x += 1;
 			$e_id = $charge->equipment_id();
 
-			$machine = array_filter(
-				$machines,
+			$machine = array_filter($machines,
 				function ($e) use ($e_id) {
 					return $e->id() == $e_id;
-				}
-			);
+				});
 
 			// echo array_pop($machine)->id();
 			$charge->set_equipment(array_pop($machine));
 
 			$u_id = $charge->user_id();
 
-			$user = array_filter(
-				$users,
+			$user = array_filter($users,
 				function ($e) use ($u_id) {
 					return $e->id() == $u_id;
-				}
-			);
+				});
 
 			$charge->set_user(array_pop($user));
 		}

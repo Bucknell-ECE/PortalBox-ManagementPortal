@@ -12,40 +12,36 @@ export class Role {
 	 * @throws {SessionTimeOutError} if the user session has expired
 	 * @throws {String} if any other error occurs
 	 */
-	static async list(query = '') {
-		const response = await fetch("/api/roles.php?" + query, { "credentials": "same-origin" });
+	static list(query = '') {
+		return fetch("/api/roles.php?" + query, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to list roles";
+			throw "API was unable to list roles";
+		});
 	}
 
 	/**
 	 * Get a role by id
 	 *
-	 * @param {int} id - the unique id of the Role to retrieve
+	 * @param {int} id - the unique id of the Role to retreive
 	 * @return {Role} - the role specified by the id
 	 * @throws {SessionTimeOutError} if the user session has expired
 	 * @throws {String} if any other error occurs
 	 */
-	static async read(id) {
-		const response = await fetch("/api/roles.php?id=" + id, { "credentials": "same-origin" });
+	static read(id) {
+		return fetch("/api/roles.php?id=" + id, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to find role: " + id;
+			throw "API was unable to find role: " + id;
+		});
 	}
 
 	/**
@@ -56,25 +52,23 @@ export class Role {
 	 * @throws {SessionTimeOutError} if the user session has expired
 	 * @throws {String} if any other error occurs
 	 */
-	static async create(data) {
-		const response = await fetch("/api/roles.php", {
+	static create(data) {
+		return fetch("/api/roles.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "PUT"
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+	
+			throw "API was unable to save new role";
 		});
-
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to save new role";
 	}
 
 	/**
@@ -86,24 +80,22 @@ export class Role {
 	 * @throws {SessionTimeOutError} if the user session has expired
 	 * @throws {String} if any other error occurs
 	 */
-	static async modify(id, data) {
-		const response = await fetch("/api/roles.php?id=" + id, {
+	static modify(id, data) {
+		return fetch("/api/roles.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "POST"
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+	
+			throw "API was unable to save role";
 		});
-
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to save role";
 	}
 }

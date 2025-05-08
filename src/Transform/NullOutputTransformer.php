@@ -9,6 +9,7 @@ use DomainException;
  * Transformed into a variety of output encodings
  */
 class NullOutputTransformer implements OutputTransformer {
+
 	/**
 	 * Called to serialize a non-entity
 	 *
@@ -19,8 +20,9 @@ class NullOutputTransformer implements OutputTransformer {
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
 	 */
-	public function serialize($data, bool $traverse = false): array {
+	public function serialize($data, bool $traverse = false) : array {
 		return $data;
+
 	}
 
 	/**
@@ -30,7 +32,7 @@ class NullOutputTransformer implements OutputTransformer {
 	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
-	public function get_column_headers(): array {
+	public function get_column_headers() : array {
 		throw new DomainException('Data does not support this operation');
 	}
 }

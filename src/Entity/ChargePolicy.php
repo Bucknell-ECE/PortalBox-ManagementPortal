@@ -46,7 +46,7 @@ class ChargePolicy {
 			self::PER_USE,
 			self::PER_MINUTE
 		];
-		if (in_array($policy_id, $valid_values)) {
+		if(in_array($policy_id, $valid_values)) {
 			return true;
 		}
 
@@ -59,18 +59,13 @@ class ChargePolicy {
 	 * @param int policy_id - the policy id to check
 	 * @return string - name for the charge policy
 	 */
-	public static function name_for_policy(int $policy_id): string {
-		switch ($policy_id) {
-			case self::MANUALLY_ADJUSTED:
-				return 'Manually Adjusted';
-			case self::NO_CHARGE:
-				return 'No Charge';
-			case self::PER_USE:
-				return 'Per Use';
-			case self::PER_MINUTE:
-				return 'Per Minute';
-			default:
-				return 'Invalid';
+	public static function name_for_policy(int $policy_id) : string {
+		switch($policy_id) {
+			case self::MANUALLY_ADJUSTED: return 'Manually Adjusted';
+			case self::NO_CHARGE: return 'No Charge';
+			case self::PER_USE: return 'Per Use';
+			case self::PER_MINUTE: return 'Per Minute';
+			default: return 'Invalid';
 		}
 	}
 }

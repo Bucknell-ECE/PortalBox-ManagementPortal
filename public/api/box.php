@@ -102,12 +102,29 @@ switch($_SERVER['REQUEST_METHOD']) {
 					throw new DatabaseException($query->errorInfo()[2]);
 				}
 
+				$sql = 'SELECT u.pin FROM users_x_cards AS c JOIN users AS u ON u.id = c.user_id WHERE c.card_id = :card_id';
+				$query = $connection->prepare($sql);
+				$query->bindValue(':card_id', $card_id);
+				
+				$user_pin = "-1";
+				
+				if($query->execute()) {
+					$result = $query->fetch(PDO::FETCH_NUM);
+					if ($result && isset($result[0]) && !empty($result[0])) {
+						$user_pin = $result[0];
+					}
+				} else {
+					echo "Database Exception: " . $query->errorInfo()[2];
+					throw new DatabaseException($query->errorInfo()[2]);
+				}
+
 				$r_array = [[
 					'user_auth' => $user_auth,
 					'user_balance' => $user_balance,
 					'user_active' => $user_active,
 					'card_type' => $card_type,
-					'user_role' => $user_role
+					'user_role' => $user_role,
+					'pin' => $user_pin
 				]];
 
 				try{
@@ -351,6 +368,68 @@ switch($_SERVER['REQUEST_METHOD']) {
 				throw new DatabaseException($query->errorInfo()[2]);
 			}
 
+		}
+		elseif($_GET['mode'] == "add_authorization"){
+			// This mode is for adding equipment_type authorization to a user's card
+			
+			if(!(isset($_GET['card_id']) && !empty($_GET['card_id']))){
+				http_response_code(404);
+				die('missing params needs "card_id" and "equipment_type_id". Failed at "card_id"');
+			}
+			if(!(isset($_GET['equipment_type_id']) && !empty($_GET['equipment_type_id']))){
+				http_response_code(404);
+				die('missing params needs "card_id" and "equipment_type_id". Failed at "equipment_type_id"');
+			}
+			
+			// First, get the user_id from the card_id
+			$sql = 'SELECT user_id FROM users_x_cards WHERE card_id = :card_id';
+			$query = $connection->prepare($sql);
+			$query->bindValue(':card_id', $_GET['card_id']);
+			
+			if(!$query->execute()) {
+				echo "Database Exception: " . $query->errorInfo()[2];
+				throw new DatabaseException($query->errorInfo()[2]);
+			}
+			
+			$user_id = $query->fetch(PDO::FETCH_NUM)[0];
+			
+			if (!$user_id) {
+				http_response_code(404);
+				die('Could not find user associated with this card');
+			}
+			
+			// Check if authorization already exists
+			$sql = 'SELECT COUNT(*) FROM authorizations WHERE user_id = :user_id AND equipment_type_id = :equipment_type_id';
+			$query = $connection->prepare($sql);
+			$query->bindValue(':user_id', $user_id);
+			$query->bindValue(':equipment_type_id', $_GET['equipment_type_id']);
+			
+			if(!$query->execute()) {
+				echo "Database Exception: " . $query->errorInfo()[2];
+				throw new DatabaseException($query->errorInfo()[2]);
+			}
+			
+			$exists = $query->fetch(PDO::FETCH_NUM)[0] > 0;
+			
+			if ($exists) {
+				// Already authorized
+				echo "User already has this authorization";
+				http_response_code(200);
+				return;
+			}
+			
+			// Add the authorization
+			$sql = 'INSERT INTO authorizations (user_id, equipment_type_id) VALUES (:user_id, :equipment_type_id)';
+			$query = $connection->prepare($sql);
+			$query->bindValue(':user_id', $user_id);
+			$query->bindValue(':equipment_type_id', $_GET['equipment_type_id']);
+			
+			if($query->execute()) {
+				echo "Successfully added authorization";
+			} else {
+				echo "Database Exception: " . $query->errorInfo()[2];
+				throw new DatabaseException($query->errorInfo()[2]);
+			}
 		}
 		elseif(!(isset($_GET['mode']) && !empty($_GET['mode']))){
 			http_response_code(404);

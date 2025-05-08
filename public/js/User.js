@@ -8,15 +8,17 @@ export class User {
 	 * Creates a new User model instance.
 	 *
 	 * @param {integer} id - The unique id of the User.
-	 * @param {object}  role - the user's role
+	 * @param (object)  role - the user's role
 	 * @param {string}  name
 	 * @param {string}  email
 	 * @param {string}  comment
 	 * @param {string}  profile_image_url
 	 * @param {bool}    is_active
 	 * @param {array}   authorizations
+	 * @param {string}  pin - User's 4-digit PIN
+	 * 
 	 */
-	constructor(id, role, name, email, comment, profile_image_url, is_active, authorizations) {
+	constructor(id, role, name, email, comment, profile_image_url, is_active, authorizations, pin = '0000') {
 		this.id = id;
 		this.role = role;
 		this.name = name;
@@ -25,11 +27,12 @@ export class User {
 		this.profile_image_url = profile_image_url;
 		this.is_active = is_active;
 		this.authorizations = authorizations;
+		this.pin = pin;
 	}
 
 	/**
 	 * Get whether the user has a specified permission
-	 *
+	 * 
 	 * @param {integer} the permission for which to check
 	 * @return {bool} true iff the user has te permission
 	 */
@@ -45,26 +48,28 @@ export class User {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async authenticate(id_token = '') {
-		const response = await fetch("/api/login.php", { "credentials": "same-origin", headers: { "Authorization": "Bearer " + id_token } });
-
-		if(!response.ok) {
-			const text = await response.text();
-
-			throw response.statusText + ": " + text;
-		}
-
-		const data = await response.json();
-		return new User(
-			data.id,
-			data.role,
-			data.name,
-			data.email,
-			data.comment,
-			null,
-			true,
-			data.authorizations
-		);
+	static authenticate(id_token = '') {
+		return fetch("/api/login.php", {"credentials": "same-origin", headers: {"Authorization": "Bearer " + id_token}}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else {
+				response.text().then(text => {
+					throw response.statusText + ": " + text;
+				});
+			}
+		}).then(data => {
+			return new User(
+				data.id,
+				data.role,
+				data.name,
+				data.email,
+				data.comment,
+				null,
+				true,
+				data.authorizations,
+				data.pin
+			);
+		});
 	}
 
 	/**
@@ -75,18 +80,16 @@ export class User {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async list(query = '') {
-		const response = await fetch("/api/users.php?" + query, { "credentials": "same-origin" });
+	static list(query = '') {
+		return fetch("/api/users.php?" + query, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to list users";
+			throw "API was unable to list users";
+		});
 	}
 
 	/**
@@ -97,18 +100,16 @@ export class User {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async read(id) {
-		const response = await fetch("/api/users.php?id=" + id, { "credentials": "same-origin" });
+	static read(id) {
+		return fetch("/api/users.php?id=" + id, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to find user: " + id;
+			throw "API was unable to find user: " + id;
+		});
 	}
 
 	/**
@@ -118,25 +119,23 @@ export class User {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async create(data) {
-		const response = await fetch("/api/users.php", {
+	static create(data) {
+		return fetch("/api/users.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "PUT"
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+	
+			throw "API was unable to save new user";
 		});
-
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to save new user";
 	}
 
 	/**
@@ -147,25 +146,23 @@ export class User {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async authorize(id, data) {
-		const response = await fetch("/api/users.php?id=" + id, {
+	static authorize(id, data) {
+		return fetch("/api/users.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "PATCH"
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+	
+			throw "API was unable to save user";
 		});
-
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to save user";
 	}
 
 	/**
@@ -176,24 +173,22 @@ export class User {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async modify(id, data) {
-		const response = await fetch("/api/users.php?id=" + id, {
+	static modify(id, data) {
+		return fetch("/api/users.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "POST"
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+	
+			throw "API was unable to save user";
 		});
-
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to save user";
 	}
 }

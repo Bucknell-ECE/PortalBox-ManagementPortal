@@ -1,49 +1,107 @@
 {{#user}}
 <ul class="crumbs">
-	<li><a href="/">Home</a></li>
-	<li>Profile</li>
+   <li><a href="/">Home</a></li>
+   <li>Profile</li>
 </ul>
+{{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
 <article>
-	<header>
-		<h1>Profile</h1>
-	</header>
-	<dl>
-		<dt>Name:</label>
-		<dd>{{name}}</dd>
-		<dt>Email:</dt>
-		<dd><a href="mailto:{{email}}">{{email}}</a></dd>
-		<dt>Authorized for:</dt>
-		<dd>
-			{{#equipment_type}}
-			<ul>
-				<li>{{name}}</li>
-			</ul>
-			{{/equipment_type}}
-			{{^equipment_type}}Not yet Authorized for any Equipment{{/equipment_type}}
-		</dd>
-		<dt>Charge/Payment History:</dt>
-		<dd>
-			<div class="button-group">
-				<button type="button" id="transaction-button">Hide Transactions</button>
-			</div>
-			<table id="transaction-table">
-				<thead class="collapsible-content">
-					<tr><th>Date</th><th>Equipment</th><th>Amount</th><th>Balance</th></tr>
-				</thead>
-				<tbody class="collapsible-content">
-					{{#ledger}}<tr{{#equipment_id}} class="debit"{{/equipment_id}}>
-						<td>{{time}}</td>
-						<td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>
-						<td>{{amount}}</td>
-						<td>{{balance}}</td>
-					</tr>{{/ledger}}
-					{{^ledger}}<tr><td colspan="3">No account activity to date</td></tr>{{/ledger}}
-				</tbody>
-				<tfoot>
-					<tr><td colspan="2" style="text-align:right">Balance:</td><td>{{total_balance}}</td></tr>
-				</tfoot>
-			</table>
-		</dd>
-	</dl>
+   <header>
+      <h1>Profile</h1>
+      <div class="button-group">
+         {{#editable}}<label for="view-edit-toggle-edit-state">Edit</label>{{/editable}}
+      </div>
+   </header>
+   <div class="row">
+      <section>
+         <header>
+            <h2>Details</h2>
+         </header>
+         <dl>
+            <dt>Name:</dt>
+            <dd>{{name}}</dd>
+            <dt>Email:</dt>
+            <dd><a href="mailto:{{email}}">{{email}}</a></dd>
+            <dt>Comment:</dt>
+            <dd>{{comment}}</dd>
+            <dt>PIN:</dt>
+            <dd>{{pin}}</dd>
+            <dt>Active:</dt>
+            <dd>{{#is_active}}<i class="material-icons">check_circle_outline</i>{{/is_active}}{{^is_active}}<i class="material-icons">highlight_off</i>{{/is_active}}</dd>
+            <dt>Role:</dt>
+            <dd>{{#role}}{{name}}{{/role}}</dd>
+            <dt>Authorized for:</dt>
+            <dd>
+               {{#authorized_equipment_types}}
+               <ul>
+                  <li>{{name}}</li>
+               </ul>
+               {{/authorized_equipment_types}}
+               {{^authorized_equipment_types}}Not yet Authorized for any Equipment{{/authorized_equipment_types}}
+            </dd>
+         </dl>
+      </section>
+      <section>
+         <header>
+            <h2>Account History</h2>
+         </header>
+         <div class="button-group">
+            <button type="button" id="transaction-button">Hide Transactions</button>
+         </div>
+         <table style="min-width:100%" id="transaction-table">
+            <thead class="collapsible-content">
+               <tr><th>Date</th><th>Equipment</th><th>Amount</th><th>Balance</th></tr>
+            </thead>
+            <tbody class="collapsible-content">
+               {{#ledger}}{{#equipment_id}}<tr class="debit link" onclick="go('/charges/{{id}}', {{name}});">{{/equipment_id}}{{^equipment_id}}<tr onclick="go('/payments/{{id}}', {{name}});">{{/equipment_id}}
+                  <td>{{time}}</td>
+                  <td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>
+                  <td>{{amount}}</td>
+                  <td>{{balance}}</td>
+               </tr>{{/ledger}}
+               {{^ledger}}<tr><td colspan="3">No account activity to date</td></tr>{{/ledger}}
+            </tbody>
+            <tfoot>
+               <tr><td colspan="2" style="text-align:right">Balance:</td><td>{{balance}}</td></tr>
+            </tfoot>
+         </table>
+      </section>
+   </div>
 </article>
+{{#editable}}
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
+<article>
+   <header>
+      <h1>Profile</h1>
+      <div class="button-group">
+         <label for="view-edit-toggle-view-state">Cancel</label>
+         <button form="edit-user-form" type="submit" class="default">Save</a>
+      </div>
+   </header>
+   <form id="edit-user-form">
+      <label for="name">Name:</label>
+      <input type="text" name="name" id="name" value="{{name}}" required />
+      <label for="email">Email:</label>
+      <input type="email" name="email" id="email" value="{{email}}" required />
+      <label for="comment" style="align-self:baseline">Comment:</label>
+      <textarea type="text" name="comment" id="comment">{{comment}}</textarea>
+      <label for="pin">PIN:</label>
+      <input type="text" name="pin" id="pin" value="{{pin}}" pattern="^\d{4}$" required maxlength="4" />
+      <div class="help">
+         <label for="pin-help-toggle">
+            <i class="material-icons">help</i>
+         </label>
+         <input type="checkbox" id="pin-help-toggle" class="checkbox-hack">
+         <div class="content">
+            <label for="pin-help-toggle" class="scrim"></label>
+            <div>
+               <p>PIN must be exactly 4 digits (0-9).</p>
+            </div>
+         </div>
+      </div>
+      <!-- CRITICAL: Include these hidden fields to ensure proper API submission -->
+      <input type="hidden" name="is_active" id="is_active" value="{{is_active}}" />
+      <input type="hidden" name="role_id" id="role_id" value="{{role.id}}" />
+   </form>
+</article>
+{{/editable}}
 {{/user}}

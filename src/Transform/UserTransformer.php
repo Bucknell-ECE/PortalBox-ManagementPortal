@@ -3,8 +3,11 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
+
 use Portalbox\Config;
+
 use Portalbox\Entity\User;
+
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
@@ -21,22 +24,22 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 	 * @return Payment - a valid entity object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
-	public function deserialize(array $data): User {
-		if (!array_key_exists('role_id', $data)) {
+	public function deserialize(array $data) : User {
+		if(!array_key_exists('role_id', $data)) {
 			throw new InvalidArgumentException('\'role_id\' is a required field');
 		}
-		if (!array_key_exists('name', $data)) {
+		if(!array_key_exists('name', $data)) {
 			throw new InvalidArgumentException('\'name\' is a required field');
 		}
-		if (!array_key_exists('email', $data)) {
+		if(!array_key_exists('email', $data)) {
 			throw new InvalidArgumentException('\'email\' is a required field');
 		}
-		if (!array_key_exists('is_active', $data)) {
+		if(!array_key_exists('is_active', $data)) {
 			throw new InvalidArgumentException('\'is_active\' is a required field');
 		}
 
 		$role = (new RoleModel(Config::config()))->read($data['role_id']);
-		if (null === $role) {
+		if(NULL === $role) {
 			throw new InvalidArgumentException('\'role_id\' must correspond to a valid role');
 		}
 
@@ -47,18 +50,26 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 					->set_role($role);
 
 		// add in optional fields
-		if (array_key_exists('comment', $data)) {
+		if(array_key_exists('comment', $data)) {
 			$user->set_comment($data['comment']);
 		}
-		if (array_key_exists('authorizations', $data)) {
-			if (!is_array($data['authorizations'])) {
+        
+		if(array_key_exists('pin', $data)) {
+			if (!preg_match('/^\d{4}$/', $data['pin'])) {
+				throw new InvalidArgumentException('\'pin\' must be a 4-digit number');
+			}
+			$user->set_pin($data['pin']);
+		}
+        
+		if(array_key_exists('authorizations', $data)) {
+			if(!is_array($data['authorizations'])) {
 				throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
 			}
 
 			$model = new EquipmentTypeModel(Config::config());
-			foreach ($data['authorizations'] as $equipment_type_id) {
+			foreach($data['authorizations'] as $equipment_type_id) {
 				$equipment_type = $model->read($equipment_type_id);
-				if (null === $equipment_type) {
+				if(NULL === $equipment_type) {
 					throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
 				}
 			}
@@ -79,15 +90,16 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
 	 */
-	public function serialize($data, bool $traverse = false): array {
-		if ($traverse) {
+	public function serialize($data, bool $traverse = false) : array {
+		if($traverse) {
 			$role_transformer = new RoleTransformer();
 			return [
 				'id' => $data->id(),
 				'name' => $data->name(),
 				'email' => $data->email(),
 				'comment' => $data->comment(),
-				'role' => is_null($data->role()) ? null : $role_transformer->serialize($data->role(), $traverse),
+				'pin' => $data->pin(),
+				'role' => is_null($data->role()) ? NULL : $role_transformer->serialize($data->role(), $traverse),
 				'is_active' => $data->is_active(),
 				'authorizations' => $data->authorizations()
 			];
@@ -97,6 +109,7 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 				'name' => $data->name(),
 				'email' => $data->email(),
 				'comment' => $data->comment(),
+				'pin' => $data->pin(),
 				'role' => $data->role_name(),
 				'is_active' => $data->is_active()
 			];
@@ -110,7 +123,7 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
-	public function get_column_headers(): array {
-		return ['id', 'Name', 'Email', 'Comment', 'Role', 'Active'];
+	public function get_column_headers() : array {
+		return ['id', 'Name', 'Email', 'Comment', 'PIN', 'Role', 'Active'];
 	}
 }

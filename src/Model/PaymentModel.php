@@ -5,6 +5,7 @@ namespace Portalbox\Model;
 use Portalbox\Entity\Payment;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\PaymentQuery;
+
 use PDO;
 
 /**
@@ -18,7 +19,7 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment|null - the payment or null if the payment could not be saved
 	 */
-	public function create(Payment $payment): ?Payment {
+	public function create(Payment $payment) : ?Payment {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO payments (user_id, amount, time) VALUES (:user_id, :amount, :time)';
 		$query = $connection->prepare($sql);
@@ -27,7 +28,7 @@ class PaymentModel extends AbstractModel {
 		$query->bindValue(':amount', $payment->amount());
 		$query->bindValue(':time', $payment->time());
 
-		if ($query->execute()) {
+		if($query->execute()) {
 			return $payment->set_id($connection->lastInsertId('payments_id_seq'));
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -41,13 +42,13 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment|null - the payment or null if the payment could not be found
 	 */
-	public function read(int $id): ?Payment {
+	public function read(int $id) : ?Payment {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, user_id, amount, time FROM payments WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
-		if ($query->execute()) {
-			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
+		if($query->execute()) {
+			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
 				return $this->buildPaymentFromArray($data);
 			} else {
 				return null;
@@ -64,7 +65,7 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment|null - the payment or null if the payment could not be saved
 	 */
-	public function update(Payment $payment): ?Payment {
+	public function update(Payment $payment) : ?Payment {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE payments SET user_id = :user_id, amount = :amount, time = :time WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -74,7 +75,7 @@ class PaymentModel extends AbstractModel {
 		$query->bindValue(':amount', $payment->amount());
 		$query->bindValue(':time', $payment->time());
 
-		if ($query->execute()) {
+		if($query->execute()) {
 			return $payment;
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -88,15 +89,15 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment|null - the payment or null if the payment could not be found
 	 */
-	public function delete(int $id): ?Payment {
+	public function delete(int $id) : ?Payment {
 		$payment = $this->read($id);
 
-		if (null !== $payment) {
+		if(NULL !== $payment) {
 			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM payments WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);
-			if (!$query->execute()) {
+			if(!$query->execute()) {
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
@@ -111,29 +112,29 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment[]|null - a list of payments which match the search query
 	 */
-	public function search(PaymentQuery $query): ?array {
-		if (null === $query) {
+	public function search(PaymentQuery $query) : ?array {
+		if(NULL === $query) {
 			// no query... bail
-			return null;
+			return NULL;
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, user_id, amount, time FROM payments';
 		$where_clause_fragments = array();
 		$parameters = array();
-		if (null !== $query->user_id()) {
+		if(NULL !== $query->user_id()) {
 			$where_clause_fragments[] = 'user_id = :user_id';
 			$parameters[':user_id'] = $query->user_id();
 		}
-		if ($query->on_or_after()) {
+		if($query->on_or_after()) {
 			$where_clause_elements[] = 'time >= :after';
 			$parameters[':after'] = $query->on_or_after();
 		}
-		if ($query->on_or_before()) {
+		if($query->on_or_before()) {
 			$where_clause_elements[] = 'time <= :before';
 			$parameters[':before'] = $query->on_or_before();
 		}
-		if (0 < count($where_clause_fragments)) {
+		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
@@ -141,13 +142,13 @@ class PaymentModel extends AbstractModel {
 
 		$statement = $connection->prepare($sql);
 		// run search
-		foreach ($parameters as $k => $v) {
+		foreach($parameters as $k => $v) {
 			$statement->bindValue($k, $v);
 		}
 
-		if ($statement->execute()) {
+		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
+			if(FALSE !== $data) {
 				return $this->buildPaymentsFromArrays($data);
 			} else {
 				return null;
@@ -157,7 +158,7 @@ class PaymentModel extends AbstractModel {
 		}
 	}
 
-	private function buildPaymentFromArray(array $data): Payment {
+	private function buildPaymentFromArray(array $data) : Payment {
 		return (new Payment())
 				->set_id($data['id'])
 				->set_user_id($data['user_id'])
@@ -165,10 +166,10 @@ class PaymentModel extends AbstractModel {
 				->set_time($data['time']);
 	}
 
-	private function buildPaymentsFromArrays(array $data): array {
+	private function buildPaymentsFromArrays(array $data) : array {
 		$payments = array();
 
-		foreach ($data as $datum) {
+		foreach($data as $datum) {
 			$payments[] = $this->buildPaymentFromArray($datum);
 		}
 

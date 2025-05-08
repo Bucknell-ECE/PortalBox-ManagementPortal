@@ -3,6 +3,7 @@
 namespace Portalbox\Model\Entity;
 
 use Portalbox\Config;
+
 use Portalbox\Entity\CardType;
 use Portalbox\Entity\LoggedEvent as AbstractLoggedEvent;
 
@@ -15,22 +16,22 @@ class LoggedEvent extends AbstractLoggedEvent {
 	/**
 	 * The id of this event's card's type
 	 */
-	private ?int $card_type_id = null;
+	private ?int $card_type_id = NULL;
 
 	/**
 	 * The name of this event's equipment's name
 	 */
-	private ?string $equipment_name = null;
+	private ?string $equipment_name = NULL;
 
 	/**
 	 * The name of this event's equipment's location's name
 	 */
-	private ?string $location_name = null;
+	private ?string $location_name = NULL;
 
 	/**
 	 * The name of this event's user's name
 	 */
-	private ?string $user_name = null;
+	private ?string $user_name = NULL;
 
 	/**
 	 * @param Config configuration - the configuration to use
@@ -102,7 +103,7 @@ class LoggedEvent extends AbstractLoggedEvent {
 	 * Get this event's user's name
 	 */
 	public function user_name(): string {
-		if (CardType::TRAINING == $this->card_type_id) {
+		if(CardType::TRAINING == $this->card_type_id) {
 			return 'Trainer';
 		}
 

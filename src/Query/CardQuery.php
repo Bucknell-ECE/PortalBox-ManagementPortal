@@ -32,7 +32,7 @@ class CardQuery {
 	 *
 	 * @return int - the equipment type id
 	 */
-	public function equipment_type_id(): ?int {
+	public function equipment_type_id() : ?int {
 		return $this->equipment_type_id;
 	}
 
@@ -42,7 +42,7 @@ class CardQuery {
 	 * @param int equipment_type_id - the equipment id
 	 * @return self
 	 */
-	public function set_equipment_type_id(int $type_id): self {
+	public function set_equipment_type_id(int $type_id) : self {
 		$this->equipment_type_id = $type_id;
 		return $this;
 	}
@@ -52,7 +52,7 @@ class CardQuery {
 	 *
 	 * @return int - the user id
 	 */
-	public function user_id(): ?int {
+	public function user_id() : ?int {
 		return $this->user_id;
 	}
 
@@ -62,7 +62,7 @@ class CardQuery {
 	 * @param int user_id - the user id
 	 * @return self
 	 */
-	public function set_user_id(int $user_id): self {
+	public function set_user_id(int $user_id) : self {
 		$this->user_id = $user_id;
 		return $this;
 	}
@@ -72,7 +72,7 @@ class CardQuery {
 	 *
 	 * @return int - the card id
 	 */
-	public function id(): ?int {
+	public function id() : ?int  {
 		return $this->id;
 	}
 
