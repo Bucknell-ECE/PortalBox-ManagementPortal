@@ -22,7 +22,7 @@ class UserCard extends Card {
 	 *
 	 * @return int - type one of the predefined constants exposed by CardType
 	 */
-	public function type_id(): int {
+	public function type_id() : int {
 		return CardType::USER;
 	}
 
@@ -31,7 +31,7 @@ class UserCard extends Card {
 	 *
 	 * @return int - the id of the user to whom this card was issued
 	 */
-	public function user_id(): ?int {
+	public function user_id() : ?int {
 		return $this->user_id;
 	}
 
@@ -41,9 +41,9 @@ class UserCard extends Card {
 	 * @param int user_id - the id of the user to whom this card was issued
 	 * @return self
 	 */
-	public function set_user_id(?int $user_id): self {
+	public function set_user_id(?int $user_id) : self {
 		$this->user_id = $user_id;
-		$this->user = null; //Create new user from user_id
+		$this->user = NULL; //Create new user from user_id
 		return $this;
 	}
 
@@ -52,7 +52,7 @@ class UserCard extends Card {
 	 *
 	 * @return User|null - user to whom this card was issued
 	 */
-	public function user(): ?User {
+	public function user() : ?User {
 		return $this->user;
 	}
 
@@ -62,9 +62,9 @@ class UserCard extends Card {
 	 * @param User|null user - user to whom this card was issued
 	 * @return self
 	 */
-	public function set_user(?User $user): self {
+	public function set_user(?User $user) : self {
 		$this->user = $user;
-		if (null === $user) {
+		if(NULL === $user) {
 			$this->user_id = -1;
 		} else {
 			$this->user_id = $user->id();

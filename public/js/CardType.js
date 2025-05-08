@@ -11,17 +11,15 @@ export class CardType {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async list() {
-		const response = await fetch("/api/card-types.php", { "credentials": "same-origin" });
+	static list() {
+		return fetch("/api/card-types.php", {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to list card types";
+			throw "API was unable to list card types";
+		});
 	}
 }

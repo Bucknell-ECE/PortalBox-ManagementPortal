@@ -18,7 +18,7 @@ class Location {
 	protected string $name = '';
 
 	/** Get the name of this location */
-	public function name(): string {
+	public function name() : string {
 		return $this->name;
 	}
 
@@ -27,8 +27,8 @@ class Location {
 	 *
 	 * @throws InvalidArgumentException if the name is the empty string
 	 */
-	public function set_name(string $name): self {
-		if ($name === '') {
+	public function set_name(string $name) : self {
+		if($name === '') {
 			throw new InvalidArgumentException('You must specify the location\'s name');
 		}
 

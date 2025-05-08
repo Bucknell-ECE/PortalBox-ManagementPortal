@@ -6,6 +6,7 @@ use Portalbox\Entity\User;
 use Portalbox\Model\Entity\User as PDOAwareUser;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\UserQuery;
+
 use PDO;
 
 /**
@@ -19,19 +20,20 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be saved
 	 */
-	public function create(User $user): ?User {
+	public function create(User $user) : ?User {
 		$connection = $this->configuration()->writable_db_connection();
-		$sql = 'INSERT INTO users (name, email, comment, role_id, is_active) VALUES (:name, :email, :comment, :role_id, :is_active)';
+		$sql = 'INSERT INTO users (name, email, comment, pin, role_id, is_active) VALUES (:name, :email, :comment, :pin, :role_id, :is_active)';
 		$statement = $connection->prepare($sql);
 
 		$statement->bindValue(':name', $user->name());
 		$statement->bindValue(':email', $user->email());
 		$statement->bindValue(':comment', $user->comment());
+		$statement->bindValue(':pin', $user->pin());
 		$statement->bindValue(':is_active', $user->is_active(), PDO::PARAM_BOOL);
 		$statement->bindValue(':role_id', $user->role()->id(), PDO::PARAM_INT);
 
-		if ($connection->beginTransaction()) {
-			if ($statement->execute()) {
+		if($connection->beginTransaction()) {
+			if($statement->execute()) {
 				// Add in authorizations
 				$user_id = $connection->lastInsertId('users_id_seq');
 
@@ -40,10 +42,10 @@ class UserModel extends AbstractModel {
 				$sql = 'INSERT INTO authorizations (user_id, equipment_type_id) VALUES (:user_id, :equipment_type_id)';
 				$statement = $connection->prepare($sql);
 
-				foreach ($authorizations as $equipment_type_id) {
+				foreach($authorizations as $equipment_type_id) {
 					$statement->bindValue(':user_id', $user_id, PDO::PARAM_INT);
 					$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
-					if (!$statement->execute()) {
+					if(!$statement->execute()) {
 						// cancel transaction
 						$connection->rollBack();
 						return null;
@@ -71,19 +73,19 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be found
 	 */
-	public function read(int $id): ?User {
+	public function read(int $id) : ?User {
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id WHERE u.id = :id';
+		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.pin, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id WHERE u.id = :id';
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':id', $id, PDO::PARAM_INT);
-		if ($statement->execute()) {
-			if ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
+		if($statement->execute()) {
+			if($data = $statement->fetch(PDO::FETCH_ASSOC)) {
 				$user = $this->buildUserFromArray($data);
 
 				$sql = 'SELECT equipment_type_id FROM authorizations WHERE user_id = :user_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':user_id', $data['id'], PDO::PARAM_INT);
-				if ($query->execute()) {
+				if($query->execute()) {
 					return $user->set_authorizations(array_map('intval', $query->fetchAll(PDO::FETCH_COLUMN)));
 				}
 
@@ -103,29 +105,31 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be saved
 	 */
-	public function update(User $user): ?User {
+	public function update(User $user) : ?User {
 		$user_id = $user->id();
 		$authorizations = $user->authorizations();
 		$old_authorizations = $this->read($user_id)->authorizations();
 
 		$connection = $this->configuration()->writable_db_connection();
-		$sql = 'UPDATE users SET name = :name, email = :email, comment = :comment, role_id = :role_id, is_active = :is_active WHERE id = :id';
+		$sql = 'UPDATE users SET name = :name, email = :email, comment = :comment, pin = :pin, role_id = :role_id, is_active = :is_active WHERE id = :id';
 		$statement = $connection->prepare($sql);
 
 		$statement->bindValue(':id', $user->id(), PDO::PARAM_INT);
 		$statement->bindValue(':name', $user->name());
 		$statement->bindValue(':email', $user->email());
 		$statement->bindValue(':comment', $user->comment());
+		$statement->bindValue(':pin', $user->pin());
 		$statement->bindValue(':is_active', $user->is_active(), PDO::PARAM_BOOL);
 		$statement->bindValue(':role_id', $user->role()->id(), PDO::PARAM_INT);
 
-		if ($connection->beginTransaction()) {
-			if ($statement->execute()) {
+		if($connection->beginTransaction()) {
+			if($statement->execute()) {
 				$user = (new PDOAwareUser($this->configuration()))
 					->set_id($user->id())
 					->set_name($user->name())
 					->set_email($user->email())
 					->set_comment($user->comment())
+					->set_pin($user->pin())
 					->set_is_active($user->is_active())
 					->set_role_id($user->role()->id());
 
@@ -141,10 +145,10 @@ class UserModel extends AbstractModel {
 				$sql = 'INSERT INTO authorizations (user_id, equipment_type_id) VALUES (:user_id, :equipment_type_id)';
 				$statement = $connection->prepare($sql);
 
-				foreach ($added_authorizations as $equipment_type_id) {
+				foreach($added_authorizations as $equipment_type_id) {
 					$statement->bindValue(':user_id', $user_id, PDO::PARAM_INT);
 					$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
-					if (!$statement->execute()) {
+					if(!$statement->execute()) {
 						// cancel transaction
 						$connection->rollBack();
 						return null;
@@ -154,10 +158,10 @@ class UserModel extends AbstractModel {
 				$sql = 'DELETE FROM authorizations WHERE user_id = :user_id AND equipment_type_id = :equipment_type_id';
 				$statement = $connection->prepare($sql);
 
-				foreach ($removed_authorizations as $equipment_type_id) {
+				foreach($removed_authorizations as $equipment_type_id) {
 					$statement->bindValue(':user_id', $user_id, PDO::PARAM_INT);
 					$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
-					if (!$statement->execute()) {
+					if(!$statement->execute()) {
 						// cancel transaction
 						$connection->rollBack();
 						return null;
@@ -182,15 +186,15 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be found
 	 */
-	public function delete(int $id): ?User {
+	public function delete(int $id) : ?User {
 		$user = $this->read($id);
 
-		if (null !== $user) {
+		if(NULL !== $user) {
 			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM users WHERE id = :id';
 			$statement = $connection->prepare($sql);
 			$statement->bindValue(':id', $id, PDO::PARAM_INT);
-			if (!$statement->execute()) {
+			if(!$statement->execute()) {
 				print_r($connection->errorCode());
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
@@ -206,20 +210,20 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User[]|null - a list of users which match the search query
 	 */
-	public function search(UserQuery $query): ?array {
-		if (null === $query) {
+	public function search(UserQuery $query) : ?array {
+		if(NULL === $query) {
 			// no query... bail
-			return null;
+			return NULL;
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id';
+		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.pin, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id';
 		$where_clause_fragments = array();
 		$parameters = array();
 		$modifier = "";
 
-		if (null !== $query->include_inactive()) {
-			if ($query->include_inactive() === 0) {
+		if(NULL !== $query->include_inactive()) {
+			if($query->include_inactive() === 0) {
 				$where_clause_fragments[] = 'u.is_active = :is_active';
 				$parameters[':is_active'] = 1;
 			}
@@ -227,38 +231,38 @@ class UserModel extends AbstractModel {
 			$where_clause_fragments[] = 'u.is_active = :is_active';
 			$parameters[':is_active'] = 1;
 		}
-		if (null !== $query->role_id()) {
+		if(NULL !== $query->role_id()) {
 			$where_clause_fragments[] = 'role_id = :role_id';
 			$parameters[':role_id'] = $query->role_id();
 		}
-		if (null !== $query->email()) {
+		if(NULL !== $query->email()) {
 			$where_clause_fragments[] = 'email = :email';
 			$parameters[':email'] = $query->email();
-		} elseif (null !== $query->name()) {
+		} elseif(NULL !== $query->name()) {
 			$where_clause_fragments[] = 'u.name LIKE :name';
 			$parameters[':name'] = '%' . $query->name() . '%';
-		} elseif (null !== $query->comment()) {
+		} elseif(NULL !== $query->comment()) {
 			$where_clause_fragments[] = 'u.comment LIKE :comment';
 			$parameters[':comment'] = '%' . $query->comment() . '%';
-		} elseif (null !== $query->equipment_id()) {
+		} elseif(NULL !== $query->equipment_id()) {
 			$sql .= ' INNER JOIN authorizations AS a ON u.id = a.user_id';
 			$where_clause_fragments[] = 'a.equipment_type_id = :equipment_id';
 			$parameters[':equipment_id'] = $query->equipment_id();
 		}
-		if (0 < count($where_clause_fragments)) {
+		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
 
 		$statement = $connection->prepare($sql);
 		// run search
-		foreach ($parameters as $k => $v) {
+		foreach($parameters as $k => $v) {
 			$statement->bindValue($k, $v);
 		}
 
-		if ($statement->execute()) {
+		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
+			if(FALSE !== $data) {
 				return $this->buildUsersFromArrays($data);
 			} else {
 				return null;
@@ -268,21 +272,22 @@ class UserModel extends AbstractModel {
 		}
 	}
 
-	private function buildUserFromArray(array $data): User {
+	private function buildUserFromArray(array $data) : User {
 		return (new PDOAwareUser($this->configuration()))
 					->set_id($data['id'])
 					->set_name($data['name'])
 					->set_email($data['email'])
 					->set_comment($data['comment'])
+					->set_pin($data['pin'])
 					->set_is_active($data['is_active'])
 					->set_role_id($data['role_id'])
 					->set_role_name($data['role']);
 	}
 
-	private function buildUsersFromArrays(array $data): array {
+	private function buildUsersFromArrays(array $data) : array {
 		$users = array();
 
-		foreach ($data as $datum) {
+		foreach($data as $datum) {
 			$users[] = $this->buildUserFromArray($datum);
 		}
 

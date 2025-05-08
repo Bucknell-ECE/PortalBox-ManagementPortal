@@ -3,16 +3,18 @@
 namespace Portalbox;
 
 use InvalidArgumentException;
+
 use Portalbox\Transform\NullOutputTransformer;
 use Portalbox\Transform\OutputTransformer;
 
 /**
- * OutputTransformer - Is used to send encoded responses to a requester. Can
+ * OuptputTransformer - Is used to send encoded responses to a requester. Can
  * be subclassed to control the fields exposed in the response. Subclasses
  * may override json_encode_entity, json_encode_list, get_cvs_header,
  * list_item_to_array.
  */
 class ResponseHandler {
+
 	/**
 	 * Encodes and sends data to the requester
 	 *
@@ -25,14 +27,14 @@ class ResponseHandler {
 	 *     true or a dictionary whose values are null, string, int, and float
 	 *     otherwise
 	 */
-	public static function render($data, ?OutputTransformer $transformer = null): void {
-		if (null === $transformer) {
+	public static function render($data, ?OutputTransformer $transformer = null) {
+		if(NULL === $transformer) {
 			$transformer = new NullOutputTransformer();
 		}
 
-		if (null === $data) {
+		if(NULL === $data) {
 			throw new InvalidArgumentException('Unable to transform NULL value into response data');
-		} else if (is_array($data)) {
+		} else if(is_array($data)) {
 			self::render_list_response($transformer, $data);
 		} else {
 			self::render_entity_response($transformer, $data);
@@ -47,12 +49,12 @@ class ResponseHandler {
 	 */
 	private static function render_list_response(OutputTransformer $transformer, $data): void {
 		// check request for desired encoding
-		switch ($_SERVER['HTTP_ACCEPT']) {
+		switch($_SERVER['HTTP_ACCEPT']) {
 			case 'text/csv':
 				header('Content-Type: text/csv');
 				$out = fopen('php://output', 'w');
 				fputcsv($out, $transformer->get_column_headers());
-				foreach ($data as $list_item) {
+				foreach($data as $list_item) {
 					fputcsv($out, array_values($transformer->serialize($list_item)));
 				}
 				fclose($out);
@@ -60,12 +62,12 @@ class ResponseHandler {
 			case 'application/json':
 			default:
 				$transformed = [];
-				foreach ($data as $list_item) {
+				foreach($data as $list_item) {
 					$transformed[] = $transformer->serialize($list_item);
 				}
 				$encoded = json_encode($transformed);
 
-				if (false !== $encoded) {
+				if(false !== $encoded) {
 					header('Content-Type: application/json');
 					echo $encoded;
 				} else {
@@ -83,7 +85,7 @@ class ResponseHandler {
 	private static function render_entity_response(OutputTransformer $transformer, $data): void {
 		$encoded = json_encode($transformer->serialize($data, true));
 
-		if (false !== $encoded) {
+		if(false !== $encoded) {
 			header('Content-Type: application/json');
 			echo $encoded;
 		} else {

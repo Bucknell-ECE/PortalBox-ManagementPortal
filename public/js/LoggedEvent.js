@@ -12,17 +12,15 @@ export class LoggedEvent {
 	 * @throws {SessionTimeOutError} - if the user session has expired
 	 * @throws {String} - if any other error occurs
 	 */
-	static async list(query = '') {
-		const response = await fetch("/api/logs.php?" + query, { "credentials": "same-origin" });
+	static list(query = '') {
+		return fetch("/api/logs.php?" + query, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to retrieve specified log segment";
+			throw "API was unable to retrieve specified log segment";
+		});
 	}
 }

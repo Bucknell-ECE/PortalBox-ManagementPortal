@@ -12,40 +12,36 @@ export class Payment {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async list(query = '') {
-		const response = await fetch("/api/payments.php?" + query, { "credentials": "same-origin" });
+	static list(query = '') {
+		return fetch("/api/payments.php?" + query, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to list payments";
+			throw "API was unable to list payments";
+		});
 	}
 
 	/**
 	 * Get a payment by id
 	 *
-	 * @param int id the unique id of the Payment to retrieve
+	 * @param int id the unique id of the Payment to retreive
 	 * @return Payment specified by the id
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async read(id) {
-		const response = await fetch("/api/payments.php?id=" + id, { "credentials": "same-origin" });
+	static read(id) {
+		return fetch("/api/payments.php?id=" + id, {"credentials": "same-origin"}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
 
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to find payment: " + id;
+			throw "API was unable to find payment: " + id;
+		});
 	}
 
 	/**
@@ -55,25 +51,23 @@ export class Payment {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async create(data) {
-		const response = await fetch("/api/payments.php", {
+	static create(data) {
+		return fetch("/api/payments.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "PUT"
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+	
+			throw "API was unable to save new payment";
 		});
-
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to save new payment";
 	}
 
 	/**
@@ -84,24 +78,22 @@ export class Payment {
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
-	static async modify(id, data) {
-		const response = await fetch("/api/payments.php?id=" + id, {
+	static modify(id, data) {
+		return fetch("/api/payments.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			method: "POST"
+		}).then(response => {
+			if(response.ok) {
+				return response.json();
+			} else if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+	
+			throw "API was unable to save payment";
 		});
-
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to save payment";
 	}
 }

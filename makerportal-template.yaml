@@ -1,0 +1,398 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "MakerPortal Turnkey Deployment"
+
+Parameters:
+  DBName:
+    Type: String
+    Default: "makerportal"
+
+  DBUser:
+    Type: String
+    Default: "admin"
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+
+  DBPassword:
+    Type: String
+    NoEcho: true
+
+  OAuthClientID:
+    Type: String
+
+  AdminName:
+    Type: String
+    Description: "Admin user's full name"
+
+  AdminEmail:
+    Type: String
+    Description: "Admin user's email"
+
+  AMIId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-03267e5440a28b3ce
+
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+
+Resources:
+  # VPC and Networking Resources
+  MakerportalVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MakerportalVPC
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: MakerportalIGW
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MakerportalVPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # Create subnets in two AZs for RDS requirements
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MakerportalVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MakerportalPublicSubnet1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MakerportalVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: MakerportalPublicSubnet2
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MakerportalVPC
+      Tags:
+        - Key: Name
+          Value: MakerportalPublicRouteTable
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  # Security Groups
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow SSH, HTTP, HTTPS and MySQL"
+      VpcId: !Ref MakerportalVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+
+  # Database Resources
+  DBParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description: "Parameter group for MakerPortal database"
+      Family: mysql8.0
+      Parameters:
+        log_bin_trust_function_creators: 1
+        max_allowed_packet: 16777216
+        character_set_server: utf8mb4
+        collation_server: utf8mb4_unicode_ci
+        max_connections: 100
+        wait_timeout: 28800
+        interactive_timeout: 28800
+
+  # Create DB Subnet Group with both subnets
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "Subnet group for MakerPortal database"
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+
+  MakerportalDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: !Ref DBName
+      Engine: mysql
+      EngineVersion: 8.0
+      MasterUsername: !Ref DBUser
+      MasterUserPassword: !Ref DBPassword
+      AllocatedStorage: 20
+      DBInstanceClass: db.t3.micro
+      PubliclyAccessible: true
+      DBParameterGroupName: !Ref DBParameterGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      VPCSecurityGroups:
+        - !GetAtt AppSecurityGroup.GroupId
+
+  # EC2 Instance
+  AppInstance:
+    Type: AWS::EC2::Instance
+    DependsOn: MakerportalDB
+    Properties:
+      InstanceType: t3.micro
+      ImageId: !Ref AMIId
+      KeyName: !Ref KeyName
+      SubnetId: !Ref PublicSubnet1
+      SecurityGroupIds:
+        - !Ref AppSecurityGroup
+      UserData:
+        Fn::Base64: 
+          !Join ["", [
+            "#!/bin/bash -xe\n",
+            "\n",
+            "# Set up logging\n",
+            "exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1\n",
+            "\n",
+            "echo \"Starting MakerPortal setup script\"\n",
+            "\n",
+            "CONFIG_PATH=\"/var/www/html/portalbox/config/config.ini\"\n",
+            "DB_HOST=\"", !GetAtt MakerportalDB.Endpoint.Address, "\"\n",
+            "DB_NAME=\"", !Ref DBName, "\"\n",
+            "DB_USER=\"", !Ref DBUser, "\"\n",
+            "DB_PASS=\"", !Ref DBPassword, "\"\n",
+            "\n",
+            "echo \"Setting up config.ini\"\n",
+            "mkdir -p /var/www/html/portalbox/config\n",
+            "cat > $CONFIG_PATH <<EOF\n",
+            "[database]\n",
+            "driver=mysql\n",
+            "host=$DB_HOST\n",
+            "database=$DB_NAME\n",
+            "username=$DB_USER\n",
+            "password=$DB_PASS\n",
+            "\n",
+            "[oauth]\n",
+            "google_oauth_client_id=", !Ref OAuthClientID, "\n",
+            "EOF\n",
+            "\n",
+            "echo \"Config created at $CONFIG_PATH\"\n",
+            "\n",
+            "# Wait for DB to be ready with better error handling\n",
+            "echo \"Waiting for DB to be ready at $DB_HOST...\"\n",
+            "MAX_RETRIES=60\n",
+            "COUNT=0\n",
+            "DB_READY=false\n",
+            "\n",
+            "while [ $COUNT -lt $MAX_RETRIES ]; do\n",
+            "  echo \"Attempt $COUNT to connect to database...\"\n",
+            "  \n",
+            "  if mysql -h $DB_HOST -u $DB_USER -p$DB_PASS -e \"SELECT 1;\" $DB_NAME; then\n",
+            "    echo \"Successfully connected to database!\"\n",
+            "    DB_READY=true\n",
+            "    break\n",
+            "  else\n",
+            "    echo \"Database not ready yet, waiting...\"\n",
+            "    sleep 10\n",
+            "    COUNT=$((COUNT+1))\n",
+            "  fi\n",
+            "done\n",
+            "\n",
+            "if [ \"$DB_READY\" = false ]; then\n",
+            "  echo \"ERROR: Could not connect to database after $MAX_RETRIES attempts. Exiting.\"\n",
+            "  exit 1\n",
+            "fi\n",
+            "\n",
+            "# Find schema file (search multiple locations)\n",
+            "SCHEMA_PATH=\"\"\n",
+            "POSSIBLE_LOCATIONS=(\n",
+            "  \"/var/www/html/portalbox/config/schema.sql\"\n",
+            "  \"/var/www/html/portalbox/schema.sql\"\n",
+            "  \"/var/www/portalbox/config/schema.sql\"\n",
+            "  \"/var/www/portalbox/schema.sql\"\n",
+            "  \"/var/www/html/config/schema.sql\"\n",
+            "  \"/var/www/schema.sql\"\n",
+            ")\n",
+            "\n",
+            "for location in \"${POSSIBLE_LOCATIONS[@]}\"; do\n",
+            "  if [ -f \"$location\" ]; then\n",
+            "    SCHEMA_PATH=\"$location\"\n",
+            "    echo \"Found schema file at $SCHEMA_PATH\"\n",
+            "    break\n",
+            "  fi\n",
+            "done\n",
+            "\n",
+            "if [ -z \"$SCHEMA_PATH\" ]; then\n",
+            "  echo \"Searching for schema.sql in the entire /var/www directory...\"\n",
+            "  FOUND_SCHEMA=$(find /var/www -name \"schema.sql\" -type f | head -1)\n",
+            "  \n",
+            "  if [ -n \"$FOUND_SCHEMA\" ]; then\n",
+            "    SCHEMA_PATH=\"$FOUND_SCHEMA\"\n",
+            "    echo \"Found schema file at $SCHEMA_PATH\"\n",
+            "  else\n",
+            "    echo \"ERROR: No schema.sql file found in /var/www. Trying to download instead.\"\n",
+            "    SCHEMA_PATH=\"/tmp/schema.sql\"\n",
+            "    wget -O $SCHEMA_PATH https://raw.githubusercontent.com/Bucknell-ECE/PortalBox-database/master/schema/schema.sql\n",
+            "  fi\n",
+            "fi\n",
+            "\n",
+            "if [ ! -f \"$SCHEMA_PATH\" ]; then\n",
+            "  echo \"ERROR: Could not find or download schema file. Exiting.\"\n",
+            "  exit 1\n",
+            "fi\n",
+            "\n",
+            "# Apply schema with extensive error checking\n",
+            "echo \"Applying schema to database from $SCHEMA_PATH...\"\n",
+            "\n",
+            "# Modify the schema to include SQL_SECURITY INVOKER for functions\n",
+            "echo \"Adding SQL_SECURITY INVOKER to functions in schema...\"\n",
+            "sed -i 's/CREATE FUNCTION get_user_balance_for_card/CREATE FUNCTION get_user_balance_for_card/g' $SCHEMA_PATH\n",
+            "sed -i 's/READS SQL DATA/READS SQL DATA\\n    SQL SECURITY INVOKER/g' $SCHEMA_PATH\n",
+            "\n",
+            "# Apply schema with verbose output\n",
+            "mysql -h $DB_HOST -u $DB_USER -p$DB_PASS $DB_NAME < $SCHEMA_PATH\n",
+            "SCHEMA_RESULT=$?\n",
+            "\n",
+            "if [ $SCHEMA_RESULT -ne 0 ]; then\n",
+            "  echo \"ERROR: Failed to apply schema to database (exit code: $SCHEMA_RESULT)\"\n",
+            "  echo \"Trying to apply schema in smaller chunks...\"\n",
+            "  \n",
+            "  # Split the schema file and apply it in chunks\n",
+            "  csplit -f \"/tmp/schema_part_\" $SCHEMA_PATH \"/DROP PROCEDURE/\" \"/DROP FUNCTION/\" \"/CREATE TABLE/\" \"/INSERT INTO/\" \"/DELIMITER/\" \"/CREATE PROCEDURE/\" \"/CREATE FUNCTION/\" \"{*}\"\n",
+            "  \n",
+            "  for part in /tmp/schema_part_*; do\n",
+            "    echo \"Applying schema part: $part\"\n",
+            "    mysql -h $DB_HOST -u $DB_USER -p$DB_PASS $DB_NAME < $part\n",
+            "    if [ $? -ne 0 ]; then\n",
+            "      echo \"WARNING: Error applying schema part $part\"\n",
+            "    fi\n",
+            "  done\n",
+            "fi\n",
+            "\n",
+            "# Verify schema was applied by checking for users table\n",
+            "echo \"Verifying schema was applied...\"\n",
+            "if ! mysql -h $DB_HOST -u $DB_USER -p$DB_PASS -e \"SHOW TABLES;\" $DB_NAME | grep -q \"users\"; then\n",
+            "  echo \"ERROR: Schema verification failed - users table does not exist\"\n",
+            "  \n",
+            "  # Last resort - apply minimal schema to create basic tables\n",
+            "  echo \"Attempting to create minimal schema...\"\n",
+            "  mysql -h $DB_HOST -u $DB_USER -p$DB_PASS $DB_NAME <<EOSQL\n",
+            "CREATE TABLE IF NOT EXISTS roles (\n",
+            "    id INT UNSIGNED AUTO_INCREMENT NOT NULL,\n",
+            "    name TEXT NOT NULL,\n",
+            "    is_system_role INT(1) UNSIGNED NOT NULL DEFAULT 0,\n",
+            "    description TEXT,\n",
+            "    PRIMARY KEY (id)\n",
+            ");\n",
+            "\n",
+            "INSERT IGNORE INTO roles(id, name, is_system_role, description) VALUES\n",
+            "    (1, 'unauthenticated', 1, 'Role of users who have not authenticated'),\n",
+            "    (2, 'user', 1, 'Role of authenticated users who have not be granted additional permissions.'),\n",
+            "    (3, 'admin', 1, 'Role for users who administer the system.');\n",
+            "\n",
+            "CREATE TABLE IF NOT EXISTS users (\n",
+            "    id INT UNSIGNED AUTO_INCREMENT NOT NULL,\n",
+            "    name TEXT NOT NULL,\n",
+            "    email VARCHAR(512) NOT NULL,\n",
+            "    comment TEXT,\n",
+            "    role_id INT UNSIGNED NOT NULL,\n",
+            "    is_active INT(1) UNSIGNED NOT NULL,\n",
+            "    PRIMARY KEY (id)\n",
+            ");\n",
+            "\n",
+            "CREATE TABLE IF NOT EXISTS api_keys (\n",
+            "    id INT UNSIGNED AUTO_INCREMENT NOT NULL,\n",
+            "    name TEXT NOT NULL,\n",
+            "    token CHAR(32) NOT NULL,\n",
+            "    PRIMARY KEY(id)\n",
+            ");\n",
+            "EOSQL\n",
+            "else\n",
+            "  echo \"Schema verification successful - users table exists\"\n",
+            "fi\n",
+            "\n",
+            "# Insert admin user\n",
+            "echo \"Creating admin user: ", !Ref AdminEmail, "\"\n",
+            "mysql -h $DB_HOST -u $DB_USER -p$DB_PASS $DB_NAME <<EOSQL\n",
+            "INSERT INTO users (name, email, role_id, is_active)\n",
+            "VALUES ('", !Ref AdminName, "', '", !Ref AdminEmail, "', 3, 1);\n",
+            "EOSQL\n",
+            "\n",
+            "# Generate and insert API key\n",
+            "echo \"Generating API key...\"\n",
+            "API_KEY=$(cat /proc/sys/kernel/random/uuid | tr -d '-')\n",
+            "mysql -h $DB_HOST -u $DB_USER -p$DB_PASS $DB_NAME <<EOSQL\n",
+            "INSERT INTO api_keys (name, token)\n",
+            "VALUES ('Makerportal', '$API_KEY');\n",
+            "EOSQL\n",
+            "\n",
+            "echo \"API key generated and stored: $API_KEY\"\n",
+            "echo \"API key: $API_KEY\" > /home/ec2-user/api_key.txt\n",
+            "\n",
+            "# Update file permissions\n",
+            "echo \"Setting permissions on MakerPortal files...\"\n",
+            "find /var/www -type d -exec chmod 755 {} \\;\n",
+            "find /var/www -type f -exec chmod 644 {} \\;\n",
+            "chown -R apache:apache /var/www/html\n",
+            "\n",
+            "# Restart Apache\n",
+            "echo \"Restarting Apache...\"\n",
+            "systemctl restart httpd\n",
+            "\n",
+            "echo \"MakerPortal setup complete!\"\n"
+          ]]
+
+Outputs:
+  WebsiteURL:
+    Description: "URL for the MakerPortal website"
+    Value: !Sub "http://${AppInstance.PublicDnsName}"
+  
+  DbEndpoint:
+    Description: "Endpoint for the RDS Database"
+    Value: !GetAtt MakerportalDB.Endpoint.Address
+  
+  VPCID:
+    Description: "VPC ID"
+    Value: !Ref MakerportalVPC
+  
+  SubnetID:
+    Description: "Public Subnet ID"
+    Value: !Ref PublicSubnet1

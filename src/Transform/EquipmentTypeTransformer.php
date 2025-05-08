@@ -3,6 +3,7 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
+
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
 
@@ -18,23 +19,23 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 	 * @return EquipmentType - a valid entity object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
-	public function deserialize(array $data): EquipmentType {
-		if (!array_key_exists('name', $data)) {
+	public function deserialize(array $data) : EquipmentType {
+		if(!array_key_exists('name', $data)) {
 			throw new InvalidArgumentException('\'name\' is a required field');
 		}
-		if (!array_key_exists('requires_training', $data)) {
+		if(!array_key_exists('requires_training', $data)) {
 			throw new InvalidArgumentException('\'requires_training\' is a required field');
 		}
-		if (!array_key_exists('charge_policy_id', $data)) {
+		if(!array_key_exists('charge_policy_id', $data)) {
 			throw new InvalidArgumentException('\'charge_policy_id\' is a required field');
 		}
-		if (!ChargePolicy::is_valid($data['charge_policy_id'])) {
+		if(!ChargePolicy::is_valid($data['charge_policy_id'])) {
 			throw new InvalidArgumentException('\'charge_policy_id\' must be a valid charge policy id');
 		}
-		if (!array_key_exists('charge_rate', $data)) {
+		if(!array_key_exists('charge_rate', $data)) {
 			throw new InvalidArgumentException('\'charge_rate\' is a required field');
 		}
-		if (!array_key_exists('allow_proxy', $data)) {
+		if(!array_key_exists('allow_proxy', $data)) {
 			throw new InvalidArgumentException('\'allow_proxy\' is a required field');
 		}
 
@@ -57,8 +58,8 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
 	 */
-	public function serialize($data, bool $traverse = false): array {
-		if ($traverse) {
+	public function serialize($data, bool $traverse = false) : array {
+		if($traverse) {
 			return [
 				'id' => $data->id(),
 				'name' => $data->name(),
@@ -87,7 +88,7 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
-	public function get_column_headers(): array {
+	public function get_column_headers() : array {
 		return ['id', 'Name', 'Requires Training', 'Charge Rate', 'Charge Policy', "Allow Proxy"];
 	}
 }

@@ -5,6 +5,7 @@ namespace Portalbox\Model;
 use Portalbox\Entity\APIKey;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\APIKeyQuery;
+
 use PDO;
 
 /**
@@ -18,7 +19,7 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey|null - the api key or null if the key could not be saved
 	 */
-	public function create(APIKey $key): ?APIKey {
+	public function create(APIKey $key) : ?APIKey {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO api_keys (name, token) VALUES (:name, :token)';
 		$statement = $connection->prepare($sql);
@@ -26,7 +27,7 @@ class APIKeyModel extends AbstractModel {
 		$statement->bindValue(':name', $key->name());
 		$statement->bindValue(':token', $key->token());
 
-		if ($statement->execute()) {
+		if($statement->execute()) {
 			return $key->set_id($connection->lastInsertId('api_keys_id_seq'));
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -40,13 +41,13 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey|null - the api key or null if the key could not be found
 	 */
-	public function read(int $id): ?APIKey {
+	public function read(int $id) : ?APIKey {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, token FROM api_keys WHERE id = :id';
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':id', $id, PDO::PARAM_INT);
-		if ($statement->execute()) {
-			if ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
+		if($statement->execute()) {
+			if($data = $statement->fetch(PDO::FETCH_ASSOC)) {
 				return $this->buildAPIKeyFromArray($data);
 			} else {
 				return null;
@@ -63,7 +64,7 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey|null - the key or null if the key could not be saved
 	 */
-	public function update(APIKey $key): ?APIKey {
+	public function update(APIKey $key) : ?APIKey {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE api_keys SET name = :name WHERE id = :id';
 		$statement = $connection->prepare($sql);
@@ -72,13 +73,13 @@ class APIKeyModel extends AbstractModel {
 		$statement->bindValue(':name', $key->name());
 		// this is weird... we don't update the token because it is immutable
 
-		if ($statement->execute()) {
+		if($statement->execute()) {
 			// fill in readonly fields...
 			$sql = 'SELECT token FROM api_keys WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $key->id(), PDO::PARAM_INT);
-			if ($query->execute()) {
-				if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
+			if($query->execute()) {
+				if($data = $query->fetch(PDO::FETCH_ASSOC)) {
 					$key->set_token($data['token']);
 				} else {
 					return null;
@@ -100,15 +101,15 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey|null - the api key or null if the key could not be found
 	 */
-	public function delete(int $id): ?APIKey {
+	public function delete(int $id) : ?APIKey {
 		$key = $this->read($id);
 
-		if (null !== $key) {
+		if(NULL !== $key) {
 			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM api_keys WHERE id = :id';
 			$statement = $connection->prepare($sql);
 			$statement->bindValue(':id', $id, PDO::PARAM_INT);
-			if (!$statement->execute()) {
+			if(!$statement->execute()) {
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
@@ -123,32 +124,32 @@ class APIKeyModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return APIKey[]|null - a list of api keys which match the search query
 	 */
-	public function search(APIKeyQuery $query): ?array {
-		if (null === $query) {
+	public function search(APIKeyQuery $query) : ?array {
+		if(NULL === $query) {
 			// no query... bail
-			return null;
+			return NULL;
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, token FROM api_keys';
 
 		$where_clause_fragments = array();
-		if (null !== $query->token()) {
+		if(NULL !== $query->token()) {
 			$where_clause_fragments[] = 'token = :token';
 		}
-		if (0 < count($where_clause_fragments)) {
+		if(0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= join(' AND ', $where_clause_fragments);
 		}
 
 		$statement = $connection->prepare($sql);
-		if (null !== $query->token()) {
+		if(NULL !== $query->token()) {
 			$statement->bindValue(':token', $query->token());
 		}
 
-		if ($statement->execute()) {
+		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
+			if(FALSE !== $data) {
 				return $this->buildAPIKeysFromArrays($data);
 			} else {
 				return null;
@@ -158,17 +159,17 @@ class APIKeyModel extends AbstractModel {
 		}
 	}
 
-	private function buildAPIKeyFromArray(array $data): APIKey {
+	private function buildAPIKeyFromArray(array $data) : APIKey {
 		return (new APIKey())
 			->set_id($data['id'])
 			->set_name($data['name'])
 			->set_token($data['token']);
 	}
 
-	private function buildAPIKeysFromArrays(array $data): array {
+	private function buildAPIKeysFromArrays(array $data) : array {
 		$keys = array();
 
-		foreach ($data as $datum) {
+		foreach($data as $datum) {
 			$keys[] = $this->buildAPIKeyFromArray($datum);
 		}
 

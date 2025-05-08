@@ -7,8 +7,10 @@ namespace Portalbox\Transform;
  * instance from the data
  */
 interface InputTransformer {
+
 	/**
 	 * Get get an Entity instance from a serialized blob of data
 	 */
 	public function deserialize(array $data);
+
 }

@@ -8,6 +8,7 @@ use DomainException;
  * ConfigTransformer is our bridge between the Config and the outputable portion
  */
 class ConfigOutputTransformer implements OutputTransformer {
+
 	/**
 	 * Called to serialize a Config
 	 *
@@ -18,7 +19,7 @@ class ConfigOutputTransformer implements OutputTransformer {
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
 	 */
-	public function serialize($config, bool $traverse = false): array {
+	public function serialize($config, bool $traverse = false) : array {
 		return $config->web_ui_settings();
 	}
 
@@ -29,7 +30,7 @@ class ConfigOutputTransformer implements OutputTransformer {
 	 *
 	 * @return array - a list of strings that ccan be column headers
 	 */
-	public function get_column_headers(): array {
+	public function get_column_headers() : array {
 		throw new DomainException('Data does not support this operation');
 	}
 }
