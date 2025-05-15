@@ -1,0 +1,23 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/api/payments.php?id=1
+  body: text
+  auth: none
+}
+
+params:query {
+  id: 1
+}
+
+headers {
+  Cookie: {{auth_cookie}}
+}
+
+body:text {
+  {"id":"ignored", "amount":30, "time":"2019-04-10 15:42:00", "user_id": 105}
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Create
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{host}}/api/cards.php
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Cookie: {{auth_cookie}}
+}
+
+body:json {
+  {"id":"123456789", "type_id":1}
+}

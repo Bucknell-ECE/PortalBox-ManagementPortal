@@ -1,0 +1,23 @@
+meta {
+  name: Create User -API Key-
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{host}}/api/users.php
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{api-token}}
+}
+
+body:json {
+  {"id":"ignored", "name":"Steve Wozniak", "email":"woz@apple.com", "management_portal_access_level_id":1, "authorizations":[]}
+}
