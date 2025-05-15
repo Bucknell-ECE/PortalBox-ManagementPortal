@@ -1,41 +1,18 @@
 <?php
-// Error reporting at the very top
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 require '../../src/autoload.php';
+
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Session;
-use Portalbox\Entity\Permission;
-use Portalbox\Model\LoggedEventModel;
-use Portalbox\Query\LoggedEventQuery;
-use Portalbox\Transform\LoggedEventTransformer;
 
-// Debugging code
-try {
-    error_log("Attempting to load logs page");
-    
-    // Check user authentication
-    $user = Session::get_authenticated_user();
-    if (!$user) {
-        error_log("No authenticated user");
-        throw new Exception("Not authenticated");
-    }
-    
-    error_log("Authenticated user: " . $user->id());
-    
-    // Check permissions
-    if (!Session::check_authorization(Permission::LIST_LOGS)) {
-        error_log("User lacks LIST_LOGS permission");
-        throw new Exception("Insufficient permissions");
-    }
-} catch (Exception $e) {
-    error_log("Log page error: " . $e->getMessage());
-    http_response_code(403);
-    die("Authentication or Permission Error: " . $e->getMessage());
-}
+use Portalbox\Entity\Permission;
+
+use Portalbox\Model\LoggedEventModel;
+
+use Portalbox\Query\LoggedEventQuery;
+
+use Portalbox\Transform\LoggedEventTransformer;
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
