@@ -7,7 +7,6 @@
     "dependencies": {
         "file-saver": "^2.0.2",
         "hellojs": "^1.18.8",
-        "moostaka": "^1.0.3",
         "mustache": "^4.2.0"
     }
 }
