@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Entity\UserCard;
 use Portalbox\Entity\Equipment;
 use Portalbox\Entity\Location;

@@ -21,13 +21,18 @@ switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			$user_id = $_GET['id'];
+			// Special case: Always allow accessing own profile
+			$self_access = (int)$user_id === (int)Session::get_authenticated_user()->id();
+
 			// check authorization
-			if(Session::check_authorization(Permission::READ_OWN_USER)) {
-				if((int)$user_id !== (int)Session::get_authenticated_user()->id()) {
+			if(!$self_access) {
+				if(Session::check_authorization(Permission::READ_OWN_USER)) {
+					if((int)$user_id !== (int)Session::get_authenticated_user()->id()) {
+						Session::require_authorization(Permission::READ_USER);
+					}
+				} else {
 					Session::require_authorization(Permission::READ_USER);
 				}
-			} else {
-				Session::require_authorization(Permission::READ_USER);
 			}
 
 			try {
@@ -89,9 +94,14 @@ switch($_SERVER['REQUEST_METHOD']) {
 			die('You must specify the user to modify via the id param');
 		}
 
+		// Special case: Always allow patching own profile
+		$self_access = (int)$_GET['id'] === (int)Session::get_authenticated_user()->id();
+
 		// check authorization
-		if(!(Session::check_authorization(Permission::CREATE_EQUIPMENT_AUTHORIZATION) || Session::check_authorization(Permission::DELETE_EQUIPMENT_AUTHORIZATION))) {
-			Session::require_authorization(Permission::MODIFY_USER);
+		if(!$self_access) {
+			if(!(Session::check_authorization(Permission::CREATE_EQUIPMENT_AUTHORIZATION) || Session::check_authorization(Permission::DELETE_EQUIPMENT_AUTHORIZATION))) {
+				Session::require_authorization(Permission::MODIFY_USER);
+			}
 		}
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
@@ -129,12 +139,23 @@ switch($_SERVER['REQUEST_METHOD']) {
 			die('You must specify the user to modify via the id param');
 		}
 
+		// Special case: Always allow updating own profile
+		$self_access = (int)$_GET['id'] === (int)Session::get_authenticated_user()->id();
+
 		// check authorization
-		Session::require_authorization(Permission::MODIFY_USER);
+		if(!$self_access) {
+			Session::require_authorization(Permission::MODIFY_USER);
+		}
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
 			try {
+				// For self updates, maintain the current role
+				if($self_access && !isset($data['role_id'])) {
+					$current_user = Session::get_authenticated_user();
+					$data['role_id'] = $current_user->role()->id();
+				}
+
 				$transformer = new UserTransformer();
 				$user = $transformer->deserialize($data);
 				$user->set_id($_GET['id']);

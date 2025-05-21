@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Entity\LoggedEventType;
 
 final class LoggedEventTypeTest extends TestCase {

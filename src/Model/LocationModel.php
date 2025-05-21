@@ -4,6 +4,7 @@ namespace Portalbox\Model;
 
 use Portalbox\Entity\Location;
 use Portalbox\Exception\DatabaseException;
+
 use PDO;
 
 /**
@@ -17,14 +18,14 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location|null - the location or null if the location could not be saved
 	 */
-	public function create(Location $location): ?Location {
+	public function create(Location $location) : ?Location {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'INSERT INTO locations (name) VALUES (:name)';
 		$query = $connection->prepare($sql);
 
 		$query->bindValue(':name', $location->name());
 
-		if ($query->execute()) {
+		if($query->execute()) {
 			return $location->set_id($connection->lastInsertId('locations_id_seq'));
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -38,13 +39,13 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location|null - the location or null if the location could not be found
 	 */
-	public function read(int $id): ?Location {
+	public function read(int $id) : ?Location {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name FROM locations WHERE id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
-		if ($query->execute()) {
-			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
+		if($query->execute()) {
+			if($data = $query->fetch(PDO::FETCH_ASSOC)) {
 				return $this->buildLocationFromArray($data);
 			} else {
 				return null;
@@ -61,7 +62,7 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location|null - the location or null if the location could not be saved
 	 */
-	public function update(Location $location): ?Location {
+	public function update(Location $location) : ?Location {
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE locations SET name = :name WHERE id = :id';
 		$query = $connection->prepare($sql);
@@ -69,7 +70,7 @@ class LocationModel extends AbstractModel {
 		$query->bindValue(':id', $location->id(), PDO::PARAM_INT);
 		$query->bindValue(':name', $location->name());
 
-		if ($query->execute()) {
+		if($query->execute()) {
 			return $location;
 		} else {
 			throw new DatabaseException($connection->errorInfo()[2]);
@@ -83,15 +84,15 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location|null - the location or null if the location could not be found
 	 */
-	public function delete(int $id): ?Location {
+	public function delete(int $id) : ?Location {
 		$location = $this->read($id);
 
-		if (null !== $location) {
+		if(NULL !== $location) {
 			$connection = $this->configuration()->writable_db_connection();
 			$sql = 'DELETE FROM locations WHERE id = :id';
 			$query = $connection->prepare($sql);
 			$query->bindValue(':id', $id, PDO::PARAM_INT);
-			if (!$query->execute()) {
+			if(!$query->execute()) {
 				throw new DatabaseException($connection->errorInfo()[2]);
 			}
 		}
@@ -105,15 +106,15 @@ class LocationModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Location[]|null - a list of locations
 	 */
-	public function search(): ?array {
+	public function search() : ?array {
 
 		$connection = $this->configuration()->readonly_db_connection();
 
 		$sql = 'SELECT id, name FROM locations';
 		$statement = $connection->prepare($sql);
-		if ($statement->execute()) {
+		if($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
+			if(FALSE !== $data) {
 				return $this->buildLocationsFromArrays($data);
 			} else {
 				return null;
@@ -123,16 +124,16 @@ class LocationModel extends AbstractModel {
 		}
 	}
 
-	private function buildLocationFromArray(array $data): Location {
+	private function buildLocationFromArray(array $data) : Location {
 		return (new Location())
 					->set_id($data['id'])
 					->set_name($data['name']);
 	}
 
-	private function buildLocationsFromArrays(array $data): array {
+	private function buildLocationsFromArrays(array $data) : array {
 		$locations = array();
 
-		foreach ($data as $datum) {
+		foreach($data as $datum) {
 			$locations[] = $this->buildLocationFromArray($datum);
 		}
 

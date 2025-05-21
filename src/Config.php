@@ -25,15 +25,19 @@ class Config {
 	 *     looks for a file named 'config.ini' in the include path. Using the
 	 *     settings in the config file it then creates a PDO database instance
 	 *
-	 * @param string file  the name of the config file to read. Defaults to
+	 * @param file - the name of the config file to read. Defaults to
 	 *     '../config/config.ini' ie a file named 'config.ini' in a directory
 	 *     named 'config' in the same directory as src.
+	 *
 	 * @sideeffect - if the config file can not be found and read, script
 	 *     execution will end abnormally
 	 */
-	public function __construct(string $file = '../config/config.ini') {
-		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR . $file);
-		$this->settings = parse_ini_file($path, true);
+	public function __construct($file = '../config/config.ini') {
+		$path = realpath($file);
+		if ($path === false) {
+		$path = '/var/www/html/portalbox/config/config.ini';
+		}
+		$this->settings = parse_ini_file($path, TRUE);
 	}
 
 	/**
@@ -41,8 +45,8 @@ class Config {
 	 *
 	 * @return Config - the singleton configuration
 	 */
-	public static function config(): Config {
-		if (!self::$instance) {
+	public static function config() : Config {
+		if(!self::$instance) {
 			self::$instance = new Config();
 		}
 
@@ -56,10 +60,10 @@ class Config {
 	 *		contain the necessary configuration parameters
 	 * @return PDO - a connection to the database
 	 */
-	private function connection(): PDO {
+	private function connection() : PDO {
 		$connection = null;
 
-		if (false != $this->settings && array_key_exists('database', $this->settings)) {
+		if(FALSE != $this->settings && array_key_exists('database', $this->settings)) {
 			// should throw exception if host, database or user keys are missing
 			// should support no password if key is not provided
 			$dsn = 'host=' . $this->settings['database']['host'] . ';dbname=' . $this->settings['database']['database'];
@@ -83,7 +87,7 @@ class Config {
 	 *		contain the necessary configuration parameters
 	 * @return PDO - a connection to the database
 	 */
-	public function writable_db_connection(): PDO {
+	public function writable_db_connection() : PDO {
 		return $this->connection();
 	}
 
@@ -101,21 +105,19 @@ class Config {
 	 *		contain the necessary configuration parameters
 	 * @return PDO - a connection to the database
 	 */
-	public function readonly_db_connection(): PDO {
+	public function readonly_db_connection() : PDO {
 		return $this->connection();
 	}
 
 	/**
 	 * Get the settings for the web ui
 	 *
-	 * @return array  the stettings that are needed client side
 	 */
-	public function web_ui_settings(): array {
-		if (false != $this->settings && array_key_exists('oauth', $this->settings)) {
+	public function web_ui_settings() : array {
+		if(FALSE != $this->settings && array_key_exists('oauth', $this->settings)) {
 			return $this->settings['oauth'];
 		}
 
-		// should toss exception?
 		return [];
 	}
 }

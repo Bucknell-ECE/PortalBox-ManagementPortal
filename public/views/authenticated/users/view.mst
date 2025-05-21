@@ -26,6 +26,8 @@
 				<dd><a href="mailto:{{email}}">{{email}}</a></dd>
 				<dt>Comment:</dt>
 				<dd>{{comment}}</dd>
+				<dt>PIN:</dt>
+				<dd>{{pin}}</dd>
 				<dt>Active</dt>
 				<dd>{{#is_active}}<i class="material-icons">check_circle_outline</i>{{/is_active}}{{^is_active}}<i class="material-icons">highlight_off</i>{{/is_active}}</dd>
 				<dt>Role:</dt>
@@ -90,13 +92,49 @@
 		<input type="email" name="email" id="email" value="{{email}}" required />
 		<label for="comment" style="align-self:baseline">Comment:</label>
 		<textarea type="text" name="comment" id="comment">{{comment}}</textarea>
+		<label for="pin">PIN:</label>
+		<input type="text" name="pin" id="pin" value="{{pin}}" pattern="^\d{4}$" required maxlength="4" />
+		<div class="help">
+			<label for="pin-help-toggle">
+				<i class="material-icons">help</i>
+			</label>
+			<input type="checkbox" id="pin-help-toggle" class="checkbox-hack">
+			<div class="content">
+				<label for="pin-help-toggle" class="scrim"></label>
+				<div>
+					<p>PIN must be exactly 4 digits (0-9).</p>
+				</div>
+			</div>
+		</div>
 		<label for="is_active">Active:</label>
 		<input type="checkbox" name="is_active" id="is_active" {{#is_active}}checked {{/is_active}}/>
 		{{#role_editable}}
 		<label for="role_id">Role:</label>
-		<select name="role_id" id="role_id" required />
-			{{#roles}}<option value="{{id}}">{{name}}</option>{{/roles}}
+		<select name="role_id" id="role_id" required>
+			<!-- Use explicit selection based on the user's current role -->
+			{{#roles}}
+			<option value="{{id}}" {{#role}}{{#id}}{{#^_}}{{.}}{{/^_}}{{/id}}{{/role}}{{#^_}}{{id}}{{/^_}}">{{name}}</option>
+			{{/roles}}
 		</select>
+		<script>
+			// Immediate script to ensure the user's role is selected
+			(function() {
+				var roleSelect = document.getElementById('role_id');
+				var currentRoleId = {{role.id}};
+				
+				// Set the selected option to match the user's current role
+				for(var i = 0; i < roleSelect.options.length; i++) {
+					if(parseInt(roleSelect.options[i].value) === currentRoleId) {
+						roleSelect.options[i].selected = true;
+						break;
+					}
+				}
+			})();
+		</script>
+		{{/role_editable}}
+		{{^role_editable}}
+		<!-- Include hidden role_id field to make sure it gets submitted with the form -->
+		<input type="hidden" name="role_id" value="{{role.id}}" />
 		{{/role_editable}}
 		<label for="authorizations" style="align-self:baseline">Authorizations:</label>
 		<fieldset id="authorizations">

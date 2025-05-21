@@ -10,7 +10,7 @@ use Portalbox\Model\RoleModel;
 class User extends AbstractUser {
 	/**
 	 * The configuration to use
-	 *
+	 * 
 	 * @var Config
 	 */
 	private $configuration;
@@ -34,7 +34,7 @@ class User extends AbstractUser {
 	 *
 	 * @return Config - the configuration to use
 	 */
-	public function configuration(): Config {
+	public function configuration() : Config {
 		return $this->configuration;
 	}
 
@@ -43,25 +43,25 @@ class User extends AbstractUser {
 	 *
 	 * @param Config configuration - the configuration to use
 	 */
-	public function set_configuration(Config $configuration): void {
+	public function set_configuration(Config $configuration) {
 		$this->configuration = $configuration;
 	}
 
 	/**
 	 * Get the user's role's name
-	 *
+	 * 
 	 * @return string - the name of the user's role
 	 */
-	public function role_name(): string {
+	public function role_name() : string {
 		return $this->role_name;
 	}
 
 	/**
 	 * Set the user's role's name
-	 *
+	 * 
 	 * @param string name - the name of the user's role
 	 */
-	public function set_role_name(string $name): User {
+	public function set_role_name(string $name) : User {
 		$this->role_name = $name;
 		return $this;
 	}
@@ -71,8 +71,8 @@ class User extends AbstractUser {
 	 *
 	 * @return Role|null - the user's role
 	 */
-	public function role(): ?Role {
-		if (null === $this->role) {
+	public function role() : ?Role {
+		if(NULL === $this->role) {
 			$this->role = (new RoleModel($this->configuration()))->read($this->role_id());
 		}
 

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Config;
 use Portalbox\Entity\Location;
 use Portalbox\Model\LocationModel;

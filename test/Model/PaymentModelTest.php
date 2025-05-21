@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Config;
 use Portalbox\Entity\Payment;
 use Portalbox\Entity\Role;
@@ -38,7 +39,7 @@ final class PaymentModelTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$active = true;
+		$active = TRUE;
 
 		$user = (new User())
 			->set_name($name)
@@ -50,7 +51,7 @@ final class PaymentModelTest extends TestCase {
 		self::$user = $model->create($user);
 	}
 
-	public static function tearDownAfterClass(): void {
+	public static function tearDownAfterClass() : void {
 		$model = new UserModel(self::$config);
 		$model->delete(self::$user->id());
 

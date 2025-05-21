@@ -18,6 +18,20 @@
 		<input type="email" name="email" id="email" required />
 		<label for="comment">Comment:</label>
 		<textarea type="text" name="comment" id="comment">{{comment}}</textarea>
+		<label for="pin">PIN:</label>
+		<input type="text" name="pin" id="pin" value="0000" pattern="^\d{4}$" required maxlength="4" />
+		<div class="help">
+			<label for="pin-help-toggle">
+				<i class="material-icons">help</i>
+			</label>
+			<input type="checkbox" id="pin-help-toggle" class="checkbox-hack">
+			<div class="content">
+				<label for="pin-help-toggle" class="scrim"></label>
+				<div>
+					<p>PIN must be exactly 4 digits (0-9). Default is 0000.</p>
+				</div>
+			</div>
+		</div>
 		<label for="is_active">Active:</label>
 		<input type="checkbox" name="is_active" id="is_active" checked />
 		<label for="role_id">Role:</label>

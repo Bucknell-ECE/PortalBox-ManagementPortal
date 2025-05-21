@@ -3,13 +3,17 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Config;
+
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Role;
 use Portalbox\Entity\User;
+
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\UserModel;
+
 use Portalbox\Query\UserQuery;
 
 final class UserModelTest extends TestCase {
@@ -32,7 +36,7 @@ final class UserModelTest extends TestCase {
 		$model = new EquipmentTypeModel(self::$config);
 
 		$name = 'Floodlight';
-		$requires_training = false;
+		$requires_training = FALSE;
 		$charge_policy_id = ChargePolicy::NO_CHARGE;
 
 		$type = (new EquipmentType())
@@ -44,7 +48,7 @@ final class UserModelTest extends TestCase {
 		self::$type = $model->create($type);
 	}
 
-	public static function tearDownAfterClass(): void {
+	public static function tearDownAfterClass() : void {
 		// deprovision an equipment type in the db
 		$model = new EquipmentTypeModel(self::$config);
 		$model->delete(self::$type->id());
@@ -63,7 +67,7 @@ final class UserModelTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$active = false;
+		$active = FALSE;
 		$authorizations = [self::$type->id()];
 		$num_authorizations = count($authorizations);
 
@@ -104,7 +108,7 @@ final class UserModelTest extends TestCase {
 		$name = 'Matt Lamparter';
 		$email = 'matt@ficticious.tld';
 		$comment = 'Test Hominid';
-		$active = true;
+		$active = TRUE;
 
 		$user_as_found
 			->set_name($name)
@@ -122,7 +126,7 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($active, $user_as_modified->is_active());
 		self::assertEquals($role_id, $user_as_modified->role()->id());
 
-		$query = (new UserQuery())->set_email($email);
+		$query = (new UserQuery)->set_email($email);
 		$users_as_found = $model->search($query);
 		self::assertNotNull($users_as_found);
 		self::assertIsIterable($users_as_found);

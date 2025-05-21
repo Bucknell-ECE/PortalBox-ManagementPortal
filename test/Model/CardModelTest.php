@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Config;
+
 use Portalbox\Entity\CardType;
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
@@ -14,10 +16,12 @@ use Portalbox\Entity\ShutdownCard;
 use Portalbox\Entity\TrainingCard;
 use Portalbox\Entity\User;
 use Portalbox\Entity\UserCard;
+
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
+
 use Portalbox\Query\CardQuery;
 
 final class CardModelTest extends TestCase {
@@ -60,7 +64,7 @@ final class CardModelTest extends TestCase {
 		$model = new EquipmentTypeModel(self::$config);
 
 		$name = 'Floodlight';
-		$requires_training = false;
+		$requires_training = FALSE;
 		$charge_policy_id = ChargePolicy::NO_CHARGE;
 
 		$equipment_type = (new EquipmentType())
@@ -82,7 +86,7 @@ final class CardModelTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$active = true;
+		$active = TRUE;
 
 		$user = (new User())
 			->set_name($name)
@@ -94,7 +98,7 @@ final class CardModelTest extends TestCase {
 		self::$user = $model->create($user);
 	}
 
-	public static function tearDownAfterClass(): void {
+	public static function tearDownAfterClass() : void {
 		// deprovision a location in the db
 		$model = new LocationModel(self::$config);
 		$model->delete(self::$location->id());

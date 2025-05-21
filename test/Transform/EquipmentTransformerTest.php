@@ -3,13 +3,17 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use PortalBox\Config;
+
 use PortalBox\Entity\ChargePolicy;
 use PortalBox\Entity\Equipment;
 use PortalBox\Entity\EquipmentType;
 use PortalBox\Entity\Location;
+
 use PortalBox\Model\EquipmentTypeModel;
 use PortalBox\Model\LocationModel;
+
 use Portalbox\Transform\EquipmentTransformer;
 
 final class EquipmentTransformerTest extends TestCase {
@@ -43,7 +47,7 @@ final class EquipmentTransformerTest extends TestCase {
 		$model = new EquipmentTypeModel($config);
 
 		$name = 'ceramics printer';
-		$requires_training = true;
+		$requires_training = TRUE;
 		$charge_rate = "0.01";
 		$charge_policy_id = ChargePolicy::PER_MINUTE;
 
@@ -57,7 +61,7 @@ final class EquipmentTransformerTest extends TestCase {
 		self::$type = $model->create($type);
 	}
 
-	public static function tearDownAfterClass(): void {
+	public static function tearDownAfterClass() : void {
 		$config = Config::config();
 
 		// deprovision equipment type from the db

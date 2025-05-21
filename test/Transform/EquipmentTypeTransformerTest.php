@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Entity\ChargePolicy;
 use PortalBox\Entity\EquipmentType;
 use Portalbox\Transform\EquipmentTypeTransformer;
@@ -13,7 +14,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'laser scalpel';
-		$requires_training = true;
+		$requires_training = TRUE;
 		$charge_rate = "2.50";
 		$charge_policy_id = ChargePolicy::PER_USE;
 		$charge_policy = ChargePolicy::name_for_policy($charge_policy_id);
@@ -44,7 +45,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		$transformer = new EquipmentTypeTransformer();
 
 		$id = 42;
-		$requires_training = true;
+		$requires_training = TRUE;
 		$charge_rate = "2.50";
 		$charge_policy_id = ChargePolicy::PER_USE;
 		$allow_proxy = false;
@@ -87,7 +88,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'laser scalpel';
-		$requires_training = true;
+		$requires_training = TRUE;
 		$charge_policy_id = ChargePolicy::PER_USE;
 		$allow_proxy = false;
 
@@ -108,7 +109,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'laser scalpel';
-		$requires_training = true;
+		$requires_training = TRUE;
 		$charge_rate = "2.50";
 		$allow_proxy = false;
 
@@ -129,7 +130,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'laser scalpel';
-		$requires_training = true;
+		$requires_training = TRUE;
 		$charge_rate = "2.50";
 		$charge_policy_id = ChargePolicy::PER_USE;
 
@@ -150,7 +151,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'laser scalpel';
-		$requires_training = true;
+		$requires_training = TRUE;
 		$charge_rate = "2.50";
 		$charge_policy_id = ChargePolicy::PER_USE;
 		$charge_policy = ChargePolicy::name_for_policy($charge_policy_id);

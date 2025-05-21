@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Config;
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\Equipment;
@@ -66,7 +67,7 @@ final class LoggedEventModelTest extends TestCase {
 		$model = new EquipmentTypeModel(self::$config);
 
 		$name = 'Floodlight';
-		$requires_training = false;
+		$requires_training = FALSE;
 		$charge_policy_id = ChargePolicy::NO_CHARGE;
 
 		self::$type = $model->create(
@@ -83,7 +84,7 @@ final class LoggedEventModelTest extends TestCase {
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789ab';
 		$timeout = 0;
-		$is_in_service = true;
+		$is_in_service = TRUE;
 		$service_minutes = 500;
 
 		self::$equipment = $model->create(
@@ -107,7 +108,7 @@ final class LoggedEventModelTest extends TestCase {
 		);
 	}
 
-	public static function tearDownAfterClass(): void {
+	public static function tearDownAfterClass() : void {
 		$model = new CardModel(self::$config);
 		$model->delete(self::$card->id());
 

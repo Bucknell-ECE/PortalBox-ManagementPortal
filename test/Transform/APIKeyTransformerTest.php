@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use PortalBox\Entity\APIKey;
 use Portalbox\Transform\APIKeyTransformer;
 

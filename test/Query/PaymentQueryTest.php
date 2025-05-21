@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Query\PaymentQuery;
 
 final class PaymentQueryTest extends TestCase {

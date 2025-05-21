@@ -3,13 +3,17 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use PortalBox\Config;
+
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
 use PortalBox\Entity\Permission;
 use PortalBox\Entity\Role;
 use PortalBox\Entity\User;
+
 use Portalbox\Model\EquipmentTypeModel;
+
 use Portalbox\Transform\UserTransformer;
 
 final class UserTransformerTest extends TestCase {
@@ -25,7 +29,7 @@ final class UserTransformerTest extends TestCase {
 		$model = new EquipmentTypeModel(Config::config());
 
 		$name = 'Floodlight';
-		$requires_training = false;
+		$requires_training = FALSE;
 		$charge_policy_id = ChargePolicy::NO_CHARGE;
 
 		$type = (new EquipmentType())
@@ -37,7 +41,7 @@ final class UserTransformerTest extends TestCase {
 		self::$type = $model->create($type);
 	}
 
-	public static function tearDownAfterClass(): void {
+	public static function tearDownAfterClass() : void {
 		// deprovision an equipment type in the db
 		$model = new EquipmentTypeModel(Config::config());
 		$model->delete(self::$type->id());
@@ -53,7 +57,7 @@ final class UserTransformerTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$is_active = true;
+		$is_active = TRUE;
 		$authorizations = [self::$type->id()];
 		$num_authorizations = count($authorizations);
 
@@ -90,7 +94,7 @@ final class UserTransformerTest extends TestCase {
 		$role_id = 3;	// default id of system defined admin role
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$is_active = true;
+		$is_active = TRUE;
 
 		$data = [
 			'id' => $id,
@@ -111,7 +115,7 @@ final class UserTransformerTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$is_active = true;
+		$is_active = TRUE;
 
 		$data = [
 			'id' => $id,
@@ -133,7 +137,7 @@ final class UserTransformerTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$is_active = true;
+		$is_active = TRUE;
 
 		$data = [
 			'id' => $id,
@@ -155,7 +159,7 @@ final class UserTransformerTest extends TestCase {
 		$role_id = 3;	// default id of system defined admin role
 		$name = 'Tom Egan';
 		$comment = 'Test Monkey';
-		$is_active = true;
+		$is_active = TRUE;
 
 		$data = [
 			'id' => $id,
@@ -198,7 +202,7 @@ final class UserTransformerTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$is_active = true;
+		$is_active = TRUE;
 		$authorizations = true;
 
 		$data = [
@@ -223,7 +227,7 @@ final class UserTransformerTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$is_active = true;
+		$is_active = TRUE;
 		$authorizations = [-1];
 
 		$data = [
@@ -245,7 +249,7 @@ final class UserTransformerTest extends TestCase {
 
 		$role_id = 3;	// default id of system defined admin role
 		$role_name = 'administrator';
-		$is_system_role = true;
+		$is_system_role = TRUE;
 		$description = 'Users with this role have no restrictions.';
 		$permissions = [
 			Permission::LIST_OWN_EQUIPMENT_AUTHORIZATIONS,
@@ -263,7 +267,7 @@ final class UserTransformerTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$is_active = true;
+		$is_active = TRUE;
 		$authorizations = [self::$type->id()];
 
 		$user = (new User())

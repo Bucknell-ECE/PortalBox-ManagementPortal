@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use PortalBox\Entity\Location;
+
 use Portalbox\Transform\LocationTransformer;
 
 final class LocationTransformerTest extends TestCase {

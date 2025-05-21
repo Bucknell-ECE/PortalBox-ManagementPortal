@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Config;
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
@@ -13,7 +14,7 @@ final class EquipmentTypeModelTest extends TestCase {
 		$model = new EquipmentTypeModel(Config::config());
 
 		$name = 'ceramics printer';
-		$requires_training = true;
+		$requires_training = TRUE;
 		$charge_rate = "0.01";
 		$charge_policy_id = ChargePolicy::PER_MINUTE;
 		$allow_proxy = true;
@@ -46,7 +47,7 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($allow_proxy, $type_as_found->allow_proxy());
 
 		$name = '3D Clay Printer';
-		$requires_training = false;
+		$requires_training = FALSE;
 		$charge_rate = '2.50';
 		$charge_policy_id = ChargePolicy::PER_USE;
 		$allow_proxy = false;

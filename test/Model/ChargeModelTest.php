@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use Portalbox\Config;
 use Portalbox\Entity\Charge;
 use Portalbox\Entity\ChargePolicy;
@@ -61,7 +62,7 @@ final class ChargeModelTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$active = true;
+		$active = TRUE;
 
 		$user = (new User())
 			->set_name($name)
@@ -86,7 +87,7 @@ final class ChargeModelTest extends TestCase {
 		$model = new EquipmentTypeModel(self::$config);
 
 		$name = 'Floodlight';
-		$requires_training = false;
+		$requires_training = FALSE;
 		$charge_policy_id = ChargePolicy::NO_CHARGE;
 
 		$type = (new EquipmentType())
@@ -103,7 +104,7 @@ final class ChargeModelTest extends TestCase {
 		$name = '1000W Floodlight';
 		$mac_address = '0123456789AB';
 		$timeout = 0;
-		$is_in_service = true;
+		$is_in_service = TRUE;
 		$service_minutes = 500;
 
 		$equipment = (new Equipment())
@@ -118,7 +119,7 @@ final class ChargeModelTest extends TestCase {
 		self::$equipment = $model->create($equipment);
 	}
 
-	public static function tearDownAfterClass(): void {
+	public static function tearDownAfterClass() : void {
 		// deprovision a location in the db
 		$model = new UserModel(self::$config);
 		$model->delete(self::$user->id());

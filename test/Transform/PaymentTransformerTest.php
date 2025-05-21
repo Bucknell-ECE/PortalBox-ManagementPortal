@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+
 use PortalBox\Config;
+
 use PortalBox\Entity\Payment;
 use PortalBox\Entity\Role;
 use PortalBox\Entity\User;
+
 use PortalBox\Model\UserModel;
+
 use Portalbox\Transform\PaymentTransformer;
 
 final class PaymentTransformerTest extends TestCase {
@@ -32,7 +36,7 @@ final class PaymentTransformerTest extends TestCase {
 		$name = 'Tom Egan';
 		$email = 'tom@ficticious.tld';
 		$comment = 'Test Monkey';
-		$active = true;
+		$active = TRUE;
 
 		$user = (new User())
 			->set_name($name)
@@ -44,7 +48,7 @@ final class PaymentTransformerTest extends TestCase {
 		self::$user = $model->create($user);
 	}
 
-	public static function tearDownAfterClass(): void {
+	public static function tearDownAfterClass() : void {
 		$config = Config::config();
 
 		// deprovision user from the db

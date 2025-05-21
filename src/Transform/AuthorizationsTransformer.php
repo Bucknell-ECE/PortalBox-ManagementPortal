@@ -3,7 +3,9 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
+
 use Portalbox\Config;
+
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentTypeModel;
 
@@ -19,17 +21,17 @@ class AuthorizationsTransformer implements InputTransformer {
 	 * @return array<int> - a list of authorization ids
 	 * @throws InvalidArgumentException if a required field is not specified
 	 */
-	public function deserialize(array $data): array {
-		if (!array_key_exists('authorizations', $data)) {
+	public function deserialize(array $data) : array {
+		if(!array_key_exists('authorizations', $data)) {
 			throw new InvalidArgumentException('\'authorizations\' is a required field');
 		}
-		if (!is_array($data['authorizations'])) {
+		if(!is_array($data['authorizations'])) {
 			throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
 		}
 		$model = new EquipmentTypeModel(Config::config());
-		foreach ($data['authorizations'] as $equipment_type_id) {
+		foreach($data['authorizations'] as $equipment_type_id) {
 			$equipment_type = $model->read($equipment_type_id);
-			if (null === $equipment_type) {
+			if(NULL === $equipment_type) {
 				throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
 			}
 		}
