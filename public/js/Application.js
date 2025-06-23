@@ -517,7 +517,7 @@ class Application {
 			this.route("/logs", _ => this.list_log({}));
 		}
 
-		// User needs CREATE_USER Permission to make use of /users/add route
+		// User needs CREATE_PAYMENT Permission to make use of /users/{id}/add_payment route
 		if(this.user.has_permission(Permission.CREATE_PAYMENT)) {
 			this.route("/users/:id/add_payment", params => {
 				User.read(params.id).then(user => {
