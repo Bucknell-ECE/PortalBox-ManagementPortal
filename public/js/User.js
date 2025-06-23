@@ -143,7 +143,7 @@ export class User {
 	 * Upload a csv file of users to be added to those tracked by API
 	 *
 	 * @param {File} file  the csv file of data to import
-	 * @return User as tracked by API
+	 * @return {string}  the number of users which were added
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
@@ -158,8 +158,7 @@ export class User {
 		});
 
 		if(!response.ok) {
-			// how to display success message?
-			return;
+			return response.text();
 		}
 
 		if(403 == response.status) {

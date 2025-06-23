@@ -32,36 +32,31 @@ class UserService {
 	 * @return User[]  The list of users which were added
 	 */
 	public function import($fileHandle): array {
-		// we cache roles as we read them
+		// we don't expect many roles in the system so let's just cache them
 		$roles = [];
-		$records = [];
+		foreach ($this->roleModel->search() as $role) {
+			$roles[$role->name()] = $role;
+		}
 
 		// read and discard header line
 		$header = fgetcsv($fileHandle);
 
 		// read lines, validating each, to accumulate users
+		$records = [];
 		while ($user = fgetcsv($fileHandle)) {
 			if (count($user) !== 3) {
 				throw new InvalidArgumentException('Import files must contain 3 columns: "Name", "Email Address", and "Role Id"');
 			}
 
-			$roleId = $user[2];
-
-			$role = null;
-			if (array_key_exists($roleId, $roles)) {
-				$role = $roles[$roleId];
-			} else {
-				$role = $this->roleModel->read($roleId);
-				if (null === $role) {
-					throw new InvalidArgumentException('"Role Id" must correspond to a valid role');
-				}
-				$roles[$roleId] = $role;
+			$role = trim($user[2]);
+			if (!array_key_exists($role, $roles)) {
+				throw new InvalidArgumentException('"Role" must be the name of an existing role');
 			}
 
 			$records[] = [
-				'name' => strip_tags($user[0]),
-				'email' => strip_tags($user[1]),
-				'role' => $role
+				'name' => strip_tags(trim($user[0])),
+				'email' => strip_tags(trim($user[1])),
+				'role' => $roles[$role]
 			];
 		}
 
@@ -74,7 +69,7 @@ class UserService {
 					->set_name($record['name'])
 					->set_email($record['email'])
 					->set_is_active(true)
-					->set_role($role)
+					->set_role($record['role'])
 			);
 		}
 
