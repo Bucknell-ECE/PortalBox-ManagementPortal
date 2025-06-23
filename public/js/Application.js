@@ -68,7 +68,10 @@ class Application {
 		document.addEventListener(
 			"click",
 			(event) => {
-				if (event.target.matches("a[href], a[href] *")) {
+				if (
+					event.target.matches("a[href], a[href] *")
+					&& !event.target.matches("a[download]")
+				) {
 					// walk up the tree until we find the href
 					let element = event.target;
 					while (element instanceof HTMLElement) {

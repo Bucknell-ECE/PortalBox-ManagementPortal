@@ -14,6 +14,17 @@
 	<form id="import-user-form">
 		<label for="name">Users:</label>
 		<input type="file" name="users" accept="text/csv,.csv" required />
-		<p style="grid-column:1/3">Many users may be added at a time by submitting a ".csv" file. The first line of the file should be column headers. Rows should have the columns: Name, Email Address</p>
+		<div class="help">
+			<label for="file-format-help-toggle">
+				<i class="material-icons">help</i>
+			</label>
+			<input type="checkbox" id="file-format-help-toggle" class="checkbox-hack">
+			<div class="content">
+				<label for="file-format-help-toggle" class="scrim"></label>
+				<div>
+					<p>Many users may be added at a time by submitting a ".csv" file. The first line of the file should be column headers. Rows should have the columns: Name, Email Address, and Role. You may want to start with our <a href="/views/authenticated/users/users.csv" download>example</a></p>
+				</div>
+			</div>
+		</div>
 	</form>
 </article>
