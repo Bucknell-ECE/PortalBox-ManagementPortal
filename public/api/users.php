@@ -192,7 +192,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 					$users = $service->import($stdin);
 					fclose($stdin);
 					echo count($users);
-				} catch(Exception $e) {
+				} catch(\Throwable $e) {
 					http_response_code(500);
 					echo $e->getMessage();
 				}
