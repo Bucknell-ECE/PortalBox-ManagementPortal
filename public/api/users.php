@@ -9,8 +9,11 @@ use Portalbox\Session;
 use Portalbox\Entity\Permission;
 
 use Portalbox\Model\UserModel;
+use Portalbox\Model\RoleModel;
 
 use Portalbox\Query\UserQuery;
+
+use Portalbox\Service\UserService;
 
 use Portalbox\Transform\AuthorizationsTransformer;
 use Portalbox\Transform\UserTransformer;
@@ -157,24 +160,46 @@ switch($_SERVER['REQUEST_METHOD']) {
 		// check authorization
 		Session::require_authorization(Permission::CREATE_USER);
 
-		$data = json_decode(file_get_contents('php://input'), TRUE);
-		if(NULL !== $data) {
-			try {
-				$transformer = new UserTransformer();
-				$user = $transformer->deserialize($data);
-				$model = new UserModel(Config::config());
-				$user = $model->create($user);
-				ResponseHandler::render($user, $transformer);
-			} catch(InvalidArgumentException $iae) {
-				http_response_code(400);
-				die($iae->getMessage());
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} else {
-			http_response_code(400);
-			die(json_last_error_msg());
+		switch($_SERVER["CONTENT_TYPE"]) {
+			case 'application/json':
+				$data = json_decode(file_get_contents('php://input'), TRUE);
+				if(NULL !== $data) {
+					try {
+						$transformer = new UserTransformer();
+						$user = $transformer->deserialize($data);
+						$model = new UserModel(Config::config());
+						$user = $model->create($user);
+						ResponseHandler::render($user, $transformer);
+					} catch(InvalidArgumentException $iae) {
+						http_response_code(400);
+						die($iae->getMessage());
+					} catch(Exception $e) {
+						http_response_code(500);
+						die('We experienced issues communicating with the database');
+					}
+				} else {
+					http_response_code(400);
+					die(json_last_error_msg());
+				}
+				break;
+			case 'text/csv':
+				try {
+					$service = new UserService(
+						new RoleModel(Config::config()),
+						new UserModel(Config::config())
+					);
+					$stdin = fopen('php://input', 'r');
+					$users = $service->import($stdin);
+					fclose($stdin);
+					echo count($users);
+				} catch(Exception $e) {
+					http_response_code(500);
+					echo $e->getMessage();
+				}
+				break;
+			default:
+				http_response_code(415);
+				die('We were unable to understand your request.');
 		}
 		break;
 	case 'DELETE':	// Delete

@@ -129,7 +129,37 @@ export class User {
 		});
 
 		if(response.ok) {
-			return await response.json();
+			return await response.text();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to import users";
+	}
+
+	/**
+	 * Upload a csv file of users to be added to those tracked by API
+	 *
+	 * @param {File} file  the csv file of data to import
+	 * @return User as tracked by API
+	 * @throws SessionTimeOutError if the user session has expired
+	 * @throws String if any other error occurs
+	 */
+	static async import(file) {
+		const response = await fetch("/api/users.php", {
+			body: file,
+			credentials: "include",
+			headers: {
+				"Content-Type": file.type
+			},
+			method: "PUT"
+		});
+
+		if(!response.ok) {
+			// how to display success message?
+			return;
 		}
 
 		if(403 == response.status) {

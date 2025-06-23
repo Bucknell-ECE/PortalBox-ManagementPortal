@@ -560,7 +560,7 @@ class Application {
 			this.route("/roles/:id", params => this.read_role(params.id, this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.DELETE_ROLE)));
 		}
 
-		// User needs CREATE_USER Permission to make use of /users/add route
+		// User needs CREATE_USER Permission to make use of /users/add and /users/import routes
 		if(this.user.has_permission(Permission.CREATE_USER)) {
 			this.route("/users/add", _ => {
 				let p0 = EquipmentType.list();
@@ -573,6 +573,14 @@ class Application {
 							.addEventListener("submit", (e) => this.add_user(e));
 					});
 				}).catch(e => this.handleError(e));
+			});
+
+			this.route("/users/import", _ => {
+				this.render("#main", "authenticated/users/import", {}, {}, () => {
+					document
+						.getElementById("import-user-form")
+						.addEventListener("submit", (e) => this.import_users(e));
+				});
 			});
 		}
 
@@ -1329,6 +1337,22 @@ class Application {
 		User.create(data).then(_ => {
 			this.navigate("/users");
 			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles importing users by sending a request to the backend.
+	 * Bound to the form.submit() for the view
+	 *
+	 * @param {Event} event - the form submission event
+	 */
+	import_users(event) {
+		event.preventDefault();
+
+		const inputs = event.target.getElementsByTagName('input');
+
+		User.import(inputs[0].files[0]).then(_ => {
+			this.navigate("/users");
 		}).catch(e => this.handleError(e));
 	}
 
