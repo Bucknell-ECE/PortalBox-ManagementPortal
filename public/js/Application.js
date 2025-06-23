@@ -753,7 +753,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding an api key to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -803,7 +803,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating cards on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the location to modify
 	 * @param {Event} event - the form submission event
@@ -820,7 +820,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a card to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -871,7 +871,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating charges on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() for the view.
 	 */
 	update_charge(charge, event) {
 		event.preventDefault();
@@ -900,7 +900,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding equipment to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -966,7 +966,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating equipment on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the equipment to modify
 	 * @param {Event} event - the form submission event
@@ -995,7 +995,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding an equipment type to the backend.
-	 * Bound to the form.submit() in moostaka.render() for the view
+	 * Bound to the form.submit() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -1038,7 +1038,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating an equipment type on backend.
-	 * Bound to the form.submit() in moostaka.render() for the view.
+	 * Bound to the form.submit() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the location to modify
 	 * @param {Event} event - the form submission event
@@ -1055,7 +1055,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a location to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() for the view
 	 *
 	 *  @param {Event} event - the form submission event
 	 */
@@ -1090,7 +1090,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating a location on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the location to modify
 	 * @param {Event} event - the form submission event
@@ -1206,7 +1206,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a payment to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -1222,7 +1222,7 @@ class Application {
 
 	/**
 	 * Callback that handles confirming a payment. Bound to the form.submit()
-	 * in moostaka.render() for the view
+	 * for the view
 	 *
 	 * @param {User} user - the user account for which a payment is being
 	 *      confirmed.
@@ -1241,7 +1241,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a role to the backend. Bound to the
-	 * form.submit() in moostaka.render() for the view
+	 * form.submit() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -1301,7 +1301,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating roles on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the role to modify
 	 * @param {Event} event - the form submission event
@@ -1318,7 +1318,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a user to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -1334,7 +1334,7 @@ class Application {
 
 	/**
 	 * Callback that handles authorizing a user on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the user to authorize
 	 * @param {Event} event - the form submission event
@@ -1445,7 +1445,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating a user on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the user to modify
 	 * @param {Event} event - the form submission event
