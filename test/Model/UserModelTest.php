@@ -83,6 +83,7 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($email, $user_as_created->email());
 		self::assertEquals($comment, $user_as_created->comment());
 		self::assertEquals($active, $user_as_created->is_active());
+		self::assertNull($user_as_created->pin());
 		self::assertEquals($role_id, $user_as_created->role()->id());
 		self::assertIsIterable($user->authorizations());
 		self::assertCount($num_authorizations, $user->authorizations());
@@ -96,6 +97,7 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($email, $user_as_found->email());
 		self::assertEquals($comment, $user_as_found->comment());
 		self::assertEquals($active, $user_as_found->is_active());
+		self::assertNull($user_as_found->pin());
 		self::assertEquals($role_id, $user_as_found->role()->id());
 		self::assertIsIterable($user->authorizations());
 		self::assertCount($num_authorizations, $user->authorizations());
@@ -105,12 +107,14 @@ final class UserModelTest extends TestCase {
 		$email = 'matt@ficticious.tld';
 		$comment = 'Test Hominid';
 		$active = true;
+		$pin = '2345';
 
 		$user_as_found
 			->set_name($name)
 			->set_email($email)
 			->set_comment($comment)
-			->set_is_active($active);
+			->set_is_active($active)
+			->set_pin($pin);
 
 		$user_as_modified = $model->update($user_as_found);
 
@@ -120,6 +124,7 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($email, $user_as_modified->email());
 		self::assertEquals($comment, $user_as_modified->comment());
 		self::assertEquals($active, $user_as_modified->is_active());
+		self::assertEquals($pin, $user_as_modified->pin());
 		self::assertEquals($role_id, $user_as_modified->role()->id());
 
 		$query = (new UserQuery())->set_email($email);
@@ -131,6 +136,7 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($name, $users_as_found[0]->name());
 		self::assertEquals($comment, $users_as_found[0]->comment());
 		self::assertEquals($active, $users_as_found[0]->is_active());
+		self::assertEquals($pin, $users_as_found[0]->pin());
 		self::assertEquals($role_id, $users_as_found[0]->role()->id());
 		self::assertIsIterable($user->authorizations());
 		self::assertCount($num_authorizations, $user->authorizations());
@@ -144,13 +150,12 @@ final class UserModelTest extends TestCase {
 		self::assertEquals($email, $user_as_deleted->email());
 		self::assertEquals($comment, $user_as_deleted->comment());
 		self::assertEquals($active, $user_as_deleted->is_active());
+		self::assertEquals($pin, $user_as_deleted->pin());
 		self::assertEquals($role_id, $user_as_deleted->role()->id());
 		self::assertIsIterable($user->authorizations());
 		self::assertCount($num_authorizations, $user->authorizations());
 		self::assertContains(self::$type->id(), $user->authorizations());
 
-		$user_as_not_found = $model->read($user_id);
-
-		self::assertNull($user_as_not_found);
+		self::assertNull($model->read($user_id));
 	}
 }

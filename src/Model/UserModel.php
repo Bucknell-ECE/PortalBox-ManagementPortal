@@ -73,7 +73,7 @@ class UserModel extends AbstractModel {
 	 */
 	public function read(int $id): ?User {
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id WHERE u.id = :id';
+		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role, u.pin FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id WHERE u.id = :id';
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':id', $id, PDO::PARAM_INT);
 		if ($statement->execute()) {
@@ -109,7 +109,7 @@ class UserModel extends AbstractModel {
 		$old_authorizations = $this->read($user_id)->authorizations();
 
 		$connection = $this->configuration()->writable_db_connection();
-		$sql = 'UPDATE users SET name = :name, email = :email, comment = :comment, role_id = :role_id, is_active = :is_active WHERE id = :id';
+		$sql = 'UPDATE users SET name = :name, email = :email, comment = :comment, role_id = :role_id, is_active = :is_active, pin = :pin WHERE id = :id';
 		$statement = $connection->prepare($sql);
 
 		$statement->bindValue(':id', $user->id(), PDO::PARAM_INT);
@@ -118,6 +118,7 @@ class UserModel extends AbstractModel {
 		$statement->bindValue(':comment', $user->comment());
 		$statement->bindValue(':is_active', $user->is_active(), PDO::PARAM_BOOL);
 		$statement->bindValue(':role_id', $user->role()->id(), PDO::PARAM_INT);
+		$statement->bindValue(':pin', $user->pin());
 
 		if ($connection->beginTransaction()) {
 			if ($statement->execute()) {
@@ -127,7 +128,8 @@ class UserModel extends AbstractModel {
 					->set_email($user->email())
 					->set_comment($user->comment())
 					->set_is_active($user->is_active())
-					->set_role_id($user->role()->id());
+					->set_role_id($user->role()->id())
+					->set_pin($user->pin());
 
 				// Authorizations... There are three cases:
 				//	1) Authorizations which were removed -> delete
@@ -213,7 +215,7 @@ class UserModel extends AbstractModel {
 		}
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id';
+		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role, u.pin FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id';
 		$where_clause_fragments = array();
 		$parameters = array();
 		$modifier = "";
@@ -259,7 +261,10 @@ class UserModel extends AbstractModel {
 		if ($statement->execute()) {
 			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
 			if (false !== $data) {
-				return $this->buildUsersFromArrays($data);
+				return array_map(
+					fn($row) => $this->buildUserFromArray($row),
+					$data
+				);
 			} else {
 				return null;
 			}
@@ -276,16 +281,7 @@ class UserModel extends AbstractModel {
 					->set_comment($data['comment'])
 					->set_is_active($data['is_active'])
 					->set_role_id($data['role_id'])
-					->set_role_name($data['role']);
-	}
-
-	private function buildUsersFromArrays(array $data): array {
-		$users = array();
-
-		foreach ($data as $datum) {
-			$users[] = $this->buildUserFromArray($datum);
-		}
-
-		return $users;
+					->set_role_name($data['role'])
+					->set_pin($data['pin']);
 	}
 }
