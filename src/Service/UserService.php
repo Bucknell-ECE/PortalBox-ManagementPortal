@@ -13,6 +13,8 @@ use Portalbox\Model\UserModel;
 class UserService {
     public const ERROR_INVALID_CSV_RECORD_LENGTH = 'Import files must contain 3 columns: "Name", "Email Address", and "Role Id"';
     public const ERROR_INVALID_CSV_ROLE = '"Role" must be the name of an existing role';
+    public const ERROR_INVALID_EMAIL = 'Email must be a valid email address';
+    public const ERROR_INVALID_PATCH = 'User properties must be serialized as a json encoded object';
 
     protected RoleModel $roleModel;
     protected UserModel $userModel;
@@ -57,9 +59,14 @@ class UserService {
                 throw new InvalidArgumentException(self::ERROR_INVALID_CSV_ROLE);
             }
 
+            $email = filter_var(trim($user[1]), FILTER_VALIDATE_EMAIL);
+            if ($email === false) {
+                throw new InvalidArgumentException(self::ERROR_INVALID_EMAIL);
+            }
+
             $records[] = [
                 'name' => strip_tags(trim($user[0])),
-                'email' => strip_tags(trim($user[1])),
+                'email' => $email,
                 'role' => $roles[$role]
             ];
         }
@@ -89,14 +96,14 @@ class UserService {
      * @param $fileHandle  an open file handle for reading json data from
      * @return User  the user as modified
      */
-    // public function patch(int $userId, mixed $patch): User {
-    // 	if (!is_array($patch)) {
-    // 		throw new InvalidArgumentException('User properties must be serialized as a json encoded object');
-    // 	}
+    public function patch(int $userId, mixed $patch): User {
+        if (!is_array($patch)) {
+            throw new InvalidArgumentException(self::ERROR_INVALID_PATCH);
+        }
 
-    // 	$user = $this->userModel->read($userId);
-    // 	if ($user === null) {
+        $user = $this->userModel->read($userId);
+        if ($user === null) {
 
-    // 	}
-    // }
+        }
+    }
 }

@@ -64,6 +64,24 @@ final class UserServiceTest extends TestCase {
         $service->import(realpath(__DIR__ . '/data/ImportThrowsWhenRoleDoesNotExist.csv'));
     }
 
+    public function testImportThrowsWhenEmailIsInvalid() {
+        $roleModel = $this->createStub(RoleModel::class);
+        $roleModel->method('search')->willReturn([
+            (new Role())->set_name('admin')
+        ]);
+
+        $userModel = $this->createStub(UserModel::class);
+
+        $service = new UserService(
+            $roleModel,
+            $userModel
+        );
+
+        self::expectException(InvalidArgumentException::class);
+        self::expectExceptionMessage(UserService::ERROR_INVALID_EMAIL);
+        $service->import(realpath(__DIR__ . '/data/ImportThrowsWhenEmailIsInvalid.csv'));
+    }
+
     public function testImportSuccess() {
         $role = (new Role())->set_id(3)->set_name('admin');
 
