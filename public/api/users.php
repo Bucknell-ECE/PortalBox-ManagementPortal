@@ -7,7 +7,7 @@ use Portalbox\ResponseHandler;
 use Portalbox\Session;
 
 use Portalbox\Entity\Permission;
-
+use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\UserModel;
 use Portalbox\Model\RoleModel;
 
@@ -97,22 +97,18 @@ switch($_SERVER['REQUEST_METHOD']) {
 			Session::require_authorization(Permission::MODIFY_USER);
 		}
 
-		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
 			try {
-				$model = new UserModel(Config::config());
-				$user = $model->read($_GET['id']);
-				if($user) {
-					$authTransformer = new AuthorizationsTransformer();
-					$userTransformer = new UserTransformer();
-					$authorizations = $authTransformer->deserialize($data);
-					$user->set_authorizations($authorizations);
-					$user = $model->update($user);
-					ResponseHandler::render($user, $userTransformer);
-				} else {
-					http_response_code(404);
-					die('We have no record of that user');
-				}
+				$service = new UserService(
+					new RoleModel(Config::config()),
+					new UserModel(Config::config())
+				);
+				$user = $service->patch(intval($_GET['id']), 'php://input');
+				$userTransformer = new UserTransformer();
+				ResponseHandler::render($user, $userTransformer);
+			} catch (NotFoundException $nfe) {
+				http_response_code(404);
+				die($nfe->getMessage());
 			} catch(InvalidArgumentException $iae) {
 				http_response_code(400);
 				die($iae->getMessage());
