@@ -188,9 +188,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 						new RoleModel(Config::config()),
 						new UserModel(Config::config())
 					);
-					$stdin = fopen('php://input', 'r');
-					$users = $service->import($stdin);
-					fclose($stdin);
+					$users = $service->import('php://input');
 					echo count($users);
 				} catch(\Throwable $e) {
 					http_response_code(500);

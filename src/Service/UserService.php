@@ -11,68 +11,92 @@ use Portalbox\Model\UserModel;
  * Manage Users
  */
 class UserService {
-	protected RoleModel $roleModel;
-	protected UserModel $userModel;
+    public const ERROR_INVALID_CSV_RECORD_LENGTH = 'Import files must contain 3 columns: "Name", "Email Address", and "Role Id"';
+    public const ERROR_INVALID_CSV_ROLE = '"Role" must be the name of an existing role';
 
-	public function __construct(RoleModel $roleModel, UserModel $userModel) {
-		$this->roleModel = $roleModel;
-		$this->userModel = $userModel;
-	}
+    protected RoleModel $roleModel;
+    protected UserModel $userModel;
 
-	/**
-	 * Import users from the open file handle
-	 *
-	 * We expect the first line to be a header and that the input is three
-	 * columns: Name, Email Address, and Role Id in that order.
-	 *
-	 * @todo be smarter about column headers and column order. Maybe allow
-	 *     optional columns.
-	 *
-	 * @param $fileHandle  an open file handle for reading csv data from
-	 * @return User[]  The list of users which were added
-	 */
-	public function import($fileHandle): array {
-		// we don't expect many roles in the system so let's just cache them
-		$roles = [];
-		foreach ($this->roleModel->search() as $role) {
-			$roles[$role->name()] = $role;
-		}
+    public function __construct(RoleModel $roleModel, UserModel $userModel) {
+        $this->roleModel = $roleModel;
+        $this->userModel = $userModel;
+    }
 
-		// read and discard header line
-		$header = fgetcsv($fileHandle);
+    /**
+     * Import users from the open file handle
+     *
+     * We expect the first line to be a header and that the input is three
+     * columns: Name, Email Address, and Role Id in that order.
+     *
+     * @todo be smarter about column headers and column order. Maybe allow
+     *     optional columns.
+     *
+     * @param string $filePath  the path to a file from which to read csv data
+     * @return User[]  The list of users which were added
+     */
+    public function import(string $filePath): array {
+        // we don't expect many roles in the system so let's just cache them
+        $roles = [];
+        foreach ($this->roleModel->search() as $role) {
+            $roles[$role->name()] = $role;
+        }
 
-		// read lines, validating each, to accumulate users
-		$records = [];
-		while ($user = fgetcsv($fileHandle)) {
-			if (count($user) !== 3) {
-				throw new InvalidArgumentException('Import files must contain 3 columns: "Name", "Email Address", and "Role Id"');
-			}
+        // read and discard header line
+        $fileHandle = fopen($filePath, 'r');
+        $header = fgetcsv($fileHandle);
 
-			$role = trim($user[2]);
-			if (!array_key_exists($role, $roles)) {
-				throw new InvalidArgumentException('"Role" must be the name of an existing role');
-			}
+        // read lines, validating each, to accumulate users
+        $records = [];
+        while ($user = fgetcsv($fileHandle)) {
+            if (count($user) !== 3) {
+                throw new InvalidArgumentException(self::ERROR_INVALID_CSV_RECORD_LENGTH);
+            }
 
-			$records[] = [
-				'name' => strip_tags(trim($user[0])),
-				'email' => strip_tags(trim($user[1])),
-				'role' => $roles[$role]
-			];
-		}
+            $role = trim($user[2]);
+            if (!array_key_exists($role, $roles)) {
+                throw new InvalidArgumentException(self::ERROR_INVALID_CSV_ROLE);
+            }
 
-		// persist users to database
-		// @todo wrap in transaction
-		$users = [];
-		foreach ($records as $record) {
-			$users[] = $this->userModel->create(
-				(new User())
-					->set_name($record['name'])
-					->set_email($record['email'])
-					->set_is_active(true)
-					->set_role($record['role'])
-			);
-		}
+            $records[] = [
+                'name' => strip_tags(trim($user[0])),
+                'email' => strip_tags(trim($user[1])),
+                'role' => $roles[$role]
+            ];
+        }
 
-		return $users;
-	}
+        fclose($fileHandle);
+
+        // persist users to database
+        // @todo wrap in transaction
+        $users = [];
+        foreach ($records as $record) {
+            $users[] = $this->userModel->create(
+                (new User())
+                    ->set_name($record['name'])
+                    ->set_email($record['email'])
+                    ->set_is_active(true)
+                    ->set_role($record['role'])
+            );
+        }
+
+        return $users;
+    }
+
+    /**
+     * Persist changes to a user's properties
+     *
+     * @param int $userId  the unique id of the user to modify
+     * @param $fileHandle  an open file handle for reading json data from
+     * @return User  the user as modified
+     */
+    // public function patch(int $userId, mixed $patch): User {
+    // 	if (!is_array($patch)) {
+    // 		throw new InvalidArgumentException('User properties must be serialized as a json encoded object');
+    // 	}
+
+    // 	$user = $this->userModel->read($userId);
+    // 	if ($user === null) {
+
+    // 	}
+    // }
 }
