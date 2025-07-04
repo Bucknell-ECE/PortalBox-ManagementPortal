@@ -19,6 +19,7 @@ class UserService {
 	public const ERROR_INVALID_CSV_ROLE = '"Role" must be the name of an existing role';
 	public const ERROR_INVALID_EMAIL = 'Email must be a valid email address';
 	public const ERROR_INVALID_AUTHORIZATIONS = '"authorizations" must be a list of equipment type ids';
+	public const ERROR_INVALID_PIN = 'A user\'s PIN must be a string of four digits 0-9';
 	public const ERROR_INVALID_PATCH = 'User properties must be serialized as a json encoded object';
 	public const ERROR_USER_NOT_FOUND = 'We have no record of that user';
 
@@ -126,9 +127,14 @@ class UserService {
 		}
 
 		foreach ($patch as $property => $value) {
+			// @todo this would be a good place to use `match` when we officially
+			// drop PHP 7.4
 			switch ($property) {
 				case 'authorizations':
-					$this->patchUserAuthorizations($user, $value);
+					$user = $this->patchUserAuthorizations($user, $value);
+					break;
+				case 'pin':
+					$user = $this->patchUserPIN($user, $value);
 					break;
 				default:
 					throw new InvalidArgumentException(self::ERROR_INVALID_PATCH);
@@ -146,6 +152,8 @@ class UserService {
 	 * @param User $user  the user to be patched
 	 * @param mixed $equipment_types  the equipment_type the user is to be
 	 *      authorized for
+	 * @throws InvalidArgumentException if equipment_types is not a list of
+	 *      integers corresponding to equipment types
 	 * @return User the user with the proposed authorizations applied
 	 */
 	private function patchUserAuthorizations(User $user, mixed $equipment_types): User {
@@ -171,5 +179,27 @@ class UserService {
 		}
 
 		return $user->set_authorizations($authorizations);
+	}
+
+	/**
+	 * Apply a patch to the in memory user's pin
+	 *
+	 * Note This method does not persist the user to the database
+	 *
+	 * @param User $user  the user to be patched
+	 * @param mixed $value  the pin for the user
+	 * @return User the user with the proposed pin set
+	 */
+	private function patchUserPIN(User $user, mixed $value): User {
+		if (!is_string($value)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_PIN);
+		}
+
+		$pin = trim($value);
+		if (preg_match('/^\d{4}$/', $pin) !== 1) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_PIN);
+		}
+
+		return $user->set_pin(password_hash($pin, PASSWORD_DEFAULT));
 	}
 }

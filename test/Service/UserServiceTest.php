@@ -300,5 +300,70 @@ final class UserServiceTest extends TestCase {
 
 	#endregion test patch(authorizations)
 
+	#region test patch(pin)
+
+	public function testPatchPINThrowsWhenNotString() {
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn(new User());
+
+		$service = new UserService(
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_PIN);
+		$service->patch(1, realpath(__DIR__ . '/data/PatchPINThrowsWhenNotString.json'));
+	}
+
+	public function testPatchPINThrowsWhenNotFourDigits() {
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn(new User());
+
+		$service = new UserService(
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_PIN);
+		$service->patch(1, realpath(__DIR__ . '/data/PatchPINThrowsWhenNotFourDigits.json'));
+	}
+
+	public function testPatchPINSuccess() {
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn(new User());
+		$userModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn(User $user) =>
+					$user instanceof User
+					&& password_verify('1234', $user->pin())
+			)
+		)->willReturnArgument(0);
+
+		$service = new UserService(
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		$user = $service->patch(1, realpath(__DIR__ . '/data/PatchPINSuccess.json'));
+		self::assertInstanceOf(User::class, $user);
+		self::assertTrue(password_verify('1234', $user->pin()));
+	}
+
+	#endregion test patch(pin)
+
 	#endregion test patch()
 }
