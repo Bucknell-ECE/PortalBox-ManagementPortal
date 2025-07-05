@@ -4,20 +4,17 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
 use Portalbox\Exception\NotFoundException;
-use Portalbox\Model\UserModel;
 use Portalbox\Model\RoleModel;
-
+use Portalbox\Model\UserModel;
 use Portalbox\Query\UserQuery;
-
 use Portalbox\Service\UserService;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\AuthorizationsTransformer;
 use Portalbox\Transform\UserTransformer;
 
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
@@ -25,12 +22,12 @@ switch($_SERVER['REQUEST_METHOD']) {
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			$user_id = $_GET['id'];
 			// check authorization
-			if(Session::check_authorization(Permission::READ_OWN_USER)) {
-				if((int)$user_id !== (int)Session::get_authenticated_user()->id()) {
-					Session::require_authorization(Permission::READ_USER);
+			if($session->check_authorization(Permission::READ_OWN_USER)) {
+				if((int)$user_id !== (int)$session->get_authenticated_user()->id()) {
+					$session->require_authorization(Permission::READ_USER);
 				}
 			} else {
-				Session::require_authorization(Permission::READ_USER);
+				$session->require_authorization(Permission::READ_USER);
 			}
 
 			try {
@@ -49,7 +46,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 			}
 		} else { // List
 			// check authorization
-			Session::require_authorization(Permission::LIST_USERS);
+			$session->require_authorization(Permission::LIST_USERS);
 
 			try {
 				$model = new UserModel(Config::config());
@@ -93,8 +90,8 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		if(!(Session::check_authorization(Permission::CREATE_EQUIPMENT_AUTHORIZATION) || Session::check_authorization(Permission::DELETE_EQUIPMENT_AUTHORIZATION))) {
-			Session::require_authorization(Permission::MODIFY_USER);
+		if(!($session->check_authorization(Permission::CREATE_EQUIPMENT_AUTHORIZATION) || $session->check_authorization(Permission::DELETE_EQUIPMENT_AUTHORIZATION))) {
+			$session->require_authorization(Permission::MODIFY_USER);
 		}
 
 		if(NULL !== $data) {
@@ -129,7 +126,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		Session::require_authorization(Permission::MODIFY_USER);
+		$session->require_authorization(Permission::MODIFY_USER);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -154,7 +151,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':		// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_USER);
+		$session->require_authorization(Permission::CREATE_USER);
 
 		switch($_SERVER["CONTENT_TYPE"]) {
 			case 'application/json':
