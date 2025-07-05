@@ -4,15 +4,13 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\ChargeModel;
-
 use Portalbox\Query\ChargeQuery;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\ChargeTransformer;
+
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
@@ -20,7 +18,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			// echo "test";
 			
-			Session::require_authorization(Permission::READ_CHARGE);
+			$session->require_authorization(Permission::READ_CHARGE);
 
 			try {
 				$model = new ChargeModel(Config::config());
@@ -40,12 +38,12 @@ switch($_SERVER['REQUEST_METHOD']) {
 			$user_id = NULL;
 
 			// check authorization
-			if(Session::check_authorization(Permission::LIST_OWN_CHARGES)) {
-				if(!Session::check_authorization(Permission::LIST_CHARGES)) {
-					$user_id = Session::get_authenticated_user()->id();
+			if($session->check_authorization(Permission::LIST_OWN_CHARGES)) {
+				if(!$session->check_authorization(Permission::LIST_CHARGES)) {
+					$user_id = $session->get_authenticated_user()->id();
 				}
 			} else {
-				Session::require_authorization(Permission::LIST_CHARGES);
+				$session->require_authorization(Permission::LIST_CHARGES);
 			}
 
 			try {
@@ -86,7 +84,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		Session::require_authorization(Permission::MODIFY_CHARGE);
+		$session->require_authorization(Permission::MODIFY_CHARGE);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -111,7 +109,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':		// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_CHARGE);
+		$session->require_authorization(Permission::CREATE_CHARGE);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {

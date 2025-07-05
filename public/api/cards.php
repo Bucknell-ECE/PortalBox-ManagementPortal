@@ -4,22 +4,19 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\CardModel;
-
 use Portalbox\Query\CardQuery;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\CardTransformer;
 
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-			Session::require_authorization(Permission::READ_CARD);
+			$session->require_authorization(Permission::READ_CARD);
 
 			try {
 				$model = new CardModel(Config::config());
@@ -38,7 +35,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		} elseif(isset($_GET['search']) && !empty($_GET['search'])) {
 			$search_id = $_GET['search'];
 
-			Session::require_authorization(Permission::READ_CARD);
+			$session->require_authorization(Permission::READ_CARD);
 
 			try {
 				$model = new CardModel(Config::config());
@@ -55,12 +52,12 @@ switch($_SERVER['REQUEST_METHOD']) {
 			$user_id = NULL;
 
 			// check authorization
-			if(Session::check_authorization(Permission::LIST_OWN_CARDS)) {
-				if(!Session::check_authorization(Permission::LIST_CARDS)) {
-					$user_id = Session::get_authenticated_user()->id();
+			if($session->check_authorization(Permission::LIST_OWN_CARDS)) {
+				if(!$session->check_authorization(Permission::LIST_CARDS)) {
+					$user_id = $session->get_authenticated_user()->id();
 				}
 			} else {
-				Session::require_authorization(Permission::LIST_CARDS);
+				$session->require_authorization(Permission::LIST_CARDS);
 			}
 
 			try {
@@ -86,7 +83,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':		// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_CARD);
+		$session->require_authorization(Permission::CREATE_CARD);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {

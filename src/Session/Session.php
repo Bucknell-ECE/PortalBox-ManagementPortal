@@ -1,7 +1,8 @@
 <?php
 
-namespace Portalbox;
+namespace Portalbox\Session;
 
+use Portalbox\Config;
 use Portalbox\Entity\User;
 use Portalbox\Model\Entity\User as PDOAwareUser;
 use Portalbox\Model\APIKeyModel;
@@ -9,16 +10,27 @@ use Portalbox\Model\UserModel;
 use Portalbox\Query\APIKeyQuery;
 
 /**
- * Session by nature is a weird singleton that manifests a part of the request
- * handler that exists external to the handler like environment variables.
- * There can be only the one session per request handler.
+ * Session by nature is a weird singleton; it is in a sense part of the request
+ * but we don't really want to deal with the low level stuff, what we want is to
+ * determine if there is an authenticated user and what there permissions are.
+ * To solve this, we have created `Session` which hides the low level session
+ * management. Simply create an instance of `Session`, and ask it for the
+ * authenticated user.
+ *
+ * We are currently transitioning from some namespaced methods to an instance
+ * that can be set as a property of "Services" allowing "Services" to make
+ * authentication and authorization decisions in a manner that lends itself to
+ * automated testing.
  */
 class Session {
+	public const ERROR_NOT_AUTHENTICATED = 'Your session is invalid. Perhaps you need to reauthenticate.';
+	public const ERROR_NOT_AUTHORIZED = 'You have not been granted access to this information.';
+
 	/**
 	 * The authenticated user
-	 * @var User
+	 * @var User|null
 	 */
-	private static $authenticated_user;
+	private $authenticated_user = null;
 
 	/**
 	 * Get the currently authenticated User
@@ -26,8 +38,8 @@ class Session {
 	 * @return User|null - the currently authenticated user or null if there
 	 *     is not a currently authenticated user
 	 */
-	public static function get_authenticated_user(): ?User {
-		if (!self::$authenticated_user) {
+	public function get_authenticated_user(): ?User {
+		if (!$this->authenticated_user) {
 			$config = Config::config();
 
 			// Check for Brearer token
@@ -47,14 +59,14 @@ class Session {
 
 				if ($keys && 0 < count($keys)) {
 					// get key 0 and construct a fake user for it.
-					self::$authenticated_user = (new PDOAwareUser($config))
+					$this->authenticated_user = (new PDOAwareUser($config))
 						->set_name($keys[0]->name())
 						->set_is_active(true)
 						->set_role_id(3);	// API key act as admins...
 											// in future should add a role_id field
 											// to keys and restrict them accordingly
 
-					return self::$authenticated_user;
+					return $this->authenticated_user;
 				}
 			}
 
@@ -70,21 +82,21 @@ class Session {
 
 			if (array_key_exists('user_id', $_SESSION)) {
 				$model = new UserModel($config);
-				self::$authenticated_user = $model->read($_SESSION['user_id']);
+				$this->authenticated_user = $model->read($_SESSION['user_id']);
 			} else {
 				return null;
 			}
 		}
 
-		return self::$authenticated_user;
+		return $this->authenticated_user;
 	}
 
 	/**
 	 * A convenience method that returns an HTTP 403 response if there is not
 	 * an authenticated user.
 	 */
-	public static function require_authentication(): void {
-		if (null === self::get_authenticated_user()) {
+	public function require_authentication(): void {
+		if (null === $this->get_authenticated_user()) {
 			http_response_code(403);
 			die('Your session is invalid. Perhaps you need to reauthenticate.');
 		}
@@ -101,18 +113,18 @@ class Session {
 	 * @return bool true iff the User is authenticated and has the specified
 	 *     permission
 	 */
-	public static function check_authorization(int $permission): bool {
-		self::require_authentication();
+	public function check_authorization(int $permission): bool {
+		$this->require_authentication();
 
-		return self::get_authenticated_user()->role()->has_permission($permission);
+		return $this->get_authenticated_user()->role()->has_permission($permission);
 	}
 
 	/**
 	 * A convenience method that returns an HTTP 403 response if the user is
 	 * not authorized.
 	 */
-	public static function require_authorization(int $permission): void {
-		if (!self::check_authorization($permission)) {
+	public function require_authorization(int $permission): void {
+		if (!$this->check_authorization($permission)) {
 			http_response_code(403);
 			die('You have not been granted access to this information.');
 		}

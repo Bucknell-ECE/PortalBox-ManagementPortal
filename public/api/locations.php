@@ -4,22 +4,19 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\LocationModel;
-
-//use Portalbox\Query\LocationQuery;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\LocationTransformer;
+
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			// check authorization
-			Session::require_authorization(Permission::READ_LOCATION);
+			$session->require_authorization(Permission::READ_LOCATION);
 
 			try {
 				$model = new LocationModel(Config::config());
@@ -37,7 +34,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 			}
 		} else { // List
 			// check authorization
-			Session::require_authorization(Permission::LIST_LOCATIONS);
+			$session->require_authorization(Permission::LIST_LOCATIONS);
 
 			try {
 				$model = new LocationModel(Config::config());
@@ -58,7 +55,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		Session::require_authorization(Permission::MODIFY_LOCATION);
+		$session->require_authorization(Permission::MODIFY_LOCATION);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -83,7 +80,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':		// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_LOCATION);
+		$session->require_authorization(Permission::CREATE_LOCATION);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
