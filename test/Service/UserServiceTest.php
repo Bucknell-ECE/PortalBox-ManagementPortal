@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Role;
 use Portalbox\Entity\User;
+use Portalbox\Exception\AuthenticationException;
+use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
@@ -139,6 +141,21 @@ final class UserServiceTest extends TestCase {
 	#endregion test import()
 
 	#region test patch()
+
+	public function testPatchThrowsWhenNotAuthenticated() {
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		$service->patch(1, '');
+	}
 
 	public function testPatchThrowsWhenUserDoesNotExist() {
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);

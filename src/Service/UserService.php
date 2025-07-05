@@ -4,10 +4,13 @@ namespace Portalbox\Service;
 
 use InvalidArgumentException;
 use Portalbox\Entity\User;
+use Portalbox\Exception\AuthenticationException;
+use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
+use Portalbox\Session\SessionInterface;
 
 /**
  * Manage Users
@@ -28,10 +31,12 @@ class UserService {
 	protected UserModel $userModel;
 
 	public function __construct(
+		SessionInterface $session,
 		EquipmentTypeModel $equipmentTypeModel,
 		RoleModel $roleModel,
 		UserModel $userModel
 	) {
+		$this->session = $session;
 		$this->equipmentTypeModel = $equipmentTypeModel;
 		$this->roleModel = $roleModel;
 		$this->userModel = $userModel;
@@ -111,6 +116,10 @@ class UserService {
 	 * @return User  the user as modified
 	 */
 	public function patch(int $userId, string $filePath): User {
+		if ($this->session->get_authenticated_user() === null) {
+			throw new AuthenticationException();
+		}
+
 		$user = $this->userModel->read($userId);
 		if ($user === null) {
 			throw new NotFoundException(self::ERROR_USER_NOT_FOUND);
