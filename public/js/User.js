@@ -172,6 +172,36 @@ export class User {
 	 * Modify the authorizations (only) of the user specified by id
 	 *
 	 * @param int id the unique id of the User to modify
+	 * @param string pin  the user's desired pin
+	 * @return User specified by the id
+	 * @throws SessionTimeOutError if the user session has expired
+	 * @throws String if any other error occurs
+	 */
+	static async changePIN(id, pin) {
+		const response = await fetch("/api/users.php?id=" + id, {
+			body: JSON.stringify({pin}),
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			method: "PATCH"
+		});
+
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to save pin";
+	}
+
+	/**
+	 * Modify the authorizations (only) of the user specified by id
+	 *
+	 * @param int id the unique id of the User to modify
 	 * @return User specified by the id
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
@@ -194,7 +224,7 @@ export class User {
 			throw new SessionTimeOutError();
 		}
 
-		throw "API was unable to save user";
+		throw "API was unable to save authorizations";
 	}
 
 	/**

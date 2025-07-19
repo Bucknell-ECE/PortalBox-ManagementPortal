@@ -3,6 +3,7 @@
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
+use Portalbox\Entity\Permission;
 use Portalbox\Entity\User;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -21,7 +22,9 @@ class UserService {
 	public const ERROR_INVALID_CSV_RECORD_LENGTH = 'Import files must contain 3 columns: "Name", "Email Address", and "Role Id"';
 	public const ERROR_INVALID_CSV_ROLE = '"Role" must be the name of an existing role';
 	public const ERROR_INVALID_EMAIL = 'Email must be a valid email address';
+	public const ERROR_NOT_AUTHORIZED_TO_PATCH_AUTHORIZATIONS = 'You are not authorized to change a user\'s authorizations';
 	public const ERROR_INVALID_AUTHORIZATIONS = '"authorizations" must be a list of equipment type ids';
+	public const ERROR_NOT_AUTHORIZED_TO_PATCH_PIN = 'Users may only change their own PIN';
 	public const ERROR_INVALID_PIN = 'A user\'s PIN must be a string of four digits 0-9';
 	public const ERROR_INVALID_PATCH = 'User properties must be serialized as a json encoded object';
 	public const ERROR_USER_NOT_FOUND = 'We have no record of that user';
@@ -114,6 +117,11 @@ class UserService {
 	 * @param string $filePath  the path to a file from which to read a JSON
 	 *      encoded patch
 	 * @return User  the user as modified
+	 * @throws InvalidArgumentException  if filePath is not the path to a
+	 *      readable file, if the file does not contain a JSON encoded "object"
+	 *      i.e. a key/value list, or the keys of the list are not User
+	 *      properties supported for patching
+	 * @throws NotFoundException  if the user is not found
 	 */
 	public function patch(int $userId, string $filePath): User {
 		if ($this->session->get_authenticated_user() === null) {
@@ -161,11 +169,26 @@ class UserService {
 	 * @param User $user  the user to be patched
 	 * @param mixed $equipment_types  the equipment_type the user is to be
 	 *      authorized for
+	 * @return User the user with the proposed authorizations applied
 	 * @throws InvalidArgumentException if equipment_types is not a list of
 	 *      integers corresponding to equipment types
-	 * @return User the user with the proposed authorizations applied
+	 * @throws AuthorizationException  if the user does not have the
+	 *      CREATE_EQUIPMENT_AUTHORIZATION, DELETE_EQUIPMENT_AUTHORIZATION, and
+	 *      MODIFY_USER permissions
+	 * @todo allow users to have CREATE_EQUIPMENT_AUTHORIZATION and
+	 *      DELETE_EQUIPMENT_AUTHORIZATION permissions separately and restrict
+	 *      changes to adding and removing accordingly
 	 */
 	private function patchUserAuthorizations(User $user, mixed $equipment_types): User {
+		$role = $this->session->get_authenticated_user()->role();
+		if(!(
+			$role->has_permission(Permission::CREATE_EQUIPMENT_AUTHORIZATION)
+			&& $role->has_permission(Permission::DELETE_EQUIPMENT_AUTHORIZATION)
+			&& $role->has_permission(Permission::MODIFY_USER)
+		)) {
+			throw new AuthorizationException(self::ERROR_NOT_AUTHORIZED_TO_PATCH_AUTHORIZATIONS);
+		}
+
 		if (!is_array($equipment_types)) {
 			throw new InvalidArgumentException(self::ERROR_INVALID_AUTHORIZATIONS);
 		}
@@ -198,8 +221,14 @@ class UserService {
 	 * @param User $user  the user to be patched
 	 * @param mixed $value  the pin for the user
 	 * @return User the user with the proposed pin set
+	 * @throws AuthorizationException  if the user to be patched is not the
+	 *      authenticated user
 	 */
 	private function patchUserPIN(User $user, mixed $value): User {
+		if ($this->session->get_authenticated_user()->id() !== $user->id()) {
+			throw new AuthorizationException(self::ERROR_NOT_AUTHORIZED_TO_PATCH_PIN);
+		}
+
 		if (!is_string($value)) {
 			throw new InvalidArgumentException(self::ERROR_INVALID_PIN);
 		}

@@ -22,7 +22,7 @@ use Portalbox\Query\APIKeyQuery;
  * authentication and authorization decisions in a manner that lends itself to
  * automated testing.
  */
-class Session {
+class Session implements SessionInterface {
 	public const ERROR_NOT_AUTHENTICATED = 'Your session is invalid. Perhaps you need to reauthenticate.';
 	public const ERROR_NOT_AUTHORIZED = 'You have not been granted access to this information.';
 

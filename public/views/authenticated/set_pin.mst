@@ -1,0 +1,18 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/profile">Profile</a></li>
+	<li>Change PIN</li>
+</ul>
+<article>
+	<header>
+		<h1>Change PIN</h1>
+		<div class="button-group">
+			<a href="/profile">Cancel</a>
+			<button form="set-pin-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="set-pin-form">
+		<label for="name">PIN:</label>
+		<input type="text" name="pin" id="pin" minlength="4" maxlength="4" pattern="\d{4}" inputmode="numeric" required />
+	</form>
+</article>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\EquipmentType;
+use Portalbox\Entity\Permission;
 use Portalbox\Entity\Role;
 use Portalbox\Entity\User;
 use Portalbox\Exception\AuthenticationException;
@@ -13,11 +14,13 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Service\UserService;
+use Portalbox\Session\SessionInterface;
 
 final class UserServiceTest extends TestCase {
 	#region test import()
 
 	public function testImportThrowsWhenLineTooShort() {
+		$session = $this->createStub(SessionInterface::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -28,6 +31,7 @@ final class UserServiceTest extends TestCase {
 		$userModel = $this->createStub(UserModel::class);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -39,6 +43,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testImportThrowsWhenLineTooLong() {
+		$session = $this->createStub(SessionInterface::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -49,6 +54,7 @@ final class UserServiceTest extends TestCase {
 		$userModel = $this->createStub(UserModel::class);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -60,6 +66,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testImportThrowsWhenRoleDoesNotExist() {
+		$session = $this->createStub(SessionInterface::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -70,6 +77,7 @@ final class UserServiceTest extends TestCase {
 		$userModel = $this->createStub(UserModel::class);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -81,6 +89,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testImportThrowsWhenEmailIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -91,6 +100,7 @@ final class UserServiceTest extends TestCase {
 		$userModel = $this->createStub(UserModel::class);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -104,6 +114,7 @@ final class UserServiceTest extends TestCase {
 	public function testImportSuccess() {
 		$role = (new Role())->set_id(3)->set_name('admin');
 
+		$session = $this->createStub(SessionInterface::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -122,6 +133,7 @@ final class UserServiceTest extends TestCase {
 		)->willReturnArgument(0);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -143,11 +155,15 @@ final class UserServiceTest extends TestCase {
 	#region test patch()
 
 	public function testPatchThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 		$userModel = $this->createStub(UserModel::class);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -158,6 +174,9 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchThrowsWhenUserDoesNotExist() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(new User());
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
@@ -165,6 +184,7 @@ final class UserServiceTest extends TestCase {
 		$userModel->method('read')->willReturn(null);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -176,6 +196,9 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchThrowsWhenFileIsNotReadable() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(new User());
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
@@ -183,6 +206,7 @@ final class UserServiceTest extends TestCase {
 		$userModel->method('read')->willReturn(new User());
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -195,6 +219,9 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchThrowsWhenDataIsNotArray() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(new User());
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
@@ -202,6 +229,7 @@ final class UserServiceTest extends TestCase {
 		$userModel->method('read')->willReturn(new User());
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -213,6 +241,9 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchThrowsWhenPatchIncludesUnsupportedProperty() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(new User());
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
@@ -220,6 +251,7 @@ final class UserServiceTest extends TestCase {
 		$userModel->method('read')->willReturn(new User());
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -232,7 +264,13 @@ final class UserServiceTest extends TestCase {
 
 	#region test patch(authorizations)
 
-	public function testPatchAuthorizationThrowsWhenAuthorizationsNotArray() {
+	public function testPatchAuthorizationThrowsNotAuthorized() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
@@ -240,6 +278,40 @@ final class UserServiceTest extends TestCase {
 		$userModel->method('read')->willReturn(new User());
 
 		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_NOT_AUTHORIZED_TO_PATCH_AUTHORIZATIONS);
+		$service->patch(1, realpath(__DIR__ . '/data/PatchAuthorizationSuccess.json'));
+	}
+
+	public function testPatchAuthorizationThrowsWhenAuthorizationsNotArray() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([
+							Permission::CREATE_EQUIPMENT_AUTHORIZATION,
+							Permission::DELETE_EQUIPMENT_AUTHORIZATION,
+							Permission::MODIFY_USER
+						])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn(new User());
+
+		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -251,6 +323,20 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchAuthorizationThrowsWhenAuthorizationIsNotInt() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([
+							Permission::CREATE_EQUIPMENT_AUTHORIZATION,
+							Permission::DELETE_EQUIPMENT_AUTHORIZATION,
+							Permission::MODIFY_USER
+						])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
@@ -258,6 +344,7 @@ final class UserServiceTest extends TestCase {
 		$userModel->method('read')->willReturn(new User());
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -269,6 +356,20 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchAuthorizationThrowsWhenEquipmentTypeDoesNotExist() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([
+							Permission::CREATE_EQUIPMENT_AUTHORIZATION,
+							Permission::DELETE_EQUIPMENT_AUTHORIZATION,
+							Permission::MODIFY_USER
+						])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$equipmentTypeModel->method('read')->willReturn(null);
 
@@ -278,6 +379,7 @@ final class UserServiceTest extends TestCase {
 		$userModel->method('read')->willReturn(new User());
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -289,6 +391,20 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchAuthorizationSuccess() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([
+							Permission::CREATE_EQUIPMENT_AUTHORIZATION,
+							Permission::DELETE_EQUIPMENT_AUTHORIZATION,
+							Permission::MODIFY_USER
+						])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
 
@@ -305,6 +421,7 @@ final class UserServiceTest extends TestCase {
 		)->willReturnArgument(0);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -319,14 +436,52 @@ final class UserServiceTest extends TestCase {
 
 	#region test patch(pin)
 
-	public function testPatchPINThrowsWhenNotString() {
+	public function testPatchPINThrowsWhenNotAuthorized() {
+		$authenticatedUserId = 501;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())->set_id($authenticatedUserId)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
 		$userModel = $this->createStub(UserModel::class);
-		$userModel->method('read')->willReturn(new User());
+		$userModel->method('read')->willReturn(
+			(new User())->set_id($authenticatedUserId + 1)
+		);
 
 		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_NOT_AUTHORIZED_TO_PATCH_PIN);
+		$service->patch(1, realpath(__DIR__ . '/data/PatchPINSuccess.json'));
+	}
+
+	public function testPatchPINThrowsWhenNotString() {
+		$authenticatedUserId = 501;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())->set_id($authenticatedUserId)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn(
+			(new User())->set_id($authenticatedUserId)
+		);
+
+		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -338,13 +493,23 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchPINThrowsWhenNotFourDigits() {
+		$authenticatedUserId = 501;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())->set_id($authenticatedUserId)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
 		$userModel = $this->createStub(UserModel::class);
-		$userModel->method('read')->willReturn(new User());
+		$userModel->method('read')->willReturn(
+			(new User())->set_id($authenticatedUserId)
+		);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel
@@ -356,11 +521,20 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchPINSuccess() {
+		$authenticatedUserId = 501;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())->set_id($authenticatedUserId)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
 		$userModel = $this->createStub(UserModel::class);
-		$userModel->method('read')->willReturn(new User());
+		$userModel->method('read')->willReturn(
+			(new User())->set_id($authenticatedUserId)
+		);
 		$userModel->expects($this->once())->method('update')->with(
 			$this->callback(
 				fn(User $user) =>
@@ -370,6 +544,7 @@ final class UserServiceTest extends TestCase {
 		)->willReturnArgument(0);
 
 		$service = new UserService(
+			$session,
 			$equipmentTypeModel,
 			$roleModel,
 			$userModel

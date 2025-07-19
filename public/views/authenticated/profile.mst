@@ -6,6 +6,9 @@
 <article>
 	<header>
 		<h1>Profile</h1>
+		<div class="button-group">
+			<a href="/profile/set_pin" class="default">Change PIN</a>
+		</div>
 	</header>
 	<dl>
 		<dt>Name:</label>

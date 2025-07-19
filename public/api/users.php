@@ -5,7 +5,10 @@ require '../../src/autoload.php';
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Entity\Permission;
+use Portalbox\Exception\AuthenticationException;
+use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
+use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\UserQuery;
@@ -89,33 +92,31 @@ switch($_SERVER['REQUEST_METHOD']) {
 			die('You must specify the user to modify via the id param');
 		}
 
-		// check authorization
-		if(!($session->check_authorization(Permission::CREATE_EQUIPMENT_AUTHORIZATION) || $session->check_authorization(Permission::DELETE_EQUIPMENT_AUTHORIZATION))) {
-			$session->require_authorization(Permission::MODIFY_USER);
-		}
-
-		if(NULL !== $data) {
-			try {
-				$service = new UserService(
-					new RoleModel(Config::config()),
-					new UserModel(Config::config())
-				);
-				$user = $service->patch(intval($_GET['id']), 'php://input');
-				$userTransformer = new UserTransformer();
-				ResponseHandler::render($user, $userTransformer);
-			} catch (NotFoundException $nfe) {
-				http_response_code(404);
-				die($nfe->getMessage());
-			} catch(InvalidArgumentException $iae) {
-				http_response_code(400);
-				die($iae->getMessage());
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} else {
+		try {
+			$service = new UserService(
+				$session,
+				new EquipmentTypeModel(Config::config()),
+				new RoleModel(Config::config()),
+				new UserModel(Config::config())
+			);
+			$user = $service->patch(intval($_GET['id']), 'php://input');
+			$userTransformer = new UserTransformer();
+			ResponseHandler::render($user, $userTransformer);
+		} catch(InvalidArgumentException $iae) {
 			http_response_code(400);
-			die(json_last_error_msg());
+			die($iae->getMessage());
+		} catch (AuthenticationException $ae) {
+			http_response_code(401);
+			die($session->ERROR_NOT_AUTHENTICATED);
+		} catch (AuthorizationException $aue) {
+			http_response_code(403);
+			die(self::ERROR_NOT_AUTHORIZED);
+		} catch (NotFoundException $nfe) {
+			http_response_code(404);
+			die($nfe->getMessage());
+		} catch(Exception $e) {
+			http_response_code(500);
+			die('We experienced issues communicating with the database');
 		}
 		break;
 	case 'POST':	// Update
@@ -178,6 +179,8 @@ switch($_SERVER['REQUEST_METHOD']) {
 			case 'text/csv':
 				try {
 					$service = new UserService(
+						$session,
+						new EquipmentTypeModel(Config::config()),
 						new RoleModel(Config::config()),
 						new UserModel(Config::config())
 					);
