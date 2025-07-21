@@ -4,20 +4,19 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\RoleModel;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\RoleTransformer;
+
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			// check authorization
-			Session::require_authorization(Permission::READ_ROLE);
+			$session->require_authorization(Permission::READ_ROLE);
 
 			try {
 				$model = new RoleModel(Config::config());
@@ -35,7 +34,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 			}
 		} else { // List
 			// check authorization
-			Session::require_authorization(Permission::LIST_ROLES);
+			$session->require_authorization(Permission::LIST_ROLES);
 
 			try {
 				$model = new RoleModel(Config::config());
@@ -56,7 +55,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		Session::require_authorization(Permission::MODIFY_ROLE);
+		$session->require_authorization(Permission::MODIFY_ROLE);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -81,7 +80,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':		// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_ROLE);
+		$session->require_authorization(Permission::CREATE_ROLE);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {

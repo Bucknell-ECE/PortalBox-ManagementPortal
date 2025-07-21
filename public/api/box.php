@@ -5,32 +5,24 @@ require '../../src/autoload.php';
 use PDO;
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\EquipmentQuery;
-
 use Portalbox\Transform\EquipmentTransformer;
 use Portalbox\Model\CardModel;
-
 use Portalbox\Query\CardQuery;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\CardTransformer;
 
-
-
-
-
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':
-		Session::require_authorization(Permission::READ_EQUIPMENT);
+		$session->require_authorization(Permission::READ_EQUIPMENT);
 
 		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR .'../../config/config.ini');
 		$settings = parse_ini_file($path, TRUE);
@@ -213,7 +205,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		break;
 	case 'POST':	// Update
-		Session::require_authorization(Permission::READ_EQUIPMENT);
+		$session->require_authorization(Permission::READ_EQUIPMENT);
 
 
 		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR .'../../config/config.ini');
@@ -362,7 +354,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 		break;
 	case 'PUT':		// Create
-		Session::require_authorization(Permission::READ_EQUIPMENT);
+		$session->require_authorization(Permission::READ_EQUIPMENT);
 
 
 		$path = realpath(__DIR__ . DIRECTORY_SEPARATOR .'../../config/config.ini');

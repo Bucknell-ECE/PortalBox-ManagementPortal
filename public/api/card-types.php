@@ -4,18 +4,17 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\CardTypeModel;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\CardTypeTransformer;
+
+$session = new Session();
 
 //switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
     case 'GET':     // List
-        Session::require_authorization(Permission::LIST_CARD_TYPES);
+        $session->require_authorization(Permission::LIST_CARD_TYPES);
 
         try {
             $model = new CardTypeModel(Config::config());

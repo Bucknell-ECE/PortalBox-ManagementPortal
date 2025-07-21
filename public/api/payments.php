@@ -4,22 +4,20 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\PaymentModel;
-
 use Portalbox\Query\PaymentQuery;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\PaymentTransformer;
+
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			// check authorization
-			Session::require_authorization(Permission::READ_PAYMENT);
+			$session->require_authorization(Permission::READ_PAYMENT);
 
 			try {
 				$model = new PaymentModel(Config::config());
@@ -39,12 +37,12 @@ switch($_SERVER['REQUEST_METHOD']) {
 			$user_id = NULL;
 
 			// check authorization
-			if(Session::check_authorization(Permission::LIST_OWN_PAYMENTS)) {
-				if(!Session::check_authorization(Permission::LIST_PAYMENTS)) {
-					$user_id = Session::get_authenticated_user()->id();
+			if($session->check_authorization(Permission::LIST_OWN_PAYMENTS)) {
+				if(!$session->check_authorization(Permission::LIST_PAYMENTS)) {
+					$user_id = $session->get_authenticated_user()->id();
 				}
 			} else {
-				Session::require_authorization(Permission::LIST_PAYMENTS);
+				$session->require_authorization(Permission::LIST_PAYMENTS);
 			}
 
 			try {
@@ -79,7 +77,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		Session::require_authorization(Permission::MODIFY_PAYMENT);
+		$session->require_authorization(Permission::MODIFY_PAYMENT);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -104,7 +102,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':		// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_PAYMENT);
+		$session->require_authorization(Permission::CREATE_PAYMENT);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {

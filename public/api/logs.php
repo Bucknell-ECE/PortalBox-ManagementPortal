@@ -4,21 +4,19 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\LoggedEventModel;
-
 use Portalbox\Query\LoggedEventQuery;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\LoggedEventTransformer;
+
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List
 		// check authorization
-		Session::require_authorization(Permission::LIST_LOGS);
+		$session->require_authorization(Permission::LIST_LOGS);
 
 		try {
 			$model = new LoggedEventModel(Config::config());

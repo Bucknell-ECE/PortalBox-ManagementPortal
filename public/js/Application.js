@@ -272,7 +272,7 @@ class Application {
 	/**
 	 * handleError takes action based on the error reported.
 	 *
-	 * @param {*} error - the error being reported tyically from the fetch API
+	 * @param {*} error - the error being reported typically from the fetch API
 	 *        but could also be a {string} message to report to the user
 	 */
 	handleError(error) {
@@ -668,6 +668,14 @@ class Application {
 					});
 				}).catch(e => this.handleError(e));
 			});
+
+			this.route("/profile/set_pin", _ => {
+				this.render("#main", "authenticated/set_pin", {}, {}, () => {
+					document
+						.getElementById("set-pin-form")
+						.addEventListener("submit", (e) => this.set_pin(e));
+				});
+			});
 		}
 
 		// Everyone gets a home route; what it presents them is controlled by home_icons
@@ -764,7 +772,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding an api key to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() in render() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -814,7 +822,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating cards on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() in render() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the location to modify
 	 * @param {Event} event - the form submission event
@@ -831,7 +839,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a card to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() in render() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -882,7 +890,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating charges on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() in render() for the view.
 	 */
 	update_charge(charge, event) {
 		event.preventDefault();
@@ -904,14 +912,14 @@ class Application {
 
 			throw "API was unable to save charge";
 		}).then(_data => {
-			moostaka.navigate("/charges");
+			this.navigate("/charges");
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
 
 	/**
 	 * Callback that handles adding equipment to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() in render() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -977,7 +985,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating equipment on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() in render() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the equipment to modify
 	 * @param {Event} event - the form submission event
@@ -1006,7 +1014,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding an equipment type to the backend.
-	 * Bound to the form.submit() in moostaka.render() for the view
+	 * Bound to the form.submit() in render() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -1049,7 +1057,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating an equipment type on backend.
-	 * Bound to the form.submit() in moostaka.render() for the view.
+	 * Bound to the form.submit() in render() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the location to modify
 	 * @param {Event} event - the form submission event
@@ -1066,7 +1074,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a location to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() in render() for the view
 	 *
 	 *  @param {Event} event - the form submission event
 	 */
@@ -1101,7 +1109,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating a location on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() in render() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the location to modify
 	 * @param {Event} event - the form submission event
@@ -1193,7 +1201,7 @@ class Application {
 
 	/**
 	 * Called when the search form inputs change. Determines if the form represents
-	 * a search and if so calls list_log to runthe search and display the results
+	 * a search and if so calls list_log to run the search and display the results
 	 *
 	 * @param {HTMLFormElement} search_form - the form encapsulating the inputs
 	 *     which the user has used to indicate how they wish the log to be searched/
@@ -1217,7 +1225,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a payment to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() in render() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -1233,7 +1241,7 @@ class Application {
 
 	/**
 	 * Callback that handles confirming a payment. Bound to the form.submit()
-	 * in moostaka.render() for the view
+	 * in render() for the view
 	 *
 	 * @param {User} user - the user account for which a payment is being
 	 *      confirmed.
@@ -1252,7 +1260,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a role to the backend. Bound to the
-	 * form.submit() in moostaka.render() for the view
+	 * form.submit() in render() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -1312,7 +1320,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating roles on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() in render() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the role to modify
 	 * @param {Event} event - the form submission event
@@ -1329,7 +1337,7 @@ class Application {
 
 	/**
 	 * Callback that handles adding a user to the backend. Bound
-	 * to the form.submit() in moostaka.render() for the view
+	 * to the form.submit() in render() for the view
 	 *
 	 * @param {Event} event - the form submission event
 	 */
@@ -1361,7 +1369,7 @@ class Application {
 
 	/**
 	 * Callback that handles authorizing a user on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() in render() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the user to authorize
 	 * @param {Event} event - the form submission event
@@ -1372,6 +1380,22 @@ class Application {
 
 		User.authorize(id, data).then(_ => {
 			this.navigate("/users/" + id);
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles setting a user's PIN. Bound to the form.submit() in
+	 * render() for the view
+	 *
+	 *  @param {Event} event - the form submission event
+	 */
+	set_pin(event) {
+		event.preventDefault();
+		let data = this.get_form_data(event.target);
+
+		User.changePIN(this.user.id, data.pin).then(_ => {
+			this.navigate("/profile");
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1472,7 +1496,7 @@ class Application {
 
 	/**
 	 * Callback that handles updating a user on backend. Bound
-	 * to the form.submit() in moostaka.render() for the view.
+	 * to the form.submit() in render() for the view.
 	 *
 	 * @param {Integer} id - the unique id of the user to modify
 	 * @param {Event} event - the form submission event
