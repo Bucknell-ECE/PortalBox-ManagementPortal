@@ -19,21 +19,21 @@ use Portalbox\Transform\UserTransformer;
 
 $session = new Session();
 
-// switch on the request method
-switch($_SERVER['REQUEST_METHOD']) {
-	case 'GET':		// List/Read
-		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-			$user_id = $_GET['id'];
-			// check authorization
-			if($session->check_authorization(Permission::READ_OWN_USER)) {
-				if((int)$user_id !== (int)$session->get_authenticated_user()->id()) {
+try {
+	// switch on the request method
+	switch($_SERVER['REQUEST_METHOD']) {
+		case 'GET':		// List/Read
+			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
+				$user_id = $_GET['id'];
+				// check authorization
+				if($session->check_authorization(Permission::READ_OWN_USER)) {
+					if((int)$user_id !== (int)$session->get_authenticated_user()->id()) {
+						$session->require_authorization(Permission::READ_USER);
+					}
+				} else {
 					$session->require_authorization(Permission::READ_USER);
 				}
-			} else {
-				$session->require_authorization(Permission::READ_USER);
-			}
 
-			try {
 				$model = new UserModel(Config::config());
 				$user = $model->read($user_id);
 				if($user) {
@@ -43,15 +43,10 @@ switch($_SERVER['REQUEST_METHOD']) {
 					http_response_code(404);
 					die('We have no record of that user');
 				}
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} else { // List
-			// check authorization
-			$session->require_authorization(Permission::LIST_USERS);
+			} else { // List
+				// check authorization
+				$session->require_authorization(Permission::LIST_USERS);
 
-			try {
 				$model = new UserModel(Config::config());
 
 				$query = new UserQuery();
@@ -79,20 +74,14 @@ switch($_SERVER['REQUEST_METHOD']) {
 				$users = $model->search($query);
 				$transformer = new UserTransformer();
 				ResponseHandler::render($users, $transformer);
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
 			}
-		}
-		break;
-	case 'PATCH':
-		// validate that we have an oid
-		if(!isset($_GET['id']) || empty($_GET['id'])) {
-			http_response_code(400);
-			die('You must specify the user to modify via the id param');
-		}
+			break;
+		case 'PATCH':
+			// validate that we have an oid
+			if(!isset($_GET['id']) || empty($_GET['id'])) {
+				throw new InvalidArgumentException('You must specify the user to modify via the id param');
+			}
 
-		try {
 			$service = new UserService(
 				$session,
 				new EquipmentTypeModel(Config::config()),
@@ -102,82 +91,46 @@ switch($_SERVER['REQUEST_METHOD']) {
 			$user = $service->patch(intval($_GET['id']), 'php://input');
 			$userTransformer = new UserTransformer();
 			ResponseHandler::render($user, $userTransformer);
-		} catch(InvalidArgumentException $iae) {
-			http_response_code(400);
-			die($iae->getMessage());
-		} catch (AuthenticationException $ae) {
-			http_response_code(401);
-			die($session->ERROR_NOT_AUTHENTICATED);
-		} catch (AuthorizationException $aue) {
-			http_response_code(403);
-			die(self::ERROR_NOT_AUTHORIZED);
-		} catch (NotFoundException $nfe) {
-			http_response_code(404);
-			die($nfe->getMessage());
-		} catch(Exception $e) {
-			http_response_code(500);
-			die('We experienced issues communicating with the database');
-		}
-		break;
-	case 'POST':	// Update
-		// validate that we have an oid
-		if(!isset($_GET['id']) || empty($_GET['id'])) {
-			http_response_code(400);
-			die('You must specify the user to modify via the id param');
-		}
-
-		// check authorization
-		$session->require_authorization(Permission::MODIFY_USER);
-
-		$data = json_decode(file_get_contents('php://input'), TRUE);
-		if(NULL !== $data) {
-			try {
-				$transformer = new UserTransformer();
-				$user = $transformer->deserialize($data);
-				$user->set_id($_GET['id']);
-				$model = new UserModel(Config::config());
-				$user = $model->update($user);
-				ResponseHandler::render($user, $transformer);
-			} catch(InvalidArgumentException $iae) {
-				http_response_code(400);
-				die($iae->getMessage());
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
+			break;
+		case 'POST':	// Update
+			// validate that we have an oid
+			if(!isset($_GET['id']) || empty($_GET['id'])) {
+				throw new InvalidArgumentException('You must specify the user to modify via the id param');
 			}
-		} else {
-			http_response_code(400);
-			die(json_last_error_msg());
-		}
-		break;
-	case 'PUT':		// Create
-		// check authorization
-		$session->require_authorization(Permission::CREATE_USER);
 
-		switch($_SERVER["CONTENT_TYPE"]) {
-			case 'application/json':
-				$data = json_decode(file_get_contents('php://input'), TRUE);
-				if(NULL !== $data) {
-					try {
-						$transformer = new UserTransformer();
-						$user = $transformer->deserialize($data);
-						$model = new UserModel(Config::config());
-						$user = $model->create($user);
-						ResponseHandler::render($user, $transformer);
-					} catch(InvalidArgumentException $iae) {
-						http_response_code(400);
-						die($iae->getMessage());
-					} catch(Exception $e) {
-						http_response_code(500);
-						die('We experienced issues communicating with the database');
+			// check authorization
+			$session->require_authorization(Permission::MODIFY_USER);
+
+			$data = json_decode(file_get_contents('php://input'), TRUE);
+			if($data === null) {
+				throw new InvalidArgumentException(json_last_error_msg());
+			}
+
+			$transformer = new UserTransformer();
+			$user = $transformer->deserialize($data);
+			$user->set_id($_GET['id']);
+			$model = new UserModel(Config::config());
+			$user = $model->update($user);
+			ResponseHandler::render($user, $transformer);
+			break;
+		case 'PUT':		// Create
+			// check authorization
+			$session->require_authorization(Permission::CREATE_USER);
+
+			switch($_SERVER['CONTENT_TYPE']) {
+				case 'application/json':
+					$data = json_decode(file_get_contents('php://input'), TRUE);
+					if($data === null) {
+						throw new InvalidArgumentException(json_last_error_msg());
 					}
-				} else {
-					http_response_code(400);
-					die(json_last_error_msg());
-				}
-				break;
-			case 'text/csv':
-				try {
+
+					$transformer = new UserTransformer();
+					$user = $transformer->deserialize($data);
+					$model = new UserModel(Config::config());
+					$user = $model->create($user);
+					ResponseHandler::render($user, $transformer);
+					break;
+				case 'text/csv':
 					$service = new UserService(
 						$session,
 						new EquipmentTypeModel(Config::config()),
@@ -186,19 +139,35 @@ switch($_SERVER['REQUEST_METHOD']) {
 					);
 					$users = $service->import('php://input');
 					echo count($users);
-				} catch(\Throwable $e) {
-					http_response_code(500);
-					echo $e->getMessage();
-				}
-				break;
-			default:
-				http_response_code(415);
-				die('We were unable to understand your request.');
-		}
-		break;
-	case 'DELETE':	// Delete
-		// intentional fall through, deletion not allowed
-	default:
-		http_response_code(405);
-		die('We were unable to understand your request.');
+					break;
+				default:
+					http_response_code(415);
+					die('We were unable to understand your request.');
+			}
+			break;
+		case 'DELETE':	// Delete
+			// intentional fall through, deletion not allowed
+		default:
+			http_response_code(405);
+			die('We were unable to understand your request.');
+	}
+} catch(InvalidArgumentException $iae) {
+	http_response_code(400);
+	die($iae->getMessage());
+} catch (AuthenticationException $ae) {
+	http_response_code(401);
+	die($session->ERROR_NOT_AUTHENTICATED);
+} catch (AuthorizationException $aue) {
+	http_response_code(403);
+	die(self::ERROR_NOT_AUTHORIZED);
+} catch (NotFoundException $nfe) {
+	http_response_code(404);
+	die($nfe->getMessage());
+} catch(Throwable $t) {
+	http_response_code(500);
+	$message = $t->getMessage();
+	if (empty($message)) {
+		$message = 'We experienced issues communicating with the database';
+	}
+	die($message);
 }
