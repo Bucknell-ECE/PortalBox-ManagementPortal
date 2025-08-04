@@ -17,6 +17,176 @@ use Portalbox\Service\UserService;
 use Portalbox\Session\SessionInterface;
 
 final class UserServiceTest extends TestCase {
+	#region test read()
+
+	public function testReadThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		$service->read(1);
+	}
+
+	public function testReadThrowsWhenNotAuthorizedToReadSelf() {
+		$authenticatedUserId = 12;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHORIZED_READ);
+		$service->read($authenticatedUserId);
+	}
+
+	public function testReadThrowsWhenNotAuthorizedToReadOthers() {
+		$authenticatedUserId = 12;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_OWN_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHORIZED_READ);
+		$service->read($authenticatedUserId + 1);
+	}
+
+	public function testReadThrowsWhenUserDoesNotExist() {
+		$authenticatedUserId = 12;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn(null);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(NotFoundException::class);
+		self::expectExceptionMessage(UserService::ERROR_USER_NOT_FOUND);
+		$service->read(1);
+	}
+
+	public function testReadAllowsUserToReadOthers() {
+		$authenticatedUserId = 12;
+		$user = new User();
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn($user);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::assertSame($user, $service->read($authenticatedUserId + 1));
+	}
+
+	public function testReadAllowsUserToReadSelf() {
+		$authenticatedUserId = 12;
+		$user = new User();
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_OWN_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn($user);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::assertSame($user, $service->read($authenticatedUserId));
+	}
+
+	#endregion test read()
+
 	#region test import()
 
 	public function testImportThrowsWhenLineTooShort() {

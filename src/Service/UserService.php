@@ -28,6 +28,7 @@ class UserService {
 	public const ERROR_INVALID_PIN = 'A user\'s PIN must be a string of four digits 0-9';
 	public const ERROR_INVALID_PATCH = 'User properties must be serialized as a json encoded object';
 	public const ERROR_USER_NOT_FOUND = 'We have no record of that user';
+	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read the specified user(s)';
 
 	protected EquipmentTypeModel $equipmentTypeModel;
 	protected RoleModel $roleModel;
@@ -108,6 +109,41 @@ class UserService {
 		}
 
 		return $users;
+	}
+
+	/**
+	 * Read a user by id
+	 *
+	 * @param int $userId  the unique id of the user to read
+	 * @return User  the user
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not read
+	 *      the user with the specified id
+	 * @throws NotFoundException  if the user is not found
+	 */
+	public function read(int $userId): User {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException();
+		}
+
+		$role = $authenticatedUser->role();
+		if (!$role->has_permission(Permission::READ_USER)) {
+			if ($role->has_permission(Permission::READ_OWN_USER)) {
+				if ($authenticatedUser->id() !== $userId) {
+					throw new AuthorizationException(self::ERROR_UNAUTHORIZED_READ);
+				}
+			} else {
+				throw new AuthorizationException(self::ERROR_UNAUTHORIZED_READ);
+			}
+		}
+
+		$user = $this->userModel->read($userId);
+		if ($user === null) {
+			throw new NotFoundException(self::ERROR_USER_NOT_FOUND);
+		}
+
+		return $user;
 	}
 
 	/**
