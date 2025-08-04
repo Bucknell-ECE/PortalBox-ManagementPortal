@@ -11,7 +11,6 @@ use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
-use Portalbox\Query\UserQuery;
 use Portalbox\Service\UserService;
 use Portalbox\Session\Session;
 use Portalbox\Transform\AuthorizationsTransformer;
@@ -22,7 +21,7 @@ $session = new Session();
 try {
 	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
-		case 'GET':		// List/Read
+		case 'GET': // List/Read
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 				$user_id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
 				if ($user_id === false) {
@@ -39,34 +38,13 @@ try {
 				$transformer = new UserTransformer();
 				ResponseHandler::render($user, $transformer);
 			} else { // List
-				// check authorization
-				$session->require_authorization(Permission::LIST_USERS);
-
-				$model = new UserModel(Config::config());
-
-				$query = new UserQuery();
-
-				if(isset($_GET['include_inactive']) && !empty($_GET['include_inactive'])) {
-					$include_inactive = $_GET['include_inactive'] === 'true' ? 1 : 0;
-					$query->set_include_inactive($include_inactive);
-				}
-				if(isset($_GET['role_id']) && !empty($_GET['role_id'])) {
-					$query->set_role_id($_GET['role_id']);
-				}
-				if(isset($_GET['name']) && !empty($_GET['name'])) {
-					$query->set_name($_GET['name']);
-				}
-				if(isset($_GET['comment']) && !empty($_GET['comment'])) {
-					$query->set_comment($_GET['comment']);
-				}
-				if(isset($_GET['email']) && !empty($_GET['email'])) {
-					$query->set_email($_GET['email']);
-				}
-				if(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
-					$query->set_equipment_id($_GET['equipment_id']);
-				}
-
-				$users = $model->search($query);
+				$service = new UserService(
+					$session,
+					new EquipmentTypeModel(Config::config()),
+					new RoleModel(Config::config()),
+					new UserModel(Config::config())
+				);
+				$users = $service->readAll($_GET);
 				$transformer = new UserTransformer();
 				ResponseHandler::render($users, $transformer);
 			}

@@ -13,10 +13,146 @@ use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
+use Portalbox\Query\UserQuery;
 use Portalbox\Service\UserService;
 use Portalbox\Session\SessionInterface;
 
 final class UserServiceTest extends TestCase {
+	#region test import()
+
+	public function testImportThrowsWhenLineTooShort() {
+		$session = $this->createStub(SessionInterface::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('search')->willReturn([
+			(new Role())->set_name('admin')
+		]);
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_CSV_RECORD_LENGTH);
+		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenLineTooShort.csv'));
+	}
+
+	public function testImportThrowsWhenLineTooLong() {
+		$session = $this->createStub(SessionInterface::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('search')->willReturn([
+			(new Role())->set_name('admin')
+		]);
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_CSV_RECORD_LENGTH);
+		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenLineTooLong.csv'));
+	}
+
+	public function testImportThrowsWhenRoleDoesNotExist() {
+		$session = $this->createStub(SessionInterface::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('search')->willReturn([
+			(new Role())->set_name('user')
+		]);
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_CSV_ROLE);
+		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenRoleDoesNotExist.csv'));
+	}
+
+	public function testImportThrowsWhenEmailIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('search')->willReturn([
+			(new Role())->set_name('admin')
+		]);
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_EMAIL);
+		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenEmailIsInvalid.csv'));
+	}
+
+	public function testImportSuccess() {
+		$role = (new Role())->set_id(3)->set_name('admin');
+
+		$session = $this->createStub(SessionInterface::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('search')->willReturn([$role]);
+
+		$userModel = $this->createMock(UserModel::class);
+		$userModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(User $user) =>
+					$user instanceof User
+					&& $user->name() === 'Makerspace Administrator'
+					&& $user->email() === 'admin@makerspace.tld'
+					&& $user->is_active()
+					&& $user->role() === $role
+			)
+		)->willReturnArgument(0);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		$users = $service->import(realpath(__DIR__ . '/data/ImportSuccess.csv'));
+		self::assertIsArray($users);
+		self::assertCount(1, $users);
+		$user = $users[0];
+		self::assertInstanceOf(User::class, $user);
+		self::assertSame('Makerspace Administrator', $user->name());
+		self::assertSame('admin@makerspace.tld', $user->email());
+		self::assertTrue($user->is_active());
+		self::assertSame($role, $user->role());
+	}
+
+	#endregion test import()
+
 	#region test read()
 
 	public function testReadThrowsWhenNotAuthenticated() {
@@ -187,17 +323,63 @@ final class UserServiceTest extends TestCase {
 
 	#endregion test read()
 
-	#region test import()
+	#region test readAll()
 
-	public function testImportThrowsWhenLineTooShort() {
+	public function testReadAllThrowsWhenNotAuthenticated() {
 		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-
 		$roleModel = $this->createStub(RoleModel::class);
-		$roleModel->method('search')->willReturn([
-			(new Role())->set_name('admin')
-		]);
+		$userModel = $this->createStub(UserModel::class);
 
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		$service->readAll([]);
+	}
+
+	public function testReadAllThrowsWhenNotAuthorized() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHORIZED_READ);
+		$service->readAll([]);
+	}
+
+	public function testReadAllThrowsWhenNotInactiveFilterIsNotBoolean() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::LIST_USERS])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
 		$userModel = $this->createStub(UserModel::class);
 
 		$service = new UserService(
@@ -208,19 +390,23 @@ final class UserServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(UserService::ERROR_INVALID_CSV_RECORD_LENGTH);
-		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenLineTooShort.csv'));
+		self::expectExceptionMessage(UserService::ERROR_INACTIVE_FILTER_MUST_BE_BOOL);
+		$service->readAll(['include_inactive' => 'meh']);
 	}
 
-	public function testImportThrowsWhenLineTooLong() {
+	public function testReadAllThrowsWhenNotRoleFilterIsNotInteger() {
 		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::LIST_USERS])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-
 		$roleModel = $this->createStub(RoleModel::class);
-		$roleModel->method('search')->willReturn([
-			(new Role())->set_name('admin')
-		]);
-
 		$userModel = $this->createStub(UserModel::class);
 
 		$service = new UserService(
@@ -231,19 +417,23 @@ final class UserServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(UserService::ERROR_INVALID_CSV_RECORD_LENGTH);
-		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenLineTooLong.csv'));
+		self::expectExceptionMessage(UserService::ERROR_ROLE_FILTER_MUST_BE_INT);
+		$service->readAll(['role_id' => 'meh']);
 	}
 
-	public function testImportThrowsWhenRoleDoesNotExist() {
+	public function testReadAllThrowsWhenNotEquipmentFilterIsNotInteger() {
 		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::LIST_USERS])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-
 		$roleModel = $this->createStub(RoleModel::class);
-		$roleModel->method('search')->willReturn([
-			(new Role())->set_name('user')
-		]);
-
 		$userModel = $this->createStub(UserModel::class);
 
 		$service = new UserService(
@@ -254,53 +444,51 @@ final class UserServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(UserService::ERROR_INVALID_CSV_ROLE);
-		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenRoleDoesNotExist.csv'));
+		self::expectExceptionMessage(UserService::ERROR_EQUIPMENT_FILTER_MUST_BE_INT);
+		$service->readAll(['equipment_id' => 'meh']);
 	}
 
-	public function testImportThrowsWhenEmailIsInvalid() {
+	/**
+	 * @dataProvider getReadAllFilters
+	 */
+	public function testReadAllSuccess(
+		$filters,
+		$inactive,
+		$name,
+		$email,
+		$role_id,
+		$comment,
+		$equipment_id
+	) {
+		$users = [
+			new User()
+		];
+
 		$session = $this->createStub(SessionInterface::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-
-		$roleModel = $this->createStub(RoleModel::class);
-		$roleModel->method('search')->willReturn([
-			(new Role())->set_name('admin')
-		]);
-
-		$userModel = $this->createStub(UserModel::class);
-
-		$service = new UserService(
-			$session,
-			$equipmentTypeModel,
-			$roleModel,
-			$userModel
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::LIST_USERS])
+				)
 		);
 
-		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(UserService::ERROR_INVALID_EMAIL);
-		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenEmailIsInvalid.csv'));
-	}
-
-	public function testImportSuccess() {
-		$role = (new Role())->set_id(3)->set_name('admin');
-
-		$session = $this->createStub(SessionInterface::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-
 		$roleModel = $this->createStub(RoleModel::class);
-		$roleModel->method('search')->willReturn([$role]);
-
-		$userModel = $this->createMock(UserModel::class);
-		$userModel->expects($this->once())->method('create')->with(
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->expects($this->once())->method('search')->with(
 			$this->callback(
-				fn(User $user) =>
-					$user instanceof User
-					&& $user->name() === 'Makerspace Administrator'
-					&& $user->email() === 'admin@makerspace.tld'
-					&& $user->is_active()
-					&& $user->role() === $role
+				fn(UserQuery $query) =>
+					$query->include_inactive() === $inactive
+					&& $query->name() === $name
+					&& $query->email() === $email
+					&& $query->role_id() === $role_id
+					&& $query->comment() === $comment
+					&& $query->equipment_id() === $equipment_id
 			)
-		)->willReturnArgument(0);
+		)
+		->willReturn($users);
 
 		$service = new UserService(
 			$session,
@@ -309,18 +497,72 @@ final class UserServiceTest extends TestCase {
 			$userModel
 		);
 
-		$users = $service->import(realpath(__DIR__ . '/data/ImportSuccess.csv'));
-		self::assertIsArray($users);
-		self::assertCount(1, $users);
-		$user = $users[0];
-		self::assertInstanceOf(User::class, $user);
-		self::assertSame('Makerspace Administrator', $user->name());
-		self::assertSame('admin@makerspace.tld', $user->email());
-		self::assertTrue($user->is_active());
-		self::assertSame($role, $user->role());
+		self::assertSame($users, $service->readAll($filters));
 	}
 
-	#endregion test import()
+	public static function getReadAllFilters(): iterable {
+		yield [
+			['include_inactive' => '1'],
+			true,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL
+		];
+
+		yield [
+			['name' => 'Sebastian'],
+			NULL,
+			'Sebastian',
+			NULL,
+			NULL,
+			NULL,
+			NULL
+		];
+
+		yield [
+			['email' => 'sebastian@makerspace.tld'],
+			NULL,
+			NULL,
+			'sebastian@makerspace.tld',
+			NULL,
+			NULL,
+			NULL
+		];
+
+		yield [
+			['role_id' => '2'],
+			NULL,
+			NULL,
+			NULL,
+			2,
+			NULL,
+			NULL
+		];
+
+		yield [
+			['comment' => 'experienced crafter'],
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			'experienced crafter',
+			NULL
+		];
+
+		yield [
+			['equipment_id' => '6'],
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			6
+		];
+	}
+
+	#endregion test readAll()
 
 	#region test patch()
 

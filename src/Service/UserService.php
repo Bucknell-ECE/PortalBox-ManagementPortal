@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
@@ -11,6 +13,7 @@ use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
+use Portalbox\Query\UserQuery;
 use Portalbox\Session\SessionInterface;
 
 /**
@@ -29,6 +32,9 @@ class UserService {
 	public const ERROR_INVALID_PATCH = 'User properties must be serialized as a json encoded object';
 	public const ERROR_USER_NOT_FOUND = 'We have no record of that user';
 	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read the specified user(s)';
+	public const ERROR_INACTIVE_FILTER_MUST_BE_BOOL = 'The value of include_inactive must be a boolean';
+	public const ERROR_ROLE_FILTER_MUST_BE_INT = 'The value of role_id must be an integer';
+	public const ERROR_EQUIPMENT_FILTER_MUST_BE_INT = 'The value of equipment_id must be an integer';
 
 	protected EquipmentTypeModel $equipmentTypeModel;
 	protected RoleModel $roleModel;
@@ -144,6 +150,74 @@ class UserService {
 		}
 
 		return $user;
+	}
+
+	/**
+	 * Read all users matching the filters
+	 *
+	 * @param array<string, string>  filters that all users in the result set
+	 *      must match
+	 * @return User[]  the users
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not read
+	 *      all users
+	 */
+	public function readAll(array $filters): array {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException();
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::LIST_USERS)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_READ);
+		}
+
+		$query = new UserQuery();
+
+		if(isset($filters['include_inactive']) && !empty($filters['include_inactive'])) {
+			$include_inactive = filter_var(
+				$filters['include_inactive'],
+				FILTER_VALIDATE_BOOLEAN,
+				FILTER_NULL_ON_FAILURE
+			);
+			if ($include_inactive === NULL) {
+				throw new InvalidArgumentException(self::ERROR_INACTIVE_FILTER_MUST_BE_BOOL);
+			}
+
+			$query->set_include_inactive($include_inactive);
+		}
+
+		if(isset($filters['role_id']) && !empty($filters['role_id'])) {
+			$role_id = filter_var($filters['role_id'], FILTER_VALIDATE_INT);
+			if ($role_id === false) {
+				throw new InvalidArgumentException(self::ERROR_ROLE_FILTER_MUST_BE_INT);
+			}
+
+			$query->set_role_id($role_id);
+		}
+
+		if(isset($filters['name']) && !empty($filters['name'])) {
+			$query->set_name($filters['name']);
+		}
+
+		if(isset($filters['comment']) && !empty($filters['comment'])) {
+			$query->set_comment($filters['comment']);
+		}
+
+		if(isset($filters['email']) && !empty($filters['email'])) {
+			$query->set_email($filters['email']);
+		}
+
+		if(isset($filters['equipment_id']) && !empty($filters['equipment_id'])) {
+			$equipment_id = filter_var($filters['equipment_id'], FILTER_VALIDATE_INT);
+			if ($equipment_id === false) {
+				throw new InvalidArgumentException(self::ERROR_EQUIPMENT_FILTER_MUST_BE_INT);
+			}
+
+			$query->set_equipment_id($equipment_id);
+		}
+
+		return $this->userModel->search($query);
 	}
 
 	/**
