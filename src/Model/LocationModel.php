@@ -130,7 +130,7 @@ class LocationModel extends AbstractModel {
 	}
 
 	private function buildLocationsFromArrays(array $data): array {
-		$locations = array();
+		$locations = [];
 
 		foreach ($data as $datum) {
 			$locations[] = $this->buildLocationFromArray($datum);

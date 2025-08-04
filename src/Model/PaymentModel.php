@@ -119,8 +119,8 @@ class PaymentModel extends AbstractModel {
 
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, user_id, amount, time FROM payments';
-		$where_clause_fragments = array();
-		$parameters = array();
+		$where_clause_fragments = [];
+		$parameters = [];
 		if (null !== $query->user_id()) {
 			$where_clause_fragments[] = 'user_id = :user_id';
 			$parameters[':user_id'] = $query->user_id();
@@ -166,7 +166,7 @@ class PaymentModel extends AbstractModel {
 	}
 
 	private function buildPaymentsFromArrays(array $data): array {
-		$payments = array();
+		$payments = [];
 
 		foreach ($data as $datum) {
 			$payments[] = $this->buildPaymentFromArray($datum);

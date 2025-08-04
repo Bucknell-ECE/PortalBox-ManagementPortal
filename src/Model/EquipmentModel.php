@@ -168,8 +168,8 @@ class EquipmentModel extends AbstractModel {
 		LEFT JOIN in_use AS iu ON e.id = iu.equipment_id
 		EOQ;
 
-		$where_clause_fragments = array();
-		$parameters = array();
+		$where_clause_fragments = [];
+		$parameters = [];
 		if (null !== $query->location_id()) {
 			$where_clause_fragments[] = 'l.id = :location';
 			$parameters[':location'] = $query->location_id();

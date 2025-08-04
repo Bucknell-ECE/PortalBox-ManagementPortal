@@ -216,8 +216,8 @@ class UserModel extends AbstractModel {
 
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role, u.pin FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id';
-		$where_clause_fragments = array();
-		$parameters = array();
+		$where_clause_fragments = [];
+		$parameters = [];
 		$modifier = "";
 
 		if (null !== $query->include_inactive()) {
