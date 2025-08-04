@@ -149,7 +149,7 @@ td.center { text-align:center; }
 #google-sign-in-button span {padding:0.5em; font-size:larger;}
 #google-sign-in-button img { background:white; height:3em; width:3em; }
 
-/* Indefinate Wait spinner */
+/* Indefinite Wait spinner */
 .spinner {
 	height: 60px; width: 60px; margin: 94px auto 0 auto;
 	position: relative;
@@ -193,9 +193,9 @@ td.center { text-align:center; }
 	 * Google's material icon font is tweaked for inline writing e.g. emoji
 	 * when using in buttons we want the perceptual weight to be the same
 	 * as a text button but the line to be the same height. We achieve this
-	 * by setting the disply to be inline (defualt to surrounding line height)
+	 * by setting the display to be inline (default to surrounding line height)
 	 * and setting the line-height of the content to be ridiculously small.
-	 * then it is a matter of adjusting the content position, Goole appears to
+	 * then it is a matter of adjusting the content position, Google appears to
 	 * have biased the font to the line top rather than the baseline; shifting
 	 * down by 1/4 line appears to harmonize well with common fonts.
 	 */

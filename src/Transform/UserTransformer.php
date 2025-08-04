@@ -15,10 +15,10 @@ use Portalbox\Model\RoleModel;
  */
 class UserTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * Deserialize a Payment entity object from a dictionary
+	 * Deserialize a User entity object from a dictionary
 	 *
-	 * @param array data - a dictionary representing a Payment
-	 * @return Payment - a valid entity object based on the data specified
+	 * @param array data - a dictionary representing a User
+	 * @return User - a valid entity object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): User {
