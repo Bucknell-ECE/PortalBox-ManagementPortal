@@ -109,7 +109,7 @@ td.center { text-align:center; }
 /* popup help */
 .help { position:relative }
 .help .content > div {
-	position:absolute; top:1.5em; right:-0.5em;
+	position:absolute; right:-1em;
 	background:white; color:var(--text-primary-color);;
 	box-shadow:0 1px 3px var(--shadow-color);
 	padding:0.25em; list-style-type:none; text-indent:0;
@@ -123,6 +123,9 @@ td.center { text-align:center; }
 	border-bottom:white solid 0.5em;
 	border-left:transparent solid 0.5em; border-right:transparent solid 0.5em;
 }
+.help .content > div :first-child { margin-top:0 }
+.help .content > div :last-child { margin-bottom:0 }
+
 .help .checkbox-hack:checked + .content > .scrim { z-index:1; display:block; } 
 .help .checkbox-hack:checked + .content > div { z-index:2; display:block; } 
 

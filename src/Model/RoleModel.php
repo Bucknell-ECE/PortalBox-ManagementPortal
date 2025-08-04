@@ -163,7 +163,7 @@ class RoleModel extends AbstractModel {
 	}
 
 	/**
-	 * Delete a role secified by its unique ID
+	 * Delete a role specified by its unique ID
 	 *
 	 * @param int id - the unique id of the role
 	 * @throws DatabaseException - when the database can not be queried

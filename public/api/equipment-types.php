@@ -4,22 +4,19 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\EquipmentTypeModel;
-
-//use Portalbox\Query\EquipmentTypeQuery;
-
+use Portalbox\Session\Session;
 use Portalbox\Transform\EquipmentTypeTransformer;
+
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			// check authorization
-			Session::require_authorization(Permission::READ_EQUIPMENT_TYPE);
+			$session->require_authorization(Permission::READ_EQUIPMENT_TYPE);
 
 			try {
 				$model = new EquipmentTypeModel(Config::config());
@@ -37,7 +34,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 			}
 		} else { // List
 			// check authorization
-			Session::require_authorization(Permission::LIST_EQUIPMENT_TYPES);
+			$session->require_authorization(Permission::LIST_EQUIPMENT_TYPES);
 
 			try {
 				$model = new EquipmentTypeModel(Config::config());
@@ -58,7 +55,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		Session::require_authorization(Permission::MODIFY_EQUIPMENT_TYPE);
+		$session->require_authorization(Permission::MODIFY_EQUIPMENT_TYPE);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -83,7 +80,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':	// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_EQUIPMENT_TYPE);
+		$session->require_authorization(Permission::CREATE_EQUIPMENT_TYPE);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {

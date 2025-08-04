@@ -4,20 +4,20 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
 use Portalbox\Model\APIKeyModel;
 use Portalbox\Query\APIKeyQuery;
+use Portalbox\Session\Session;
 use Portalbox\Transform\APIKeyTransformer;
+
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
 	case 'GET':		// List/Read
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			// check authorization
-			Session::require_authorization(Permission::READ_API_KEY);
+			$session->require_authorization(Permission::READ_API_KEY);
 
 			try {
 				$model = new APIKeyModel(Config::config());
@@ -35,7 +35,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 			}
 		} else { // List
 			// check authorization
-			Session::require_authorization(Permission::LIST_API_KEYS);
+			$session->require_authorization(Permission::LIST_API_KEYS);
 
 			try {
 				$model = new APIKeyModel(Config::config());
@@ -61,7 +61,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		Session::require_authorization(Permission::MODIFY_API_KEY);
+		$session->require_authorization(Permission::MODIFY_API_KEY);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -86,7 +86,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':		// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_API_KEY);
+		$session->require_authorization(Permission::CREATE_API_KEY);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -116,7 +116,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		Session::require_authorization(Permission::DELETE_API_KEY);
+		$session->require_authorization(Permission::DELETE_API_KEY);
 
 		try {
 			$model = new APIKeyModel(Config::config());

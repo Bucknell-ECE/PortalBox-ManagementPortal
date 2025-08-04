@@ -7,6 +7,7 @@
 		<h1>Users</h1>
 		{{#create_user_permission}}
 		<div class="button-group">
+			<a href="/users/import">Import</a>
 			<a href="/users/add" class="default">Add</a>
 		</div>
 		{{/create_user_permission}}

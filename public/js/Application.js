@@ -68,7 +68,10 @@ class Application {
 		document.addEventListener(
 			"click",
 			(event) => {
-				if (event.target.matches("a[href], a[href] *")) {
+				if (
+					event.target.matches("a[href], a[href] *")
+					&& !event.target.matches("a[download]")
+				) {
 					// walk up the tree until we find the href
 					let element = event.target;
 					while (element instanceof HTMLElement) {
@@ -269,7 +272,7 @@ class Application {
 	/**
 	 * handleError takes action based on the error reported.
 	 *
-	 * @param {*} error - the error being reported tyically from the fetch API
+	 * @param {*} error - the error being reported typically from the fetch API
 	 *        but could also be a {string} message to report to the user
 	 */
 	handleError(error) {
@@ -560,7 +563,7 @@ class Application {
 			this.route("/roles/:id", params => this.read_role(params.id, this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.DELETE_ROLE)));
 		}
 
-		// User needs CREATE_USER Permission to make use of /users/add route
+		// User needs CREATE_USER Permission to make use of /users/add and /users/import routes
 		if(this.user.has_permission(Permission.CREATE_USER)) {
 			this.route("/users/add", _ => {
 				let p0 = EquipmentType.list();
@@ -573,6 +576,14 @@ class Application {
 							.addEventListener("submit", (e) => this.add_user(e));
 					});
 				}).catch(e => this.handleError(e));
+			});
+
+			this.route("/users/import", _ => {
+				this.render("#main", "authenticated/users/import", {}, {}, () => {
+					document
+						.getElementById("import-user-form")
+						.addEventListener("submit", (e) => this.import_users(e));
+				});
 			});
 		}
 
@@ -656,6 +667,14 @@ class Application {
 						}
 					});
 				}).catch(e => this.handleError(e));
+			});
+
+			this.route("/profile/set_pin", _ => {
+				this.render("#main", "authenticated/set_pin", {}, {}, () => {
+					document
+						.getElementById("set-pin-form")
+						.addEventListener("submit", (e) => this.set_pin(e));
+				});
 			});
 		}
 
@@ -893,7 +912,7 @@ class Application {
 
 			throw "API was unable to save charge";
 		}).then(_data => {
-			moostaka.navigate("/charges");
+			this.navigate("/charges");
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1182,7 +1201,7 @@ class Application {
 
 	/**
 	 * Called when the search form inputs change. Determines if the form represents
-	 * a search and if so calls list_log to runthe search and display the results
+	 * a search and if so calls list_log to run the search and display the results
 	 *
 	 * @param {HTMLFormElement} search_form - the form encapsulating the inputs
 	 *     which the user has used to indicate how they wish the log to be searched/
@@ -1333,6 +1352,22 @@ class Application {
 	}
 
 	/**
+	 * Callback that handles importing users by sending a request to the backend.
+	 * Bound to the form.submit() for the view
+	 *
+	 * @param {Event} event - the form submission event
+	 */
+	import_users(event) {
+		event.preventDefault();
+
+		const inputs = event.target.getElementsByTagName('input');
+
+		User.import(inputs[0].files[0]).then(_ => {
+			this.navigate("/users");
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
 	 * Callback that handles authorizing a user on backend. Bound
 	 * to the form.submit() for the view.
 	 *
@@ -1345,6 +1380,22 @@ class Application {
 
 		User.authorize(id, data).then(_ => {
 			this.navigate("/users/" + id);
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles setting a user's PIN. Bound to the form.submit() in
+	 * render() for the view
+	 *
+	 *  @param {Event} event - the form submission event
+	 */
+	set_pin(event) {
+		event.preventDefault();
+		let data = this.get_form_data(event.target);
+
+		User.changePIN(this.user.id, data.pin).then(_ => {
+			this.navigate("/profile");
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}

@@ -26,6 +26,9 @@ class User {
 	/** The role of the user */
 	protected ?Role $role = null;
 
+	/** The hash of the user's PIN */
+	protected ?string $pin = null;
+
 	/**
 	 * Whether this user is active ie can login
 	 *
@@ -105,6 +108,17 @@ class User {
 			$this->role_id = $role->id();
 		}
 
+		return $this;
+	}
+
+	/** Get the hash of the user's PIN */
+	public function pin(): ?string {
+		return $this->pin;
+	}
+
+	/** Set the hash of the user's PIN */
+	public function set_pin(?string $pin): self {
+		$this->pin = $pin;
 		return $this;
 	}
 

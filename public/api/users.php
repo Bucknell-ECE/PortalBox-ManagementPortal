@@ -4,17 +4,20 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Session;
-
 use Portalbox\Entity\Permission;
-
+use Portalbox\Exception\AuthenticationException;
+use Portalbox\Exception\AuthorizationException;
+use Portalbox\Exception\NotFoundException;
+use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
-
 use Portalbox\Query\UserQuery;
-
+use Portalbox\Service\UserService;
+use Portalbox\Session\Session;
 use Portalbox\Transform\AuthorizationsTransformer;
 use Portalbox\Transform\UserTransformer;
 
+$session = new Session();
 
 // switch on the request method
 switch($_SERVER['REQUEST_METHOD']) {
@@ -22,12 +25,12 @@ switch($_SERVER['REQUEST_METHOD']) {
 		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
 			$user_id = $_GET['id'];
 			// check authorization
-			if(Session::check_authorization(Permission::READ_OWN_USER)) {
-				if((int)$user_id !== (int)Session::get_authenticated_user()->id()) {
-					Session::require_authorization(Permission::READ_USER);
+			if($session->check_authorization(Permission::READ_OWN_USER)) {
+				if((int)$user_id !== (int)$session->get_authenticated_user()->id()) {
+					$session->require_authorization(Permission::READ_USER);
 				}
 			} else {
-				Session::require_authorization(Permission::READ_USER);
+				$session->require_authorization(Permission::READ_USER);
 			}
 
 			try {
@@ -46,7 +49,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 			}
 		} else { // List
 			// check authorization
-			Session::require_authorization(Permission::LIST_USERS);
+			$session->require_authorization(Permission::LIST_USERS);
 
 			try {
 				$model = new UserModel(Config::config());
@@ -89,37 +92,31 @@ switch($_SERVER['REQUEST_METHOD']) {
 			die('You must specify the user to modify via the id param');
 		}
 
-		// check authorization
-		if(!(Session::check_authorization(Permission::CREATE_EQUIPMENT_AUTHORIZATION) || Session::check_authorization(Permission::DELETE_EQUIPMENT_AUTHORIZATION))) {
-			Session::require_authorization(Permission::MODIFY_USER);
-		}
-
-		$data = json_decode(file_get_contents('php://input'), TRUE);
-		if(NULL !== $data) {
-			try {
-				$model = new UserModel(Config::config());
-				$user = $model->read($_GET['id']);
-				if($user) {
-					$authTransformer = new AuthorizationsTransformer();
-					$userTransformer = new UserTransformer();
-					$authorizations = $authTransformer->deserialize($data);
-					$user->set_authorizations($authorizations);
-					$user = $model->update($user);
-					ResponseHandler::render($user, $userTransformer);
-				} else {
-					http_response_code(404);
-					die('We have no record of that user');
-				}
-			} catch(InvalidArgumentException $iae) {
-				http_response_code(400);
-				die($iae->getMessage());
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} else {
+		try {
+			$service = new UserService(
+				$session,
+				new EquipmentTypeModel(Config::config()),
+				new RoleModel(Config::config()),
+				new UserModel(Config::config())
+			);
+			$user = $service->patch(intval($_GET['id']), 'php://input');
+			$userTransformer = new UserTransformer();
+			ResponseHandler::render($user, $userTransformer);
+		} catch(InvalidArgumentException $iae) {
 			http_response_code(400);
-			die(json_last_error_msg());
+			die($iae->getMessage());
+		} catch (AuthenticationException $ae) {
+			http_response_code(401);
+			die($session->ERROR_NOT_AUTHENTICATED);
+		} catch (AuthorizationException $aue) {
+			http_response_code(403);
+			die(self::ERROR_NOT_AUTHORIZED);
+		} catch (NotFoundException $nfe) {
+			http_response_code(404);
+			die($nfe->getMessage());
+		} catch(Exception $e) {
+			http_response_code(500);
+			die('We experienced issues communicating with the database');
 		}
 		break;
 	case 'POST':	// Update
@@ -130,7 +127,7 @@ switch($_SERVER['REQUEST_METHOD']) {
 		}
 
 		// check authorization
-		Session::require_authorization(Permission::MODIFY_USER);
+		$session->require_authorization(Permission::MODIFY_USER);
 
 		$data = json_decode(file_get_contents('php://input'), TRUE);
 		if(NULL !== $data) {
@@ -155,26 +152,48 @@ switch($_SERVER['REQUEST_METHOD']) {
 		break;
 	case 'PUT':		// Create
 		// check authorization
-		Session::require_authorization(Permission::CREATE_USER);
+		$session->require_authorization(Permission::CREATE_USER);
 
-		$data = json_decode(file_get_contents('php://input'), TRUE);
-		if(NULL !== $data) {
-			try {
-				$transformer = new UserTransformer();
-				$user = $transformer->deserialize($data);
-				$model = new UserModel(Config::config());
-				$user = $model->create($user);
-				ResponseHandler::render($user, $transformer);
-			} catch(InvalidArgumentException $iae) {
-				http_response_code(400);
-				die($iae->getMessage());
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} else {
-			http_response_code(400);
-			die(json_last_error_msg());
+		switch($_SERVER["CONTENT_TYPE"]) {
+			case 'application/json':
+				$data = json_decode(file_get_contents('php://input'), TRUE);
+				if(NULL !== $data) {
+					try {
+						$transformer = new UserTransformer();
+						$user = $transformer->deserialize($data);
+						$model = new UserModel(Config::config());
+						$user = $model->create($user);
+						ResponseHandler::render($user, $transformer);
+					} catch(InvalidArgumentException $iae) {
+						http_response_code(400);
+						die($iae->getMessage());
+					} catch(Exception $e) {
+						http_response_code(500);
+						die('We experienced issues communicating with the database');
+					}
+				} else {
+					http_response_code(400);
+					die(json_last_error_msg());
+				}
+				break;
+			case 'text/csv':
+				try {
+					$service = new UserService(
+						$session,
+						new EquipmentTypeModel(Config::config()),
+						new RoleModel(Config::config()),
+						new UserModel(Config::config())
+					);
+					$users = $service->import('php://input');
+					echo count($users);
+				} catch(\Throwable $e) {
+					http_response_code(500);
+					echo $e->getMessage();
+				}
+				break;
+			default:
+				http_response_code(415);
+				die('We were unable to understand your request.');
 		}
 		break;
 	case 'DELETE':	// Delete
