@@ -172,8 +172,8 @@ class CardModel extends AbstractModel {
 
 		$sql = 'SELECT c.id, c.type_id, uxc.user_id, etxc.equipment_type_id FROM cards AS c LEFT JOIN users_x_cards AS uxc ON c.id = uxc.card_id LEFT JOIN equipment_type_x_cards AS etxc ON c.id = etxc.card_id';
 
-		$where_clause_fragments = array();
-		$parameters = array();
+		$where_clause_fragments = [];
+		$parameters = [];
 		if (null !== $query && null !== $query->equipment_type_id()) {
 			$where_clause_fragments[] = 'etxc.equipment_type_id = :equipment_type_id';
 			$parameters[':equipment_type_id'] = $query->equipment_type_id();

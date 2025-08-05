@@ -141,7 +141,7 @@ class EquipmentTypeModel extends AbstractModel {
 	}
 
 	private function buildEquipmentTypesFromArrays(array $data): array {
-		$locations = array();
+		$locations = [];
 
 		foreach ($data as $datum) {
 			$locations[] = $this->buildEquipmentTypeFromArray($datum);

@@ -139,8 +139,8 @@ class ChargeModel extends AbstractModel {
 		INNER JOIN users AS u on u.id = c.user_id
 		EOQ;
 
-		$where_clause_fragments = array();
-		$parameters = array();
+		$where_clause_fragments = [];
+		$parameters = [];
 
 		if (null !== $query->equipment_id()) {
 			$where_clause_fragments[] = 'c.equipment_id = :equipment_id';
