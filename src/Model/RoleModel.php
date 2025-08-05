@@ -221,7 +221,7 @@ class RoleModel extends AbstractModel {
 	}
 
 	private function buildRolesFromArrays(array $data): array {
-		$roles = array();
+		$roles = [];
 
 		foreach ($data as $datum) {
 			$roles[] = $this->buildRoleFromArray($datum);

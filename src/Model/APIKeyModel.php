@@ -132,7 +132,7 @@ class APIKeyModel extends AbstractModel {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, token FROM api_keys';
 
-		$where_clause_fragments = array();
+		$where_clause_fragments = [];
 		if (null !== $query->token()) {
 			$where_clause_fragments[] = 'token = :token';
 		}
@@ -166,7 +166,7 @@ class APIKeyModel extends AbstractModel {
 	}
 
 	private function buildAPIKeysFromArrays(array $data): array {
-		$keys = array();
+		$keys = [];
 
 		foreach ($data as $datum) {
 			$keys[] = $this->buildAPIKeyFromArray($datum);

@@ -97,8 +97,8 @@ class LoggedEventModel extends AbstractModel {
 		LEFT JOIN users AS u ON u.id = uxc.user_id
 		EOQ;
 
-		$where_clause_fragments = array();
-		$parameters = array();
+		$where_clause_fragments = [];
+		$parameters = [];
 		if ($query->equipment_id()) {
 			$where_clause_fragments[] = 'el.equipment_id = :equipment_id';
 			$parameters[':equipment_id'] = $query->equipment_id();
@@ -163,7 +163,7 @@ class LoggedEventModel extends AbstractModel {
 	}
 
 	private function buildLoggedEventsFromArray(array $data): array {
-		$log = array();
+		$log = [];
 
 		foreach ($data as $datum) {
 			$log[] = $this->buildLoggedEventFromArray($datum);

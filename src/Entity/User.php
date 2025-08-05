@@ -136,7 +136,7 @@ class User {
 	/** Get the authorizations for this user */
 	public function authorizations(): array {
 		if (null === $this->authorizations) {
-			return array();
+			return [];
 		}
 		return $this->authorizations;
 	}

@@ -69,7 +69,7 @@ class Role {
 	 */
 	public function permissions(): array {
 		if (null === $this->permissions) {
-			return array();
+			return [];
 		}
 		return $this->permissions;
 	}

@@ -29,7 +29,7 @@ class CardTypeModel extends AbstractModel {
 	}
 
 	private function buildCardTypesFromArrays(array $data): array {
-		$card_types = array();
+		$card_types = [];
 
 		foreach ($data as $datum) {
 			$card_types[] = $this->buildCardTypesFromArray($datum);
