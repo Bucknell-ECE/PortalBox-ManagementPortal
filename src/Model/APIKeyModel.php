@@ -94,7 +94,7 @@ class APIKeyModel extends AbstractModel {
 	}
 
 	/**
-	 * Delete an api key secified by its unique ID
+	 * Delete an api key specified by its unique ID
 	 *
 	 * @param int id - the unique id of the api key
 	 * @throws DatabaseException - when the database can not be queried

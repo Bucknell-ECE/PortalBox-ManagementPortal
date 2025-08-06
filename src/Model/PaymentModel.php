@@ -82,7 +82,7 @@ class PaymentModel extends AbstractModel {
 	}
 
 	/**
-	 * Delete a payment secified by its unique ID
+	 * Delete a payment specified by its unique ID
 	 *
 	 * @param int id - the unique id of the payment
 	 * @throws DatabaseException - when the database can not be queried
