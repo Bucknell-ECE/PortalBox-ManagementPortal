@@ -17,7 +17,7 @@ class EquipmentModel extends AbstractModel {
 	 *
 	 * @param Equipment equipment - the equipment to save to the database
 	 * @throws DatabaseException - when the database can not be queried
-	 * @return Equipment|null - the equipment or null if the eqipment could not be saved
+	 * @return Equipment|null - the equipment or null if the equipment could not be saved
 	 */
 	public function create(Equipment $equipment): ?Equipment {
 		$connection = $this->configuration()->writable_db_connection();
