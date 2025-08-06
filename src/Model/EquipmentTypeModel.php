@@ -85,7 +85,7 @@ class EquipmentTypeModel extends AbstractModel {
 	}
 
 	/**
-	 * Delete an equipment type secified by its unique ID
+	 * Delete an equipment type specified by its unique ID
 	 *
 	 * @param int id - the unique id of the equipment type
 	 * @throws DatabaseException - when the database can not be queried
