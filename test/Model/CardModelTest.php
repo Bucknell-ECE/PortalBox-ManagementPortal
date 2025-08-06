@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Model;
+
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Entity\CardType;

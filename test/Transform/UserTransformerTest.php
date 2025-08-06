@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Transform;
+
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PortalBox\Config;
 use Portalbox\Entity\ChargePolicy;
@@ -13,7 +16,7 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Transform\UserTransformer;
 
 final class UserTransformerTest extends TestCase {
-		/**
+	/**
 	 * An equipment type which exists in the db
 	 */
 	private static $type;

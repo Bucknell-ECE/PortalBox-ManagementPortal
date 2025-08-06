@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Service;
+
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Permission;
