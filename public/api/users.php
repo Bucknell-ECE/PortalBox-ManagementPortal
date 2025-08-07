@@ -159,7 +159,7 @@ try {
 	die($session->ERROR_NOT_AUTHENTICATED);
 } catch (AuthorizationException $aue) {
 	http_response_code(403);
-	die(self::ERROR_NOT_AUTHORIZED);
+	die($aue->getMessage());
 } catch (NotFoundException $nfe) {
 	http_response_code(404);
 	die($nfe->getMessage());

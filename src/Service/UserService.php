@@ -29,6 +29,7 @@ class UserService {
 	public const ERROR_INVALID_PATCH = 'User properties must be serialized as a json encoded object';
 	public const ERROR_USER_NOT_FOUND = 'We have no record of that user';
 
+	protected SessionInterface $session;
 	protected EquipmentTypeModel $equipmentTypeModel;
 	protected RoleModel $roleModel;
 	protected UserModel $userModel;
