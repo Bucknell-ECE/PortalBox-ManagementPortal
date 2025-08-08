@@ -16,6 +16,7 @@ use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
+use Portalbox\Query\UserQuery;
 use Portalbox\Service\UserService;
 use Portalbox\Session\SessionInterface;
 
@@ -154,6 +155,417 @@ final class UserServiceTest extends TestCase {
 	}
 
 	#endregion test import()
+
+	#region test read()
+
+	public function testReadThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		$service->read(1);
+	}
+
+	public function testReadThrowsWhenNotAuthorizedToReadSelf() {
+		$authenticatedUserId = 12;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHORIZED_READ);
+		$service->read($authenticatedUserId);
+	}
+
+	public function testReadThrowsWhenNotAuthorizedToReadOthers() {
+		$authenticatedUserId = 12;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_OWN_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHORIZED_READ);
+		$service->read($authenticatedUserId + 1);
+	}
+
+	public function testReadThrowsWhenUserDoesNotExist() {
+		$authenticatedUserId = 12;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn(null);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(NotFoundException::class);
+		self::expectExceptionMessage(UserService::ERROR_USER_NOT_FOUND);
+		$service->read(1);
+	}
+
+	public function testReadAllowsUserToReadOthers() {
+		$authenticatedUserId = 12;
+		$user = new User();
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn($user);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::assertSame($user, $service->read($authenticatedUserId + 1));
+	}
+
+	public function testReadAllowsUserToReadSelf() {
+		$authenticatedUserId = 12;
+		$user = new User();
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_id($authenticatedUserId)
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_OWN_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('read')->willReturn($user);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::assertSame($user, $service->read($authenticatedUserId));
+	}
+
+	#endregion test read()
+
+	#region test readAll()
+
+	public function testReadAllThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		$service->readAll([]);
+	}
+
+	public function testReadAllThrowsWhenNotAuthorized() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHORIZED_READ);
+		$service->readAll([]);
+	}
+
+	public function testReadAllThrowsWhenNotInactiveFilterIsNotBoolean() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::LIST_USERS])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INACTIVE_FILTER_MUST_BE_BOOL);
+		$service->readAll(['include_inactive' => 'meh']);
+	}
+
+	public function testReadAllThrowsWhenNotRoleFilterIsNotInteger() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::LIST_USERS])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_ROLE_FILTER_MUST_BE_INT);
+		$service->readAll(['role_id' => 'meh']);
+	}
+
+	public function testReadAllThrowsWhenNotEquipmentFilterIsNotInteger() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::LIST_USERS])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_EQUIPMENT_FILTER_MUST_BE_INT);
+		$service->readAll(['equipment_id' => 'meh']);
+	}
+
+	/**
+	 * @dataProvider getReadAllFilters
+	 */
+	public function testReadAllSuccess(
+		$filters,
+		$inactive,
+		$name,
+		$email,
+		$role_id,
+		$comment,
+		$equipment_id
+	) {
+		$users = [
+			new User()
+		];
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::LIST_USERS])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->expects($this->once())->method('search')->with(
+			$this->callback(
+				fn(UserQuery $query) =>
+					$query->include_inactive() === $inactive
+					&& $query->name() === $name
+					&& $query->email() === $email
+					&& $query->role_id() === $role_id
+					&& $query->comment() === $comment
+					&& $query->equipment_id() === $equipment_id
+			)
+		)
+		->willReturn($users);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::assertSame($users, $service->readAll($filters));
+	}
+
+	public static function getReadAllFilters(): iterable {
+		yield [
+			['include_inactive' => '1'],
+			true,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL
+		];
+
+		yield [
+			['name' => 'Sebastian'],
+			NULL,
+			'Sebastian',
+			NULL,
+			NULL,
+			NULL,
+			NULL
+		];
+
+		yield [
+			['email' => 'sebastian@makerspace.tld'],
+			NULL,
+			NULL,
+			'sebastian@makerspace.tld',
+			NULL,
+			NULL,
+			NULL
+		];
+
+		yield [
+			['role_id' => '2'],
+			NULL,
+			NULL,
+			NULL,
+			2,
+			NULL,
+			NULL
+		];
+
+		yield [
+			['comment' => 'experienced crafter'],
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			'experienced crafter',
+			NULL
+		];
+
+		yield [
+			['equipment_id' => '6'],
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			6
+		];
+	}
+
+	#endregion test readAll()
 
 	#region test patch()
 

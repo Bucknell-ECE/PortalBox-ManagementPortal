@@ -77,7 +77,7 @@ class LocationModel extends AbstractModel {
 	}
 
 	/**
-	 * Delete a location secified by its unique ID
+	 * Delete a location specified by its unique ID
 	 *
 	 * @param int id - the unique id of the location
 	 * @throws DatabaseException - when the database can not be queried
