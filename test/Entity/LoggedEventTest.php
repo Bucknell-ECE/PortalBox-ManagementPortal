@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Entity;
+
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\UserCard;
 use Portalbox\Entity\Equipment;

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Query;
+
 use PHPUnit\Framework\TestCase;
 use Portalbox\Query\ChargeQuery;
 

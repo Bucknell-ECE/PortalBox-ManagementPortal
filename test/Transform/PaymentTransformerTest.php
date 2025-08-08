@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Transform;
+
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PortalBox\Config;
 use PortalBox\Entity\Payment;
@@ -12,7 +15,7 @@ use Portalbox\Transform\PaymentTransformer;
 
 final class PaymentTransformerTest extends TestCase {
 	/**
-	 * A user guananteed to exist in the DB
+	 * A user guaranteed to exist in the DB
 	 * @var User
 	 */
 	private static $user;

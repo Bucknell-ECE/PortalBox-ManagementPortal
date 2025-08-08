@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Model;
+
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Entity\Payment;
@@ -13,7 +15,7 @@ use Portalbox\Query\PaymentQuery;
 
 final class PaymentModelTest extends TestCase {
 	/**
-	 * A user guananteed to exist in the DB
+	 * A user guaranteed to exist in the DB
 	 * @var User
 	 */
 	private static $user;
