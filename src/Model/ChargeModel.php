@@ -161,7 +161,7 @@ class ChargeModel extends AbstractModel {
 		}
 		if (0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
-			$sql .= join(' AND ', $where_clause_fragments);
+			$sql .= implode(' AND ', $where_clause_fragments);
 		}
 		$sql .= ' ORDER BY time DESC';
 
@@ -198,7 +198,6 @@ class ChargeModel extends AbstractModel {
 	}
 
 	private function buildChargesFromArrays(array $data): array {
-
 		$charges = [];
 		$machines = [];
 		$users = [];
@@ -208,41 +207,31 @@ class ChargeModel extends AbstractModel {
 
 		$e_query = new EquipmentQuery();
 		$e_query->set_include_out_of_service(true);
-		$u_query = new UserQuery();
-		$u_query->set_include_inactive(true);
+		$u_query = (new UserQuery())
+			->set_include_inactive(true);
 
 		$machines = $e_model->search($e_query);
 		$users = $u_model->search($u_query);
 
 		foreach ($data as $datum) {
 			$charges[] = $this->buildChargeFromArray($datum);
-			// echo print_r($datum, true) . "<br>";
 		}
-		// echo count($charges). "<br>";
-		// $x = 0;
+
 		foreach ($charges as $charge) {
-			// echo $x . ":";
-			// echo $charge->equipment_id() . "<br>";
-			// $x += 1;
 			$e_id = $charge->equipment_id();
 
 			$machine = array_filter(
 				$machines,
-				function ($e) use ($e_id) {
-					return $e->id() == $e_id;
-				}
+				fn($e) => $e->id() == $e_id
 			);
 
-			// echo array_pop($machine)->id();
 			$charge->set_equipment(array_pop($machine));
 
 			$u_id = $charge->user_id();
 
 			$user = array_filter(
 				$users,
-				function ($e) use ($u_id) {
-					return $e->id() == $u_id;
-				}
+				fn($e) => $e->id() == $u_id
 			);
 
 			$charge->set_user(array_pop($user));

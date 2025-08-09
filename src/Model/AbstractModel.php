@@ -9,11 +9,9 @@ use Portalbox\Config;
  */
 class AbstractModel {
 	/**
-	 * The configuration to use
-	 *
-	 * @var Config
+	 * The configuration to use to connect to the database
 	 */
-	private $configuration;
+	private Config $configuration;
 
 	/**
 	 * @param Config configuration - the configuration to use
@@ -23,18 +21,14 @@ class AbstractModel {
 	}
 
 	/**
-	 * Get the configuration to use
-	 *
-	 * @return Config - the configuration to use
+	 * Get the configuration to use to connect to the database
 	 */
 	public function configuration(): Config {
 		return $this->configuration;
 	}
 
 	/**
-	 * Set the configuration to use
-	 *
-	 * @param Config configuration - the configuration to use
+	 * Set the configuration to use to connect to the database
 	 */
 	public function set_configuration(Config $configuration): void {
 		$this->configuration = $configuration;

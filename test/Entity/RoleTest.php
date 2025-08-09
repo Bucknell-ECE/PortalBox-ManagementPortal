@@ -15,10 +15,10 @@ final class RoleTest extends TestCase {
 		$name = 'admin';
 		$is_system_role = true;
 		$description = 'Users with this role have no restrictions.';
-		$permissions = array(
+		$permissions = [
 			Permission::READ_API_KEY,
 			Permission::READ_CARD
-		);
+		];
 		$permissions_count = 2;
 
 		$role = (new Role())
@@ -39,11 +39,11 @@ final class RoleTest extends TestCase {
 	}
 
 	public function testSetInvalidPermissionListTriggersException(): void {
-		$permissions = array(
+		$permissions = [
 			Permission::READ_API_KEY,
 			Permission::READ_CARD,
 			-1
-		);
+		];
 
 		$this->expectException(InvalidArgumentException::class);
 

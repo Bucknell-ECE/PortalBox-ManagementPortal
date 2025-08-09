@@ -19,7 +19,7 @@ class CardTypeModel extends AbstractModel {
 				return null;
 			}
 		} else {
-			throw new DatabaseExcpetion($connection->errorInfo()[2]);
+			throw new DatabaseException($connection->errorInfo()[2]);
 		}
 	}
 

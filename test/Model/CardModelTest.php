@@ -283,18 +283,14 @@ final class CardModelTest extends TestCase {
 
 		$shutdown_card = $model->create($card);
 
-		$cards = array_map(function ($card) {
-			return $card->id();
-		}, $model->search());
+		$cards = array_map(fn($card) => $card->id(), $model->search());
 		self::assertContains($user_card_1->id(), $cards);
 		self::assertContains($user_card_2->id(), $cards);
 		self::assertContains($training_card->id(), $cards);
 		self::assertContains($shutdown_card->id(), $cards);
 
 		$query = new CardQuery();
-		$cards = array_map(function ($card) {
-			return $card->id();
-		}, $model->search($query));
+		$cards = array_map(fn($card) => $card->id(), $model->search($query));
 		self::assertContains($user_card_1->id(), $cards);
 		self::assertContains($user_card_2->id(), $cards);
 		self::assertContains($training_card->id(), $cards);
@@ -302,9 +298,7 @@ final class CardModelTest extends TestCase {
 
 		$query = (new CardQuery())
 			->set_user_id($user_id);
-		$cards = array_map(function ($card) {
-			return $card->id();
-		}, $model->search($query));
+		$cards = array_map(fn($card) => $card->id(), $model->search($query));
 		self::assertContains($user_card_1->id(), $cards);
 		self::assertContains($user_card_2->id(), $cards);
 		self::assertNotContains($training_card->id(), $cards);
@@ -312,9 +306,7 @@ final class CardModelTest extends TestCase {
 
 		$query = (new CardQuery())
 			->set_equipment_type_id($equipment_type_id);
-		$cards = array_map(function ($card) {
-			return $card->id();
-		}, $model->search($query));
+		$cards = array_map(fn($card) => $card->id(), $model->search($query));
 		self::assertNotContains($user_card_1->id(), $cards);
 		self::assertNotContains($user_card_2->id(), $cards);
 		self::assertContains($training_card->id(), $cards);
