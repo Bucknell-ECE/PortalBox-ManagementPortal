@@ -10,7 +10,6 @@ use Portalbox\Entity\TrainingCard;
 use Portalbox\Entity\UserCard;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\CardQuery;
-use Portalbox\Query\UserQuery;
 use Exception;
 use PDO;
 
@@ -91,7 +90,7 @@ class CardModel extends AbstractModel {
 		$query->bindValue(':id', $id);	//BIGINT
 		if ($query->execute()) {
 			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return $this->buildCardsFromArrays(array($data))[0];
+				return $this->buildCardsFromArrays([$data])[0];
 			} else {
 				return null;
 			}
@@ -188,7 +187,7 @@ class CardModel extends AbstractModel {
 		}
 		if (0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
-			$sql .= join(' AND ', $where_clause_fragments);
+			$sql .= implode(' AND ', $where_clause_fragments);
 		}
 		$statement = $connection->prepare($sql);
 		// run search
@@ -218,9 +217,7 @@ class CardModel extends AbstractModel {
 				$equipment_type_id = $data['equipment_type_id'];
 				$equipment_type = array_filter(
 					$equipment_types,
-					function ($e) use ($equipment_type_id) {
-						return $e->id() == $equipment_type_id;
-					}
+					fn($e) => $e->id() == $equipment_type_id
 				);
 
 				$equipment_type = array_pop($equipment_type);
@@ -234,9 +231,7 @@ class CardModel extends AbstractModel {
 				$user_id = $data['user_id'];
 				$user = array_filter(
 					$users,
-					function ($e) use ($user_id) {
-						return $e->id() == $user_id;
-					}
+					fn($e) => $e->id() == $user_id
 				);
 
 				$user = array_pop($user);
@@ -260,10 +255,8 @@ class CardModel extends AbstractModel {
 		$u_model = new UserModel($this->configuration());
 		$r_model = new RoleModel($this->configuration());
 
-		$u_query = new UserQuery();
-
 		$equipment_types = $e_model->search();
-		$users = $u_model->search($u_query);
+		$users = $u_model->search();
 		$roles = $r_model->search();
 
 		foreach ($users as $user) {
@@ -271,9 +264,7 @@ class CardModel extends AbstractModel {
 
 			$role = array_filter(
 				$roles,
-				function ($e) use ($r_id) {
-					return $e->id() == $r_id;
-				}
+				fn($e) => $e->id() == $r_id
 			);
 			$user->set_role(array_pop($role));
 		}

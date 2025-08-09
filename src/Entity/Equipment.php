@@ -110,7 +110,7 @@ class Equipment {
 			throw new InvalidArgumentException('The specified MAC Address must be valid');
 		}
 
-		$this->mac_address = strtolower(str_replace(array('-', ':'), '', $mac_address));
+		$this->mac_address = strtolower(str_replace(['-', ':'], '', $mac_address));
 		return $this;
 	}
 

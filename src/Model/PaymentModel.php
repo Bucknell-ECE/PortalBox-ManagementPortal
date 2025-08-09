@@ -135,7 +135,7 @@ class PaymentModel extends AbstractModel {
 		}
 		if (0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
-			$sql .= join(' AND ', $where_clause_fragments);
+			$sql .= implode(' AND ', $where_clause_fragments);
 		}
 		$sql .= ' ORDER BY time DESC';
 
