@@ -36,6 +36,7 @@ class UserService {
 	public const ERROR_ROLE_FILTER_MUST_BE_INT = 'The value of role_id must be an integer';
 	public const ERROR_EQUIPMENT_FILTER_MUST_BE_INT = 'The value of equipment_id must be an integer';
 
+	protected SessionInterface $session;
 	protected EquipmentTypeModel $equipmentTypeModel;
 	protected RoleModel $roleModel;
 	protected UserModel $userModel;
@@ -73,11 +74,11 @@ class UserService {
 
 		// read and discard header line
 		$fileHandle = fopen($filePath, 'r');
-		$header = fgetcsv($fileHandle);
+		$header = fgetcsv($fileHandle, null, ',', '"', '');
 
 		// read lines, validating each, to accumulate users
 		$records = [];
-		while ($user = fgetcsv($fileHandle)) {
+		while ($user = fgetcsv($fileHandle, null, ',', '"', '')) {
 			if (count($user) !== 3) {
 				throw new InvalidArgumentException(self::ERROR_INVALID_CSV_RECORD_LENGTH);
 			}
