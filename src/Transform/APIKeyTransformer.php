@@ -23,7 +23,7 @@ class APIKeyTransformer implements InputTransformer, OutputTransformer {
 		}
 
 		return (new APIKey())
-			->set_name(htmlspecialchars($data['name']));
+			->set_name(strip_tags($data['name']));
 	}
 
 	/**
