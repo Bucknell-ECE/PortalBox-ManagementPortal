@@ -29,8 +29,8 @@ class RoleTransformer implements InputTransformer, OutputTransformer {
 		}
 
 		return (new Role())
-			->set_name(htmlspecialchars($data['name']))
-			->set_description(htmlspecialchars($data['description']))
+			->set_name(strip_tags($data['name']))
+			->set_description(strip_tags($data['description']))
 			->set_is_system_role(false)	// hard coded as a business rule
 			->set_permissions($data['permissions']);
 	}

@@ -40,7 +40,7 @@ class EquipmentTypeTransformer implements InputTransformer, OutputTransformer {
 
 
 		return (new EquipmentType())
-			->set_name(htmlspecialchars($data['name']))
+			->set_name(strip_tags($data['name']))
 			->set_requires_training($data['requires_training'])
 			->set_charge_rate($data['charge_rate'])
 			->set_charge_policy_id($data['charge_policy_id'])

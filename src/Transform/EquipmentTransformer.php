@@ -57,7 +57,7 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 		}
 
 		return (new Equipment())
-			->set_name(htmlspecialchars($data['name']))
+			->set_name(strip_tags($data['name']))
 			->set_type($type)
 			->set_location($location)
 			->set_mac_address($data['mac_address'])

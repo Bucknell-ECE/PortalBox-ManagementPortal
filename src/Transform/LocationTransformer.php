@@ -22,7 +22,7 @@ class LocationTransformer implements InputTransformer, OutputTransformer {
 			throw new InvalidArgumentException('\'name\' is a required field');
 		}
 
-		return (new Location())->set_name(htmlspecialchars($data['name']));
+		return (new Location())->set_name(strip_tags($data['name']));
 	}
 
 	/**

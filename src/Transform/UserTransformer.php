@@ -41,8 +41,8 @@ class UserTransformer implements InputTransformer, OutputTransformer {
 		}
 
 		$user = (new User())
-					->set_name(htmlspecialchars($data['name']))
-					->set_email(htmlspecialchars($data['email']))
+					->set_name(strip_tags($data['name']))
+					->set_email(strip_tags($data['email']))
 					->set_is_active($data['is_active'])
 					->set_role($role);
 
