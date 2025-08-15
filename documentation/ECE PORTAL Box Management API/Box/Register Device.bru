@@ -1,0 +1,22 @@
+meta {
+  name: Register Device
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{HOST}}/api/v2/box.php
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "mac": "{{MAC_ADDRESS}}",
+    "card": "{{CARD_ID}}"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
