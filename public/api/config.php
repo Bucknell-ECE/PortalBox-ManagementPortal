@@ -10,17 +10,21 @@ use Portalbox\ResponseHandler;
 
 use Portalbox\Transform\ConfigOutputTransformer;
 
-switch($_SERVER['REQUEST_METHOD']) {
-	case 'GET':
-		try {
+try {
+	switch($_SERVER['REQUEST_METHOD']) {
+		case 'GET':
 			$transformer = new ConfigOutputTransformer();
 			ResponseHandler::render(Config::config(), $transformer);
-		} catch(Exception $e) {
-			http_response_code(500);
-			die('Unable to read settings from config file.');
-		}
-		break;
-	default: // config is read only
-		http_response_code(405);
-		die('We were unable to understand your request.');
+			break;
+		default: // config is read only
+			http_response_code(405);
+			die('We were unable to understand your request.');
+	}
+} catch(Throwable $t) {
+	ResponseHandler::setResponseCode($t);
+	$message = $t->getMessage();
+	if (empty($message)) {
+		$message = ResponseHandler::GENERIC_ERROR_MESSAGE;
+	}
+	die($message);
 }

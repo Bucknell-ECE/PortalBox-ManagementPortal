@@ -3,8 +3,12 @@
 namespace Portalbox;
 
 use InvalidArgumentException;
+use Portalbox\Exception\AuthenticationException;
+use Portalbox\Exception\AuthorizationException;
+use Portalbox\Exception\NotFoundException;
 use Portalbox\Transform\NullOutputTransformer;
 use Portalbox\Transform\OutputTransformer;
+use Throwable;
 
 /**
  * OutputTransformer - Is used to send encoded responses to a requester. Can
@@ -13,6 +17,8 @@ use Portalbox\Transform\OutputTransformer;
  * list_item_to_array.
  */
 class ResponseHandler {
+	public const GENERIC_ERROR_MESSAGE = 'An error occurred and unfortunately, we don\'t know how to describe it.';
+
 	/**
 	 * Encodes and sends data to the requester
 	 *
@@ -36,6 +42,28 @@ class ResponseHandler {
 			self::render_list_response($transformer, $data);
 		} else {
 			self::render_entity_response($transformer, $data);
+		}
+	}
+
+	/**
+	 * Set the HTTP response code based on exception type
+	 */
+	public static function setResponseCode(Throwable $t) {
+		switch ($t::class) {
+			case InvalidArgumentException::class:
+				http_response_code(400);
+				break;
+			case AuthenticationException::class:
+				http_response_code(401);
+				break;
+			case AuthorizationException::class:
+				http_response_code(403);
+				break;
+			case NotFoundException::class:
+				http_response_code(404);
+				break;
+			default:
+				http_response_code(500);
 		}
 	}
 

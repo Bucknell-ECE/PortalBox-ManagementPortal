@@ -174,6 +174,7 @@ final class UserServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHENTICATED_READ);
 		$service->read(1);
 	}
 
@@ -344,6 +345,7 @@ final class UserServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHENTICATED_READ);
 		$service->readAll([]);
 	}
 
@@ -585,6 +587,7 @@ final class UserServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHENTICATED_WRITE);
 		$service->patch(1, '');
 	}
 
