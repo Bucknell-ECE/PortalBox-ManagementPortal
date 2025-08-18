@@ -11,19 +11,22 @@ use Portalbox\Transform\CardTypeTransformer;
 
 $session = new Session();
 
-//switch on the request method
-switch($_SERVER['REQUEST_METHOD']) {
-    case 'GET':     // List
-        $session->require_authorization(Permission::LIST_CARD_TYPES);
+try {
+	switch($_SERVER['REQUEST_METHOD']) {
+		case 'GET':     // List
+			$session->require_authorization(Permission::LIST_CARD_TYPES);
 
-        try {
-            $model = new CardTypeModel(Config::config());
-            $card_types = $model->search();
-            $transformer = new CardTypeTransformer();
-            ResponseHandler::render($card_types, $transformer);
-        } catch(Exception $e) {
-            http_response_code(500);
-            die('We experienced issues communicating with the database');
-        }
-    break;
+			$model = new CardTypeModel(Config::config());
+			$card_types = $model->search();
+			$transformer = new CardTypeTransformer();
+			ResponseHandler::render($card_types, $transformer);
+		break;
+	}
+} catch(Throwable $t) {
+	ResponseHandler::setResponseCode($t);
+	$message = $t->getMessage();
+	if (empty($message)) {
+		$message = ResponseHandler::GENERIC_ERROR_MESSAGE;
+	}
+	die($message);
 }

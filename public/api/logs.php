@@ -12,13 +12,12 @@ use Portalbox\Transform\LoggedEventTransformer;
 
 $session = new Session();
 
-// switch on the request method
-switch($_SERVER['REQUEST_METHOD']) {
-	case 'GET':		// List
-		// check authorization
-		$session->require_authorization(Permission::LIST_LOGS);
+try {
+	switch($_SERVER['REQUEST_METHOD']) {
+		case 'GET':		// List
+			// check authorization
+			$session->require_authorization(Permission::LIST_LOGS);
 
-		try {
 			$model = new LoggedEventModel(Config::config());
 			$query = new LoggedEventQuery();
 			if(isset($_GET['equipment_id']) && !empty($_GET['equipment_id'])) {
@@ -43,18 +42,22 @@ switch($_SERVER['REQUEST_METHOD']) {
 			$log = $model->search($query);
 			$transformer = new LoggedEventTransformer();
 			ResponseHandler::render($log, $transformer);
-		} catch(Exception $e) {
-			http_response_code(500);
-			die('We experienced issues communicating with the database');
-		}
-		break;
-	case 'POST':	// Update
-		// intentional fall through, users should not modify log entries
-	case 'PUT':		// Create
-		// intentional fall through, users should not create log entries
-	case 'DELETE':	// Delete
-		// intentional fall through, deletion not allowed
-	default:
-		http_response_code(405);
-		die('We were unable to understand your request.');
+			break;
+		case 'POST':	// Update
+			// intentional fall through, users should not modify log entries
+		case 'PUT':		// Create
+			// intentional fall through, users should not create log entries
+		case 'DELETE':	// Delete
+			// intentional fall through, deletion not allowed
+		default:
+			http_response_code(405);
+			die('We were unable to understand your request.');
+	}
+} catch(Throwable $t) {
+	ResponseHandler::setResponseCode($t);
+	$message = $t->getMessage();
+	if (empty($message)) {
+		$message = ResponseHandler::GENERIC_ERROR_MESSAGE;
+	}
+	die($message);
 }
