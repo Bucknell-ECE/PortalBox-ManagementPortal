@@ -7,7 +7,6 @@ auth {
 }
 
 vars:pre-request {
-  host: ${YOUR_TEST_SERVER:PORT}
   auth_cookie: PHPSESSID=${YOUR_SESSION_COOKIE}
   google_id_token: ${YOUR_GOOGLE_OAUTH2_ID_TOKEN}
 }
