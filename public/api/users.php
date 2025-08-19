@@ -5,9 +5,6 @@ require '../../src/autoload.php';
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Entity\Permission;
-use Portalbox\Exception\AuthenticationException;
-use Portalbox\Exception\AuthorizationException;
-use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
@@ -19,7 +16,6 @@ use Portalbox\Transform\UserTransformer;
 $session = new Session();
 
 try {
-	// switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET': // List/Read
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
@@ -124,23 +120,11 @@ try {
 			http_response_code(405);
 			die('We were unable to understand your request.');
 	}
-} catch(InvalidArgumentException $iae) {
-	http_response_code(400);
-	die($iae->getMessage());
-} catch (AuthenticationException $ae) {
-	http_response_code(401);
-	die($session->ERROR_NOT_AUTHENTICATED);
-} catch (AuthorizationException $aue) {
-	http_response_code(403);
-	die(self::ERROR_NOT_AUTHORIZED);
-} catch (NotFoundException $nfe) {
-	http_response_code(404);
-	die($nfe->getMessage());
 } catch(Throwable $t) {
-	http_response_code(500);
+	ResponseHandler::setResponseCode($t);
 	$message = $t->getMessage();
 	if (empty($message)) {
-		$message = 'We experienced issues communicating with the database';
+		$message = ResponseHandler::GENERIC_ERROR_MESSAGE;
 	}
 	die($message);
 }

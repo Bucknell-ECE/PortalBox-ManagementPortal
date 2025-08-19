@@ -35,6 +35,8 @@ class UserService {
 	public const ERROR_INACTIVE_FILTER_MUST_BE_BOOL = 'The value of include_inactive must be a boolean';
 	public const ERROR_ROLE_FILTER_MUST_BE_INT = 'The value of role_id must be an integer';
 	public const ERROR_EQUIPMENT_FILTER_MUST_BE_INT = 'The value of equipment_id must be an integer';
+	public const ERROR_UNAUTHENTICATED_READ = 'You ust be authenticated to read users';
+	public const ERROR_UNAUTHENTICATED_WRITE = 'You must be authenticated to modify users';
 
 	protected SessionInterface $session;
 	protected EquipmentTypeModel $equipmentTypeModel;
@@ -131,7 +133,7 @@ class UserService {
 	public function read(int $userId): User {
 		$authenticatedUser = $this->session->get_authenticated_user();
 		if ($authenticatedUser === null) {
-			throw new AuthenticationException();
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_READ);
 		}
 
 		$role = $authenticatedUser->role();
@@ -166,7 +168,7 @@ class UserService {
 	public function readAll(array $filters): array {
 		$authenticatedUser = $this->session->get_authenticated_user();
 		if ($authenticatedUser === null) {
-			throw new AuthenticationException();
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_READ);
 		}
 
 		if (!$authenticatedUser->role()->has_permission(Permission::LIST_USERS)) {
@@ -236,7 +238,7 @@ class UserService {
 	 */
 	public function patch(int $userId, string $filePath): User {
 		if ($this->session->get_authenticated_user() === null) {
-			throw new AuthenticationException();
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_WRITE);
 		}
 
 		$user = $this->userModel->read($userId);
