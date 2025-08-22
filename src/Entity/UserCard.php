@@ -3,19 +3,18 @@
 namespace Portalbox\Entity;
 
 /**
- * Cards come in a number of types and when presented to a portalbox, the
- * portalbox shutsdown when presented with cards of this type.
+ * A card which can be used by a user to authenticate to a portalbox
  */
 class UserCard extends Card {
 	/**
 	 * The id of the user this card was issued to
 	 */
-	private int $user_id;
+	protected int $user_id;
 
 	/**
 	 * The user this card was issued to
 	 */
-	private ?User $user = null;
+	protected ?User $user = null;
 
 	/**
 	 * Get the type of the card
