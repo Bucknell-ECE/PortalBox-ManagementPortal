@@ -6,9 +6,9 @@ use Portalbox\Entity\Card;
 use Portalbox\Entity\CardType;
 use Portalbox\Entity\ProxyCard;
 use Portalbox\Entity\ShutdownCard;
-use Portalbox\Entity\TrainingCard;
-use Portalbox\Entity\UserCard;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Model\Entity\TrainingCard;
+use Portalbox\Model\Entity\UserCard;
 use Portalbox\Query\CardQuery;
 use Exception;
 use PDO;
@@ -17,6 +17,10 @@ use PDO;
  * CardModel is our bridge between the database and higher level Entities.
  */
 class CardModel extends AbstractModel {
+	// we cache the models injected into model aware cards
+	private ?EquipmentTypeModel $equipmentTypeModel = null;
+	private ?UserModel $userModel = null;
+
 	/**
 	 * Save a new Card to the database
 	 *
@@ -88,15 +92,16 @@ class CardModel extends AbstractModel {
 		$sql = 'SELECT c.id, c.type_id, uxc.user_id, etxc.equipment_type_id FROM cards AS c LEFT JOIN users_x_cards AS uxc ON c.id = uxc.card_id LEFT JOIN equipment_type_x_cards AS etxc ON c.id = etxc.card_id WHERE c.id = :id';
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id);	//BIGINT
-		if ($query->execute()) {
-			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return $this->buildCardsFromArrays([$data])[0];
-			} else {
-				return null;
-			}
-		} else {
+		if (!$query->execute()) {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
+
+		$data = $query->fetch(PDO::FETCH_ASSOC);
+		if ($data === false) {
+			return null;
+		}
+		
+		return $this->buildCardFromArray($data);
 	}
 
 	/**
@@ -164,9 +169,9 @@ class CardModel extends AbstractModel {
 	 *
 	 * @param CardQuery|null query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
-	 * @return Card[]|null - a list of equipment which match the search query
+	 * @return Card[] - the list of cards which match the search query
 	 */
-	public function search(?CardQuery $query = null): ?array {
+	public function search(?CardQuery $query = null): array {
 		$connection = $this->configuration()->readonly_db_connection();
 
 		$sql = 'SELECT c.id, c.type_id, uxc.user_id, etxc.equipment_type_id FROM cards AS c LEFT JOIN users_x_cards AS uxc ON c.id = uxc.card_id LEFT JOIN equipment_type_x_cards AS etxc ON c.id = etxc.card_id';
@@ -190,89 +195,45 @@ class CardModel extends AbstractModel {
 			$sql .= implode(' AND ', $where_clause_fragments);
 		}
 		$statement = $connection->prepare($sql);
-		// run search
+
 		foreach ($parameters as $k => $v) {
 			$statement->bindValue($k, $v);
 		}
 
-		if ($statement->execute()) {
-			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
-				return $this->buildCardsFromArrays($data);
-			} else {
-				return null;
-			}
-		} else {
+		if (!$statement->execute()) {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
+
+		return array_map(
+			fn (array $data) => $this->buildCardFromArray($data),
+			$statement->fetchAll(PDO::FETCH_ASSOC)
+		);
 	}
 
-	private function buildCardFromArray(array $data, array $users, array $equipment_types): ?Card {
+	private function buildCardFromArray(array $data): ?Card {
 		switch ($data['type_id']) {
 			case CardType::PROXY:
 				return (new ProxyCard())->set_id($data['id']);
 			case CardType::SHUTDOWN:
 				return (new ShutdownCard())->set_id($data['id']);
 			case CardType::TRAINING:
-				$equipment_type_id = $data['equipment_type_id'];
-				$equipment_type = array_filter(
-					$equipment_types,
-					fn($e) => $e->id() == $equipment_type_id
-				);
+				if ($this->equipmentTypeModel === null) {
+					$this->equipmentTypeModel = new EquipmentTypeModel($this->configuration());
+				}
 
-				$equipment_type = array_pop($equipment_type);
-
-				return $card = (new TrainingCard())
+				return $card = (new TrainingCard($this->equipmentTypeModel))
 					->set_id($data['id'])
-					->set_equipment_type_id($data['equipment_type_id'])
-					->set_equipment_type($equipment_type);
-
+					->set_equipment_type_id($data['equipment_type_id']);
 			case CardType::USER:
-				$user_id = $data['user_id'];
-				$user = array_filter(
-					$users,
-					fn($e) => $e->id() == $user_id
-				);
+				if ($this->userModel === null) {
+					$this->userModel = new UserModel($this->configuration());
+				}
 
-				$user = array_pop($user);
-
-				return(new UserCard())
+				return(new UserCard($this->userModel))
 					->set_id($data['id'])
-					->set_user_id($data['user_id'])
-					->set_user($user);
+					->set_user_id($data['user_id']);
 			default:
 				return null;
 		}
-	}
-
-	private function buildCardsFromArrays(array $data): array {
-		$cards = [];
-		$users = [];
-		$roles = [];
-		$equipment_types = [];
-
-		$e_model = new EquipmentTypeModel($this->configuration());
-		$u_model = new UserModel($this->configuration());
-		$r_model = new RoleModel($this->configuration());
-
-		$equipment_types = $e_model->search();
-		$users = $u_model->search();
-		$roles = $r_model->search();
-
-		foreach ($users as $user) {
-			$r_id = $user->role_id();
-
-			$role = array_filter(
-				$roles,
-				fn($e) => $e->id() == $r_id
-			);
-			$user->set_role(array_pop($role));
-		}
-
-		foreach ($data as $datum) {
-			$cards[] = $this->buildCardFromArray($datum, $users, $equipment_types);
-		}
-
-		return $cards;
 	}
 }
