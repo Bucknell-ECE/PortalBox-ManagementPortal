@@ -14,7 +14,6 @@ use Portalbox\Query\EquipmentQuery;
 use Portalbox\Transform\EquipmentTransformer;
 use Portalbox\Query\CardQuery;
 use Portalbox\Session\Session;
-use Portalbox\Transform\CardTransformer;
 
 $session = new Session();
 
