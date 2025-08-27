@@ -40,6 +40,7 @@ class CardService {
 	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read the specified card(s)';
 	public const ERROR_CARD_NOT_FOUND = 'We have no record of that card';
 	public const ERROR_EQUIPMENT_TYPE_FILTER_MUST_BE_INT = 'The value of equipment_type_id must be an integer';
+	public const ERROR_ID_FILTER_MUST_BE_INT = 'The value of search must be an integer';
 	public const ERROR_USER_FILTER_MUST_BE_INT = 'The value of user_id must be an integer';
 
 	protected SessionInterface $session;
@@ -202,6 +203,15 @@ class CardService {
 			}
 
 			$query->set_equipment_type_id($equipment_type_id);
+		}
+
+		if(isset($filters['search']) && !empty($filters['search'])) {
+			$id = filter_var($filters['search'], FILTER_VALIDATE_INT);
+			if ($id === false) {
+				throw new InvalidArgumentException(self::ERROR_ID_FILTER_MUST_BE_INT);
+			}
+
+			$query->set_id($id);
 		}
 
 		if(isset($filters['user_id']) && !empty($filters['user_id'])) {

@@ -700,7 +700,7 @@ final class CardServiceTest extends TestCase {
 		$service->readAll([]);
 	}
 
-	public function testReadAllThrowsWhenNotEquipmentTypeFilterIsNotInteger() {
+	public function testReadAllThrowsWhenEquipmentTypeFilterIsNotInteger() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -723,7 +723,30 @@ final class CardServiceTest extends TestCase {
 		$service->readAll(['equipment_type_id' => 'meh']);
 	}
 
-	public function testReadAllThrowsWhenNotUserFilterIsNotInteger() {
+	public function testReadAllThrowsWhenIdFilterIsNotInteger() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new CardService(
+			$session,
+			$cardModel,
+			$equipmentTypeModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(CardService::ERROR_ID_FILTER_MUST_BE_INT);
+		$service->readAll(['search' => 'meh']);
+	}
+
+	public function testReadAllThrowsWhenUserFilterIsNotInteger() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -846,7 +869,8 @@ final class CardServiceTest extends TestCase {
 	public function testReadAllSuccessForAllCards(
 		$filters,
 		$user_id,
-		$equipment_type_id
+		$equipment_type_id,
+		$id
 	) {
 		$cards = [
 			new UserCard()
@@ -868,6 +892,7 @@ final class CardServiceTest extends TestCase {
 				fn(CardQuery $query) =>
 					$query->user_id() === $user_id
 					&& $query->equipment_type_id() === $equipment_type_id
+					&& $query->id() === $id
 			)
 		)
 		->willReturn($cards);
@@ -892,12 +917,14 @@ final class CardServiceTest extends TestCase {
 		yield [
 			[],
 			NULL,
+			NULL,
 			NULL
 		];
 
 		yield [
 			['user_id' => '123'],
 			123,
+			NULL,
 			NULL
 		];
 
@@ -905,6 +932,14 @@ final class CardServiceTest extends TestCase {
 			['equipment_type_id' => '12'],
 			NULL,
 			12,
+			NULL
+		];
+
+		yield [
+			['search' => '12'],
+			NULL,
+			NULL,
+			12
 		];
 	}
 

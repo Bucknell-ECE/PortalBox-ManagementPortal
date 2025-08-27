@@ -33,21 +33,6 @@ try {
 				$card = $service->read($cardId);
 				$transformer = new CardTransformer();
 				ResponseHandler::render($card, $transformer);
-			} elseif(isset($_GET['search']) && !empty($_GET['search'])) {
-				$cardId = filter_var($_GET['search'], FILTER_VALIDATE_INT);
-				if ($cardId === false) {
-					throw new InvalidArgumentException('The card must be specified as an integer');
-				}
-
-				$service = new CardService(
-					$session,
-					new CardModel(Config::config()),
-					new EquipmentTypeModel(Config::config()),
-					new UserModel(Config::config())
-				);
-				$card = $service->read($cardId);
-				$transformer = new CardTransformer();
-				ResponseHandler::render($card, $transformer);
 			} else { // Lists
 				$service = new CardService(
 					$session,
@@ -61,18 +46,14 @@ try {
 			}
 			break;
 		case 'PUT':		// Create
-			// check authorization
-			$session->require_authorization(Permission::CREATE_CARD);
-
-			$data = json_decode(file_get_contents('php://input'), TRUE);
-			if($data === null) {
-				throw new InvalidArgumentException(json_last_error_msg());
-			}
-
+			$service = new CardService(
+				$session,
+				new CardModel(Config::config()),
+				new EquipmentTypeModel(Config::config()),
+				new UserModel(Config::config())
+			);
+			$card = $service->create('php://input');
 			$transformer = new CardTransformer();
-			$card = $transformer->deserialize($data);
-			$model = new CardModel(Config::config());
-			$card = $model->create($card);
 			ResponseHandler::render($card, $transformer);
 			break;
 		case 'DELETE':	// Delete
