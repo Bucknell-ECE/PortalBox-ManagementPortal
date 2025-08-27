@@ -56,7 +56,7 @@ class UserService {
 	}
 
 	/**
-	 * Import users from the open file handle
+	 * Import users from the the specified data stream
 	 *
 	 * We expect the first line to be a header and that the input is three
 	 * columns: Name, Email Address, and Role Id in that order.

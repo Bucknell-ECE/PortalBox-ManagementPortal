@@ -7,7 +7,8 @@ use Portalbox\ResponseHandler;
 use Portalbox\Entity\Permission;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\CardModel;
-use Portalbox\Query\CardQuery;
+use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Model\UserModel;
 use Portalbox\Service\CardService;
 use Portalbox\Session\Session;
 use Portalbox\Transform\CardTransformer;
@@ -25,7 +26,9 @@ try {
 
 				$service = new CardService(
 					$session,
-					new CardModel(Config::config())
+					new CardModel(Config::config()),
+					new EquipmentTypeModel(Config::config()),
+					new UserModel(Config::config())
 				);
 				$card = $service->read($cardId);
 				$transformer = new CardTransformer();
@@ -38,7 +41,9 @@ try {
 
 				$service = new CardService(
 					$session,
-					new CardModel(Config::config())
+					new CardModel(Config::config()),
+					new EquipmentTypeModel(Config::config()),
+					new UserModel(Config::config())
 				);
 				$card = $service->read($cardId);
 				$transformer = new CardTransformer();
@@ -46,7 +51,9 @@ try {
 			} else { // Lists
 				$service = new CardService(
 					$session,
-					new CardModel(Config::config())
+					new CardModel(Config::config()),
+					new EquipmentTypeModel(Config::config()),
+					new UserModel(Config::config())
 				);
 				$cards = $service->readAll($_GET);
 				$transformer = new CardTransformer();
