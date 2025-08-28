@@ -46,11 +46,6 @@ class Application {
 		this.defaultRoute = "/";
 		this.viewLocation = "/views";
 
-		// redirect to default route if none defined
-		if (location.pathname === "") {
-			history.pushState("data", this.defaultRoute, this.defaultRoute);
-		}
-
 		// override the defaults
 		if (opts) {
 			this.defaultRoute =
@@ -63,7 +58,6 @@ class Application {
 					: this.viewLocation;
 		}
 
-		let self = this;
 		// hook up events
 		document.addEventListener(
 			"click",
@@ -77,10 +71,8 @@ class Application {
 					while (element instanceof HTMLElement) {
 						if (element.href) {
 							if (
-								element.href.startsWith(location.host) ||
-								element.href.startsWith(
-									location.protocol + "//" + location.host,
-								)
+								element.href.startsWith(location.host)
+								|| element.href.startsWith(location.protocol + "//" + location.host,)
 							) {
 								// staying in application
 								event.preventDefault();
@@ -88,20 +80,7 @@ class Application {
 									.replace("http://", "")
 									.replace("https://", "")
 									.replace(location.host, "");
-								let text = document.title;
-								if (
-									element.title instanceof String &&
-									element.title != ""
-								) {
-									text = element.title;
-								} else if (
-									event.target.title instanceof String &&
-									event.target.title != ""
-								) {
-									text = event.target.title;
-								}
-								history.pushState({}, text, element.href);
-								self.navigate(url);
+								this.navigate(url);
 							} // else do nothing so browser does the default thing ie browse to new location
 							return;
 						} else {
@@ -115,7 +94,7 @@ class Application {
 
 		// pop state
 		window.onpopstate = (e) => {
-			self.navigate(location.pathname);
+			this.navigate(location.pathname);
 		};
 	}
 
@@ -154,10 +133,7 @@ class Application {
 
 						// if not optional params we check it
 						if (routeParts[x].substring(0, 1) !== ":") {
-							if (
-								lowerCase(routeParts[x]) !==
-								lowerCase(hashParts[x])
-							) {
+							if (lowerCase(routeParts[x]) !== lowerCase(hashParts[x])) {
 								thisRouteMatch = false;
 							}
 						} else {
@@ -170,10 +146,12 @@ class Application {
 
 				// if route is matched
 				if (thisRouteMatch === true) {
+					history.pushState({}, "", pathname);
 					return this.routes[i].handler(params);
 				}
 			} else {
 				if (pathname.substring(1).match(this.routes[i].pattern)) {
+					history.pushState({}, "", pathname);
 					return this.routes[i].handler({
 						hash: pathname.substring(1).split("/"),
 					});
@@ -183,7 +161,7 @@ class Application {
 
 		// no routes were matched. try defaultRoute if that is not the route being attempted
 		if (this.defaultRoute != pathname) {
-			history.pushState("data", "home", this.defaultRoute);
+			history.pushState({}, "", this.defaultRoute);
 			this.navigate(this.defaultRoute);
 		} // else we should perhaps implement an error route?
 	}
@@ -1004,7 +982,6 @@ class Application {
 				this.handleError(Error('Cannot save equipment. MAC address already exists.'));
 			} else {
 				Equipment.modify(id, data).then(_ => {
-					history.pushState("", "", "/equipment");
 					this.navigate("/equipment");
 					// notify user of success
 				}).catch(e => this.handleError(e));
