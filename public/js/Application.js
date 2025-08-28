@@ -359,7 +359,7 @@ class Application {
 			home_icons.manage_icons.cards = true;
 			this.route("/cards", _ => {
 				Card.list().then(cards => {
-					this.render("#main", "authenticated/cards/list", {"cards": cards});
+					this.render("#main", "authenticated/cards/list", {"cards": cards, "search": {}});
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -832,38 +832,30 @@ class Application {
 	}
 
 	read_card(id) {
-		let p0 = Card.read(id);
-		let p1 = CardType.list();
-		let p2 = User.list();
-		let p3 = EquipmentType.list();
-
-		Promise.all([p0]).then(values => {
+		Card.read(id).then(values => {
 			this.render("#main", "authenticated/cards/view", {"card": values[0]});
 		}).catch(e => this.handleError(e));
 	}
 
-	list_cards(params, auth_level) {
-		let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-
-		Card.list(queryString).then(cards => {
-			this.render('#main', "authenticated/cards/list", {"cards": cards});
-		}).catch(e => this.handleError(e));
-	}
-
-	search_cards(search_form, auth_level) {
+	search_cards(search_form) {
 		let search = {};
 		let searchParams = this.get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 
 		for(let k of keys) {
-			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
+			if(
+				searchParams[k].length > 0
+				|| (typeof(searchParams[k]) === "boolean" && searchParams[k])
+			) {
 				search[k] = searchParams[k];
 			}
 		}
 
-		if(0 < Object.keys(search).length) {
-			this.list_cards({"search": search.card_id}, auth_level);
-		}
+		let queryString = (new URLSearchParams(search)).toString();
+
+		Card.list(queryString).then(cards => {
+			this.render('#main', "authenticated/cards/list", {"cards": cards, "search": search});
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
@@ -1117,7 +1109,7 @@ class Application {
 			oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 			search["after"] = oneWeekAgo.toISOString();
 		}
-		let queryString = Object.keys(search).map(key => key + '=' + search[key]).join('&');
+		let queryString = (new URLSearchParams(search)).toString();
 
 		let p0 = LoggedEvent.list(queryString);
 		let p1 = Equipment.list();
@@ -1489,12 +1481,12 @@ class Application {
 	}
 
 	/**
-	 * Render an optionally sorted list of users
+	 * Render an optionally filtered list of users
 	 */
-	list_users(params) {
+	list_users(search) {
 		let queryString = "";
-		if(params !== null) {
-			queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
+		if(search !== null) {
+			queryString = (new URLSearchParams(search)).toString();
 		}
 
 		let p0 = User.list(queryString);
@@ -1504,17 +1496,17 @@ class Application {
 			let users = values[0];
 			let roles = values[1];
 
-			if((params !== null) && 0 < Object.keys(params).length) {
-				params.customized = true;
+			if((search !== null) && 0 < Object.keys(search).length) {
+				search.customized = true;
 			}
 			this.render("#main", "authenticated/users/list", {
 				"users": users,
-				"search": params,
+				"search": search,
 				"roles": roles,
 				"create_user_permission": this.user.has_permission(Permission.CREATE_USER)
 			}, {}, () => {
 				let element = document.getElementById("role_id");
-				this.set_dropdown_selector(element, params.role_id);
+				this.set_dropdown_selector(element, search.role_id);
 				this.set_icon_colors(document);
 			});
 		}).catch(e => this.handleError(e));
