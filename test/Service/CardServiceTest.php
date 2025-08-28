@@ -743,7 +743,7 @@ final class CardServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(CardService::ERROR_ID_FILTER_MUST_BE_INT);
-		$service->readAll(['search' => 'meh']);
+		$service->readAll(['card' => 'meh']);
 	}
 
 	public function testReadAllThrowsWhenUserFilterIsNotInteger() {
@@ -936,7 +936,7 @@ final class CardServiceTest extends TestCase {
 		];
 
 		yield [
-			['search' => '12'],
+			['card' => '12'],
 			NULL,
 			NULL,
 			12

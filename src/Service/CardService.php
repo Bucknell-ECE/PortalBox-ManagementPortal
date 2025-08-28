@@ -205,8 +205,8 @@ class CardService {
 			$query->set_equipment_type_id($equipment_type_id);
 		}
 
-		if(isset($filters['search']) && !empty($filters['search'])) {
-			$id = filter_var($filters['search'], FILTER_VALIDATE_INT);
+		if(isset($filters['card']) && !empty($filters['card'])) {
+			$id = filter_var($filters['card'], FILTER_VALIDATE_INT);
 			if ($id === false) {
 				throw new InvalidArgumentException(self::ERROR_ID_FILTER_MUST_BE_INT);
 			}
