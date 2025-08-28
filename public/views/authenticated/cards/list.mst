@@ -10,8 +10,8 @@
 		</div>
 	</header>
 	<form class="advanced_search" onsubmit="return false;">
-		<label for="card_id">Search:</label>
-		<input name="card_id" id="card_id" onchange="app.search_cards(this.form, 'admin');" value="{{search}}" autocomplete="off" />
+		<label for="card">Search:</label>
+		<input name="card" id="card" onchange="app.search_cards(this.form);" value="{{search.card}}" autocomplete="off" />
 	</form>
 	<table>
 		<thead>
