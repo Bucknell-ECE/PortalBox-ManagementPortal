@@ -12,10 +12,8 @@ use Portalbox\Model\LocationModel;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\EquipmentQuery;
 use Portalbox\Transform\EquipmentTransformer;
-use Portalbox\Model\CardModel;
 use Portalbox\Query\CardQuery;
 use Portalbox\Session\Session;
-use Portalbox\Transform\CardTransformer;
 
 $session = new Session();
 

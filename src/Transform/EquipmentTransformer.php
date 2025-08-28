@@ -113,7 +113,7 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 	 * The column count should match the number of fields in an array returned
 	 * by serialize() when $traverse is false
 	 *
-	 * @return array - a list of strings that ccan be column headers
+	 * @return array - a list of strings that can be column headers
 	 */
 	public function get_column_headers(): array {
 		return ['id', 'Name', 'Type', 'MAC Address', 'Location', 'Timeout', 'In Service', 'In Use', 'Service Minutes'];
