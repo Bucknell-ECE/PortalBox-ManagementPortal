@@ -7,7 +7,9 @@ use Portalbox\ResponseHandler;
 use Portalbox\Entity\Permission;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\CardModel;
-use Portalbox\Query\CardQuery;
+use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Model\UserModel;
+use Portalbox\Service\CardService;
 use Portalbox\Session\Session;
 use Portalbox\Transform\CardTransformer;
 
@@ -17,68 +19,41 @@ try {
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-				$session->require_authorization(Permission::READ_CARD);
-
-				$model = new CardModel(Config::config());
-				$card = $model->read($_GET['id']);
-				if(!$card) {
-					throw new NotFoundException('We have no record of that card');
+				$cardId = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+				if ($cardId === false) {
+					throw new InvalidArgumentException('The card must be specified as an integer');
 				}
 
+				$service = new CardService(
+					$session,
+					new CardModel(Config::config()),
+					new EquipmentTypeModel(Config::config()),
+					new UserModel(Config::config())
+				);
+				$card = $service->read($cardId);
 				$transformer = new CardTransformer();
 				ResponseHandler::render($card, $transformer);
-			} elseif(isset($_GET['search']) && !empty($_GET['search'])) {
-				$search_id = $_GET['search'];
-
-				$session->require_authorization(Permission::READ_CARD);
-
-				$model = new CardModel(Config::config());
-				$query = (new CardQuery())->set_id($search_id);
-				$cards = $model->search($query);
-
-				$transformer = new CardTransformer();
-				ResponseHandler::render($cards, $transformer);
 			} else { // Lists
-				$user_id = NULL;
-
-				// check authorization
-				if($session->check_authorization(Permission::LIST_OWN_CARDS)) {
-					if(!$session->check_authorization(Permission::LIST_CARDS)) {
-						$user_id = $session->get_authenticated_user()->id();
-					}
-				} else {
-					$session->require_authorization(Permission::LIST_CARDS);
-				}
-
-				$model = new CardModel(Config::config());
-				$query = new CardQuery();
-				if(isset($_GET['equipment_type_id']) && !empty($_GET['equipment_type_id'])) {
-					$query->set_equipment_type_id($_GET['equipment_type_id']);
-				}
-				if(NULL !== $user_id) {
-					$query->set_user_id($user_id);
-				} else if(isset($_GET['user_id']) && !empty($_GET['user_id'])) {
-					$query->set_user_id($_GET['user_id']);
-				}
-
-				$cards = $model->search($query);
+				$service = new CardService(
+					$session,
+					new CardModel(Config::config()),
+					new EquipmentTypeModel(Config::config()),
+					new UserModel(Config::config())
+				);
+				$cards = $service->readAll($_GET);
 				$transformer = new CardTransformer();
 				ResponseHandler::render($cards, $transformer);
 			}
 			break;
 		case 'PUT':		// Create
-			// check authorization
-			$session->require_authorization(Permission::CREATE_CARD);
-
-			$data = json_decode(file_get_contents('php://input'), TRUE);
-			if($data === null) {
-				throw new InvalidArgumentException(json_last_error_msg());
-			}
-
+			$service = new CardService(
+				$session,
+				new CardModel(Config::config()),
+				new EquipmentTypeModel(Config::config()),
+				new UserModel(Config::config())
+			);
+			$card = $service->create('php://input');
 			$transformer = new CardTransformer();
-			$card = $transformer->deserialize($data);
-			$model = new CardModel(Config::config());
-			$card = $model->create($card);
 			ResponseHandler::render($card, $transformer);
 			break;
 		case 'DELETE':	// Delete

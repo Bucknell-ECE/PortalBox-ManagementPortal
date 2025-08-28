@@ -28,7 +28,7 @@ class NullOutputTransformer implements OutputTransformer {
 	 * The column count should match the number of fields in an array returned
 	 * by serialize() when $traverse is false
 	 *
-	 * @return array - a list of strings that ccan be column headers
+	 * @return array - a list of strings that can be column headers
 	 */
 	public function get_column_headers(): array {
 		throw new DomainException('Data does not support this operation');

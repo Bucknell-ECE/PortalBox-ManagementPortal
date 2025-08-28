@@ -43,7 +43,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_CSV_RECORD_LENGTH);
-		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenLineTooShort.csv'));
+		$service->import(realpath(__DIR__ . '/UserServiceTestData/ImportThrowsWhenLineTooShort.csv'));
 	}
 
 	public function testImportThrowsWhenLineTooLong() {
@@ -66,7 +66,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_CSV_RECORD_LENGTH);
-		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenLineTooLong.csv'));
+		$service->import(realpath(__DIR__ . '/UserServiceTestData/ImportThrowsWhenLineTooLong.csv'));
 	}
 
 	public function testImportThrowsWhenRoleDoesNotExist() {
@@ -89,7 +89,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_CSV_ROLE);
-		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenRoleDoesNotExist.csv'));
+		$service->import(realpath(__DIR__ . '/UserServiceTestData/ImportThrowsWhenRoleDoesNotExist.csv'));
 	}
 
 	public function testImportThrowsWhenEmailIsInvalid() {
@@ -112,7 +112,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_EMAIL);
-		$service->import(realpath(__DIR__ . '/data/ImportThrowsWhenEmailIsInvalid.csv'));
+		$service->import(realpath(__DIR__ . '/UserServiceTestData/ImportThrowsWhenEmailIsInvalid.csv'));
 	}
 
 	public function testImportSuccess() {
@@ -143,7 +143,7 @@ final class UserServiceTest extends TestCase {
 			$userModel
 		);
 
-		$users = $service->import(realpath(__DIR__ . '/data/ImportSuccess.csv'));
+		$users = $service->import(realpath(__DIR__ . '/UserServiceTestData/ImportSuccess.csv'));
 		self::assertIsArray($users);
 		self::assertCount(1, $users);
 		$user = $users[0];
@@ -632,7 +632,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_PATCH);
-		// PHP warning is intentionally suppressed n next line for testing
+		// PHP warning is intentionally suppressed in next line for testing
 		@$service->patch(1, 'file_does_not_exist.json');
 	}
 
@@ -655,7 +655,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_PATCH);
-		$service->patch(1, realpath(__DIR__ . '/data/PatchThrowsWhenDataIsNotArray.json'));
+		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchThrowsWhenDataIsNotArray.json'));
 	}
 
 	public function testPatchThrowsWhenPatchIncludesUnsupportedProperty() {
@@ -677,7 +677,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_PATCH);
-		$service->patch(1, realpath(__DIR__ . '/data/PatchThrowsWhenPatchIncludesUnsupportedProperty.json'));
+		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchThrowsWhenPatchIncludesUnsupportedProperty.json'));
 	}
 
 	#region test patch(authorizations)
@@ -704,7 +704,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(AuthorizationException::class);
 		self::expectExceptionMessage(UserService::ERROR_NOT_AUTHORIZED_TO_PATCH_AUTHORIZATIONS);
-		$service->patch(1, realpath(__DIR__ . '/data/PatchAuthorizationSuccess.json'));
+		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchAuthorizationSuccess.json'));
 	}
 
 	public function testPatchAuthorizationThrowsWhenAuthorizationsNotArray() {
@@ -737,7 +737,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_AUTHORIZATIONS);
-		$service->patch(1, realpath(__DIR__ . '/data/PatchAuthorizationThrowsWhenAuthorizationsNotArray.json'));
+		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchAuthorizationThrowsWhenAuthorizationsNotArray.json'));
 	}
 
 	public function testPatchAuthorizationThrowsWhenAuthorizationIsNotInt() {
@@ -770,7 +770,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_AUTHORIZATIONS);
-		$service->patch(1, realpath(__DIR__ . '/data/PatchAuthorizationThrowsWhenAuthorizationIsNotInt.json'));
+		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchAuthorizationThrowsWhenAuthorizationIsNotInt.json'));
 	}
 
 	public function testPatchAuthorizationThrowsWhenEquipmentTypeDoesNotExist() {
@@ -805,7 +805,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_AUTHORIZATIONS);
-		$service->patch(1, realpath(__DIR__ . '/data/PatchAuthorizationThrowsWhenEquipmentTypeDoesNotExist.json'));
+		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchAuthorizationThrowsWhenEquipmentTypeDoesNotExist.json'));
 	}
 
 	public function testPatchAuthorizationSuccess() {
@@ -845,7 +845,7 @@ final class UserServiceTest extends TestCase {
 			$userModel
 		);
 
-		$user = $service->patch(1, realpath(__DIR__ . '/data/PatchAuthorizationSuccess.json'));
+		$user = $service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchAuthorizationSuccess.json'));
 		self::assertInstanceOf(User::class, $user);
 		self::assertSame([9, 10], $user->authorizations());
 	}
@@ -879,7 +879,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(AuthorizationException::class);
 		self::expectExceptionMessage(UserService::ERROR_NOT_AUTHORIZED_TO_PATCH_PIN);
-		$service->patch(1, realpath(__DIR__ . '/data/PatchPINSuccess.json'));
+		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchPINSuccess.json'));
 	}
 
 	public function testPatchPINThrowsWhenNotString() {
@@ -907,7 +907,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_PIN);
-		$service->patch(1, realpath(__DIR__ . '/data/PatchPINThrowsWhenNotString.json'));
+		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchPINThrowsWhenNotString.json'));
 	}
 
 	public function testPatchPINThrowsWhenNotFourDigits() {
@@ -935,7 +935,7 @@ final class UserServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(UserService::ERROR_INVALID_PIN);
-		$service->patch(1, realpath(__DIR__ . '/data/PatchPINThrowsWhenNotFourDigits.json'));
+		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchPINThrowsWhenNotFourDigits.json'));
 	}
 
 	public function testPatchPINSuccess() {
@@ -968,7 +968,7 @@ final class UserServiceTest extends TestCase {
 			$userModel
 		);
 
-		$user = $service->patch(1, realpath(__DIR__ . '/data/PatchPINSuccess.json'));
+		$user = $service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchPINSuccess.json'));
 		self::assertInstanceOf(User::class, $user);
 		self::assertTrue(password_verify('1234', $user->pin()));
 	}
