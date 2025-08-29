@@ -6,11 +6,14 @@ namespace Portalbox\Query;
  * EquipmentQuery presents a standard interface for Equipment search queries
  */
 class EquipmentQuery {
-	/** Whether to find out of service equipment */
-	protected bool $include_out_of_service = false;
+	/** Whether to exclude out of service equipment */
+	protected bool $exclude_out_of_service = false;
 
 	/** Find equipment by named type */
 	protected ?string $type = null;
+
+	/** Find equipment by MAC address */
+	protected ?string $mac_address = null;
 
 	/** Find equipment in the named location */
 	protected ?string $location = null;
@@ -21,14 +24,14 @@ class EquipmentQuery {
 	/** The ip address of the portalbox attached to the equipment */
 	protected ?string $ip_address = null;
 
-	/** Get whether to find out of service equipment */
-	public function include_out_of_service(): bool {
-		return $this->include_out_of_service;
+	/** Get whether to exclude out of service equipment */
+	public function exclude_out_of_service(): bool {
+		return $this->exclude_out_of_service;
 	}
 
-	/** Set whether to find out of service equipment */
-	public function set_include_out_of_service(bool $include_out_of_service): self {
-		$this->include_out_of_service = $include_out_of_service;
+	/** Set whether to exclude out of service equipment */
+	public function set_exclude_out_of_service(bool $exclude_out_of_service): self {
+		$this->exclude_out_of_service = $exclude_out_of_service;
 		return $this;
 	}
 
@@ -37,9 +40,29 @@ class EquipmentQuery {
 		return $this->type;
 	}
 
-	/** Set the name of the equipmen type */
+	/** Set the name of the equipment type */
 	public function set_type(?string $type): self {
 		$this->type = $type;
+		return $this;
+	}
+
+	/** Get the MAC address */
+	public function mac_address(): ?string {
+		return $this->mac_address;
+	}
+
+	/**
+	 * Set the MAC address
+	 *
+	 * Note we transform the value in a manner consistent with how addresses are
+	 * stored in the database for simplicity later
+	 */
+	public function set_mac_address(?string $mac_address): self {
+		if ($mac_address) {
+			$mac_address = strtolower(str_replace(['-', ':'], '', $mac_address));
+		}
+
+		$this->mac_address = $mac_address;
 		return $this;
 	}
 
