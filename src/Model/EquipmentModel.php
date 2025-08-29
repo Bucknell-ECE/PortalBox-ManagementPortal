@@ -170,6 +170,12 @@ class EquipmentModel extends AbstractModel {
 
 		$where_clause_fragments = [];
 		$parameters = [];
+
+		if (null !== $query->mac_address()) {
+			$where_clause_fragments[] = 'e.mac_address = :mac_address';
+			$parameters[':mac_address'] = $query->mac_address();
+		}
+
 		if (null !== $query->location_id()) {
 			$where_clause_fragments[] = 'l.id = :location';
 			$parameters[':location'] = $query->location_id();
@@ -177,13 +183,13 @@ class EquipmentModel extends AbstractModel {
 			$where_clause_fragments[] = 'l.name = :location';
 			$parameters[':location'] = $query->location();
 		}
+
 		if (null !== $query->type()) {
 			$where_clause_fragments[] = 't.name = :type';
 			$parameters[':type'] = $query->type();
 		}
-		if ($query->include_out_of_service()) {
-			// do nothing i.e. do not filter for in service only
-		} else {
+
+		if ($query->exclude_out_of_service()) {
 			$where_clause_fragments[] = 'e.in_service = 1';
 		}
 
