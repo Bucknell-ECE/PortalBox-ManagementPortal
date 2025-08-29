@@ -206,7 +206,6 @@ class ChargeModel extends AbstractModel {
 		$u_model = new UserModel($this->Configuration());
 
 		$e_query = new EquipmentQuery();
-		$e_query->set_include_out_of_service(true);
 		$u_query = (new UserQuery())
 			->set_include_inactive(true);
 

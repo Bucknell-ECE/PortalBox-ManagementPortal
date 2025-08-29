@@ -164,43 +164,92 @@ final class EquipmentModelTest extends TestCase {
 		$model = new EquipmentModel(self::$config);
 
 		$name = '1000W Floodlight';
-		$mac_address = '0123456789AB';
+		$mac_address1 = '0123456789AB';
+		$mac_address2 = '0123456789CD';
+		$mac_address3 = '0123456789EF';
 		$timeout = 0;
-		$is_in_service = true;
 		$service_minutes = 500;
 
-		$equipment = (new Equipment())
-			->set_name($name)
-			->set_type(self::$type)
-			->set_location(self::$location)
-			->set_mac_address($mac_address)
-			->set_timeout($timeout)
-			->set_is_in_service($is_in_service)
-			->set_service_minutes($service_minutes);
+		$equipmentId1 = $model->create(
+			(new Equipment())
+				->set_name($name)
+				->set_type(self::$type)
+				->set_location(self::$location)
+				->set_mac_address($mac_address1)
+				->set_timeout($timeout)
+				->set_is_in_service(true)
+				->set_service_minutes($service_minutes)
+		)->id();
 
-		$equipment_id = ($model->create($equipment))->id();
+		$equipmentId2 = $model->create(
+			(new Equipment())
+				->set_name($name)
+				->set_type(self::$type)
+				->set_location(self::$location)
+				->set_mac_address($mac_address2)
+				->set_timeout($timeout)
+				->set_is_in_service(false)
+				->set_service_minutes($service_minutes)
+		)->id();
 
-		$query = new EquipmentQuery();	// get all in_service
-		$all_in_service_equipment = $model->search($query);
+		$equipmentId3 = $model->create(
+			(new Equipment())
+				->set_name($name)
+				->set_type(self::$type)
+				->set_location(self::$location)
+				->set_mac_address($mac_address3)
+				->set_timeout($timeout)
+				->set_is_in_service(true)
+				->set_service_minutes($service_minutes)
+		)->id();
 
-		self::assertIsArray($all_in_service_equipment);
-		self::assertNotEmpty($all_in_service_equipment);
-		self::assertContainsOnlyInstancesOf(Equipment::class, $all_in_service_equipment);
+		// Test that we can get all equipment
+		$query = new EquipmentQuery();
+		$equipmentIds = array_map(
+			fn (Equipment $equipment) => $equipment->id(),
+			$model->search($query)
+		);
 
-		$query = (new EquipmentQuery())->set_location(self::$location->name());	// get all located in location
-		$all_equipment_in_location = $model->search($query);
+		self::assertContains($equipmentId1, $equipmentIds);
+		self::assertContains($equipmentId2, $equipmentIds);
+		self::assertContains($equipmentId3, $equipmentIds);
 
-		self::assertIsArray($all_equipment_in_location);
-		self::assertNotEmpty($all_equipment_in_location);
-		self::assertContainsOnlyInstancesOf(Equipment::class, $all_equipment_in_location);
+		// Test that we can get in service equipment
+		$query = (new EquipmentQuery())->set_exclude_out_of_service(true);
+		$equipmentIds = array_map(
+			fn (Equipment $equipment) => $equipment->id(),
+			$model->search($query)
+		);
 
-		// $query = (new EquipmentQuery())->set_location('Deep Space');	// get all located in space
-		// $all_equipment_in_space = $model->search($query);
+		self::assertContains($equipmentId1, $equipmentIds);
+		self::assertNotContains($equipmentId2, $equipmentIds);
+		self::assertContains($equipmentId3, $equipmentIds);
 
-		// self::assertIsArray($all_equipment_in_space);
-		// self::assertEmpty($all_equipment_in_space);
-		// self::assertContainsOnlyInstancesOf(Equipment::class, $all_equipment_in_space);
+		// Test that we can get equipment by MAC address
+		$query = (new EquipmentQuery())->set_mac_address($mac_address3);
+		$equipmentIds = array_map(
+			fn (Equipment $equipment) => $equipment->id(),
+			$model->search($query)
+		);
 
-		$equipment_as_deleted = $model->delete($equipment_id);
+		self::assertNotContains($equipmentId1, $equipmentIds);
+		self::assertNotContains($equipmentId2, $equipmentIds);
+		self::assertContains($equipmentId3, $equipmentIds);
+
+		// Test that we can get equipment by location
+		$query = (new EquipmentQuery())->set_location(self::$location->name());
+		$equipmentIds = array_map(
+			fn (Equipment $equipment) => $equipment->id(),
+			$model->search($query)
+		);
+
+		self::assertContains($equipmentId1, $equipmentIds);
+		self::assertContains($equipmentId2, $equipmentIds);
+		self::assertContains($equipmentId3, $equipmentIds);
+
+		// cleanup
+		$model->delete($equipmentId1);
+		$model->delete($equipmentId2);
+		$model->delete($equipmentId3);
 	}
 }

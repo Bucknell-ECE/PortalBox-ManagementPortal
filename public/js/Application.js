@@ -393,29 +393,13 @@ class Application {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.equipment = true;
 			this.route("/equipment", _ => {
-				// get search params if any
-				let search = {};
-				let searchParams = (new URL(document.location)).searchParams;
-				for(let p of searchParams) {
-					if(0 < p[1].length) {
-						search[p[0]] = p[1];
-					}
-				}
-				if(0 < Object.keys(search).length) {
-					search.customized = true;
-				} else {
-					// js treats an object with no attributes as falsy
-					// fool js by setting a value any value :)
-					search.customized = false;
-				}
-
-				Equipment.list(searchParams.toString()).then(equipment => {
+				Equipment.list().then(equipment => {
 					this.render(
 						"#main",
 						"authenticated/equipment/list",
 						{
 							"equipment": equipment,
-							"search":search,
+							"search": {},
 							"create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)
 						},
 						{},
@@ -979,6 +963,39 @@ class Application {
 				}).catch(e => this.handleError(e));
 			}
 		});
+	}
+
+	list_equipment(search_form) {
+		let search = {};
+		let searchParams = this.get_form_data(search_form);
+		let keys = Object.getOwnPropertyNames(searchParams);
+
+		for(let k of keys) {
+			if(
+				searchParams[k].length > 0
+				|| (typeof(searchParams[k]) === "boolean" && searchParams[k])
+			) {
+				search[k] = searchParams[k];
+			}
+		}
+
+		let queryString = (new URLSearchParams(search)).toString();
+
+		Equipment.list(queryString).then(equipment => {
+			this.render(
+				"#main",
+				"authenticated/equipment/list",
+				{
+					"equipment": equipment,
+					"search": search,
+					"create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)
+				},
+				{},
+				() => {
+					this.set_icon_colors(document);
+				}
+			);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**

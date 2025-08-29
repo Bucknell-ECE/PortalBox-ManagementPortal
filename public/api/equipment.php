@@ -43,8 +43,11 @@ try {
 				if(isset($_GET['type']) && !empty($_GET['type'])) {
 					$query->set_type($_GET['type']);
 				}
-				if(isset($_GET['include_out_of_service']) && !empty($_GET['include_out_of_service'])) {
-					$query->set_include_out_of_service(true);
+				if(
+					!isset($_GET['include_out_of_service'])
+					|| empty($_GET['include_out_of_service'])
+				) {
+					$query->set_exclude_out_of_service(true);
 				}
 
 				$equipment = $model->search($query);
