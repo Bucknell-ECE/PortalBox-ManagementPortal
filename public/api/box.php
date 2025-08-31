@@ -10,7 +10,6 @@ use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Exception\DatabaseException;
-use Portalbox\Query\EquipmentQuery;
 use Portalbox\Transform\EquipmentTransformer;
 use Portalbox\Query\CardQuery;
 use Portalbox\Session\Session;
