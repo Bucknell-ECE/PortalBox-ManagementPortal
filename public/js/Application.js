@@ -816,8 +816,8 @@ class Application {
 	}
 
 	read_card(id) {
-		Card.read(id).then(values => {
-			this.render("#main", "authenticated/cards/view", {"card": values[0]});
+		Card.read(id).then(card => {
+			this.render("#main", "authenticated/cards/view", {"card": card});
 		}).catch(e => this.handleError(e));
 	}
 
