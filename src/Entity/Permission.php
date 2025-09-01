@@ -277,9 +277,6 @@ class Permission {
 	/** Users with this permission can list roles */
 	public const LIST_ROLES = 1105;
 
-	/** Users with this permission can view the roles page */
-	public const VIEW_ROLES = 1107;
-
 	/** Users with this permission can create users */
 	public const CREATE_USER = 1201;
 
@@ -360,7 +357,6 @@ class Permission {
 			self::MODIFY_ROLE,
 			self::DELETE_ROLE,
 			self::LIST_ROLES,
-			self::VIEW_ROLES,
 			self::CREATE_USER,
 			self::READ_USER,
 			self::MODIFY_USER,
