@@ -509,7 +509,7 @@ class Application {
 		}
 
 		// User needs LIST_ROLES Permission to make use of /roles route
-		if(this.user.has_permission(Permission.LIST_ROLES) && this.user.has_permission(Permission.VIEW_ROLES)) {
+		if(this.user.has_permission(Permission.LIST_ROLES) && this.user.has_permission(Permission.READ_ROLE)) {
 			if(!home_icons.system) { home_icons.system = system_icons }
 			home_icons.system.roles = true;
 			this.route("/roles", _ => {
@@ -520,7 +520,7 @@ class Application {
 		}
 
 		// User needs READ_ROLE to make use of /roles/id
-		if(this.user.has_permission(Permission.READ_ROLE) && this.user.has_permission(Permission.VIEW_ROLES)) {
+		if(this.user.has_permission(Permission.READ_ROLE)) {
 			// User needs MODIFY_ROLE to make use of /roles/id for editing
 			this.route("/roles/:id", params => this.read_role(params.id, this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.DELETE_ROLE)));
 		}
@@ -816,8 +816,8 @@ class Application {
 	}
 
 	read_card(id) {
-		Card.read(id).then(values => {
-			this.render("#main", "authenticated/cards/view", {"card": values[0]});
+		Card.read(id).then(card => {
+			this.render("#main", "authenticated/cards/view", {"card": card});
 		}).catch(e => this.handleError(e));
 	}
 
