@@ -7,6 +7,7 @@ use Portalbox\ResponseHandler;
 use Portalbox\Entity\Permission;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Service\EquipmentTypeService;
 use Portalbox\Session\Session;
 use Portalbox\Transform\EquipmentTypeTransformer;
 
@@ -59,19 +60,13 @@ try {
 			ResponseHandler::render($equipment_type, $transformer);
 			break;
 		case 'PUT':	// Create
-			// check authorization
-			$session->require_authorization(Permission::CREATE_EQUIPMENT_TYPE);
-
-			$data = json_decode(file_get_contents('php://input'), TRUE);
-			if($data === null) {
-				throw new InvalidArgumentException(json_last_error_msg());
-			}
-
+			$service = new EquipmentTypeService(
+				$session,
+				new EquipmentTypeModel(Config::config())
+			);
+			$equipmentType = $service->create('php://input');
 			$transformer = new EquipmentTypeTransformer();
-			$equipment_type = $transformer->deserialize($data);
-			$model = new EquipmentTypeModel(Config::config());
-			$equipment_type = $model->create($equipment_type);
-			ResponseHandler::render($equipment_type, $transformer);
+			ResponseHandler::render($equipmentType, $transformer);
 			break;
 		case 'DELETE':	// Delete
 			// intentional fall through, deletion not allowed
