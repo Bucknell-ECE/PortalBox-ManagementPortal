@@ -126,7 +126,7 @@ class EquipmentTypeService {
 			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_READ);
 		}
 
-		return $this->equipmentTypeModel->search();
+		return $this->equipmentTypeModel->search('name');
 	}
 
 	/**
