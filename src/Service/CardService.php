@@ -61,7 +61,7 @@ class CardService {
 	}
 
 	/**
-	 * Create from the the specified data stream
+	 * Create a card from the specified data stream
 	 *
 	 * @param string $filePath  the path to a file from which to read json data
 	 * @return Card  The card which was added
