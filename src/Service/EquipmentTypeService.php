@@ -10,6 +10,7 @@ use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
+use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Session\SessionInterface;
 
@@ -25,6 +26,11 @@ class EquipmentTypeService {
 	public const ERROR_INVALID_CHARGE_POLICY = '\'charge_policy_id\' is required and must be a valid charge policy id';
 	public const ERROR_INVALID_RATE = '\'charge_rate\' is a required and must be a positive number';
 	public const ERROR_ALLOWS_PROXY_IS_REQUIRED = '\'allow_proxy\' is a required field';
+
+	public const ERROR_UNAUTHENTICATED_MODIFY = 'You must be authenticated to modify equipment types';
+	public const ERROR_UNAUTHORIZED_MODIFY = 'You are not authorized to modify equipment types';
+	public const ERROR_EQUIPMENT_TYPE_NOT_FOUND = 'We have no record of that equipment type';
+
 
 	protected SessionInterface $session;
 	protected EquipmentTypeModel $equipmentTypeModel;
@@ -114,5 +120,48 @@ class EquipmentTypeService {
 			->set_charge_rate((string)$chargeRate)
 			->set_charge_policy_id($chargePolicyId)
 			->set_allow_proxy($allowProxy);
+	}
+
+	/**
+	 * Update an equipment type
+	 *
+	 * @param int $id  the id of the equipment type to update
+	 * @param string $filePath  the path to a file from which to read json data
+	 * @return EquipmentType  The equipment type which was modified
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not modify
+	 *      equipment types
+	 * @throws InvalidArgumentException  if the file can not be read or does not
+	 *      contain JSON encoded data
+	 */
+	public function update(int $id, string $filePath): EquipmentType {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_MODIFY);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::MODIFY_EQUIPMENT_TYPE)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_MODIFY);
+		}
+
+		$equipmentType = $this->equipmentTypeModel->read($id);
+		if ($equipmentType === null) {
+			throw new NotFoundException(self::ERROR_EQUIPMENT_TYPE_NOT_FOUND);
+		}
+
+		$data = file_get_contents($filePath);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_TYPE_DATA);
+		}
+
+		$equipmentType = json_decode($data, TRUE);
+		if (!is_array($equipmentType)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_TYPE_DATA);
+		}
+
+		return $this->equipmentTypeModel->update(
+			$this->deserialize($equipmentType)
+				->set_id($id)
+		);
 	}
 }
