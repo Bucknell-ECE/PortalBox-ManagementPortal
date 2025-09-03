@@ -21,7 +21,7 @@ use Portalbox\Session\SessionInterface;
 final class EquipmentTypeServiceTest extends TestCase {
 	#region test create()
 
-	public function testNotAuthenticated() {
+	public function testCreateThrowsWhenNotAuthenticated() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
@@ -37,7 +37,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		$service->create('not a file path');
 	}
 
-	public function testNotAuthorized() {
+	public function testCreateThrowsWhenNotAuthorized() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -56,7 +56,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		$service->create('not a file path');
 	}
 
-	public function testFileIsNotReadable() {
+	public function testCreateThrowsWhenFileIsNotReadable() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -80,7 +80,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		@$service->create('file_does_not_exist.json');
 	}
 
-	public function testDataIsNotArray() {
+	public function testCreateThrowsWhenDataIsNotArray() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -103,7 +103,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/EquipmentTypeServiceTestData/DataIsNotArray.json'));
 	}
 
-	public function testNameIsNotSpecified() {
+	public function testCreateThrowsWhenNameIsNotSpecified() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -126,7 +126,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/EquipmentTypeServiceTestData/NameIsNotSpecified.json'));
 	}
 
-	public function testNameIsInvalid() {
+	public function testCreateThrowsWhenNameIsInvalid() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -149,7 +149,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/EquipmentTypeServiceTestData/NameIsInvalid.json'));
 	}
 
-	public function testRequiresTrainingIsInvalid() {
+	public function testCreateThrowsWhenRequiresTrainingIsInvalid() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -172,7 +172,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/EquipmentTypeServiceTestData/RequiresTrainingIsInvalid.json'));
 	}
 
-	public function testChargePolicyIsInvalid() {
+	public function testCreateThrowsWhenChargePolicyIsInvalid() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -195,7 +195,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/EquipmentTypeServiceTestData/ChargePolicyIsInvalid.json'));
 	}
 
-	public function testChargeRateIsInvalid() {
+	public function testCreateThrowsWhenChargeRateIsInvalid() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -218,7 +218,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/EquipmentTypeServiceTestData/ChargeRateIsInvalid.json'));
 	}
 
-	public function testAllowProxyIsInvalid() {
+	public function testCreateThrowsWhenAllowProxyIsInvalid() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -301,6 +301,159 @@ final class EquipmentTypeServiceTest extends TestCase {
 
 	#endregion test create()
 	
+	#region test readAll()
+
+	public function testReadThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$service = new EquipmentTypeService(
+			$session,
+			$equipmentTypeModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentTypeService::ERROR_UNAUTHENTICATED_READ);
+		$service->read(1);
+	}
+
+	public function testReadThrowsWhenNotAuthorized() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$service = new EquipmentTypeService(
+			$session,
+			$equipmentTypeModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentTypeService::ERROR_UNAUTHORIZED_READ);
+		$service->read(1);
+	}
+
+	public function testReadThrowsWhenNotFound() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_EQUIPMENT_TYPE])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(null);
+
+		$service = new EquipmentTypeService(
+			$session,
+			$equipmentTypeModel
+		);
+
+		self::expectException(NotFoundException::class);
+		self::expectExceptionMessage(EquipmentTypeService::ERROR_EQUIPMENT_TYPE_NOT_FOUND);
+		$service->read(1);
+	}
+
+	public function testReadSuccess() {
+		$type = (new EquipmentType())->set_id(1);
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_EQUIPMENT_TYPE])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn($type);
+
+		$service = new EquipmentTypeService(
+			$session,
+			$equipmentTypeModel
+		);
+
+		self::assertSame($type, $service->read(1));
+	}
+
+	#endregion test readAll()
+
+	#region test readAll()
+
+	public function testReadAllThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$service = new EquipmentTypeService(
+			$session,
+			$equipmentTypeModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentTypeService::ERROR_UNAUTHENTICATED_READ);
+		$service->readAll();
+	}
+
+	public function testReadAllThrowsWhenNotAuthorized() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$service = new EquipmentTypeService(
+			$session,
+			$equipmentTypeModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentTypeService::ERROR_UNAUTHORIZED_READ);
+		$service->readAll();
+	}
+
+	public function testReadAllSuccess() {
+		$types = [
+			(new EquipmentType())->set_id(1),
+			(new EquipmentType())->set_id(2)
+		];
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::LIST_EQUIPMENT_TYPES])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn($types);
+
+		$service = new EquipmentTypeService(
+			$session,
+			$equipmentTypeModel
+		);
+
+		self::assertSame($types, $service->readAll());
+	}
+
+	#endregion test readAll()
+
 	#region test update()
 
 	public function testUpdateThrowsWhenNotAuthenticated() {

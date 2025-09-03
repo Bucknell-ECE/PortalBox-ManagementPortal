@@ -4,8 +4,6 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Entity\Permission;
-use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Service\EquipmentTypeService;
 use Portalbox\Session\Session;
@@ -17,25 +15,28 @@ try {
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-				// check authorization
-				$session->require_authorization(Permission::READ_EQUIPMENT_TYPE);
+				$service = new EquipmentTypeService(
+					$session,
+					new EquipmentTypeModel(Config::config())
+				);
 
-				$model = new EquipmentTypeModel(Config::config());
-				$equipment_type = $model->read($_GET['id']);
-				if(!$equipment_type) {
-					throw new NotFoundException('We have no record of that equipment type');
+				$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+				if ($id === false) {
+					throw new InvalidArgumentException('The equipment type id must be specified as an integer');
 				}
 
+				$equipmentType = $service->read($id);
 				$transformer = new EquipmentTypeTransformer();
-				ResponseHandler::render($equipment_type, $transformer);
+				ResponseHandler::render($equipmentType , $transformer);
 			} else { // List
-				// check authorization
-				$session->require_authorization(Permission::LIST_EQUIPMENT_TYPES);
+				$service = new EquipmentTypeService(
+					$session,
+					new EquipmentTypeModel(Config::config())
+				);
 
-				$model = new EquipmentTypeModel(Config::config());
-				$equipment_types = $model->search();
+				$equipmentTypes = $service->readAll();
 				$transformer = new EquipmentTypeTransformer();
-				ResponseHandler::render($equipment_types, $transformer);
+				ResponseHandler::render($equipmentTypes, $transformer);
 			}
 			break;
 		case 'POST':	// Update
@@ -43,8 +44,8 @@ try {
 				throw new InvalidArgumentException('You must specify the equipment type to modify via the id param');
 			}
 
-			$equipmentTypeId = filter_var($_GET['id'], FILTER_VALIDATE_INT);
-			if ($equipmentTypeId === false) {
+			$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+			if ($id === false) {
 				throw new InvalidArgumentException('The equipment type id must be specified as an integer');
 			}
 
@@ -53,7 +54,7 @@ try {
 				new EquipmentTypeModel(Config::config())
 			);
 
-			$equipmentType = $service->update($equipmentTypeId, 'php://input');
+			$equipmentType = $service->update($id, 'php://input');
 			$transformer = new EquipmentTypeTransformer();
 			ResponseHandler::render($equipmentType, $transformer);
 			break;
