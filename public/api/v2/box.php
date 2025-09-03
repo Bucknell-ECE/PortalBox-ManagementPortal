@@ -10,8 +10,12 @@ use Portalbox\Transform\EquipmentTransformer;
 try {
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'PUT': // Register Device
+			if(!isset($_GET['mac']) || empty($_GET['mac'])) {
+				throw new InvalidArgumentException('MAC address is required');
+			}
+
 			$service = $container->get(EquipmentService::class);
-			$equipment = $service->register($_SERVER, $_GET);
+			$equipment = $service->register($_GET['mac'], $_SERVER);
 			$transformer = new EquipmentTransformer();
 			ResponseHandler::render($equipment, $transformer);
 		break;

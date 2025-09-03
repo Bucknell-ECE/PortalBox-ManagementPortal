@@ -40,7 +40,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		self::expectException(AuthenticationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
-		$service->register([], []);
+		$service->register('00112233445566', []);
 	}
 
 	public function testRegisterThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
@@ -58,7 +58,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		self::expectException(AuthenticationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->register(['HTTP_AUTHORIZATION' => 'let me in'], []);
+		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'let me in']);
 	}
 
 	public function testRegisterThrowsWhenBearerTokenIsInvalid() {
@@ -76,7 +76,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		self::expectException(AuthenticationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->register(['HTTP_AUTHORIZATION' => 'Bearer let me in'], []);
+		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer let me in']);
 	}
 
 	public function testRegisterThrowsWhenCardDoesNotExist() {
@@ -96,7 +96,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		self::expectException(AuthorizationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_REGISTRATION_NOT_AUTHORIZED);
-		$service->register(['HTTP_AUTHORIZATION' => 'Bearer 123456789'], []);
+		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
 	public function testRegisterThrowsWhenCardIsNotUserCard() {
@@ -116,7 +116,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		self::expectException(AuthorizationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_REGISTRATION_NOT_AUTHORIZED);
-		$service->register(['HTTP_AUTHORIZATION' => 'Bearer 123456789'], []);
+		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
 	public function testRegisterThrowsWhenUserIsNotAuthorized() {
@@ -145,38 +145,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		self::expectException(AuthorizationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_REGISTRATION_NOT_AUTHORIZED);
-		$service->register(['HTTP_AUTHORIZATION' => 'Bearer 123456789'], []);
-	}
-
-	public function testRegisterThrowsWhenMacAddressNotProvided() {
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_user(
-					(new User())
-						->set_id(144)
-						->set_role(
-							(new Role())
-								->set_id(2)
-								->set_permissions([Permission::CREATE_EQUIPMENT])
-						)
-				)
-		);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-
-		$service = new EquipmentService(
-			$cardModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel
-		);
-
-		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_MAC_ADDRESS_REQUIRED);
-		$service->register(['HTTP_AUTHORIZATION' => 'Bearer 123456789'], []);
+		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
 	public function testRegisterThrowsWhenDeviceAlreadyRegistered() {
@@ -226,10 +195,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_DEVICE_ALREADY_REGISTERED);
-		$service->register(
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789'],
-			['mac' => $mac]
-		);
+		$service->register($mac, ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
 	public function testRegisterThrowsWhenNoLocationsSetup() {
@@ -264,10 +230,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_INCOMPLETE_SETUP_NO_LOCATIONS);
-		$service->register(
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789'],
-			['mac' => $mac]
-		);
+		$service->register($mac, ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
 	public function testRegisterSuccess() {
@@ -313,10 +276,7 @@ final class EquipmentServiceTest extends TestCase {
 			$locationModel
 		);
 
-		$equipment = $service->register(
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789'],
-			['mac' => $mac]
-		);
+		$equipment = $service->register($mac, ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 
 		self::assertInstanceOf(Equipment::class, $equipment);
 		self::assertSame(EquipmentService::DEFAULT_DEVICE_NAME, $equipment->name());

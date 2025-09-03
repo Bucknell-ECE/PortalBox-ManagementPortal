@@ -27,7 +27,6 @@ class EquipmentService {
 	public const ERROR_NO_AUTHORIZATION_HEADER = 'No Authorization header provided';
 	public const ERROR_INVALID_AUTHORIZATION_HEADER = 'Improperly formatted Authorization header. Please use "Bearer " + token syntax';
 	public const ERROR_REGISTRATION_NOT_AUTHORIZED = 'You are not authorized to register a portalbox.';
-	public const ERROR_MAC_ADDRESS_REQUIRED = 'MAC address is required';
 	public const ERROR_DEVICE_ALREADY_REGISTERED = 'A device with the given MAC address already exists';
 	public const ERROR_INCOMPLETE_SETUP_NO_LOCATIONS = 'You must first setup a location';
 
@@ -53,8 +52,8 @@ class EquipmentService {
 	/**
 	 * Register a new portal box
 	 *
+	 * @param string $mac  the mac address of the portal box
 	 * @param array $headers  the request headers
-	 * @param array $params  the request parameters
 	 * @return Equipment  the portal box as registered with the system
 	 * @throws AuthenticationException  if the request headers do not contain a
 	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
@@ -66,7 +65,7 @@ class EquipmentService {
 	 *      the device mac address, or if the mac is already present in the
 	 *      system
 	 */
-	public function register(array $headers, array $params): Equipment {
+	public function register(string $mac, array $headers): Equipment {
 		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
 			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
 		}
@@ -90,11 +89,6 @@ class EquipmentService {
 		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_EQUIPMENT)) {
 			throw new AuthorizationException(self::ERROR_REGISTRATION_NOT_AUTHORIZED);
 		}
-
-		if (!array_key_exists('mac', $params)) {
-			throw new InvalidArgumentException(self::ERROR_MAC_ADDRESS_REQUIRED);
-		}
-		$mac = $params['mac'];
 
 		$query = (new EquipmentQuery())
 			->set_exclude_out_of_service(true)
