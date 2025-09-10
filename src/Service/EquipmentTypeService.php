@@ -198,7 +198,7 @@ class EquipmentTypeService {
 		$chargeRate = filter_var(
 			$data['charge_rate'] ?? '',
 			FILTER_VALIDATE_FLOAT,
-			['min_range' => 0.0]
+			['options' => ['min_range' => 0.0]]
 		);
 		if ($chargeRate === false) {
 			throw new InvalidArgumentException(self::ERROR_INVALID_RATE);
