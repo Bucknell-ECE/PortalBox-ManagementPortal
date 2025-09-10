@@ -10,6 +10,7 @@ use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\Equipment;
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Location;
+use Portalbox\Entity\LoggedEvent;
 use Portalbox\Entity\LoggedEventType;
 use Portalbox\Entity\ShutdownCard;
 use Portalbox\Model\CardModel;
@@ -125,32 +126,45 @@ final class LoggedEventModelTest extends TestCase {
 		parent::tearDownAfterClass();
 	}
 
-	public function testRead(): void {
+	public function testCreateRead(): void {
 		$model = new LoggedEventModel(self::$config);
 
-		// drop to SQL to create an event to read
-		$connection = $model->configuration()->writable_db_connection();
-		$sql = <<<EOQ
-		INSERT INTO log
-			(event_type_id, card_id, equipment_id, time)
-		VALUES
-			(:event_type_id, :card_id, :equipment_id, :time)
-		EOQ;
-		$statement = $connection->prepare($sql);
+		$event_type_id = LoggedEventType::PLANNED_SHUTDOWN;
+		$card_id = self::$card->id();
+		$equipment_id = self::$equipment->id();
+		$time = '2025-02-28 13:55:42';
 
-		$statement->bindValue(':event_type_id', LoggedEventType::PLANNED_SHUTDOWN);
-		$statement->bindValue(':card_id', self::$card->id());
-		$statement->bindValue(':equipment_id', self::$equipment->id());
-		$statement->bindValue(':time', '2025-02-28 13:55:42');
+		$event = $model->create(
+			(new LoggedEvent())
+				->set_type_id($event_type_id)
+				->set_card_id($card_id)
+				->set_equipment_id($equipment_id)
+				->set_time($time)
+		);
 
-		self::assertTrue($statement->execute());
-		$log_id = (int)$connection->lastInsertId('log_id_seq');
+		self::assertInstanceOf(LoggedEvent::class, $event);
+		$id = $event->id();
+		self::assertNotNull($id);
+		self::assertSame($event_type_id, $event->type_id());
+		self::assertSame($card_id, $event->card_id());
+		self::assertSame($equipment_id, $event->equipment_id());
+		self::assertSame($time, $event->time());
 
-		$event = $model->read($log_id);
+		$event = $model->read($id);
 
-		self::assertNotNull($event);
+		self::assertInstanceOf(LoggedEvent::class, $event);
+		self::assertSame($event_type_id, $event->type_id());
+		self::assertSame($card_id, $event->card_id());
+		self::assertSame($equipment_id, $event->equipment_id());
+		self::assertSame($time, $event->time());
 
-		$statement = $connection->prepare('DELETE FROM log WHERE id = ?');
-		self::assertTrue($statement->execute([$log_id]));
+		// drop to SQL to cleanup
+		$statement = $model
+			->configuration()
+			->writable_db_connection()
+			->prepare('DELETE FROM log WHERE id = ?');
+		self::assertTrue($statement->execute([$id]));
+
+		self::assertNull($model->read($id));
 	}
 }

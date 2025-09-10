@@ -12,6 +12,23 @@ use PDO;
  * LoggedEventModel is our bridge between the database and higher level Entities.
  */
 class LoggedEventModel extends AbstractModel {
+	public function create(LoggedEvent $event): LoggedEvent {
+		$connection = $this->configuration()->writable_db_connection();
+		$sql = 'INSERT INTO log (event_type_id, card_id, time, equipment_id) VALUES (:event_type_id, :card_id, :time, :equipment_id)';
+		$query = $connection->prepare($sql);
+
+		$query->bindValue(':event_type_id', $event->type_id(), PDO::PARAM_INT);
+		$query->bindValue(':card_id', $event->card_id(), PDO::PARAM_INT);
+		$query->bindValue(':equipment_id', $event->equipment_id(), PDO::PARAM_INT);
+		$query->bindValue(':time', $event->time());
+
+		if (!$query->execute()) {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		return $event->set_id($connection->lastInsertId('log_id_seq'));
+	}
+
 	/**
 	 * Read a logged event by its unique ID
 	 *
