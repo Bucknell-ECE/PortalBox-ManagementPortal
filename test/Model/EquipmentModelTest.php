@@ -204,6 +204,15 @@ final class EquipmentModelTest extends TestCase {
 		)->id();
 
 		// Test that we can get all equipment
+		$equipmentIds = array_map(
+			fn (Equipment $equipment) => $equipment->id(),
+			$model->search()
+		);
+
+		self::assertContains($equipmentId1, $equipmentIds);
+		self::assertContains($equipmentId2, $equipmentIds);
+		self::assertContains($equipmentId3, $equipmentIds);
+
 		$query = new EquipmentQuery();
 		$equipmentIds = array_map(
 			fn (Equipment $equipment) => $equipment->id(),
