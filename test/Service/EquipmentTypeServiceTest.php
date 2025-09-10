@@ -218,6 +218,29 @@ final class EquipmentTypeServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/EquipmentTypeServiceTestData/ChargeRateIsInvalid.json'));
 	}
 
+	public function testCreateThrowsWhenChargeRateIsOutOfRange() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT_TYPE])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$service = new EquipmentTypeService(
+			$session,
+			$equipmentTypeModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentTypeService::ERROR_INVALID_RATE);
+		$service->create(realpath(__DIR__ . '/EquipmentTypeServiceTestData/ChargeRateIsOutOfRange.json'));
+	}
+
 	public function testCreateThrowsWhenAllowProxyIsInvalid() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
@@ -301,7 +324,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 
 	#endregion test create()
 	
-	#region test readAll()
+	#region test read()
 
 	public function testReadThrowsWhenNotAuthenticated() {
 		$session = $this->createStub(SessionInterface::class);
@@ -386,7 +409,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		self::assertSame($type, $service->read(1));
 	}
 
-	#endregion test readAll()
+	#endregion test read()
 
 	#region test readAll()
 
@@ -682,6 +705,30 @@ final class EquipmentTypeServiceTest extends TestCase {
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(EquipmentTypeService::ERROR_INVALID_RATE);
 		$service->update(1, realpath(__DIR__ . '/EquipmentTypeServiceTestData/ChargeRateIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenChargeRateIsOutOfRange() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT_TYPE])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$service = new EquipmentTypeService(
+			$session,
+			$equipmentTypeModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentTypeService::ERROR_INVALID_RATE);
+		$service->update(1, realpath(__DIR__ . '/EquipmentTypeServiceTestData/ChargeRateIsOutOfRange.json'));
 	}
 
 	public function testUpdateThrowsWhenAllowProxyIsInvalid() {
