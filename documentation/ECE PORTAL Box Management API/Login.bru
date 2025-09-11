@@ -7,11 +7,9 @@ meta {
 get {
   url: {{HOST}}/api/login.php
   body: none
-  auth: apikey
+  auth: bearer
 }
 
-auth:apikey {
-  key: Authorization
-  value: Bearer {{google_id_token}}
-  placement: header
+auth:bearer {
+  token: {{GOOGLE_OAUTH2_ID_TOKEN}}
 }
