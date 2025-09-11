@@ -1,19 +1,23 @@
 meta {
   name: Read
   type: http
-  seq: 3
+  seq: 2
 }
 
 get {
-  url: {{HOST}}/api/locations.php?id=1
+  url: {{HOST}}/api/roles.php?id=2
   body: none
-  auth: none
+  auth: inherit
 }
 
 params:query {
-  id: 1
+  id: 2
 }
 
 headers {
   Cookie: {{auth_cookie}}
+}
+
+settings {
+  encodeUrl: true
 }
