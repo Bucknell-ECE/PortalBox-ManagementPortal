@@ -18,7 +18,7 @@ try {
 			$equipment = $service->activate($_GET['mac'], $_SERVER);
 			$transformer = new EquipmentTransformer();
 			ResponseHandler::render($equipment, $transformer);
-		break;
+			break;
 		default:
 			http_response_code(405);
 			die('We were unable to understand your request.');

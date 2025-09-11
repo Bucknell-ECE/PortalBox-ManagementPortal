@@ -12,6 +12,7 @@ use Portalbox\Entity\LoggedEventType;
 use Portalbox\Entity\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
+use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\ActivationModel;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentModel;
@@ -28,15 +29,18 @@ use Portalbox\Query\EquipmentQuery;
  * active user with the requisite permissions
  */
 class EquipmentService {
-	public const ERROR_NO_AUTHORIZATION_HEADER = 'No Authorization header provided';
-	public const ERROR_INVALID_AUTHORIZATION_HEADER = 'Improperly formatted Authorization header. Please use "Bearer " + token syntax';
+	public const ERROR_NO_AUTHORIZATION_HEADER = 'No Authorization header provided.';
+	public const ERROR_INVALID_AUTHORIZATION_HEADER = 'Improperly formatted Authorization header. Please use "Bearer " + token syntax.';
 	
 	public const ERROR_REGISTRATION_NOT_AUTHORIZED = 'You are not authorized to register a portalbox.';
-	public const ERROR_DEVICE_ALREADY_REGISTERED = 'A device with the given MAC address already exists';
-	public const ERROR_INCOMPLETE_SETUP_NO_LOCATIONS = 'You must first setup a location';
+	public const ERROR_DEVICE_ALREADY_REGISTERED = 'A device with the given MAC address already exists.';
+	public const ERROR_INCOMPLETE_SETUP_NO_LOCATIONS = 'You must first setup a location.';
 
 	public const ERROR_ACTIVATION_NOT_AUTHORIZED = 'You are not authorized to activate the specified portalbox.';
-	public const ERROR_EQUIPMENT_NOT_FOUND = 'We have no record of that portalbox';
+
+	public const ERROR_INVALID_STATUS_CHANGE_BODY = 'We did not recognize the requested device status change.';
+	public const ERROR_SHUTDOWN_NOT_AUTHORIZED = 'You are not authorized to shutdown portalboxes.';
+	public const ERROR_EQUIPMENT_NOT_FOUND = 'We have no record of that portalbox.';
 
 	public const DEFAULT_DEVICE_NAME = 'Unassigned Portalbox';
 
@@ -202,6 +206,95 @@ class EquipmentService {
 			$connection->rollBack();
 			throw $t;
 		}
+
+		return $equipment;
+	}
+
+	/**
+	 * Record a device status change
+	 *
+	 * @param string $filePath  the path to a file from which to read status
+	 *      change data
+	 * @param string $mac  the mac address of the portal box
+	 * @param array $headers  the request headers
+	 * @return Equipment  the portal box
+	 * @throws AuthenticationException  depending on the status change, mac, and
+	 *      headers
+	 * @throws AuthorizationException  depending on the status change, mac, and
+	 *      headers
+	 */
+	public function changeStatus(
+		string $filePath,
+		string $mac,
+		array $headers
+	): Equipment {
+		$data = file_get_contents($filePath);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
+		}
+
+		if ($data === 'shutdown') {
+			return $this->shutdown($mac, $headers);
+		}
+
+		// if ($data === 'startup') {
+		// 	return $this->startup($mac);
+		// }
+
+		throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
+	}
+
+	/**
+	 * Shutdown a portal box
+	 *
+	 * @param string $mac  the mac address of the portal box
+	 * @param array $headers  the request headers
+	 * @return Equipment  the portal box
+	 * @throws AuthenticationException  if the request headers do not contain a
+	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
+	 *      when the token is the id of a user card
+	 * @throws AuthorizationException  if the card id does not map to a shutdown
+	 *      card.
+	 */
+	private function shutdown(string $mac, array $headers): Equipment {
+		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
+			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
+		}
+		$header = $headers['HTTP_AUTHORIZATION'];
+
+		if(strlen($header) < 8 || strcmp('Bearer ', substr($header, 0 , 7)) != 0) {
+			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+		}
+
+		$card_id = filter_var(substr($header, 7), FILTER_VALIDATE_INT);
+		if($card_id === false) {
+			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+		}
+
+		$card = $this->cardModel->read($card_id);
+		if ($card === null || $card->type_id() !== CardType::SHUTDOWN) {
+			throw new AuthorizationException(self::ERROR_SHUTDOWN_NOT_AUTHORIZED);
+		}
+
+		$query = (new EquipmentQuery())
+			->set_exclude_out_of_service(true)
+			->set_mac_address($mac);
+		$equipment = $this->equipmentModel->search($query);
+		if (empty($equipment)) {
+			throw new NotFoundException(self::ERROR_EQUIPMENT_NOT_FOUND);
+		}
+
+		// get the first item in the list... in theory there should only be one
+		// item in the list, but we can afford to be defensive
+		$equipment = reset($equipment);
+
+		$this->loggedEventModel->create(
+			(new LoggedEvent())
+				->set_type_id(LoggedEventType::PLANNED_SHUTDOWN)
+				->set_card_id($card_id)
+				->set_equipment_id($equipment->id())
+				->set_time(date('Y-m-d H:i:s'))
+		);
 
 		return $equipment;
 	}

@@ -18,7 +18,17 @@ try {
 			$equipment = $service->register($_GET['mac'], $_SERVER);
 			$transformer = new EquipmentTransformer();
 			ResponseHandler::render($equipment, $transformer);
-		break;
+			break;
+		case 'POST': // Device Status Change (Startup / Shutdown)
+			if(!isset($_GET['mac']) || empty($_GET['mac'])) {
+				throw new InvalidArgumentException('MAC address is required');
+			}
+
+			$service = $container->get(EquipmentService::class);
+			$equipment = $service->changeStatus('php://input', $_GET['mac'], $_SERVER);
+			$transformer = new EquipmentTransformer();
+			ResponseHandler::render($equipment, $transformer);
+			break;
 		default:
 			http_response_code(405);
 			die('We were unable to understand your request.');
