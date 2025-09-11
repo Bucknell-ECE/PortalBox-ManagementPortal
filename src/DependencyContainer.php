@@ -5,10 +5,12 @@ namespace Portalbox;
 use PDO;
 use Portalbox\Config;
 use Portalbox\Exception\InvalidConfigurationException;
+use Portalbox\Model\ActivationModel;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
+use Portalbox\Model\LoggedEventModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Service\EquipmentService;
@@ -55,6 +57,8 @@ class DependencyContainer {
 		switch ($type) {
 			case Config::class:
 				return new Config();
+			case ActivationModel::class:
+				return new ActivationModel($this->get(Config::class));
 			case CardModel::class:
 				return new CardModel($this->get(Config::class));
 			case EquipmentModel::class:
@@ -63,16 +67,20 @@ class DependencyContainer {
 				return new EquipmentTypeModel($this->get(Config::class));
 			case LocationModel::class:
 				return new LocationModel($this->get(Config::class));
+			case LoggedEventModel::class:
+				return new LoggedEventModel($this->get(Config::class));
 			case RoleModel::class:
 				return new RoleModel($this->get(Config::class));
 			case UserModel::class:
 				return new UserModel($this->get(Config::class));
 			case EquipmentService::class:
 				return new EquipmentService(
+					$this->get(ActivationModel::class),
 					$this->get(CardModel::class),
 					$this->get(EquipmentModel::class),
 					$this->get(EquipmentTypeModel::class),
-					$this->get(LocationModel::class)
+					$this->get(LocationModel::class),
+					$this->get(LoggedEventModel::class)
 				);
 			default:
 				throw new Exception('DependencyContainer does not have instructions for building instances of ' . $type);

@@ -1,0 +1,23 @@
+meta {
+  name: Activate
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{HOST}}/api/v2/box-activation.php?mac={{MAC_ADDRESS}}
+  body: none
+  auth: bearer
+}
+
+params:query {
+  mac: {{MAC_ADDRESS}}
+}
+
+auth:bearer {
+  token: {{CARD_ID}}
+}
+
+settings {
+  encodeUrl: true
+}
