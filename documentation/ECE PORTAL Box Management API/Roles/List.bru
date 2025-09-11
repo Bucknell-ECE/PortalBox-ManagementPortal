@@ -5,11 +5,15 @@ meta {
 }
 
 get {
-  url: {{host}}/api/management-portal-access-levels.php
+  url: {{HOST}}/api/roles.php
   body: none
-  auth: none
+  auth: inherit
 }
 
 headers {
   Cookie: {{auth_cookie}}
+}
+
+settings {
+  encodeUrl: true
 }
