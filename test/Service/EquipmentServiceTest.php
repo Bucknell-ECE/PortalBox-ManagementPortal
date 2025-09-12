@@ -894,4 +894,85 @@ final class EquipmentServiceTest extends TestCase {
 	}
 
 	#endregion test changeStatus(shutdown)
+
+	#region test changeStatus(startup)
+
+	public function testStartupThrowsWhenEquipmentIsNotFound() {
+		$activationModel = $this->createStub(ActivationModel::class);
+		$cardModel = $this->createStub(CardModel::class);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->method('search')->willReturn([]);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(NotFoundException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_NOT_FOUND);
+		$service->changeStatus(
+			realpath(__DIR__ . '/EquipmentServiceTestData/StartupStatusChange.txt'),
+			'00112233445566',
+			[]
+		);
+	}
+
+	public function testStartupSuccess() {
+		$mac = '00112233445566';
+		$equipment_id = 23;
+
+		$equipment = (new Equipment())->set_id($equipment_id);
+
+		$activationModel = $this->createStub(ActivationModel::class);
+		$cardModel = $this->createStub(CardModel::class);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('search')->with(
+			$this->callback(
+				fn(EquipmentQuery $query) =>
+					$query->exclude_out_of_service() === true
+					&& $query->mac_address() === $mac
+			)
+		)->willReturn([$equipment]);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(LoggedEvent $event) =>
+					$event->type_id() === LoggedEventType::STARTUP_COMPLETE
+					&& $event->card_id() === null
+					&& $event->equipment_id() === $equipment_id
+			)
+		)
+		->willReturnArgument(0);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::assertSame($equipment, $service->changeStatus(
+			realpath(__DIR__ . '/EquipmentServiceTestData/StartupStatusChange.txt'),
+			$mac,
+			[]
+		));
+	}
+
+	#endregion test changeStatus(startup)
 }

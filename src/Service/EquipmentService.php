@@ -237,9 +237,9 @@ class EquipmentService {
 			return $this->shutdown($mac, $headers);
 		}
 
-		// if ($data === 'startup') {
-		// 	return $this->startup($mac);
-		// }
+		if ($data === 'startup') {
+			return $this->startup($mac);
+		}
 
 		throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
 	}
@@ -255,6 +255,8 @@ class EquipmentService {
 	 *      when the token is the id of a user card
 	 * @throws AuthorizationException  if the card id does not map to a shutdown
 	 *      card.
+	 * @throws NotFoundException  if the mac address does not match a registered
+	 *      portalbox
 	 */
 	private function shutdown(string $mac, array $headers): Equipment {
 		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
@@ -292,6 +294,37 @@ class EquipmentService {
 			(new LoggedEvent())
 				->set_type_id(LoggedEventType::PLANNED_SHUTDOWN)
 				->set_card_id($card_id)
+				->set_equipment_id($equipment->id())
+				->set_time(date('Y-m-d H:i:s'))
+		);
+
+		return $equipment;
+	}
+
+	/**
+	 * Startup a portal box
+	 *
+	 * @param string $mac  the mac address of the portal box
+	 * @return Equipment  the portal box
+	 * @throws NotFoundException  if the mac address does not match a registered
+	 *      portalbox
+	 */
+	private function startup(string $mac): Equipment {
+		$query = (new EquipmentQuery())
+			->set_exclude_out_of_service(true)
+			->set_mac_address($mac);
+		$equipment = $this->equipmentModel->search($query);
+		if (empty($equipment)) {
+			throw new NotFoundException(self::ERROR_EQUIPMENT_NOT_FOUND);
+		}
+
+		// get the first item in the list... in theory there should only be one
+		// item in the list, but we can afford to be defensive
+		$equipment = reset($equipment);
+
+		$this->loggedEventModel->create(
+			(new LoggedEvent())
+				->set_type_id(LoggedEventType::STARTUP_COMPLETE)
 				->set_equipment_id($equipment->id())
 				->set_time(date('Y-m-d H:i:s'))
 		);
