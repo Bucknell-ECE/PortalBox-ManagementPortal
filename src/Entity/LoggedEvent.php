@@ -15,7 +15,7 @@ class LoggedEvent {
 	protected int $type_id = -1;
 
 	/** The id of the card which triggered this event */
-	protected int $card_id = -1;
+	protected ?int $card_id = null;
 
 	/** The card which triggered this event */
 	protected ?Card $card = null;
@@ -111,7 +111,7 @@ class LoggedEvent {
 	}
 
 	/** Set the id of the card which triggered this event */
-	public function set_card_id(int $card_id): self {
+	public function set_card_id(?int $card_id): self {
 		$this->card_id = $card_id;
 		$this->card = null;
 		return $this;
@@ -126,7 +126,7 @@ class LoggedEvent {
 	public function set_card(?Card $card): self {
 		$this->card = $card;
 		if (null === $card) {
-			$this->card_id = -1;
+			$this->card_id = null;
 		} else {
 			$this->card_id = $card->id();
 		}
