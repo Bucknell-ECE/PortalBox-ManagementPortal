@@ -1,0 +1,27 @@
+meta {
+  name: Shutdown
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{HOST}}/api/v2/box.php?mac={{MAC_ADDRESS}}
+  body: text
+  auth: bearer
+}
+
+params:query {
+  mac: {{MAC_ADDRESS}}
+}
+
+auth:bearer {
+  token: {{CARD_ID}}
+}
+
+body:text {
+  shutdown
+}
+
+settings {
+  encodeUrl: true
+}
