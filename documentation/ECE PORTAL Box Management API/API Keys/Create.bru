@@ -5,13 +5,13 @@ meta {
 }
 
 put {
-  url: {{host}}/api/api-keys.php
+  url: {{HOST}}/api/api-keys.php
   body: json
   auth: none
 }
 
 headers {
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
   Content-Type: application/json
 }
 

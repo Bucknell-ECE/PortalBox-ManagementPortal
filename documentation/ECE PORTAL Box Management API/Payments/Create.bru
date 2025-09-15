@@ -5,13 +5,13 @@ meta {
 }
 
 put {
-  url: {{host}}/api/payments.php
+  url: {{HOST}}/api/payments.php
   body: text
   auth: none
 }
 
 headers {
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
 }
 
 body:text {

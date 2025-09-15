@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Transform;
+
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PortalBox\Entity\Location;
 use Portalbox\Transform\LocationTransformer;
@@ -22,7 +25,7 @@ final class LocationTransformerTest extends TestCase {
 
 		self::assertNotNull($location);
 		self::assertNull($location->id());
-		self::assertEquals(htmlspecialchars($name), $location->name());
+		self::assertEquals(strip_tags($name), $location->name());
 	}
 
 	public function testDeserializeInvalidDataUserID(): void {

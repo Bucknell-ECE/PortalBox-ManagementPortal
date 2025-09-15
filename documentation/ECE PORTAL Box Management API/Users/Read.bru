@@ -1,11 +1,11 @@
 meta {
   name: Read
   type: http
-  seq: 3
+  seq: 4
 }
 
 get {
-  url: {{host}}/api/users.php?id=4
+  url: {{HOST}}/api/users.php?id=4
   body: none
   auth: none
 }
@@ -15,5 +15,5 @@ params:query {
 }
 
 headers {
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
 }

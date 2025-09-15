@@ -12,6 +12,25 @@ use PDO;
  * LoggedEventModel is our bridge between the database and higher level Entities.
  */
 class LoggedEventModel extends AbstractModel {
+	public function create(LoggedEvent $event): LoggedEvent {
+		$connection = $this->configuration()->writable_db_connection();
+		$sql = 'INSERT INTO log (event_type_id, card_id, time, equipment_id) VALUES (:event_type_id, :card_id, :time, :equipment_id)';
+		$query = $connection->prepare($sql);
+
+		$query->bindValue(':event_type_id', $event->type_id(), PDO::PARAM_INT);
+		$query->bindValue(':equipment_id', $event->equipment_id(), PDO::PARAM_INT);
+		$query->bindValue(':time', $event->time());
+
+		$type = $event->card_id() === null ? PDO::PARAM_NULL : PDO::PARAM_INT;
+		$query->bindValue(':card_id', $event->card_id(), $type);
+
+		if (!$query->execute()) {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		return $event->set_id($connection->lastInsertId('log_id_seq'));
+	}
+
 	/**
 	 * Read a logged event by its unique ID
 	 *
@@ -39,8 +58,8 @@ class LoggedEventModel extends AbstractModel {
 		INNER JOIN equipment AS e ON el.equipment_id = e.id
 		INNER JOIN equipment_types AS et ON e.type_id = et.id
 		INNER JOIN locations AS l ON e.location_id = l.id
-		INNER JOIN cards AS c ON el.card_id = c.id
-		INNER JOIN card_types AS ct ON c.type_id = ct.id
+		LEFT JOIN cards AS c ON el.card_id = c.id
+		LEFT JOIN card_types AS ct ON c.type_id = ct.id
 		LEFT JOIN users_x_cards AS uxc ON el.card_id = uxc.card_id
 		LEFT JOIN users AS u ON u.id = uxc.user_id
 		WHERE
@@ -64,14 +83,9 @@ class LoggedEventModel extends AbstractModel {
 	 *
 	 * @param LoggedEventQuery query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
-	 * @return LoggedEvent[]|null - a list of logged events
+	 * @return LoggedEvent[] - a list of logged events
 	 */
-	public function search(LoggedEventQuery $query): ?array {
-		if (null === $query) {
-			// no query... bail
-			return null;
-		}
-
+	public function search(?LoggedEventQuery $query = null): array {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = <<<EOQ
 		SELECT
@@ -91,60 +105,60 @@ class LoggedEventModel extends AbstractModel {
 		INNER JOIN equipment AS e ON el.equipment_id = e.id
 		INNER JOIN equipment_types AS et ON e.type_id = et.id
 		INNER JOIN locations AS l ON e.location_id = l.id
-		INNER JOIN cards AS c ON el.card_id = c.id
-		INNER JOIN card_types AS ct ON c.type_id = ct.id
+		LEFT JOIN cards AS c ON el.card_id = c.id
+		LEFT JOIN card_types AS ct ON c.type_id = ct.id
 		LEFT JOIN users_x_cards AS uxc ON el.card_id = uxc.card_id
 		LEFT JOIN users AS u ON u.id = uxc.user_id
 		EOQ;
 
 		$where_clause_fragments = [];
 		$parameters = [];
-		if ($query->equipment_id()) {
-			$where_clause_fragments[] = 'el.equipment_id = :equipment_id';
-			$parameters[':equipment_id'] = $query->equipment_id();
+
+		if ($query) {
+			if ($query->equipment_id()) {
+				$where_clause_fragments[] = 'el.equipment_id = :equipment_id';
+				$parameters[':equipment_id'] = $query->equipment_id();
+			}
+			if ($query->equipment_type_id()) {
+				$where_clause_fragments[] = 'et.id = :equipment_type_id';
+				$parameters[':equipment_type_id'] = $query->equipment_type_id();
+			}
+			if ($query->location_id()) {
+				$where_clause_fragments[] = 'e.location_id = :location_id';
+				$parameters[':location_id'] = $query->location_id();
+			}
+			if ($query->type_id()) {
+				$where_clause_fragments[] = 'el.event_type_id = :event_type_id';
+				$parameters[':event_type_id'] = $query->type_id();
+			}
+			if ($query->on_or_after()) {
+				$where_clause_fragments[] = 'el.time >= :after';
+				$parameters[':after'] = $query->on_or_after();
+			}
+			if ($query->on_or_before()) {
+				$where_clause_fragments[] = 'el.time <= :before';
+				$parameters[':before'] = $query->on_or_before();
+			}
 		}
-		if ($query->equipment_type_id()) {
-			$where_clause_fragments[] = 'et.id = :equipment_type_id';
-			$parameters[':equipment_type_id'] = $query->equipment_type_id();
-		}
-		if ($query->location_id()) {
-			$where_clause_fragments[] = 'e.location_id = :location_id';
-			$parameters[':location_id'] = $query->location_id();
-		}
-		if ($query->type_id()) {
-			$where_clause_fragments[] = 'el.event_type_id = :event_type_id';
-			$parameters[':event_type_id'] = $query->type_id();
-		}
-		if ($query->on_or_after()) {
-			$where_clause_fragments[] = 'el.time >= :after';
-			$parameters[':after'] = $query->on_or_after();
-		}
-		if ($query->on_or_before()) {
-			$where_clause_fragments[] = 'el.time <= :before';
-			$parameters[':before'] = $query->on_or_before();
-		}
-		if (0 < count($where_clause_fragments)) {
+		if (!empty($where_clause_fragments)) {
 			$sql .= ' WHERE ';
-			$sql .= join(' AND ', $where_clause_fragments);
+			$sql .= implode(' AND ', $where_clause_fragments);
 		}
 		$sql .= ' ORDER BY el.time DESC, el.id DESC';
 
 		$statement = $connection->prepare($sql);
-		// run search
 		foreach ($parameters as $k => $v) {
 			$statement->bindValue($k, $v);
 		}
 
-		if ($statement->execute()) {
-			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
-				return $this->buildLoggedEventsFromArray($data);
-			} else {
-				return null;
-			}
-		} else {
+		if (!$statement->execute()) {
 			throw new DatabaseException($statement->errorInfo()[2]);
 		}
+
+		return array_map(
+			fn (array $data) => $this->buildLoggedEventFromArray($data),
+			$statement->fetchAll(PDO::FETCH_ASSOC)
+		);
 	}
 
 	private function buildLoggedEventFromArray(array $data): LoggedEvent {
@@ -160,15 +174,5 @@ class LoggedEventModel extends AbstractModel {
 			->set_location_name($data['location_name'])
 			->set_time($data['time'])
 			->set_user_name($data['user_name']);
-	}
-
-	private function buildLoggedEventsFromArray(array $data): array {
-		$log = [];
-
-		foreach ($data as $datum) {
-			$log[] = $this->buildLoggedEventFromArray($datum);
-		}
-
-		return $log;
 	}
 }

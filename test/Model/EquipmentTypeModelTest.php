@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Model;
+
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Entity\ChargePolicy;
@@ -9,7 +12,7 @@ use Portalbox\Entity\EquipmentType;
 use Portalbox\Model\EquipmentTypeModel;
 
 final class EquipmentTypeModelTest extends TestCase {
-	public function testModel(): void {
+	public function testCreateReadUpdateDelete(): void {
 		$model = new EquipmentTypeModel(Config::config());
 
 		$name = 'ceramics printer';
@@ -68,11 +71,6 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($charge_policy_id, $type_as_modified->charge_policy_id());
 		self::assertEquals($allow_proxy, $type_as_modified->allow_proxy());
 
-		$types_as_found = $model->search();
-		self::assertIsArray($types_as_found);
-		self::assertNotEmpty($types_as_found);
-		self::assertContainsOnlyInstancesOf(EquipmentType::class, $types_as_found);
-
 		$type_as_deleted = $model->delete($type_id);
 
 		self::assertNotNull($type_as_deleted);
@@ -84,5 +82,78 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($allow_proxy, $type_as_deleted->allow_proxy());
 
 		self::assertNull($model->read($type_id));
+	}
+
+	public function testSearchThrowsWhenSortColumnInvalid() {
+		$model = new EquipmentTypeModel(Config::config());
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentTypeModel::ERROR_INVALID_SORT_COLUMN);
+		$model->search('popularity');
+	}
+
+	public function testSearch() {
+		$model = new EquipmentTypeModel(Config::config());
+
+		$name1 = 'ceramics printer';
+		$name2 = '3D Printer';
+		$requires_training = true;
+		$charge_rate = "0.01";
+		$charge_policy_id = ChargePolicy::PER_MINUTE;
+		$allow_proxy = true;
+
+		$typeId1 = $model->create(
+			(new EquipmentType())
+				->set_name($name1)
+				->set_requires_training($requires_training)
+				->set_charge_rate($charge_rate)
+				->set_charge_policy_id($charge_policy_id)
+				->set_allow_proxy($allow_proxy)
+		)->id();
+
+		$typeId2 = $model->create(
+			(new EquipmentType())
+				->set_name($name2)
+				->set_requires_training($requires_training)
+				->set_charge_rate($charge_rate)
+				->set_charge_policy_id($charge_policy_id)
+				->set_allow_proxy($allow_proxy)
+		)->id();
+
+		// check that we can search without sorting
+		$typeIds = array_map(
+			fn(EquipmentType $type) => $type->id(),
+			$model->search()
+		);
+		self::assertContains($typeId1, $typeIds);
+		self::assertContains($typeId2, $typeIds);
+
+		// check that we can sort by name
+		$typeIds = array_map(
+			fn(EquipmentType $type) => $type->id(),
+			$model->search('name')
+		);
+		self::assertContains($typeId1, $typeIds);
+		self::assertContains($typeId2, $typeIds);
+
+		$index1 = array_search($typeId1, $typeIds);
+		$index2 = array_search($typeId2, $typeIds);
+		self::assertLessThan($index1, $index2);
+
+		// check that we can sort by id
+		$typeIds = array_map(
+			fn(EquipmentType $type) => $type->id(),
+			$model->search('id')
+		);
+		self::assertContains($typeId1, $typeIds);
+		self::assertContains($typeId2, $typeIds);
+
+		$index1 = array_search($typeId1, $typeIds);
+		$index2 = array_search($typeId2, $typeIds);
+		self::assertLessThan($index2, $index1);
+
+		// cleanup
+		$model->delete($typeId1);
+		$model->delete($typeId2);
 	}
 }

@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Transform;
+
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PortalBox\Entity\Permission;
 use PortalBox\Entity\Role;

@@ -46,11 +46,6 @@ class Application {
 		this.defaultRoute = "/";
 		this.viewLocation = "/views";
 
-		// redirect to default route if none defined
-		if (location.pathname === "") {
-			history.pushState("data", this.defaultRoute, this.defaultRoute);
-		}
-
 		// override the defaults
 		if (opts) {
 			this.defaultRoute =
@@ -63,7 +58,6 @@ class Application {
 					: this.viewLocation;
 		}
 
-		let self = this;
 		// hook up events
 		document.addEventListener(
 			"click",
@@ -77,10 +71,8 @@ class Application {
 					while (element instanceof HTMLElement) {
 						if (element.href) {
 							if (
-								element.href.startsWith(location.host) ||
-								element.href.startsWith(
-									location.protocol + "//" + location.host,
-								)
+								element.href.startsWith(location.host)
+								|| element.href.startsWith(location.protocol + "//" + location.host,)
 							) {
 								// staying in application
 								event.preventDefault();
@@ -88,20 +80,7 @@ class Application {
 									.replace("http://", "")
 									.replace("https://", "")
 									.replace(location.host, "");
-								let text = document.title;
-								if (
-									element.title instanceof String &&
-									element.title != ""
-								) {
-									text = element.title;
-								} else if (
-									event.target.title instanceof String &&
-									event.target.title != ""
-								) {
-									text = event.target.title;
-								}
-								history.pushState({}, text, element.href);
-								self.navigate(url);
+								this.navigate(url);
 							} // else do nothing so browser does the default thing ie browse to new location
 							return;
 						} else {
@@ -115,7 +94,7 @@ class Application {
 
 		// pop state
 		window.onpopstate = (e) => {
-			self.navigate(location.pathname);
+			this.navigate(location.pathname);
 		};
 	}
 
@@ -154,10 +133,7 @@ class Application {
 
 						// if not optional params we check it
 						if (routeParts[x].substring(0, 1) !== ":") {
-							if (
-								lowerCase(routeParts[x]) !==
-								lowerCase(hashParts[x])
-							) {
+							if (lowerCase(routeParts[x]) !== lowerCase(hashParts[x])) {
 								thisRouteMatch = false;
 							}
 						} else {
@@ -170,10 +146,12 @@ class Application {
 
 				// if route is matched
 				if (thisRouteMatch === true) {
+					history.pushState({}, "", pathname);
 					return this.routes[i].handler(params);
 				}
 			} else {
 				if (pathname.substring(1).match(this.routes[i].pattern)) {
+					history.pushState({}, "", pathname);
 					return this.routes[i].handler({
 						hash: pathname.substring(1).split("/"),
 					});
@@ -183,7 +161,7 @@ class Application {
 
 		// no routes were matched. try defaultRoute if that is not the route being attempted
 		if (this.defaultRoute != pathname) {
-			history.pushState("data", "home", this.defaultRoute);
+			history.pushState({}, "", this.defaultRoute);
 			this.navigate(this.defaultRoute);
 		} // else we should perhaps implement an error route?
 	}
@@ -381,7 +359,7 @@ class Application {
 			home_icons.manage_icons.cards = true;
 			this.route("/cards", _ => {
 				Card.list().then(cards => {
-					this.render("#main", "authenticated/cards/list", {"cards": cards});
+					this.render("#main", "authenticated/cards/list", {"cards": cards, "search": {}});
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -415,29 +393,13 @@ class Application {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.equipment = true;
 			this.route("/equipment", _ => {
-				// get search params if any
-				let search = {};
-				let searchParams = (new URL(document.location)).searchParams;
-				for(let p of searchParams) {
-					if(0 < p[1].length) {
-						search[p[0]] = p[1];
-					}
-				}
-				if(0 < Object.keys(search).length) {
-					search.customized = true;
-				} else {
-					// js treats an object with no attributes as falsy
-					// fool js by setting a value any value :)
-					search.customized = false;
-				}
-
-				Equipment.list(searchParams.toString()).then(equipment => {
+				Equipment.list().then(equipment => {
 					this.render(
 						"#main",
 						"authenticated/equipment/list",
 						{
 							"equipment": equipment,
-							"search":search,
+							"search": {},
 							"create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)
 						},
 						{},
@@ -547,7 +509,7 @@ class Application {
 		}
 
 		// User needs LIST_ROLES Permission to make use of /roles route
-		if(this.user.has_permission(Permission.LIST_ROLES) && this.user.has_permission(Permission.VIEW_ROLES)) {
+		if(this.user.has_permission(Permission.LIST_ROLES) && this.user.has_permission(Permission.READ_ROLE)) {
 			if(!home_icons.system) { home_icons.system = system_icons }
 			home_icons.system.roles = true;
 			this.route("/roles", _ => {
@@ -558,7 +520,7 @@ class Application {
 		}
 
 		// User needs READ_ROLE to make use of /roles/id
-		if(this.user.has_permission(Permission.READ_ROLE) && this.user.has_permission(Permission.VIEW_ROLES)) {
+		if(this.user.has_permission(Permission.READ_ROLE)) {
 			// User needs MODIFY_ROLE to make use of /roles/id for editing
 			this.route("/roles/:id", params => this.read_role(params.id, this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.DELETE_ROLE)));
 		}
@@ -854,38 +816,30 @@ class Application {
 	}
 
 	read_card(id) {
-		let p0 = Card.read(id);
-		let p1 = CardType.list();
-		let p2 = User.list();
-		let p3 = EquipmentType.list();
-
-		Promise.all([p0]).then(values => {
-			this.render("#main", "authenticated/cards/view", {"card": values[0]});
+		Card.read(id).then(card => {
+			this.render("#main", "authenticated/cards/view", {"card": card});
 		}).catch(e => this.handleError(e));
 	}
 
-	list_cards(params, auth_level) {
-		let queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-
-		Card.list(queryString).then(cards => {
-			this.render('#main', "authenticated/cards/list", {"cards": cards});
-		}).catch(e => this.handleError(e));
-	}
-
-	search_cards(search_form, auth_level) {
+	search_cards(search_form) {
 		let search = {};
 		let searchParams = this.get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 
 		for(let k of keys) {
-			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
+			if(
+				searchParams[k].length > 0
+				|| (typeof(searchParams[k]) === "boolean" && searchParams[k])
+			) {
 				search[k] = searchParams[k];
 			}
 		}
 
-		if(0 < Object.keys(search).length) {
-			this.list_cards({"search": search.card_id}, auth_level);
-		}
+		let queryString = (new URLSearchParams(search)).toString();
+
+		Card.list(queryString).then(cards => {
+			this.render('#main', "authenticated/cards/list", {"cards": cards, "search": search});
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
@@ -1004,12 +958,44 @@ class Application {
 				this.handleError(Error('Cannot save equipment. MAC address already exists.'));
 			} else {
 				Equipment.modify(id, data).then(_ => {
-					history.pushState("", "", "/equipment");
 					this.navigate("/equipment");
 					// notify user of success
 				}).catch(e => this.handleError(e));
 			}
 		});
+	}
+
+	list_equipment(search_form) {
+		let search = {};
+		let searchParams = this.get_form_data(search_form);
+		let keys = Object.getOwnPropertyNames(searchParams);
+
+		for(let k of keys) {
+			if(
+				searchParams[k].length > 0
+				|| (typeof(searchParams[k]) === "boolean" && searchParams[k])
+			) {
+				search[k] = searchParams[k];
+			}
+		}
+
+		let queryString = (new URLSearchParams(search)).toString();
+
+		Equipment.list(queryString).then(equipment => {
+			this.render(
+				"#main",
+				"authenticated/equipment/list",
+				{
+					"equipment": equipment,
+					"search": search,
+					"create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)
+				},
+				{},
+				() => {
+					this.set_icon_colors(document);
+				}
+			);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
@@ -1140,7 +1126,7 @@ class Application {
 			oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 			search["after"] = oneWeekAgo.toISOString();
 		}
-		let queryString = Object.keys(search).map(key => key + '=' + search[key]).join('&');
+		let queryString = (new URLSearchParams(search)).toString();
 
 		let p0 = LoggedEvent.list(queryString);
 		let p1 = Equipment.list();
@@ -1512,12 +1498,12 @@ class Application {
 	}
 
 	/**
-	 * Render an optionally sorted list of users
+	 * Render an optionally filtered list of users
 	 */
-	list_users(params) {
+	list_users(search) {
 		let queryString = "";
-		if(params !== null) {
-			queryString = Object.keys(params).map(key => key + '=' + params[key]).join('&');
+		if(search !== null) {
+			queryString = (new URLSearchParams(search)).toString();
 		}
 
 		let p0 = User.list(queryString);
@@ -1527,17 +1513,17 @@ class Application {
 			let users = values[0];
 			let roles = values[1];
 
-			if((params !== null) && 0 < Object.keys(params).length) {
-				params.customized = true;
+			if((search !== null) && 0 < Object.keys(search).length) {
+				search.customized = true;
 			}
 			this.render("#main", "authenticated/users/list", {
 				"users": users,
-				"search": params,
+				"search": search,
 				"roles": roles,
 				"create_user_permission": this.user.has_permission(Permission.CREATE_USER)
 			}, {}, () => {
 				let element = document.getElementById("role_id");
-				this.set_dropdown_selector(element, params.role_id);
+				this.set_dropdown_selector(element, search.role_id);
 				this.set_icon_colors(document);
 			});
 		}).catch(e => this.handleError(e));

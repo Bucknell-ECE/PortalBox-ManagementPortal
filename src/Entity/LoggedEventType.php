@@ -32,7 +32,7 @@ class LoggedEventType {
 	public const STARTUP_COMPLETE = 4;
 
 	/**
-	 * A shutdown card was presented and the Portalbox service instucted the
+	 * A shutdown card was presented and the Portalbox service instructed the
 	 * Portalbox to shutdown
 	 */
 	public const PLANNED_SHUTDOWN = 5;

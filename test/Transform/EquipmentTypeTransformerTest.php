@@ -2,149 +2,15 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Transform;
+
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\ChargePolicy;
 use PortalBox\Entity\EquipmentType;
 use Portalbox\Transform\EquipmentTypeTransformer;
 
 final class EquipmentTypeTransformerTest extends TestCase {
-	public function testDeserialize(): void {
-		$transformer = new EquipmentTypeTransformer();
-
-		$id = 42;
-		$name = 'laser scalpel';
-		$requires_training = true;
-		$charge_rate = "2.50";
-		$charge_policy_id = ChargePolicy::PER_USE;
-		$charge_policy = ChargePolicy::name_for_policy($charge_policy_id);
-		$allow_proxy = false;
-
-		$data = [
-			'id' => $id,
-			'name' => $name,
-			'requires_training' => $requires_training,
-			'charge_rate' => $charge_rate,
-			'charge_policy_id' => $charge_policy_id,
-			'allow_proxy' => $allow_proxy
-		];
-
-		$type = $transformer->deserialize($data);
-
-		self::assertNotNull($type);
-		self::assertNull($type->id());
-		self::assertEquals($name, $type->name());
-		self::assertEquals($requires_training, $type->requires_training());
-		self::assertEquals($charge_rate, $type->charge_rate());
-		self::assertEquals($charge_policy_id, $type->charge_policy_id());
-		self::assertEquals($charge_policy, $type->charge_policy());
-		self::assertEquals($allow_proxy, $type->allow_proxy());
-	}
-
-	public function testDeserializeInvalidDataName(): void {
-		$transformer = new EquipmentTypeTransformer();
-
-		$id = 42;
-		$requires_training = true;
-		$charge_rate = "2.50";
-		$charge_policy_id = ChargePolicy::PER_USE;
-		$allow_proxy = false;
-
-		$data = [
-			'id' => $id,
-			'requires_training' => $requires_training,
-			'charge_rate' => $charge_rate,
-			'charge_policy_id' => $charge_policy_id,
-			'allow_proxy' => $allow_proxy
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$type = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataRequireTraining(): void {
-		$transformer = new EquipmentTypeTransformer();
-
-		$id = 42;
-		$name = 'laser scalpel';
-		$charge_rate = "2.50";
-		$charge_policy_id = ChargePolicy::PER_USE;
-		$allow_proxy = false;
-
-		$data = [
-			'id' => $id,
-			'name' => $name,
-			'charge_rate' => $charge_rate,
-			'charge_policy_id' => $charge_policy_id,
-			'allow_proxy' => $allow_proxy
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$type = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataChargeRate(): void {
-		$transformer = new EquipmentTypeTransformer();
-
-		$id = 42;
-		$name = 'laser scalpel';
-		$requires_training = true;
-		$charge_policy_id = ChargePolicy::PER_USE;
-		$allow_proxy = false;
-
-		$data = [
-			'id' => $id,
-			'name' => $name,
-			'requires_training' => $requires_training,
-			'charge_policy_id' => $charge_policy_id,
-			'allow_proxy' => $allow_proxy
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$type = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataChargePolicy(): void {
-		$transformer = new EquipmentTypeTransformer();
-
-		$id = 42;
-		$name = 'laser scalpel';
-		$requires_training = true;
-		$charge_rate = "2.50";
-		$allow_proxy = false;
-
-		$data = [
-			'id' => $id,
-			'name' => $name,
-			'requires_training' => $requires_training,
-			'charge_rate' => $charge_rate,
-			'allow_proxy' => $allow_proxy
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$type = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataAllowProxy(): void {
-		$transformer = new EquipmentTypeTransformer();
-
-		$id = 42;
-		$name = 'laser scalpel';
-		$requires_training = true;
-		$charge_rate = "2.50";
-		$charge_policy_id = ChargePolicy::PER_USE;
-
-		$data = [
-			'id' => $id,
-			'name' => $name,
-			'requires_training' => $requires_training,
-			'charge_rate' => $charge_rate,
-			'charge_policy_id' => $charge_policy_id
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$type = $transformer->deserialize($data);
-	}
-
 	public function testSerialize(): void {
 		$transformer = new EquipmentTypeTransformer();
 

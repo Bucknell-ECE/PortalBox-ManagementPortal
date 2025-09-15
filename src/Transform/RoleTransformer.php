@@ -29,8 +29,8 @@ class RoleTransformer implements InputTransformer, OutputTransformer {
 		}
 
 		return (new Role())
-			->set_name(htmlspecialchars($data['name']))
-			->set_description(htmlspecialchars($data['description']))
+			->set_name(strip_tags($data['name']))
+			->set_description(strip_tags($data['description']))
 			->set_is_system_role(false)	// hard coded as a business rule
 			->set_permissions($data['permissions']);
 	}
@@ -69,7 +69,7 @@ class RoleTransformer implements InputTransformer, OutputTransformer {
 	 * The column count should match the number of fields in an array returned
 	 * by serialize() when $traverse is false
 	 *
-	 * @return array - a list of strings that ccan be column headers
+	 * @return array - a list of strings that can be column headers
 	 */
 	public function get_column_headers(): array {
 		return ['id', 'Name', 'System Role', 'Description'];

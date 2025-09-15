@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Entity;
+
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\User;
 
@@ -13,10 +15,10 @@ final class UserTest extends TestCase {
 		$comment = 'Test Monkey';
 		$active = false;
 		$pin = '1234';
-		$authorizations = array(
+		$authorizations = [
 			34,
 			23
-		);
+		];
 		$num_authorizations = count($authorizations);
 
 		$user = (new User())

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Entity;
+
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\UserCard;
 use Portalbox\Entity\Equipment;
@@ -21,7 +23,11 @@ final class LoggedEventTest extends TestCase {
 		$card_id = 1234;
 		$user_id = 137;
 
-		$event = (new LoggedEvent())
+		$event = (new LoggedEvent());
+
+		self::assertNull($event->card_id());
+
+		$event
 			->set_id($id)
 			->set_time($time)
 			->set_type_id($type_id)

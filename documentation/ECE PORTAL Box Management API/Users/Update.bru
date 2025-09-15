@@ -1,11 +1,11 @@
 meta {
   name: Update
   type: http
-  seq: 4
+  seq: 5
 }
 
 post {
-  url: {{host}}/api/users.php?id=4
+  url: {{HOST}}/api/users.php?id=4
   body: json
   auth: none
 }
@@ -16,7 +16,7 @@ params:query {
 
 headers {
   Content-Type: application/json
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
 }
 
 body:json {

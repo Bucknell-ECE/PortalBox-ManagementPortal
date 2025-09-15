@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Model;
+
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Entity\CardType;
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Location;
 use Portalbox\Entity\ProxyCard;
 use Portalbox\Entity\Role;
 use Portalbox\Entity\ShutdownCard;
@@ -16,7 +17,6 @@ use Portalbox\Entity\User;
 use Portalbox\Entity\UserCard;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentTypeModel;
-use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\CardQuery;
 
@@ -24,37 +24,21 @@ final class CardModelTest extends TestCase {
 	/**
 	 * A user that exists in the db
 	 */
-	private static $user;
-
-	/**
-	 * A location that exists in the db
-	 */
-	private static $location;
+	private static User $user;
 
 	/**
 	 * An equipment type which exists in the db
 	 */
-	private static $equipment_type;
+	private static EquipmentType $equipment_type;
 
 	/**
 	 * The configuration
-	 * @var Config
 	 */
-	private static $config;
+	private static Config $config;
 
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 		self::$config = Config::config();
-
-		// provision a location in the db
-		$model = new LocationModel(self::$config);
-
-		$name = 'Robotics Shop';
-
-		$location = (new Location())
-			->set_name($name);
-
-		self::$location = $model->create($location);
 
 		// provision an equipment type in the db
 		$model = new EquipmentTypeModel(self::$config);
@@ -95,10 +79,6 @@ final class CardModelTest extends TestCase {
 	}
 
 	public static function tearDownAfterClass(): void {
-		// deprovision a location in the db
-		$model = new LocationModel(self::$config);
-		$model->delete(self::$location->id());
-
 		// deprovision an equipment type in the db
 		$model = new EquipmentTypeModel(self::$config);
 		$model->delete(self::$equipment_type->id());
@@ -110,69 +90,65 @@ final class CardModelTest extends TestCase {
 		parent::tearDownAfterClass();
 	}
 
-	public function testProxyCardModel(): void {
+	public function testCreateReadDelete_ProxyCard(): void {
 		$model = new CardModel(self::$config);
 
 		$card_id = 9812347165;
 
-		$card = (new ProxyCard())
-			->set_id($card_id);
+		$card = $model->create(
+			(new ProxyCard())
+				->set_id($card_id)
+		);
 
-		$card_as_created = $model->create($card);
+		self::assertInstanceOf(ProxyCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::PROXY, $card->type_id());
 
-		self::assertNotNull($card_as_created);
-		self::assertEquals($card_id, $card_as_created->id());
-		self::assertEquals(CardType::PROXY, $card_as_created->type_id());
+		$card = $model->read($card_id);
 
-		$card_as_found = $model->read($card_id);
+		self::assertInstanceOf(ProxyCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::PROXY, $card->type_id());
 
-		self::assertNotNull($card_as_found);
-		self::assertEquals($card_id, $card_as_found->id());
-		self::assertEquals(CardType::PROXY, $card_as_found->type_id());
+		$card = $model->delete($card_id);
 
-		$card_as_deleted = $model->delete($card_id);
+		self::assertInstanceOf(ProxyCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::PROXY, $card->type_id());
 
-		self::assertNotNull($card_as_deleted);
-		self::assertEquals($card_id, $card_as_deleted->id());
-		self::assertEquals(CardType::PROXY, $card_as_deleted->type_id());
-
-		$card_as_not_found = $model->read($card_id);
-
-		self::assertNull($card_as_not_found);
+		self::assertNull($model->read($card_id));
 	}
 
-	public function testShutdownCardModel(): void {
+	public function testCreateReadDelete_ShutdownCard(): void {
 		$model = new CardModel(self::$config);
 
 		$card_id = 812347165;
 
-		$card = (new ShutdownCard())
-			->set_id($card_id);
+		$card = $model->create(
+			(new ShutdownCard())
+				->set_id($card_id)
+		);
 
-		$card_as_created = $model->create($card);
+		self::assertInstanceOf(ShutdownCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::SHUTDOWN, $card->type_id());
 
-		self::assertNotNull($card_as_created);
-		self::assertEquals($card_id, $card_as_created->id());
-		self::assertEquals(CardType::SHUTDOWN, $card_as_created->type_id());
+		$card = $model->read($card_id);
 
-		$card_as_found = $model->read($card_id);
+		self::assertInstanceOf(ShutdownCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::SHUTDOWN, $card->type_id());
 
-		self::assertNotNull($card_as_found);
-		self::assertEquals($card_id, $card_as_found->id());
-		self::assertEquals(CardType::SHUTDOWN, $card_as_found->type_id());
+		$card = $model->delete($card_id);
 
-		$card_as_deleted = $model->delete($card_id);
+		self::assertInstanceOf(ShutdownCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::SHUTDOWN, $card->type_id());
 
-		self::assertNotNull($card_as_deleted);
-		self::assertEquals($card_id, $card_as_deleted->id());
-		self::assertEquals(CardType::SHUTDOWN, $card_as_deleted->type_id());
-
-		$card_as_not_found = $model->read($card_id);
-
-		self::assertNull($card_as_not_found);
+		self::assertNull($model->read($card_id));
 	}
 
-	public function testTrainingCardModel(): void {
+	public function testCreateReadDelete_TrainingCard(): void {
 		$model = new CardModel(self::$config);
 
 		$card_id = 812347165;
@@ -182,145 +158,127 @@ final class CardModelTest extends TestCase {
 			->set_id($card_id)
 			->set_equipment_type_id($equipment_type_id);
 
-		$card_as_created = $model->create($card);
+		$card = $model->create($card);
 
-		self::assertNotNull($card_as_created);
-		self::assertEquals($card_id, $card_as_created->id());
-		self::assertEquals(CardType::TRAINING, $card_as_created->type_id());
-		self::assertEquals($equipment_type_id, $card_as_created->equipment_type_id());
+		self::assertInstanceOf(TrainingCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::TRAINING, $card->type_id());
+		self::assertEquals($equipment_type_id, $card->equipment_type_id());
 
-		$card_as_found = $model->read($card_id);
+		$card = $model->read($card_id);
 
-		self::assertNotNull($card_as_found);
-		self::assertEquals($card_id, $card_as_found->id());
-		self::assertEquals(CardType::TRAINING, $card_as_found->type_id());
-		self::assertEquals($equipment_type_id, $card_as_found->equipment_type_id());
+		self::assertInstanceOf(TrainingCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::TRAINING, $card->type_id());
+		self::assertEquals($equipment_type_id, $card->equipment_type_id());
 
-		$card_as_deleted = $model->delete($card_id);
+		$card = $model->delete($card_id);
 
-		self::assertNotNull($card_as_deleted);
-		self::assertEquals($card_id, $card_as_deleted->id());
-		self::assertEquals(CardType::TRAINING, $card_as_deleted->type_id());
-		self::assertEquals($equipment_type_id, $card_as_deleted->equipment_type_id());
+		self::assertInstanceOf(TrainingCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::TRAINING, $card->type_id());
+		self::assertEquals($equipment_type_id, $card->equipment_type_id());
 
-		$card_as_not_found = $model->read($card_id);
-
-		self::assertNull($card_as_not_found);
+		self::assertNull($model->read($card_id));
 	}
 
-	public function testUserCardModel(): void {
+	public function testCreateReadDelete_UserCard(): void {
 		$model = new CardModel(self::$config);
 
 		$card_id = 622347165;
 		$user_id = self::$user->id();
 
-		$card = (new UserCard())
-			->set_id($card_id)
-			->set_user_id($user_id);
+		$card = $model->create(
+			(new UserCard())
+				->set_id($card_id)
+				->set_user_id($user_id)
+		);
 
-		$card_as_created = $model->create($card);
+		self::assertInstanceOf(UserCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::USER, $card->type_id());
+		self::assertEquals($user_id, $card->user_id());
 
-		self::assertNotNull($card_as_created);
-		self::assertEquals($card_id, $card_as_created->id());
-		self::assertEquals(CardType::USER, $card_as_created->type_id());
-		self::assertEquals($user_id, $card_as_created->user_id());
+		$card = $model->read($card_id);
 
-		$card_as_found = $model->read($card_id);
+		self::assertInstanceOf(UserCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::USER, $card->type_id());
+		self::assertEquals($user_id, $card->user_id());
 
-		self::assertNotNull($card_as_found);
-		self::assertEquals($card_id, $card_as_found->id());
-		self::assertEquals(CardType::USER, $card_as_found->type_id());
-		self::assertEquals($user_id, $card_as_found->user_id());
+		$card = $model->delete($card_id);
 
-		$card_as_deleted = $model->delete($card_id);
+		self::assertInstanceOf(UserCard::class, $card);
+		self::assertEquals($card_id, $card->id());
+		self::assertEquals(CardType::USER, $card->type_id());
+		self::assertEquals($user_id, $card->user_id());
 
-		self::assertNotNull($card_as_deleted);
-		self::assertEquals($card_id, $card_as_deleted->id());
-		self::assertEquals(CardType::USER, $card_as_deleted->type_id());
-		self::assertEquals($user_id, $card_as_deleted->user_id());
-
-		$card_as_not_found = $model->read($card_id);
-
-		self::assertNull($card_as_not_found);
+		self::assertNull($model->read($card_id));
 	}
 
 	public function testSearch(): void {
 		$model = new CardModel(self::$config);
 
-		$card_id = 622347165;
-		$user_id = self::$user->id();
+		$userCard1Id = 622347165;
+		$userCard2Id = 622347166;
+		$trainingCardId = 812347165;
+		$shutdownCardId = 47165542;
 
-		$card = (new UserCard())
-			->set_id($card_id)
-			->set_user_id($user_id);
+		$model->create(
+			(new UserCard())
+				->set_id($userCard1Id)
+				->set_user_id(self::$user->id())
+		);
 
-		$user_card_1 = $model->create($card);
+		$model->create(
+			(new UserCard())
+				->set_id($userCard2Id)
+				->set_user_id(self::$user->id())
+		);
 
-		$card_id = 622347166;
-		$user_id = self::$user->id();
+		$model->create(
+			(new TrainingCard())
+				->set_id($trainingCardId)
+				->set_equipment_type_id(self::$equipment_type->id())
+		);
 
-		$card = (new UserCard())
-			->set_id($card_id)
-			->set_user_id($user_id);
+		$model->create(
+			(new ShutdownCard())
+				->set_id($shutdownCardId)
+		);
 
-		$user_card_2 = $model->create($card);
-
-		$card_id = 812347165;
-		$equipment_type_id = self::$equipment_type->id();
-
-		$card = (new TrainingCard())
-			->set_id($card_id)
-			->set_equipment_type_id($equipment_type_id);
-
-		$training_card = $model->create($card);
-
-		$card_id = 47165542;
-
-		$card = (new ShutdownCard())
-			->set_id($card_id);
-
-		$shutdown_card = $model->create($card);
-
-		$cards = array_map(function ($card) {
-			return $card->id();
-		}, $model->search());
-		self::assertContains($user_card_1->id(), $cards);
-		self::assertContains($user_card_2->id(), $cards);
-		self::assertContains($training_card->id(), $cards);
-		self::assertContains($shutdown_card->id(), $cards);
+		$cards = array_map(fn($card) => $card->id(), $model->search());
+		self::assertContains($userCard1Id, $cards);
+		self::assertContains($userCard2Id, $cards);
+		self::assertContains($trainingCardId, $cards);
+		self::assertContains($shutdownCardId, $cards);
 
 		$query = new CardQuery();
-		$cards = array_map(function ($card) {
-			return $card->id();
-		}, $model->search($query));
-		self::assertContains($user_card_1->id(), $cards);
-		self::assertContains($user_card_2->id(), $cards);
-		self::assertContains($training_card->id(), $cards);
-		self::assertContains($shutdown_card->id(), $cards);
+		$cards = array_map(fn($card) => $card->id(), $model->search($query));
+		self::assertContains($userCard1Id, $cards);
+		self::assertContains($userCard2Id, $cards);
+		self::assertContains($trainingCardId, $cards);
+		self::assertContains($shutdownCardId, $cards);
 
 		$query = (new CardQuery())
-			->set_user_id($user_id);
-		$cards = array_map(function ($card) {
-			return $card->id();
-		}, $model->search($query));
-		self::assertContains($user_card_1->id(), $cards);
-		self::assertContains($user_card_2->id(), $cards);
-		self::assertNotContains($training_card->id(), $cards);
-		self::assertNotContains($shutdown_card->id(), $cards);
+			->set_user_id(self::$user->id());
+		$cards = array_map(fn($card) => $card->id(), $model->search($query));
+		self::assertContains($userCard1Id, $cards);
+		self::assertContains($userCard2Id, $cards);
+		self::assertNotContains($trainingCardId, $cards);
+		self::assertNotContains($shutdownCardId, $cards);
 
 		$query = (new CardQuery())
-			->set_equipment_type_id($equipment_type_id);
-		$cards = array_map(function ($card) {
-			return $card->id();
-		}, $model->search($query));
-		self::assertNotContains($user_card_1->id(), $cards);
-		self::assertNotContains($user_card_2->id(), $cards);
-		self::assertContains($training_card->id(), $cards);
-		self::assertNotContains($shutdown_card->id(), $cards);
+			->set_equipment_type_id(self::$equipment_type->id());
+		$cards = array_map(fn($card) => $card->id(), $model->search($query));
+		self::assertNotContains($userCard1Id, $cards);
+		self::assertNotContains($userCard2Id, $cards);
+		self::assertContains($trainingCardId, $cards);
+		self::assertNotContains($shutdownCardId, $cards);
 
-		$model->delete($user_card_1->id());
-		$model->delete($user_card_2->id());
-		$model->delete($training_card->id());
-		$model->delete($shutdown_card->id());
+		$model->delete($userCard1Id);
+		$model->delete($userCard2Id);
+		$model->delete($trainingCardId);
+		$model->delete($shutdownCardId);
 	}
 }

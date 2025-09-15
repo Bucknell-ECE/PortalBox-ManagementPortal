@@ -1,0 +1,30 @@
+meta {
+  name: Register Device
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{HOST}}/api/v2/box.php?mac=00:11:22:33:44:55
+  body: json
+  auth: bearer
+}
+
+params:query {
+  mac: 00:11:22:33:44:55
+}
+
+auth:bearer {
+  token: 444789123
+}
+
+body:json {
+  {
+    "mac": "{{MAC_ADDRESS}}",
+    "card": "{{CARD_ID}}"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

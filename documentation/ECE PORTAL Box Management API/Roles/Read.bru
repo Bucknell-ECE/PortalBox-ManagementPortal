@@ -1,0 +1,23 @@
+meta {
+  name: Read
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{HOST}}/api/roles.php?id=2
+  body: none
+  auth: inherit
+}
+
+params:query {
+  id: 2
+}
+
+headers {
+  Cookie: PHPSESSID={{SESSION_ID}}
+}
+
+settings {
+  encodeUrl: true
+}

@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{host}}/api/api-keys.php?id=2
+  url: {{HOST}}/api/api-keys.php?id=2
   body: json
   auth: none
 }
@@ -15,7 +15,7 @@ params:query {
 }
 
 headers {
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
   Content-Type: application/json
 }
 

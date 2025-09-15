@@ -146,16 +146,11 @@ class EquipmentModel extends AbstractModel {
 	/**
 	 * Search for Equipment
 	 *
-	 * @param EquipmentQuery query - the search query to perform
+	 * @param EquipmentQuery|null query - the search query to perform
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Equipment[]|null - a list of equipment which match the search query
 	 */
-	public function search(EquipmentQuery $query): ?array {
-		if (null === $query) {
-			// no query... bail
-			return null;
-		}
-
+	public function search(?EquipmentQuery $query = null): array {
 		$connection = $this->configuration()->readonly_db_connection();
 
 		$sql = <<<EOQ
@@ -170,26 +165,34 @@ class EquipmentModel extends AbstractModel {
 
 		$where_clause_fragments = [];
 		$parameters = [];
-		if (null !== $query->location_id()) {
-			$where_clause_fragments[] = 'l.id = :location';
-			$parameters[':location'] = $query->location_id();
-		} else if (null !== $query->location()) {
-			$where_clause_fragments[] = 'l.name = :location';
-			$parameters[':location'] = $query->location();
-		}
-		if (null !== $query->type()) {
-			$where_clause_fragments[] = 't.name = :type';
-			$parameters[':type'] = $query->type();
-		}
-		if ($query->include_out_of_service()) {
-			// do nothing i.e. do not filter for in service only
-		} else {
-			$where_clause_fragments[] = 'e.in_service = 1';
-		}
 
-		if (0 < count($where_clause_fragments)) {
-			$sql .= ' WHERE ';
-			$sql .= join(' AND ', $where_clause_fragments);
+		if ($query) {
+			if (null !== $query->mac_address()) {
+				$where_clause_fragments[] = 'e.mac_address = :mac_address';
+				$parameters[':mac_address'] = $query->mac_address();
+			}
+
+			if (null !== $query->location_id()) {
+				$where_clause_fragments[] = 'l.id = :location';
+				$parameters[':location'] = $query->location_id();
+			} else if (null !== $query->location()) {
+				$where_clause_fragments[] = 'l.name = :location';
+				$parameters[':location'] = $query->location();
+			}
+
+			if (null !== $query->type()) {
+				$where_clause_fragments[] = 't.name = :type';
+				$parameters[':type'] = $query->type();
+			}
+
+			if ($query->exclude_out_of_service()) {
+				$where_clause_fragments[] = 'e.in_service = 1';
+			}
+
+			if (0 < count($where_clause_fragments)) {
+				$sql .= ' WHERE ';
+				$sql .= implode(' AND ', $where_clause_fragments);
+			}
 		}
 		$sql .= ' ORDER BY l.name, t.name, e.name';
 
@@ -199,16 +202,19 @@ class EquipmentModel extends AbstractModel {
 			$statement->bindValue($k, $v);
 		}
 
-		if ($statement->execute()) {
-			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
-				return $this->buildEquipmentFromArrays($data);
-			} else {
-				return null;
-			}
-		} else {
+		if (!$statement->execute()) {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
+
+		$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+		if ($data === false) {
+			return [];
+		}
+
+		return array_map(
+			fn (array $record) => $this->buildEquipmentFromArray($record),
+			$data
+		);
 	}
 
 	private function buildEquipmentFromArray(array $data): Equipment {
@@ -223,15 +229,5 @@ class EquipmentModel extends AbstractModel {
 					->set_is_in_use($data['in_use'])
 					->set_service_minutes($data['service_minutes'])
 					->set_ip_address($data['ip_address']);
-	}
-
-	private function buildEquipmentFromArrays(array $data): array {
-		$equipment = [];
-
-		foreach ($data as $datum) {
-			$equipment[] = $this->buildEquipmentFromArray($datum);
-		}
-
-		return $equipment;
 	}
 }

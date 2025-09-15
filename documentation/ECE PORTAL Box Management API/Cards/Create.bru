@@ -5,14 +5,14 @@ meta {
 }
 
 put {
-  url: {{host}}/api/cards.php
+  url: {{HOST}}/api/cards.php
   body: json
   auth: none
 }
 
 headers {
   Content-Type: application/json
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
 }
 
 body:json {

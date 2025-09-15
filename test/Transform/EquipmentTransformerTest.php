@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Transform;
+
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PortalBox\Config;
 use PortalBox\Entity\ChargePolicy;
@@ -14,13 +17,13 @@ use Portalbox\Transform\EquipmentTransformer;
 
 final class EquipmentTransformerTest extends TestCase {
 	/**
-	 * An equipment type guananteed to exist in the DB
+	 * An equipment type guaranteed to exist in the DB
 	 * @var EquipmentType
 	 */
 	private static $type;
 
 	/**
-	 * A location guananteed to exist in the DB
+	 * A location guaranteed to exist in the DB
 	 * @var Location
 	 */
 	private static $location;

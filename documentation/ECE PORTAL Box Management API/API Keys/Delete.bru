@@ -5,7 +5,7 @@ meta {
 }
 
 delete {
-  url: {{host}}/api/api-keys.php?id=4
+  url: {{HOST}}/api/api-keys.php?id=4
   body: none
   auth: none
 }
@@ -15,5 +15,5 @@ params:query {
 }
 
 headers {
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
 }

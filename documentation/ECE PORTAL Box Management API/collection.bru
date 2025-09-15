@@ -6,12 +6,8 @@ auth {
   mode: none
 }
 
-vars:pre-request {
-  host: ${YOUR_TEST_SERVER:PORT}
-  auth_cookie: PHPSESSID=${YOUR_SESSION_COOKIE}
-  google_id_token: ${YOUR_GOOGLE_OAUTH2_ID_TOKEN}
-}
-
 docs {
-  This API implements a RESTful interface to the PORTAL Box Backend. It uses OAuth2 along with a session cookie for authentication see login.php.
+  This API implements a RESTful interface for interacting with the Portalbox System. It is consumed by our management website and the Portalboxes themselves.
+  
+  Users are authenticated by presenting an OAuth2 token to `api/login.php` and are issued a session cookie to authenticate subsequent requests.
 }

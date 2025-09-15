@@ -25,17 +25,11 @@ try {
 			ResponseHandler::render($card_types, $transformer);
 		break;
 	}
-} catch (AuthenticationException $ae) {
-	http_response_code(401);
-	die($session->ERROR_NOT_AUTHENTICATED);
-} catch (AuthorizationException $aue) {
-	http_response_code(403);
-	die($aue->getMessage());
-} catch (Throwable $t) {
-	http_response_code(500);
+} catch(Throwable $t) {
+	ResponseHandler::setResponseCode($t);
 	$message = $t->getMessage();
 	if (empty($message)) {
-		$message = 'We experienced issues communicating with the database';
+		$message = ResponseHandler::GENERIC_ERROR_MESSAGE;
 	}
 	die($message);
 }

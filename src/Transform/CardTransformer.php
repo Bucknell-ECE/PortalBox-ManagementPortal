@@ -6,64 +6,12 @@ use InvalidArgumentException;
 use Portalbox\Config;
 use Portalbox\Entity\Card;
 use Portalbox\Entity\CardType;
-use Portalbox\Entity\ProxyCard;
-use Portalbox\Entity\ShutdownCard;
-use Portalbox\Entity\TrainingCard;
-use Portalbox\Entity\UserCard;
-// violation of SOLID design... should use these via interfaces and dependency injection
-use Portalbox\Model\EquipmentTypeModel;
-use Portalbox\Model\UserModel;
 
 /**
  * CardTransformer is our bridge between dictionary representations and
  * Card entity instances.
  */
-class CardTransformer implements InputTransformer, OutputTransformer {
-	/**
-	 * Deserialize a Card entity object from a dictionary
-	 *
-	 * @param array data - a dictionary representing a Card
-	 * @return Card - a valid entity object based on the data specified
-	 * @throws InvalidArgumentException if a require field is not specified
-	 */
-	public function deserialize(array $data): Card {
-		if (!array_key_exists('id', $data)) {
-			throw new InvalidArgumentException('\'id\' is a required field');
-		}
-		if (!array_key_exists('type_id', $data)) {
-			throw new InvalidArgumentException('\'type_id\' is a required field');
-		}
-
-		if (CardType::USER == $data['type_id']) {
-			$user = (new UserModel(Config::config()))->read($data['user_id']);
-			if (null === $user) {
-				throw new InvalidArgumentException('\'user_id\' must correspond to a valid user');
-			}
-
-			return (new UserCard())
-				->set_id($data['id'])
-				->set_user_id($data['user_id']);
-		} else if (CardType::TRAINING == $data['type_id']) {
-			$type = (new EquipmentTypeModel(Config::config()))->read($data['equipment_type_id']);
-			if (null === $type) {
-				throw new InvalidArgumentException('\'equipment_type_id\' must correspond to a valid equipment type');
-			}
-
-			return (new TrainingCard())
-				->set_id($data['id'])
-				->set_equipment_type_id($data['equipment_type_id']);
-		} else if (CardType::PROXY == $data['type_id']) {
-			return (new ProxyCard())
-				->set_id($data['id']);
-		} else if (CardType::SHUTDOWN == $data['type_id']) {
-			return (new ShutdownCard())
-				->set_id($data['id']);
-		}
-
-
-		throw new InvalidArgumentException('\'type_id\' must correspond to a valid card type id');
-	}
-
+class CardTransformer implements OutputTransformer {
 	/**
 	 * Called to serialize Card entity instance to a dictionary
 	 *
@@ -164,7 +112,7 @@ class CardTransformer implements InputTransformer, OutputTransformer {
 	 * The column count should match the number of fields in an array returned
 	 * by serialize() when $traverse is false
 	 *
-	 * @return array - a list of strings that ccan be column headers
+	 * @return array - a list of strings that can be column headers
 	 */
 	public function get_column_headers(): array {
 		return ['id', 'Card Type ID', 'Card Type', 'User ID', 'User', 'Equipment Type ID', 'Equipment Type'];

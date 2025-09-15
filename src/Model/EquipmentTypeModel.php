@@ -2,6 +2,7 @@
 
 namespace Portalbox\Model;
 
+use InvalidArgumentException;
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Exception\DatabaseException;
 use PDO;
@@ -10,6 +11,8 @@ use PDO;
  * EquipmentTypeModel is our bridge between the database and higher level Entities.
  */
 class EquipmentTypeModel extends AbstractModel {
+	public const ERROR_INVALID_SORT_COLUMN = 'Invalid sort field';
+
 	/**
 	 * Save a new equipment type to the database
 	 *
@@ -110,43 +113,48 @@ class EquipmentTypeModel extends AbstractModel {
 	/**
 	 * Search for equipment types
 	 *
+	 * @param ?string $sortColumn  the column to sort results by. Defaults to
+	 *      null for do not sort;
+	 * @return EquipmentType[]|null - a list of equipment types
 	 * @throws DatabaseException - when the database can not be queried
-	 * @return Location[]|null - a list of locations
+	 * @throws InvalidArgumentException  if the sortColumn is not supported
 	 */
-	public function search(): ?array {
+	public function search(?string $sortColumn = null): array {
+		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate, allow_proxy FROM equipment_types';
+
+		if ($sortColumn) {
+			if (!in_array($sortColumn, ['id', 'name'])) {
+				throw new InvalidArgumentException(self::ERROR_INVALID_SORT_COLUMN);
+			}
+
+			$sql .= ' ORDER BY ';
+			$sql .= $sortColumn;
+		}
 
 		$connection = $this->configuration()->readonly_db_connection();
-		$sql = 'SELECT id, name, requires_training, charge_policy_id, charge_rate, allow_proxy FROM equipment_types ORDER BY name';
 		$statement = $connection->prepare($sql);
-		if ($statement->execute()) {
-			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
-				return $this->buildEquipmentTypesFromArrays($data);
-			} else {
-				return null;
-			}
-		} else {
+		if (!$statement->execute()) {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
+
+		$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+		if ($data === false) {
+			return [];
+		}
+
+		return array_map(
+			fn (array $record) => $this->buildEquipmentTypeFromArray($record),
+			$data
+		);
 	}
 
 	private function buildEquipmentTypeFromArray(array $data): EquipmentType {
 		return (new EquipmentType())
-					->set_id($data['id'])
-					->set_name($data['name'])
-					->set_requires_training($data['requires_training'])
-					->set_charge_rate($data['charge_rate'])
-					->set_charge_policy_id($data['charge_policy_id'])
-					->set_allow_proxy($data['allow_proxy']);
-	}
-
-	private function buildEquipmentTypesFromArrays(array $data): array {
-		$locations = [];
-
-		foreach ($data as $datum) {
-			$locations[] = $this->buildEquipmentTypeFromArray($datum);
-		}
-
-		return $locations;
+			->set_id($data['id'])
+			->set_name($data['name'])
+			->set_requires_training($data['requires_training'])
+			->set_charge_rate($data['charge_rate'])
+			->set_charge_policy_id($data['charge_policy_id'])
+			->set_allow_proxy($data['allow_proxy']);
 	}
 }

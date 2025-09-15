@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Test\Portalbox\Model;
+
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Entity\Permission;
@@ -20,7 +22,7 @@ final class RoleModelTest extends TestCase {
 			->set_name($name)
 			->set_is_system_role($is_system_role)
 			->set_description($description)
-			->set_permissions(array(Permission::CREATE_API_KEY));
+			->set_permissions([Permission::CREATE_API_KEY]);
 
 		$role_as_created = $model->create($role);
 

@@ -5,11 +5,11 @@ meta {
 }
 
 get {
-  url: {{host}}/api/equipment-types.php
+  url: {{HOST}}/api/equipment-types.php
   body: none
   auth: none
 }
 
 headers {
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
 }

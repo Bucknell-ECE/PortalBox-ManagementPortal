@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{host}}/api/cards.php?id=123456789
+  url: {{HOST}}/api/cards.php?id=123456789
   body: none
   auth: none
 }
@@ -15,5 +15,5 @@ params:query {
 }
 
 headers {
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
 }

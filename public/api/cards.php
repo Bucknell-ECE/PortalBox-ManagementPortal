@@ -5,111 +5,70 @@ require '../../src/autoload.php';
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Entity\Permission;
+use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\CardModel;
-use Portalbox\Query\CardQuery;
+use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Model\UserModel;
+use Portalbox\Service\CardService;
 use Portalbox\Session\Session;
 use Portalbox\Transform\CardTransformer;
 
 $session = new Session();
 
-// switch on the request method
-switch($_SERVER['REQUEST_METHOD']) {
-	case 'GET':		// List/Read
-		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-			$session->require_authorization(Permission::READ_CARD);
-
-			try {
-				$model = new CardModel(Config::config());
-				$card = $model->read($_GET['id']);
-				if($card) {
-					$transformer = new CardTransformer();
-					ResponseHandler::render($card, $transformer);
-				} else {
-					http_response_code(404);
-					die('We have no record of that card');
+try {
+	switch($_SERVER['REQUEST_METHOD']) {
+		case 'GET':		// List/Read
+			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
+				$cardId = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+				if ($cardId === false) {
+					throw new InvalidArgumentException('The card must be specified as an integer');
 				}
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} elseif(isset($_GET['search']) && !empty($_GET['search'])) {
-			$search_id = $_GET['search'];
 
-			$session->require_authorization(Permission::READ_CARD);
-
-			try {
-				$model = new CardModel(Config::config());
-				$query = (new CardQuery())->set_id($search_id);
-				$cards = $model->search($query);
-
+				$service = new CardService(
+					$session,
+					new CardModel(Config::config()),
+					new EquipmentTypeModel(Config::config()),
+					new UserModel(Config::config())
+				);
+				$card = $service->read($cardId);
 				$transformer = new CardTransformer();
-				ResponseHandler::render($cards, $transformer);
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} else { // Lists
-			$user_id = NULL;
-
-			// check authorization
-			if($session->check_authorization(Permission::LIST_OWN_CARDS)) {
-				if(!$session->check_authorization(Permission::LIST_CARDS)) {
-					$user_id = $session->get_authenticated_user()->id();
-				}
-			} else {
-				$session->require_authorization(Permission::LIST_CARDS);
-			}
-
-			try {
-				$model = new CardModel(Config::config());
-				$query = new CardQuery();
-				if(isset($_GET['equipment_type_id']) && !empty($_GET['equipment_type_id'])) {
-					$query->set_equipment_type_id($_GET['equipment_type_id']);
-				}
-				if(NULL !== $user_id) {
-					$query->set_user_id($user_id);
-				} else if(isset($_GET['user_id']) && !empty($_GET['user_id'])) {
-					$query->set_user_id($_GET['user_id']);
-				}
-
-				$cards = $model->search($query);
-				$transformer = new CardTransformer();
-				ResponseHandler::render($cards, $transformer);
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		}
-		break;
-	case 'PUT':		// Create
-		// check authorization
-		$session->require_authorization(Permission::CREATE_CARD);
-
-		$data = json_decode(file_get_contents('php://input'), TRUE);
-		if(NULL !== $data) {
-			try {
-				$transformer = new CardTransformer();
-				$card = $transformer->deserialize($data);
-				$model = new CardModel(Config::config());
-				$card = $model->create($card);
 				ResponseHandler::render($card, $transformer);
-			} catch(InvalidArgumentException $iae) {
-				http_response_code(400);
-				die($iae->getMessage());
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
+			} else { // Lists
+				$service = new CardService(
+					$session,
+					new CardModel(Config::config()),
+					new EquipmentTypeModel(Config::config()),
+					new UserModel(Config::config())
+				);
+				$cards = $service->readAll($_GET);
+				$transformer = new CardTransformer();
+				ResponseHandler::render($cards, $transformer);
 			}
-		} else {
-			http_response_code(400);
-			die(json_last_error_msg());
-		}
-		break;
-	case 'DELETE':	// Delete
-		// intentional fall through, deletion not allowed
-	case 'POST': // Update
-		// intentional fall through, editing cards not allowed
-	default:
-		http_response_code(405);
-		die('We were unable to understand your request.');
+			break;
+		case 'PUT':		// Create
+			$service = new CardService(
+				$session,
+				new CardModel(Config::config()),
+				new EquipmentTypeModel(Config::config()),
+				new UserModel(Config::config())
+			);
+			$card = $service->create('php://input');
+			$transformer = new CardTransformer();
+			ResponseHandler::render($card, $transformer);
+			break;
+		case 'DELETE':	// Delete
+			// intentional fall through, deletion not allowed
+		case 'POST': // Update
+			// intentional fall through, editing cards not allowed
+		default:
+			http_response_code(405);
+			die('We were unable to understand your request.');
+	}
+} catch(Throwable $t) {
+	ResponseHandler::setResponseCode($t);
+	$message = $t->getMessage();
+	if (empty($message)) {
+		$message = ResponseHandler::GENERIC_ERROR_MESSAGE;
+	}
+	die($message);
 }

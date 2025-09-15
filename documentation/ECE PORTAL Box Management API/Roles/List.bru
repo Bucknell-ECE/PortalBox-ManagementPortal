@@ -1,0 +1,19 @@
+meta {
+  name: List
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{HOST}}/api/roles.php
+  body: none
+  auth: inherit
+}
+
+headers {
+  Cookie: PHPSESSID={{SESSION_ID}}
+}
+
+settings {
+  encodeUrl: true
+}

@@ -5,11 +5,11 @@ meta {
 }
 
 get {
-  url: {{host}}/api/locations.php
+  url: {{HOST}}/api/locations.php
   body: none
   auth: none
 }
 
 headers {
-  Cookie: {{auth_cookie}}
+  Cookie: PHPSESSID={{SESSION_ID}}
 }

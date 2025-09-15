@@ -208,48 +208,44 @@ class UserModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User[]|null - a list of users which match the search query
 	 */
-	public function search(UserQuery $query): ?array {
-		if (null === $query) {
-			// no query... bail
-			return null;
-		}
-
+	public function search(?UserQuery $query = null): ?array {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT u.id, u.name, u.email, u.comment, u.is_active, u.role_id, r.name AS role, u.pin FROM users AS u INNER JOIN roles AS r ON u.role_id = r.id';
 		$where_clause_fragments = [];
 		$parameters = [];
-		$modifier = "";
 
-		if (null !== $query->include_inactive()) {
-			if ($query->include_inactive() === 0) {
+		if ($query !== null) {
+			if (null !== $query->include_inactive()) {
+				if ($query->include_inactive() === false) {
+					$where_clause_fragments[] = 'u.is_active = :is_active';
+					$parameters[':is_active'] = 1;
+				}
+			} else {
 				$where_clause_fragments[] = 'u.is_active = :is_active';
 				$parameters[':is_active'] = 1;
 			}
-		} else {
-			$where_clause_fragments[] = 'u.is_active = :is_active';
-			$parameters[':is_active'] = 1;
-		}
-		if (null !== $query->role_id()) {
-			$where_clause_fragments[] = 'role_id = :role_id';
-			$parameters[':role_id'] = $query->role_id();
-		}
-		if (null !== $query->email()) {
-			$where_clause_fragments[] = 'email = :email';
-			$parameters[':email'] = $query->email();
-		} elseif (null !== $query->name()) {
-			$where_clause_fragments[] = 'u.name LIKE :name';
-			$parameters[':name'] = '%' . $query->name() . '%';
-		} elseif (null !== $query->comment()) {
-			$where_clause_fragments[] = 'u.comment LIKE :comment';
-			$parameters[':comment'] = '%' . $query->comment() . '%';
-		} elseif (null !== $query->equipment_id()) {
-			$sql .= ' INNER JOIN authorizations AS a ON u.id = a.user_id';
-			$where_clause_fragments[] = 'a.equipment_type_id = :equipment_id';
-			$parameters[':equipment_id'] = $query->equipment_id();
-		}
-		if (0 < count($where_clause_fragments)) {
-			$sql .= ' WHERE ';
-			$sql .= join(' AND ', $where_clause_fragments);
+			if (null !== $query->role_id()) {
+				$where_clause_fragments[] = 'role_id = :role_id';
+				$parameters[':role_id'] = $query->role_id();
+			}
+			if (null !== $query->email()) {
+				$where_clause_fragments[] = 'email = :email';
+				$parameters[':email'] = $query->email();
+			} elseif (null !== $query->name()) {
+				$where_clause_fragments[] = 'u.name LIKE :name';
+				$parameters[':name'] = '%' . $query->name() . '%';
+			} elseif (null !== $query->comment()) {
+				$where_clause_fragments[] = 'u.comment LIKE :comment';
+				$parameters[':comment'] = '%' . $query->comment() . '%';
+			} elseif (null !== $query->equipment_id()) {
+				$sql .= ' INNER JOIN authorizations AS a ON u.id = a.user_id';
+				$where_clause_fragments[] = 'a.equipment_type_id = :equipment_id';
+				$parameters[':equipment_id'] = $query->equipment_id();
+			}
+			if (0 < count($where_clause_fragments)) {
+				$sql .= ' WHERE ';
+				$sql .= implode(' AND ', $where_clause_fragments);
+			}
 		}
 
 		$statement = $connection->prepare($sql);

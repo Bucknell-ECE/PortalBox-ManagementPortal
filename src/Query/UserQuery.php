@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Portalbox\Query;
 
 /**
@@ -8,52 +10,35 @@ namespace Portalbox\Query;
 class UserQuery {
 	/**
 	 * The email address of the user for which to search
-	 *
-	 * @var string
 	 */
-	protected $email;
+	protected ?string $email = null;
 
 	/**
 	 * The name of the user for which to search
-	 *
-	 * @var string
 	 */
-	protected $name;
+	protected ?string $name = null;
 
 	/**
 	 * The comment for the user to search for
-	 *
-	 * @var string
 	 */
-	protected $comment;
-
-	/**
-	 * The id of the user for which to search
-	 *
-	 * @var int
-	 */
-	protected $id;
+	protected ?string $comment = null;
 
 	/**
 	 * Equipment id to find authorized users for
 	 *
 	 * @var int
 	 */
-	protected $equipment_id;
+	protected ?int $equipment_id = null;
 
 	/**
 	 * Int for determining if inactive users should be included
-	 *
-	 * @var int
 	 */
-	protected $include_inactive;
+	protected ?bool $include_inactive = null;
 
 	/**
-	 * Int for role id to search by
-	 *
-	 * @var int
+	 * The role id to which all user is a result set must be assigned
 	 */
-	protected $role_id;
+	protected ?int $role_id = null;
 
 	/**
 	 * Get the email address of the user for which to search
@@ -134,11 +119,11 @@ class UserQuery {
 		return $this;
 	}
 
-	public function include_inactive(): ?int {
+	public function include_inactive(): ?bool {
 		return $this->include_inactive;
 	}
 
-	public function set_include_inactive(int $include_inactive): self {
+	public function set_include_inactive(bool $include_inactive): self {
 		$this->include_inactive = $include_inactive;
 		return $this;
 	}

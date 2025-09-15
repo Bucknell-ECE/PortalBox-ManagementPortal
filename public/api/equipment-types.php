@@ -4,108 +4,81 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Entity\Permission;
 use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Service\EquipmentTypeService;
 use Portalbox\Session\Session;
 use Portalbox\Transform\EquipmentTypeTransformer;
 
 $session = new Session();
 
-// switch on the request method
-switch($_SERVER['REQUEST_METHOD']) {
-	case 'GET':		// List/Read
-		if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-			// check authorization
-			$session->require_authorization(Permission::READ_EQUIPMENT_TYPE);
+try {
+	switch($_SERVER['REQUEST_METHOD']) {
+		case 'GET':		// List/Read
+			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
+				$service = new EquipmentTypeService(
+					$session,
+					new EquipmentTypeModel(Config::config())
+				);
 
-			try {
-				$model = new EquipmentTypeModel(Config::config());
-				$equipment_type = $model->read($_GET['id']);
-				if($equipment_type) {
-					$transformer = new EquipmentTypeTransformer();
-					ResponseHandler::render($equipment_type, $transformer);
-				} else {
-					http_response_code(404);
-					die('We have no record of that equipment type');
+				$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+				if ($id === false) {
+					throw new InvalidArgumentException('The equipment type id must be specified as an integer');
 				}
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		} else { // List
-			// check authorization
-			$session->require_authorization(Permission::LIST_EQUIPMENT_TYPES);
 
-			try {
-				$model = new EquipmentTypeModel(Config::config());
-				$equipment_types = $model->search();
+				$equipmentType = $service->read($id);
 				$transformer = new EquipmentTypeTransformer();
-				ResponseHandler::render($equipment_types, $transformer);
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
-			}
-		}
-		break;
-	case 'POST':	// Update
-		// validate that we have an oid
-		if(!isset($_GET['id']) || empty($_GET['id'])) {
-			http_response_code(400);
-			die('You must specify the equipment type to modify via the id param');
-		}
+				ResponseHandler::render($equipmentType , $transformer);
+			} else { // List
+				$service = new EquipmentTypeService(
+					$session,
+					new EquipmentTypeModel(Config::config())
+				);
 
-		// check authorization
-		$session->require_authorization(Permission::MODIFY_EQUIPMENT_TYPE);
-
-		$data = json_decode(file_get_contents('php://input'), TRUE);
-		if(NULL !== $data) {
-			try {
+				$equipmentTypes = $service->readAll();
 				$transformer = new EquipmentTypeTransformer();
-				$equipment_type = $transformer->deserialize($data);
-				$equipment_type->set_id($_GET['id']);
-				$model = new EquipmentTypeModel(Config::config());
-				$equipment_type = $model->update($equipment_type);
-				ResponseHandler::render($equipment_type, $transformer);
-			} catch(InvalidArgumentException $iae) {
-				http_response_code(400);
-				die($iae->getMessage());
-			} catch(Exception $e) {
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
+				ResponseHandler::render($equipmentTypes, $transformer);
 			}
-		} else {
-			http_response_code(400);
-			die(json_last_error_msg());
-		}
-		break;
-	case 'PUT':	// Create
-		// check authorization
-		$session->require_authorization(Permission::CREATE_EQUIPMENT_TYPE);
+			break;
+		case 'POST':	// Update
+			if(!isset($_GET['id']) || empty($_GET['id'])) {
+				throw new InvalidArgumentException('You must specify the equipment type to modify via the id param');
+			}
 
-		$data = json_decode(file_get_contents('php://input'), TRUE);
-		if(NULL !== $data) {
-			try {
-				$transformer = new EquipmentTypeTransformer();
-				$equipment_type = $transformer->deserialize($data);
-				$model = new EquipmentTypeModel(Config::config());
-				$equipment_type = $model->create($equipment_type);
-				ResponseHandler::render($equipment_type, $transformer);
-			} catch(InvalidArgumentException $iae) {
-				http_response_code(400);
-				die($iae->getMessage());
-			} catch(Exception $e) {
-				error_log($e->getMessage());
-				http_response_code(500);
-				die('We experienced issues communicating with the database');
+			$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+			if ($id === false) {
+				throw new InvalidArgumentException('The equipment type id must be specified as an integer');
 			}
-		} else {
-			http_response_code(400);
-			die(json_last_error_msg());
-		}
-		break;
-	case 'DELETE':	// Delete
-		// intentional fall through, deletion not allowed
-	default:
-		http_response_code(405);
-		die('We were unable to understand your request.');
+
+			$service = new EquipmentTypeService(
+				$session,
+				new EquipmentTypeModel(Config::config())
+			);
+
+			$equipmentType = $service->update($id, 'php://input');
+			$transformer = new EquipmentTypeTransformer();
+			ResponseHandler::render($equipmentType, $transformer);
+			break;
+		case 'PUT':	// Create
+			$service = new EquipmentTypeService(
+				$session,
+				new EquipmentTypeModel(Config::config())
+			);
+
+			$equipmentType = $service->create('php://input');
+			$transformer = new EquipmentTypeTransformer();
+			ResponseHandler::render($equipmentType, $transformer);
+			break;
+		case 'DELETE':	// Delete
+			// intentional fall through, deletion not allowed
+		default:
+			http_response_code(405);
+			die('We were unable to understand your request.');
+	}
+} catch(Throwable $t) {
+	ResponseHandler::setResponseCode($t);
+	$message = $t->getMessage();
+	if (empty($message)) {
+		$message = ResponseHandler::GENERIC_ERROR_MESSAGE;
+	}
+	die($message);
 }
