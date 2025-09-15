@@ -1,23 +1,18 @@
 <?php
 
-require '../../src/autoload.php';
+require '../../src/bootstrap.php';
 
-use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Entity\Permission;
-use Portalbox\Model\CardTypeModel;
+use Portalbox\Service\CardTypeService;
 use Portalbox\Session\Session;
 use Portalbox\Transform\CardTypeTransformer;
 
-$session = new Session();
-
 try {
+	//switch on the request method
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':     // List
-			$session->require_authorization(Permission::LIST_CARD_TYPES);
-
-			$model = new CardTypeModel(Config::config());
-			$card_types = $model->search();
+			$service = $container->get(CardTypeService::class);
+			$card_types = $service->readAll();
 			$transformer = new CardTypeTransformer();
 			ResponseHandler::render($card_types, $transformer);
 		break;
