@@ -28,10 +28,37 @@ final class CardTypeServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(CardTypeService::ERROR_UNAUTHENTICATED_READ);
 		$service->readAll();
 	}
 
 	public function testReadAllThrowsWhenNotAuthorized() {
+		$cardTypes = [
+			new CardType()
+		];
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+				)
+		);
+
+		$cardTypeModel = $this->createStub(CardTypeModel::class);
+
+		$service = new CardTypeService(
+			$session,
+			$cardTypeModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(CardTypeService::ERROR_UNAUTHORIZED_READ);
+		self::assertSame($cardTypes, $service->readAll());
+	}
+
+	public function testReadAllSuccess() {
 		$cardTypes = [
 			new CardType()
 		];

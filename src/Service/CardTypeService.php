@@ -11,6 +11,7 @@ use Portalbox\Model\CardTypeModel;
 use Portalbox\Session\SessionInterface;
 
 class CardTypeService {
+	public const ERROR_UNAUTHENTICATED_READ = 'You must be authenticated to read card types';
 	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read card types';
 
 	protected SessionInterface $session;
@@ -35,7 +36,7 @@ class CardTypeService {
 	public function readAll() {
 		$authenticatedUser = $this->session->get_authenticated_user();
 		if ($authenticatedUser === null) {
-			throw new AuthenticationException();
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_READ);
 		}
 
 		if (!$authenticatedUser->role()->has_permission(Permission::LIST_CARD_TYPES)) {
