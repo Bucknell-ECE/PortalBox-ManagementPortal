@@ -2,18 +2,19 @@
 
 namespace Portalbox;
 
-use PDO;
 use Portalbox\Config;
-use Portalbox\Exception\InvalidConfigurationException;
 use Portalbox\Model\ActivationModel;
 use Portalbox\Model\CardModel;
+use Portalbox\Model\CardTypeModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
+use Portalbox\Service\CardTypeService;
 use Portalbox\Service\EquipmentService;
+use Portalbox\Session\Session;
 
 /**
  * Dependency Containers are programming magic wiring up objects with the other
@@ -61,6 +62,8 @@ class DependencyContainer {
 				return new ActivationModel($this->get(Config::class));
 			case CardModel::class:
 				return new CardModel($this->get(Config::class));
+			case CardTypeModel::class:
+				return new CardTypeModel($this->get(Config::class));
 			case EquipmentModel::class:
 				return new EquipmentModel($this->get(Config::class));
 			case EquipmentTypeModel::class:
@@ -73,6 +76,11 @@ class DependencyContainer {
 				return new RoleModel($this->get(Config::class));
 			case UserModel::class:
 				return new UserModel($this->get(Config::class));
+			case CardTypeService::class:
+				return new CardTypeService(
+					$this->get(Session::class),
+					$this->get(CardTypeModel::class)
+				);
 			case EquipmentService::class:
 				return new EquipmentService(
 					$this->get(ActivationModel::class),
@@ -82,6 +90,8 @@ class DependencyContainer {
 					$this->get(LocationModel::class),
 					$this->get(LoggedEventModel::class)
 				);
+			case Session::class:
+				return new Session();
 			default:
 				throw new Exception('DependencyContainer does not have instructions for building instances of ' . $type);
 		}
