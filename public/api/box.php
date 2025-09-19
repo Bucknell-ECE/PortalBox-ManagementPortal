@@ -247,7 +247,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			}
 			if (!(isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))) {
 				http_response_code(404);
-				die('missing params needs "card_id", and "equipment_id". Failed at "equipment_id"');
+				die('missing params needs "equipment_id", and "equipment_id". Failed at "equipment_id"');
 			}
 
 			$sql = "CALL log_access_completion(:card_id, :equipment_id)";
