@@ -5,7 +5,7 @@ namespace Portalbox\Transform;
 use DomainException;
 
 /**
- * Implementors can Serialzable to a limited set of types which can be reliably
+ * Implementors can serialize to a limited set of types which can be reliably
  * Transformed into a variety of output encodings
  */
 class NullOutputTransformer implements OutputTransformer {

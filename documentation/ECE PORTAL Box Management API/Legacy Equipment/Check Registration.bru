@@ -1,0 +1,20 @@
+meta {
+  name: Check Registration
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{HOST}}/api/box.php?mode=get_profile&mac_adr={{MAC_ADDRESS}}
+  body: none
+  auth: bearer
+}
+
+params:query {
+  mode: get_profile
+  mac_adr: {{MAC_ADDRESS}}
+}
+
+auth:bearer {
+  token: {{EQUIPMENT_API_KEY}}
+}

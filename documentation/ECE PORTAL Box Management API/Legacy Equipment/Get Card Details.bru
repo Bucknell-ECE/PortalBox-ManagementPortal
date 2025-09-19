@@ -1,0 +1,21 @@
+meta {
+  name: Get Card Details
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{HOST}}/api/box.php?mode=get_card_details&card_id={{CARD_ID}}&equipment_id=784
+  body: none
+  auth: bearer
+}
+
+params:query {
+  mode: get_card_details
+  card_id: {{CARD_ID}}
+  equipment_id: 784
+}
+
+auth:bearer {
+  token: {{EQUIPMENT_API_KEY}}
+}

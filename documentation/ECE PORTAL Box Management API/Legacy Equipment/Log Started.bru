@@ -1,0 +1,20 @@
+meta {
+  name: Log Started
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{HOST}}/api/box.php?mode=log_started_status&equipment_id=784
+  body: none
+  auth: bearer
+}
+
+params:query {
+  mode: log_started_status
+  equipment_id: 784
+}
+
+auth:bearer {
+  token: {{EQUIPMENT_API_KEY}}
+}

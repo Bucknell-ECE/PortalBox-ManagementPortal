@@ -2,7 +2,6 @@
 
 require '../../src/autoload.php';
 
-use PDO;
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Entity\Permission;
@@ -32,63 +31,65 @@ switch ($_SERVER['REQUEST_METHOD']) {
 				$card_id = $_GET['card_id'];
 				$e_id = $_GET['equipment_id'];
 
-
 				// Is the user authorized?
 				$sql = 'SELECT count(u.id) FROM users_x_cards AS u INNER JOIN authorizations AS a ON a.user_id= u.user_id WHERE u.card_id = :card_id AND a.equipment_type_id = :e_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $card_id);
 				$query->bindValue(':e_id', $e_id);
 
-				if ($query->execute()) {
-					$user_auth = $query->fetch(PDO::FETCH_NUM)[0];
-				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
+				}
+
+				if ($query->fetchColumn() !== 1) {
+					http_response_code(401);
+					die();
 				}
 
 				// What is the user's balance
 				$sql = 'SELECT get_user_balance_for_card(:card_id)';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $card_id);
-				if ($query->execute()) {
-					$user_balance = $query->fetch(PDO::FETCH_NUM)[0];
-				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
 				}
+
+				$user_balance = $query->fetch(PDO::FETCH_NUM)[0];
 
 				// Is the user active?
 				$sql = 'SELECT u.is_active FROM users AS u INNER JOIN users_x_cards AS uxc ON uxc.user_id = u.id WHERE uxc.card_id = :card_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $card_id);
-				if ($query->execute()) {
-					$user_active = $query->fetch(PDO::FETCH_NUM)[0];
-				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
 				}
+
+				$user_active = $query->fetch(PDO::FETCH_NUM)[0];
 
 				// What is the card type?
 				$sql = 'SELECT type_id FROM cards WHERE id = :card_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $card_id);
-				if ($query->execute()) {
-					$card_type = $query->fetch(PDO::FETCH_NUM)[0];
-				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
 				}
+
+				$card_type = $query->fetch(PDO::FETCH_NUM)[0];
 
 				// What is the user's role
 				$sql = 'SELECT role_id FROM users_x_cards AS c JOIN users AS u ON u.id = c.user_id WHERE c.card_id = :card_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $card_id);
-				if ($query->execute()) {
-					$user_role = $query->fetch(PDO::FETCH_NUM)[0];
-				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
 				}
+
+				$user_role = $query->fetch(PDO::FETCH_NUM)[0];
 
 				$r_array = [[
 					'user_auth' => $user_auth,
@@ -115,13 +116,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
 				$sql = 'SELECT count(id) FROM equipment WHERE mac_address = :mac_adr';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':mac_adr', $mac_adr);
-				if ($query->execute()) {
-					$registered = $query->fetch(PDO::FETCH_NUM)[0];
-					echo $registered;
-				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
 				}
+
+				$registered = $query->fetch(PDO::FETCH_NUM)[0];
+				echo $registered;
 			} else {
 				http_response_code(404);
 				die('Need Mac address');
@@ -130,19 +131,35 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			if (isset($_GET['mac_adr']) && !empty($_GET['mac_adr'])) {
 				$mac_adr = $_GET['mac_adr'];
 				// Check if the box is registered
-				$sql = 'SELECT e.id, e.type_id, t.name, e.location_id, l.name, e.timeout, t.allow_proxy, t.requires_training, t.charge_policy_id > 2 AS "charge_policy"
+				$sql = <<<EOQ
+				SELECT
+					e.id,
+					e.type_id,
+					t.name,
+					e.location_id,
+					l.name,
+					e.timeout,
+					t.allow_proxy,
+					t.requires_training,
+					t.charge_policy_id > 2 AS "charge_policy"
 				FROM equipment AS e
 				INNER JOIN equipment_types AS t ON e.type_id = t.id
 				INNER JOIN locations AS l ON e.location_id =  l.id
-				WHERE e.mac_address = :mac_adr';
+				WHERE e.mac_address = :mac_adr
+				EOQ;
 				$query = $connection->prepare($sql);
 				$query->bindValue(':mac_adr', $mac_adr);
-				if ($query->execute()) {
-					$profile = $query->fetch(PDO::FETCH_NAMED);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
+				}
+
+				$profile = $query->fetch(PDO::FETCH_NAMED);
+				if (is_array($profile)) {
 					ResponseHandler::render([$profile]);
 				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+					http_response_code(404);
+					die('Box not found');
 				}
 			} else {
 				http_response_code(404);
@@ -154,13 +171,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
 				$sql = 'SELECT name FROM equipment WHERE id = :equipment_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':equipment_id', $_GET['equipment_id']);
-				if ($query->execute()) {
-					$profile = $query->fetch(PDO::FETCH_ASSOC);
-					ResponseHandler::render([$profile]);
-				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
 				}
+
+				$profile = $query->fetch(PDO::FETCH_ASSOC);
+				ResponseHandler::render([$profile]);
 			} else {
 				http_response_code(404);
 				die('Need "equipment_id"');
@@ -171,13 +188,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
 				$sql = 'SELECT u.name, u.email FROM users_x_cards AS c JOIN users AS u ON u.id = c.user_id WHERE c.card_id = :card_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $_GET['card_id']);
-				if ($query->execute()) {
-					$profile = $query->fetch(PDO::FETCH_ASSOC);
-					ResponseHandler::render([$profile]);
-				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
 				}
+
+				$profile = $query->fetch(PDO::FETCH_ASSOC);
+				ResponseHandler::render([$profile]);
 			} else {
 				http_response_code(404);
 				die('Need "equipment_id"');
@@ -217,12 +234,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			$query->bindValue(':successful', $_GET['successful']);
 			$query->bindValue(':card_id', $_GET['card_id']);
 			$query->bindValue(':equipment_id', $_GET['equipment_id']);
-			if ($query->execute()) {
-				echo "completed successfully";
-			} else {
-				echo "Database Exception: " . $query->errorInfo()[2];
-				throw new DatabaseException($query->errorInfo()[2]);
+			if (!$query->execute()) {
+				http_response_code(500);
+				die("Database Exception: " . $query->errorInfo()[2]);
 			}
+
+			echo "completed successfully";
 		} elseif ($_GET['mode'] == "log_access_completion") {
 			if (!(isset($_GET['card_id']) && !empty($_GET['card_id']))) {
 				http_response_code(404);
@@ -237,12 +254,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			$query = $connection->prepare($sql);
 			$query->bindValue(':card_id', $_GET['card_id']);
 			$query->bindValue(':equipment_id', $_GET['equipment_id']);
-			if ($query->execute()) {
-				echo "completed successfully";
-			} else {
-				echo "Database Exception: " . $query->errorInfo()[2];
-				throw new DatabaseException($query->errorInfo()[2]);
+			if (!$query->execute()) {
+				http_response_code(500);
+				die("Database Exception: " . $query->errorInfo()[2]);
 			}
+
+			echo "completed successfully";
 		} elseif ($_GET['mode'] == "log_shutdown_status") {
 			if (!(isset($_GET['card_id']) && !empty($_GET['card_id']))) {
 				http_response_code(404);
@@ -260,12 +277,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			$query->bindValue(':equipment_id', $_GET['equipment_id']);
 			$query->bindValue(':card_id', $_GET['card_id']);
 
-			if ($query->execute()) {
-				echo "completed successfully";
-			} else {
-				echo "Database Exception: " . $query->errorInfo()[2];
-				throw new DatabaseException($query->errorInfo()[2]);
+			if (!$query->execute()) {
+				http_response_code(500);
+				die("Database Exception: " . $query->errorInfo()[2]);
 			}
+
+			echo "completed successfully";
 		} elseif ($_GET['mode'] == "log_started_status") {
 			if (!(isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))) {
 				http_response_code(404);
@@ -278,12 +295,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			$query = $connection->prepare($sql);
 			$query->bindValue(':equipment_id', $_GET['equipment_id']);
 
-			if ($query->execute()) {
-				echo "Completed successfully";
-			} else {
-				echo "Database Exception: " . $query->errorInfo()[2];
-				throw new DatabaseException($query->errorInfo()[2]);
+			if (!$query->execute()) {
+				http_response_code(500);
+				die("Database Exception: " . $query->errorInfo()[2]);
 			}
+
+			echo "Completed successfully";
 		} elseif ($_GET['mode'] == "record_ip") {
 			if (!(isset($_GET['equipment_id']) && !empty($_GET['equipment_id']))) {
 				http_response_code(404);
@@ -301,12 +318,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
 			$query->bindValue(':equipment_id', $_GET['equipment_id']);
 			$query->bindValue(':ip_address', $_GET['ip_address']);
 
-			if ($query->execute()) {
-				echo "Completed successfully";
-			} else {
-				echo "Database Exception: " . $query->errorInfo()[2];
-				throw new DatabaseException($query->errorInfo()[2]);
+			if (!$query->execute()) {
+				http_response_code(500);
+				die("Database Exception: " . $query->errorInfo()[2]);
 			}
+
+			echo "Completed successfully";
 		} elseif (!(isset($_GET['mode']) && !empty($_GET['mode']))) {
 			http_response_code(404);
 			die('Missing "mode", options are "log_access_attempt", "log_access_completion", "log_shutdown_status", "log_started_status", and "record_ip"');
@@ -330,12 +347,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
 				$sql = 'INSERT INTO equipment (name, type_id, mac_address, location_id) VALUES ("New Portal Box", 1, :mac_adr, 1)';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':mac_adr', $mac_adr);
-				if ($query->execute()) {
-					echo "Completed successfully";
-				} else {
-					echo "Database Exception: " . $query->errorInfo()[2];
-					throw new DatabaseException($query->errorInfo()[2]);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
 				}
+
+				echo "Completed successfully";
 			} else {
 				http_response_code(404);
 				die('Need "mac_adr"');
