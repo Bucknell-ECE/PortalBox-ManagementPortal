@@ -92,6 +92,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 				$user_role = $query->fetch(PDO::FETCH_NUM)[0];
 
 				die(json_encode([[
+					'user_auth' => 1,
 					'user_balance' => $user_balance,
 					'user_active' => $user_active,
 					'card_type' => $card_type,
