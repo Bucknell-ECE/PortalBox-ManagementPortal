@@ -91,19 +91,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 				$user_role = $query->fetch(PDO::FETCH_NUM)[0];
 
-				$r_array = [[
-					'user_auth' => $user_auth,
+				die(json_encode([
 					'user_balance' => $user_balance,
 					'user_active' => $user_active,
 					'card_type' => $card_type,
 					'user_role' => $user_role
-				]];
-
-				try {
-					ResponseHandler::render($r_array);
-				} catch (Exception $e) {
-					echo 'Caught exception: ',  $e->getMessage(), "\n";
-				}
+				]));
 			} else {
 				http_response_code(404);
 				die('Needs "card_id" and "equipment_id"');
