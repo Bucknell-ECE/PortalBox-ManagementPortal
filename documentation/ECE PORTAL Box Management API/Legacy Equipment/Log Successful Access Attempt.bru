@@ -1,0 +1,22 @@
+meta {
+  name: Log Successful Access Attempt
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{HOST}}/api/box.php?mode=log_access_attempt&card_id={{CARD_ID}}&equipment_id=784&successful=1
+  body: none
+  auth: bearer
+}
+
+params:query {
+  mode: log_access_attempt
+  card_id: {{CARD_ID}}
+  equipment_id: 784
+  successful: 1
+}
+
+auth:bearer {
+  token: {{EQUIPMENT_API_KEY}}
+}
