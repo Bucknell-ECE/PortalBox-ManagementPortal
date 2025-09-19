@@ -91,12 +91,12 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 				$user_role = $query->fetch(PDO::FETCH_NUM)[0];
 
-				die(json_encode([
+				die(json_encode([[
 					'user_balance' => $user_balance,
 					'user_active' => $user_active,
 					'card_type' => $card_type,
 					'user_role' => $user_role
-				]));
+				]]));
 			} else {
 				http_response_code(404);
 				die('Needs "card_id" and "equipment_id"');
