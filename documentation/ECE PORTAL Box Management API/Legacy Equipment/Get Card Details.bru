@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{HOST}}/api/box.php?mode=get_card_details&card_id={{CARD_ID}}&equipment_id=442
+  url: {{HOST}}/api/box.php?mode=get_card_details&card_id={{CARD_ID}}&equipment_id=784
   body: none
   auth: bearer
 }
@@ -13,9 +13,9 @@ get {
 params:query {
   mode: get_card_details
   card_id: {{CARD_ID}}
-  equipment_id: 442
+  equipment_id: 784
 }
 
 auth:bearer {
-  token: 073cc5495ce1717857bc1f494585105d
+  token: {{EQUIPMENT_API_KEY}}
 }

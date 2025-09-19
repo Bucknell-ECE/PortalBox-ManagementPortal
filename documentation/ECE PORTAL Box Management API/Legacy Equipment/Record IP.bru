@@ -1,0 +1,21 @@
+meta {
+  name: Record IP
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{HOST}}/api/box.php?mode=record_ip&equipment_id=784&ip_address=192.168.0.70
+  body: none
+  auth: bearer
+}
+
+params:query {
+  mode: record_ip
+  equipment_id: 784
+  ip_address: 192.168.0.70
+}
+
+auth:bearer {
+  token: {{EQUIPMENT_API_KEY}}
+}
