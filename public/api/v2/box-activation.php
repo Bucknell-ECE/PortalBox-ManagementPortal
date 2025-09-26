@@ -6,6 +6,7 @@ use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Service\EquipmentService;
 use Portalbox\Transform\EquipmentTransformer;
+use Portalbox\Transform\UserTransformer;
 
 try {
 	switch($_SERVER['REQUEST_METHOD']) {
@@ -15,9 +16,13 @@ try {
 			}
 
 			$service = $container->get(EquipmentService::class);
-			$equipment = $service->activate($_GET['mac'], $_SERVER);
-			$transformer = new EquipmentTransformer();
-			ResponseHandler::render($equipment, $transformer);
+			$data = $service->activate($_GET['mac'], $_SERVER);
+			$equipment = (new EquipmentTransformer())->serialize($data['equipment']);
+			$user = (new UserTransformer())->serialize($data['user']);
+			echo json_encode([
+				'equipment' => $equipment,
+				'user' => $user
+			]);
 			break;
 		default:
 			http_response_code(405);

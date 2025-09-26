@@ -135,7 +135,9 @@ class EquipmentService {
 	 *
 	 * @param string $mac  the mac address of the portal box
 	 * @param array $headers  the request headers
-	 * @return Equipment  the portal box
+	 * @return array  a dictionary with two keys 'equipment' and 'user'. The
+	 * 		value equipment is the portal box which is to activate while the
+	 * 		value of user is the user that activated the equipment
 	 * @throws AuthenticationException  if the request headers do not contain a
 	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
 	 *      when the token is the id of a user card
@@ -143,7 +145,7 @@ class EquipmentService {
 	 *      card or the user mapped to be the card id does not have permission
 	 *      to activate equipment of the type assigned to the portal box
 	 */
-	public function activate(string $mac, array $headers): Equipment {
+	public function activate(string $mac, array $headers): array {
 		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
 			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
 		}
@@ -189,6 +191,8 @@ class EquipmentService {
 			throw new AuthorizationException(self::ERROR_ACTIVATION_NOT_AUTHORIZED);
 		}
 
+		// do we need to check charge policy and account balance?
+
 		$connection = $this->activationModel->configuration()->writable_db_connection();
 		$connection->beginTransaction();
 
@@ -207,7 +211,10 @@ class EquipmentService {
 			throw $t;
 		}
 
-		return $equipment;
+		return [
+			'equipment' => $equipment,
+			'user' => $card->user()
+		];
 	}
 
 	/**
