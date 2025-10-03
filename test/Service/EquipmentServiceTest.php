@@ -549,6 +549,10 @@ final class EquipmentServiceTest extends TestCase {
 		$card_id = 123456789;
 		$equipment_id = 23;
 
+		$authorized_user = (new User())
+			->set_id(1)
+			->set_authorizations([$equipment_type_id]);
+
 		$equipment = (new Equipment())
 			->set_id($equipment_id)
 			->set_type_id($equipment_type_id);
@@ -569,11 +573,7 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(
 			(new UserCard())
-				->set_user(
-					(new User())
-						->set_id(1)
-						->set_authorizations([$equipment_type_id ])
-				)
+				->set_user($authorized_user)
 		);
 
 		$equipmentModel = $this->createStub(EquipmentModel::class);
@@ -608,10 +608,13 @@ final class EquipmentServiceTest extends TestCase {
 			$loggedEventModel
 		);
 
-		self::assertSame(
-			$equipment,
-			$service->activate($mac, ['HTTP_AUTHORIZATION' => "Bearer $card_id"])
-		);
+		$result = $service->activate($mac, ['HTTP_AUTHORIZATION' => "Bearer $card_id"]);
+		
+		self::assertIsArray($result);
+		self::assertArrayHasKey('equipment', $result);
+		self::assertSame($equipment, $result['equipment']);
+		self::assertArrayHasKey('user', $result);
+		self::assertSame($authorized_user, $result['user']);
 	}
 
 	#endregion test activate()
