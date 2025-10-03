@@ -21,10 +21,471 @@ use Portalbox\Service\UserService;
 use Portalbox\Session\SessionInterface;
 
 final class UserServiceTest extends TestCase {
+	#region test create()
+
+	public function testCreateThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHENTICATED_CREATE);
+		$service->create('');
+	}
+
+	public function testCreateThrowsWhenNotAuthorized() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHORIZED_CREATE);
+		$service->create('');
+	}
+
+	public function testCreateThrowsWhenFileIsNotReadable() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_JSON_DATA);
+		// PHP warning is intentionally suppressed in next line for testing
+		@$service->create('file_does_not_exist.json');
+	}
+
+	public function testCreateThrowsWhenDataIsNotArray() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_JSON_DATA);
+		$service->create(realpath(__DIR__ . '/UserServiceTestData/CreateThrowsWhenDataIsNotArray.json'));
+	}
+
+	public function testCreateThrowsWhenRoleIdIsNotInteger() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_ROLE_ID_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/UserServiceTestData/CreateThrowsWhenRoleIdIsNotInteger.json'));
+	}
+
+	public function testCreateThrowsWhenRoleDoesNotExist() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_ROLE_ID);
+		$service->create(realpath(__DIR__ . '/UserServiceTestData/CreateThrowsWhenRoleDoesNotExist.json'));
+	}
+
+	public function testCreateThrowsWhenNameIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn(new Role());
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_NAME_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/UserServiceTestData/CreateThrowsWhenNameIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenEmailIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn(new Role());
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_EMAIL);
+		$service->create(realpath(__DIR__ . '/UserServiceTestData/CreateThrowsWhenEmailIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenInActiveIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn(new Role());
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_IS_ACTIVE);
+		$service->create(realpath(__DIR__ . '/UserServiceTestData/CreateThrowsWhenInActiveIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenAuthorizationsIsNotList() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn((new Role())->set_id(2));
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_AUTHORIZATIONS);
+		$service->create(realpath(__DIR__ . '/UserServiceTestData/CreateThrowsWhenAuthorizationsIsNotList.json'));
+	}
+
+	public function testCreateThrowsWhenAuthorizationIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([]);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn((new Role())->set_id(2));
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_AUTHORIZATIONS);
+		$service->create(realpath(__DIR__ . '/UserServiceTestData/CreateThrowsWhenAuthorizationIsInvalid.json'));
+	}
+
+	public function testCreateSuccess() {
+		$role = (new Role())
+			->set_id(2);
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([]);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn($role);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(User $user) =>
+					$user instanceof User
+					&& $user->name() === 'Maker'
+					&& $user->email() === 'maker@makerspace.tld'
+					&& $user->is_active()
+					&& $user->role() === $role
+			)
+		)->willReturnArgument(0);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		$user = $service->create(realpath(__DIR__ . '/UserServiceTestData/CreateSuccess.json'));
+
+		self::assertInstanceOf(User::class, $user);
+		self::assertSame('Maker', $user->name());
+		self::assertSame('maker@makerspace.tld', $user->email());
+		self::assertSame(true, $user->is_active());
+		self::assertSame($role, $user->role());
+		self::assertSame(null, $user->comment());
+		self::assertSame([], $user->authorizations());
+	}
+
+	public function testCreateSuccessWithOptionalValues() {
+		$role = (new Role())
+			->set_id(2);
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([
+			(new EquipmentType())->set_id(23)
+		]);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn($role);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(User $user) =>
+					$user instanceof User
+					&& $user->name() === 'Maker'
+					&& $user->email() === 'maker@makerspace.tld'
+					&& $user->is_active()
+					&& $user->role() === $role
+			)
+		)->willReturnArgument(0);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		$user = $service->create(realpath(__DIR__ . '/UserServiceTestData/CreateSuccessWithOptionalValues.json'));
+
+		self::assertInstanceOf(User::class, $user);
+		self::assertSame('Maker', $user->name());
+		self::assertSame('maker@makerspace.tld', $user->email());
+		self::assertSame(true, $user->is_active());
+		self::assertSame($role, $user->role());
+		self::assertSame('new maker', $user->comment());
+		self::assertSame([23], $user->authorizations());
+	}
+
+	#endregion test create()
+
 	#region test import()
+
+	public function testImportThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHENTICATED_CREATE);
+		$service->import('');
+	}
+
+	public function testImportThrowsWhenNotAuthorized() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHORIZED_CREATE);
+		$service->import('');
+	}
 
 	public function testImportThrowsWhenLineTooShort() {
 		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -48,6 +509,15 @@ final class UserServiceTest extends TestCase {
 
 	public function testImportThrowsWhenLineTooLong() {
 		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -71,6 +541,15 @@ final class UserServiceTest extends TestCase {
 
 	public function testImportThrowsWhenRoleDoesNotExist() {
 		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -92,8 +571,49 @@ final class UserServiceTest extends TestCase {
 		$service->import(realpath(__DIR__ . '/UserServiceTestData/ImportThrowsWhenRoleDoesNotExist.csv'));
 	}
 
+	public function testImportThrowsWhenNameIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('search')->willReturn([
+			(new Role())->set_name('admin')
+		]);
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_NAME_IS_REQUIRED);
+		$service->import(realpath(__DIR__ . '/UserServiceTestData/ImportThrowsWhenNameIsInvalid.csv'));
+	}
+
 	public function testImportThrowsWhenEmailIsInvalid() {
 		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -119,6 +639,15 @@ final class UserServiceTest extends TestCase {
 		$role = (new Role())->set_id(3)->set_name('admin');
 
 		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::CREATE_USER])
+				)
+		);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$roleModel = $this->createStub(RoleModel::class);

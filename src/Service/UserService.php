@@ -18,25 +18,34 @@ use Portalbox\Session\SessionInterface;
 
 /**
  * Manage Users
- *
- * @todo bring authorization checks into service methods
  */
 class UserService {
+	public const ERROR_UNAUTHORIZED_CREATE = 'You are not authorized to create users';
+	public const ERROR_UNAUTHENTICATED_CREATE = 'You must be authenticated to create users';
+	public const ERROR_UNAUTHENTICATED_READ = 'You must be authenticated to read users';
+	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read the specified user(s)';
+	public const ERROR_UNAUTHENTICATED_WRITE = 'You must be authenticated to modify users';
+
+	public const ERROR_INVALID_JSON_DATA = 'User must be serialized as a json encoded object';
 	public const ERROR_INVALID_CSV_RECORD_LENGTH = 'Import files must contain 3 columns: "Name", "Email Address", and "Role Id"';
 	public const ERROR_INVALID_CSV_ROLE = '"Role" must be the name of an existing role';
-	public const ERROR_INVALID_EMAIL = 'Email must be a valid email address';
+	public const ERROR_INVALID_PATCH = 'User properties must be serialized as a json encoded object';
+
+	public const ERROR_USER_NOT_FOUND = 'We have no record of that user';
+
+	public const ERROR_ROLE_ID_IS_REQUIRED = '\'role_id\' is a required field';
+	public const ERROR_INVALID_ROLE_ID = '\'role_id\' must correspond to a valid role';
+	public const ERROR_NAME_IS_REQUIRED = '\'name\' is a required field';
+	public const ERROR_INVALID_EMAIL = '\'email\' is a required field and must be a valid email address';
+	public const ERROR_INVALID_IS_ACTIVE = '\'is_active\' is a required field and must have a boolean value';
 	public const ERROR_NOT_AUTHORIZED_TO_PATCH_AUTHORIZATIONS = 'You are not authorized to change a user\'s authorizations';
 	public const ERROR_INVALID_AUTHORIZATIONS = '"authorizations" must be a list of equipment type ids';
 	public const ERROR_NOT_AUTHORIZED_TO_PATCH_PIN = 'Users may only change their own PIN';
 	public const ERROR_INVALID_PIN = 'A user\'s PIN must be a string of four digits 0-9';
-	public const ERROR_INVALID_PATCH = 'User properties must be serialized as a json encoded object';
-	public const ERROR_USER_NOT_FOUND = 'We have no record of that user';
-	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read the specified user(s)';
+
 	public const ERROR_INACTIVE_FILTER_MUST_BE_BOOL = 'The value of include_inactive must be a boolean';
 	public const ERROR_ROLE_FILTER_MUST_BE_INT = 'The value of role_id must be an integer';
 	public const ERROR_EQUIPMENT_FILTER_MUST_BE_INT = 'The value of equipment_id must be an integer';
-	public const ERROR_UNAUTHENTICATED_READ = 'You ust be authenticated to read users';
-	public const ERROR_UNAUTHENTICATED_WRITE = 'You must be authenticated to modify users';
 
 	protected SessionInterface $session;
 	protected EquipmentTypeModel $equipmentTypeModel;
@@ -56,6 +65,104 @@ class UserService {
 	}
 
 	/**
+	 * Create a user from the specified data stream
+	 *
+	 * @param string $filePath  the path to a file from which to read json data
+	 * @return User  the user which was added
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not create
+	 *      users
+	 * @throws InvalidArgumentException  if the file can not be read or does not
+	 *      contain JSON encoded data
+	 */
+	public function create(string $filePath): User {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_CREATE);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_USER)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_CREATE);
+		}
+
+		$data = file_get_contents($filePath);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_JSON_DATA);
+		}
+
+		$user = json_decode($data, TRUE);
+		if (!is_array($user)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_JSON_DATA);
+		}
+
+		return $this->userModel->create($this->deserialize($user));
+	}
+
+	/**
+	 * Deserialize a User entity object from a dictionary
+	 *
+	 * @param array data - a dictionary representing a User
+	 * @return User - a valid entity object based on the data specified
+	 * @throws InvalidArgumentException if a require field is not specified
+	 */
+	private function deserialize(array $data): User {
+		$role_id = filter_var($data['role_id'] ?? '', FILTER_VALIDATE_INT);
+		if ($role_id === false) {
+			throw new InvalidArgumentException(self::ERROR_ROLE_ID_IS_REQUIRED);
+		}
+		$role = $this->roleModel->read($role_id);
+		if ($role === null) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_ROLE_ID);
+		}
+
+		$name = trim(strip_tags($data['name'] ?? ''));
+		if (empty($name)) {
+			throw new InvalidArgumentException(self::ERROR_NAME_IS_REQUIRED);
+		}
+
+		$email = filter_var(trim($data['email']), FILTER_VALIDATE_EMAIL);
+		if ($email === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EMAIL);
+		}
+
+		$is_active = filter_var($data['is_active'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+		if ($is_active === NULL) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_IS_ACTIVE);
+		}
+
+		$user = (new User())
+					->set_name($name)
+					->set_email($email)
+					->set_is_active($is_active)
+					->set_role($role);
+
+		// add in optional fields
+		if (array_key_exists('comment', $data)) {
+			$user->set_comment(trim(strip_tags($data['comment'])));
+		}
+
+		if (array_key_exists('authorizations', $data)) {
+			if (!is_array($data['authorizations'])) {
+				throw new InvalidArgumentException(self::ERROR_INVALID_AUTHORIZATIONS);
+			}
+
+			$equipment_type_ids = array_map(
+				fn ($equipmentType) => $equipmentType->id(),
+				$this->equipmentTypeModel->search()
+			);
+			foreach ($data['authorizations'] as $equipment_type_id) {
+				if(!in_array($equipment_type_id, $equipment_type_ids)) {
+					throw new InvalidArgumentException(self::ERROR_INVALID_AUTHORIZATIONS);
+				}
+			}
+
+			$user->set_authorizations($data['authorizations']);
+		}
+
+		return $user;
+	}
+
+	/**
 	 * Import users from the the specified data stream
 	 *
 	 * We expect the first line to be a header and that the input is three
@@ -68,6 +175,15 @@ class UserService {
 	 * @return User[]  The list of users which were added
 	 */
 	public function import(string $filePath): array {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_CREATE);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_USER)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_CREATE);
+		}
+
 		// we don't expect many roles in the system so let's just cache them
 		$roles = [];
 		foreach ($this->roleModel->search() as $role) {
@@ -90,13 +206,18 @@ class UserService {
 				throw new InvalidArgumentException(self::ERROR_INVALID_CSV_ROLE);
 			}
 
+			$name = trim(strip_tags($user[0]));
+			if (empty($name)) {
+				throw new InvalidArgumentException(self::ERROR_NAME_IS_REQUIRED);
+			}
+
 			$email = filter_var(trim($user[1]), FILTER_VALIDATE_EMAIL);
 			if ($email === false) {
 				throw new InvalidArgumentException(self::ERROR_INVALID_EMAIL);
 			}
 
 			$records[] = [
-				'name' => strip_tags(trim($user[0])),
+				'name' => $name,
 				'email' => $email,
 				'role' => $roles[$role]
 			];
