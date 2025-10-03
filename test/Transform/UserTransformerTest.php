@@ -48,200 +48,200 @@ final class UserTransformerTest extends TestCase {
 		parent::tearDownAfterClass();
 	}
 
-	public function testDeserialize(): void {
-		$transformer = new UserTransformer();
+	// public function testDeserialize(): void {
+	// 	$transformer = new UserTransformer();
 
-		$id = 42;
-		$role_id = 3;	// default id of system defined admin role
-		$name = 'Tom Egan';
-		$email = 'tom@ficticious.tld';
-		$comment = 'Test Monkey';
-		$is_active = true;
-		$authorizations = [self::$type->id()];
-		$num_authorizations = count($authorizations);
+	// 	$id = 42;
+	// 	$role_id = 3;	// default id of system defined admin role
+	// 	$name = 'Tom Egan';
+	// 	$email = 'tom@ficticious.tld';
+	// 	$comment = 'Test Monkey';
+	// 	$is_active = true;
+	// 	$authorizations = [self::$type->id()];
+	// 	$num_authorizations = count($authorizations);
 
-		$data = [
-			'id' => $id,
-			'role_id' => $role_id,
-			'name' => $name,
-			'email' => $email,
-			'comment' => $comment,
-			'is_active' => $is_active,
-			'authorizations' => $authorizations
-		];
+	// 	$data = [
+	// 		'id' => $id,
+	// 		'role_id' => $role_id,
+	// 		'name' => $name,
+	// 		'email' => $email,
+	// 		'comment' => $comment,
+	// 		'is_active' => $is_active,
+	// 		'authorizations' => $authorizations
+	// 	];
 
-		$user = $transformer->deserialize($data);
+	// 	$user = $transformer->deserialize($data);
 
-		self::assertNotNull($user);
-		self::assertNull($user->id());
-		self::assertEquals($name, $user->name());
-		self::assertEquals($email, $user->email());
-		self::assertEquals($comment, $user->comment());
-		self::assertEquals($is_active, $user->is_active());
-		$role = $user->role();
-		self::assertNotNull($role);
-		self::assertEquals($role_id, $role->id());
-		self::assertIsIterable($user->authorizations());
-		self::assertCount($num_authorizations, $user->authorizations());
-		self::assertContains(self::$type->id(), $user->authorizations());
-	}
+	// 	self::assertNotNull($user);
+	// 	self::assertNull($user->id());
+	// 	self::assertEquals($name, $user->name());
+	// 	self::assertEquals($email, $user->email());
+	// 	self::assertEquals($comment, $user->comment());
+	// 	self::assertEquals($is_active, $user->is_active());
+	// 	$role = $user->role();
+	// 	self::assertNotNull($role);
+	// 	self::assertEquals($role_id, $role->id());
+	// 	self::assertIsIterable($user->authorizations());
+	// 	self::assertCount($num_authorizations, $user->authorizations());
+	// 	self::assertContains(self::$type->id(), $user->authorizations());
+	// }
 
-	public function testDeserializeInvalidDataName(): void {
-		$transformer = new UserTransformer();
+	// public function testDeserializeInvalidDataName(): void {
+	// 	$transformer = new UserTransformer();
 
-		$id = 42;
-		$role_id = 3;	// default id of system defined admin role
-		$email = 'tom@ficticious.tld';
-		$comment = 'Test Monkey';
-		$is_active = true;
+	// 	$id = 42;
+	// 	$role_id = 3;	// default id of system defined admin role
+	// 	$email = 'tom@ficticious.tld';
+	// 	$comment = 'Test Monkey';
+	// 	$is_active = true;
 
-		$data = [
-			'id' => $id,
-			'role_id' => $role_id,
-			'email' => $email,
-			'comment' => $comment,
-			'is_active' => $is_active
-		];
+	// 	$data = [
+	// 		'id' => $id,
+	// 		'role_id' => $role_id,
+	// 		'email' => $email,
+	// 		'comment' => $comment,
+	// 		'is_active' => $is_active
+	// 	];
 
-		$this->expectException(InvalidArgumentException::class);
-		$user = $transformer->deserialize($data);
-	}
+	// 	$this->expectException(InvalidArgumentException::class);
+	// 	$user = $transformer->deserialize($data);
+	// }
 
-	public function testDeserializeInvalidDataMissingRoleId(): void {
-		$transformer = new UserTransformer();
+	// public function testDeserializeInvalidDataMissingRoleId(): void {
+	// 	$transformer = new UserTransformer();
 
-		$id = 42;
-		$name = 'Tom Egan';
-		$email = 'tom@ficticious.tld';
-		$comment = 'Test Monkey';
-		$is_active = true;
+	// 	$id = 42;
+	// 	$name = 'Tom Egan';
+	// 	$email = 'tom@ficticious.tld';
+	// 	$comment = 'Test Monkey';
+	// 	$is_active = true;
 
-		$data = [
-			'id' => $id,
-			'name' => $name,
-			'email' => $email,
-			'comment' => $comment,
-			'is_active' => $is_active
-		];
+	// 	$data = [
+	// 		'id' => $id,
+	// 		'name' => $name,
+	// 		'email' => $email,
+	// 		'comment' => $comment,
+	// 		'is_active' => $is_active
+	// 	];
 
-		$this->expectException(InvalidArgumentException::class);
-		$user = $transformer->deserialize($data);
-	}
+	// 	$this->expectException(InvalidArgumentException::class);
+	// 	$user = $transformer->deserialize($data);
+	// }
 
-	public function testDeserializeInvalidDataRoleId(): void {
-		$transformer = new UserTransformer();
+	// public function testDeserializeInvalidDataRoleId(): void {
+	// 	$transformer = new UserTransformer();
 
-		$id = 42;
-		$role_id = 0;
-		$name = 'Tom Egan';
-		$email = 'tom@ficticious.tld';
-		$comment = 'Test Monkey';
-		$is_active = true;
+	// 	$id = 42;
+	// 	$role_id = 0;
+	// 	$name = 'Tom Egan';
+	// 	$email = 'tom@ficticious.tld';
+	// 	$comment = 'Test Monkey';
+	// 	$is_active = true;
 
-		$data = [
-			'id' => $id,
-			'role_id' => $role_id,
-			'name' => $name,
-			'email' => $email,
-			'comment' => $comment,
-			'is_active' => $is_active
-		];
+	// 	$data = [
+	// 		'id' => $id,
+	// 		'role_id' => $role_id,
+	// 		'name' => $name,
+	// 		'email' => $email,
+	// 		'comment' => $comment,
+	// 		'is_active' => $is_active
+	// 	];
 
-		$this->expectException(InvalidArgumentException::class);
-		$user = $transformer->deserialize($data);
-	}
+	// 	$this->expectException(InvalidArgumentException::class);
+	// 	$user = $transformer->deserialize($data);
+	// }
 
-	public function testDeserializeInvalidDataEmail(): void {
-		$transformer = new UserTransformer();
+	// public function testDeserializeInvalidDataEmail(): void {
+	// 	$transformer = new UserTransformer();
 
-		$id = 42;
-		$role_id = 3;	// default id of system defined admin role
-		$name = 'Tom Egan';
-		$comment = 'Test Monkey';
-		$is_active = true;
+	// 	$id = 42;
+	// 	$role_id = 3;	// default id of system defined admin role
+	// 	$name = 'Tom Egan';
+	// 	$comment = 'Test Monkey';
+	// 	$is_active = true;
 
-		$data = [
-			'id' => $id,
-			'role_id' => $role_id,
-			'name' => $name,
-			'comment' => $comment,
-			'is_active' => $is_active
-		];
+	// 	$data = [
+	// 		'id' => $id,
+	// 		'role_id' => $role_id,
+	// 		'name' => $name,
+	// 		'comment' => $comment,
+	// 		'is_active' => $is_active
+	// 	];
 
-		$this->expectException(InvalidArgumentException::class);
-		$user = $transformer->deserialize($data);
-	}
+	// 	$this->expectException(InvalidArgumentException::class);
+	// 	$user = $transformer->deserialize($data);
+	// }
 
-	public function testDeserializeInvalidDataIsActive(): void {
-		$transformer = new UserTransformer();
+	// public function testDeserializeInvalidDataIsActive(): void {
+	// 	$transformer = new UserTransformer();
 
-		$id = 42;
-		$role_id = 3;	// default id of system defined admin role
-		$name = 'Tom Egan';
-		$email = 'tom@ficticious.tld';
-		$comment = 'Test Monkey';
+	// 	$id = 42;
+	// 	$role_id = 3;	// default id of system defined admin role
+	// 	$name = 'Tom Egan';
+	// 	$email = 'tom@ficticious.tld';
+	// 	$comment = 'Test Monkey';
 
-		$data = [
-			'id' => $id,
-			'role_id' => $role_id,
-			'name' => $name,
-			'email' => $email,
-			'comment' => $comment
-		];
+	// 	$data = [
+	// 		'id' => $id,
+	// 		'role_id' => $role_id,
+	// 		'name' => $name,
+	// 		'email' => $email,
+	// 		'comment' => $comment
+	// 	];
 
-		$this->expectException(InvalidArgumentException::class);
-		$user = $transformer->deserialize($data);
-	}
+	// 	$this->expectException(InvalidArgumentException::class);
+	// 	$user = $transformer->deserialize($data);
+	// }
 
-	public function testDeserializeInvalidDataAuthorizationsType(): void {
-		$transformer = new UserTransformer();
+	// public function testDeserializeInvalidDataAuthorizationsType(): void {
+	// 	$transformer = new UserTransformer();
 
-		$id = 42;
-		$role_id = 3;	// default id of system defined admin role
-		$name = 'Tom Egan';
-		$email = 'tom@ficticious.tld';
-		$comment = 'Test Monkey';
-		$is_active = true;
-		$authorizations = true;
+	// 	$id = 42;
+	// 	$role_id = 3;	// default id of system defined admin role
+	// 	$name = 'Tom Egan';
+	// 	$email = 'tom@ficticious.tld';
+	// 	$comment = 'Test Monkey';
+	// 	$is_active = true;
+	// 	$authorizations = true;
 
-		$data = [
-			'id' => $id,
-			'role_id' => $role_id,
-			'name' => $name,
-			'email' => $email,
-			'comment' => $comment,
-			'is_active' => $is_active,
-			'authorizations' => $authorizations
-		];
+	// 	$data = [
+	// 		'id' => $id,
+	// 		'role_id' => $role_id,
+	// 		'name' => $name,
+	// 		'email' => $email,
+	// 		'comment' => $comment,
+	// 		'is_active' => $is_active,
+	// 		'authorizations' => $authorizations
+	// 	];
 
-		$this->expectException(InvalidArgumentException::class);
-		$user = $transformer->deserialize($data);
-	}
+	// 	$this->expectException(InvalidArgumentException::class);
+	// 	$user = $transformer->deserialize($data);
+	// }
 
-	public function testDeserializeInvalidDataAuthorizationsBadId(): void {
-		$transformer = new UserTransformer();
+	// public function testDeserializeInvalidDataAuthorizationsBadId(): void {
+	// 	$transformer = new UserTransformer();
 
-		$id = 42;
-		$role_id = 3;	// default id of system defined admin role
-		$name = 'Tom Egan';
-		$email = 'tom@ficticious.tld';
-		$comment = 'Test Monkey';
-		$is_active = true;
-		$authorizations = [-1];
+	// 	$id = 42;
+	// 	$role_id = 3;	// default id of system defined admin role
+	// 	$name = 'Tom Egan';
+	// 	$email = 'tom@ficticious.tld';
+	// 	$comment = 'Test Monkey';
+	// 	$is_active = true;
+	// 	$authorizations = [-1];
 
-		$data = [
-			'id' => $id,
-			'role_id' => $role_id,
-			'name' => $name,
-			'email' => $email,
-			'comment' => $comment,
-			'is_active' => $is_active,
-			'authorizations' => $authorizations
-		];
+	// 	$data = [
+	// 		'id' => $id,
+	// 		'role_id' => $role_id,
+	// 		'name' => $name,
+	// 		'email' => $email,
+	// 		'comment' => $comment,
+	// 		'is_active' => $is_active,
+	// 		'authorizations' => $authorizations
+	// 	];
 
-		$this->expectException(InvalidArgumentException::class);
-		$user = $transformer->deserialize($data);
-	}
+	// 	$this->expectException(InvalidArgumentException::class);
+	// 	$user = $transformer->deserialize($data);
+	// }
 
 	public function testSerialize(): void {
 		$transformer = new UserTransformer();

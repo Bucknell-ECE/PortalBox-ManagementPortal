@@ -31,6 +31,10 @@ class UserService {
 	public const ERROR_INVALID_CSV_ROLE = '"Role" must be the name of an existing role';
 	public const ERROR_INVALID_PATCH = 'User properties must be serialized as a json encoded object';
 
+	public const ERROR_NOT_AUTHORIZED_TO_PATCH_AUTHORIZATIONS = 'You are not authorized to change a user\'s authorizations';
+	public const ERROR_NOT_AUTHORIZED_TO_PATCH_PIN = 'Users may only change their own PIN';
+	public const ERROR_UNAUTHORIZED_MODIFY = 'You are not permitted to modify users';
+
 	public const ERROR_USER_NOT_FOUND = 'We have no record of that user';
 
 	public const ERROR_ROLE_ID_IS_REQUIRED = '\'role_id\' is a required field';
@@ -38,9 +42,7 @@ class UserService {
 	public const ERROR_NAME_IS_REQUIRED = '\'name\' is a required field';
 	public const ERROR_INVALID_EMAIL = '\'email\' is a required field and must be a valid email address';
 	public const ERROR_INVALID_IS_ACTIVE = '\'is_active\' is a required field and must have a boolean value';
-	public const ERROR_NOT_AUTHORIZED_TO_PATCH_AUTHORIZATIONS = 'You are not authorized to change a user\'s authorizations';
 	public const ERROR_INVALID_AUTHORIZATIONS = '"authorizations" must be a list of equipment type ids';
-	public const ERROR_NOT_AUTHORIZED_TO_PATCH_PIN = 'Users may only change their own PIN';
 	public const ERROR_INVALID_PIN = 'A user\'s PIN must be a string of four digits 0-9';
 
 	public const ERROR_INACTIVE_FILTER_MUST_BE_BOOL = 'The value of include_inactive must be a boolean';
@@ -62,40 +64,6 @@ class UserService {
 		$this->equipmentTypeModel = $equipmentTypeModel;
 		$this->roleModel = $roleModel;
 		$this->userModel = $userModel;
-	}
-
-	/**
-	 * Create a user from the specified data stream
-	 *
-	 * @param string $filePath  the path to a file from which to read json data
-	 * @return User  the user which was added
-	 * @throws AuthenticationException  if no user is authenticated
-	 * @throws AuthorizationException  if the authenticated user may not create
-	 *      users
-	 * @throws InvalidArgumentException  if the file can not be read or does not
-	 *      contain JSON encoded data
-	 */
-	public function create(string $filePath): User {
-		$authenticatedUser = $this->session->get_authenticated_user();
-		if ($authenticatedUser === null) {
-			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_CREATE);
-		}
-
-		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_USER)) {
-			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_CREATE);
-		}
-
-		$data = file_get_contents($filePath);
-		if ($data === false) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_JSON_DATA);
-		}
-
-		$user = json_decode($data, TRUE);
-		if (!is_array($user)) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_JSON_DATA);
-		}
-
-		return $this->userModel->create($this->deserialize($user));
 	}
 
 	/**
@@ -160,6 +128,40 @@ class UserService {
 		}
 
 		return $user;
+	}
+
+	/**
+	 * Create a user from the specified data stream
+	 *
+	 * @param string $filePath  the path to a file from which to read json data
+	 * @return User  the user which was added
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not create
+	 *      users
+	 * @throws InvalidArgumentException  if the file can not be read or does not
+	 *      contain JSON encoded data
+	 */
+	public function create(string $filePath): User {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_CREATE);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_USER)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_CREATE);
+		}
+
+		$data = file_get_contents($filePath);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_JSON_DATA);
+		}
+
+		$user = json_decode($data, TRUE);
+		if (!is_array($user)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_JSON_DATA);
+		}
+
+		return $this->userModel->create($this->deserialize($user));
 	}
 
 	/**
@@ -342,6 +344,48 @@ class UserService {
 		}
 
 		return $this->userModel->search($query);
+	}
+
+	/**
+	 * Modify a user using data read from the specified data stream
+	 *
+	 * @param int $userId  the unique id of the user to modify
+	 * @param string $filePath  the path to a file from which to read json data
+	 * @return User  the user as modified
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not update
+	 *      users
+	 * @throws InvalidArgumentException  if the file can not be read or does not
+	 *      contain JSON encoded data
+	 */
+	public function update(int $userId, string $filePath): User {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_WRITE);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::MODIFY_USER)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_MODIFY);
+		}
+
+		$data = file_get_contents($filePath);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_JSON_DATA);
+		}
+
+		$user = json_decode($data, TRUE);
+		if (!is_array($user)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_JSON_DATA);
+		}
+
+		$user = $this->userModel->update(
+			$this->deserialize($user)->set_id($userId)
+		);
+		if ($user === null) {
+			throw new NotFoundException(self::ERROR_USER_NOT_FOUND);
+		}
+
+		return $user;
 	}
 
 	/**

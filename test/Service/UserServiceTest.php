@@ -1098,6 +1098,456 @@ final class UserServiceTest extends TestCase {
 
 	#endregion test readAll()
 
+	#region test update()
+
+	public function testUpdateThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHENTICATED_WRITE);
+		$service->update(1, '');
+	}
+
+	public function testUpdateThrowsWhenNotAuthorized() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(UserService::ERROR_UNAUTHORIZED_MODIFY);
+		$service->update(1, '');
+	}
+
+	public function testUpdateThrowsWhenFileIsNotReadable() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_JSON_DATA);
+		// PHP warning is intentionally suppressed in next line for testing
+		@$service->update(1, 'file_does_not_exist.json');
+	}
+
+	public function testUpdateThrowsWhenDataIsNotArray() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_JSON_DATA);
+		$service->update(1, realpath(__DIR__ . '/UserServiceTestData/UpdateThrowsWhenDataIsNotArray.json'));
+	}
+
+	public function testUpdateThrowsWhenRoleIdIsNotInteger() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_ROLE_ID_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/UserServiceTestData/UpdateThrowsWhenRoleIdIsNotInteger.json'));
+	}
+
+	public function testUpdateThrowsWhenRoleDoesNotExist() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$roleModel = $this->createStub(RoleModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_ROLE_ID);
+		$service->update(1, realpath(__DIR__ . '/UserServiceTestData/UpdateThrowsWhenRoleDoesNotExist.json'));
+	}
+
+	public function testUpdateThrowsWhenNameIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn(new Role());
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_NAME_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/UserServiceTestData/UpdateThrowsWhenNameIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenEmailIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn(new Role());
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_EMAIL);
+		$service->update(1, realpath(__DIR__ . '/UserServiceTestData/UpdateThrowsWhenEmailIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenInActiveIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn(new Role());
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_IS_ACTIVE);
+		$service->update(1, realpath(__DIR__ . '/UserServiceTestData/UpdateThrowsWhenInActiveIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenAuthorizationsIsNotList() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn((new Role())->set_id(2));
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_AUTHORIZATIONS);
+		$service->update(1, realpath(__DIR__ . '/UserServiceTestData/UpdateThrowsWhenAuthorizationsIsNotList.json'));
+	}
+
+	public function testUpdateThrowsWhenAuthorizationIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([]);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn((new Role())->set_id(2));
+
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(UserService::ERROR_INVALID_AUTHORIZATIONS);
+		$service->update(1, realpath(__DIR__ . '/UserServiceTestData/UpdateThrowsWhenAuthorizationIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenUserDoesNotExist() {
+		$role = (new Role())
+			->set_id(2);
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([]);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn($role);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->method('update')->willReturn(null);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		self::expectException(NotFoundException::class);
+		self::expectExceptionMessage(UserService::ERROR_USER_NOT_FOUND);
+		$service->update(1, realpath(__DIR__ . '/UserServiceTestData/UpdateSuccess.json'));
+	}
+
+	public function testUpdateSuccess() {
+		$user_id = 42;
+
+		$role = (new Role())
+			->set_id(2);
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([]);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn($role);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn(User $user) =>
+					$user instanceof User
+					&& $user->id() === $user_id
+					&& $user->name() === 'Maker'
+					&& $user->email() === 'maker@makerspace.tld'
+					&& $user->is_active()
+					&& $user->role() === $role
+			)
+		)->willReturnArgument(0);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		$user = $service->update($user_id, realpath(__DIR__ . '/UserServiceTestData/UpdateSuccess.json'));
+
+		self::assertInstanceOf(User::class, $user);
+		self::assertSame('Maker', $user->name());
+		self::assertSame('maker@makerspace.tld', $user->email());
+		self::assertSame(true, $user->is_active());
+		self::assertSame($role, $user->role());
+		self::assertSame(null, $user->comment());
+		self::assertSame([], $user->authorizations());
+	}
+
+	public function testUpdateSuccessWithOptionalValues() {
+		$user_id = 42;
+
+		$role = (new Role())
+			->set_id(2);
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(1)
+						->set_permissions([Permission::MODIFY_USER])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([
+			(new EquipmentType())->set_id(23)
+		]);
+
+		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel->method('read')->willReturn($role);
+
+		$userModel = $this->createStub(UserModel::class);
+		$userModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn(User $user) =>
+					$user instanceof User
+					&& $user->id() === $user_id
+					&& $user->name() === 'Maker'
+					&& $user->email() === 'maker@makerspace.tld'
+					&& $user->is_active()
+					&& $user->role() === $role
+			)
+		)->willReturnArgument(0);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		$user = $service->update($user_id , realpath(__DIR__ . '/UserServiceTestData/UpdateSuccessWithOptionalValues.json'));
+
+		self::assertInstanceOf(User::class, $user);
+		self::assertSame('Maker', $user->name());
+		self::assertSame('maker@makerspace.tld', $user->email());
+		self::assertSame(true, $user->is_active());
+		self::assertSame($role, $user->role());
+		self::assertSame('new maker', $user->comment());
+		self::assertSame([23], $user->authorizations());
+	}
+
+	#endregion test update()
+
 	#region test patch()
 
 	public function testPatchThrowsWhenNotAuthenticated() {
