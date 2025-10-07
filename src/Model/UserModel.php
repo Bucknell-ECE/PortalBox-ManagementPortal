@@ -102,11 +102,17 @@ class UserModel extends AbstractModel {
 	 * @param User user - the user to save to the database
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return User|null - the user or null if the user could not be saved
+	 * @todo move authorizations management out to service?
 	 */
 	public function update(User $user): ?User {
 		$user_id = $user->id();
 		$authorizations = $user->authorizations();
-		$old_authorizations = $this->read($user_id)->authorizations();
+
+		$existing_user = $this->read($user_id);
+		if ($existing_user === null) {
+			return null;
+		}
+		$old_authorizations = $existing_user->authorizations();
 
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE users SET name = :name, email = :email, comment = :comment, role_id = :role_id, is_active = :is_active, pin = :pin WHERE id = :id';

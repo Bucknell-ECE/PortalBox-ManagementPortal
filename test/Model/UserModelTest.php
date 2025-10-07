@@ -15,16 +15,11 @@ use Portalbox\Model\UserModel;
 use Portalbox\Query\UserQuery;
 
 final class UserModelTest extends TestCase {
-	/**
-	 * An equipment type which exists in the db
-	 */
+	/** An equipment type which exists in the db */
 	private static $type;
 
-	/**
-	 * The configuration
-	 * @var Config
-	 */
-	private static $config;
+	/** The configuration */
+	private static Config $config;
 
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
