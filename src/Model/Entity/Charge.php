@@ -12,24 +12,18 @@ use Portalbox\Model\UserModel;
 class Charge extends AbstractCharge {
 	/**
 	 * The configuration to use
-	 *
-	 * @var Config
 	 */
-	private $configuration;
+	private Config $configuration;
 
 	/**
 	 * The name of this event's equipment's name
-	 *
-	 * @var string
 	 */
-	private $equipment_name;
+	private string $equipment_name;
 
 	/**
 	 * The name of this event's user's name
-	 *
-	 * @var string
 	 */
-	private $user_name;
+	private string $user_name;
 
 
 	/**

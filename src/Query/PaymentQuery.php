@@ -8,29 +8,21 @@ namespace Portalbox\Query;
 class PaymentQuery {
 	/**
 	 * Find payments on or before this date
-	 *
-	 * @var string
 	 */
-	protected $on_or_before;
+	protected ?string $on_or_before = null;
 
 	/**
 	 * Find payments on or before this date
-	 *
-	 * @var string
 	 */
-	protected $on_or_after;
+	protected ?string $on_or_after = null;
 
 	/**
 	 * Find payments for this user
-	 *
-	 * @var int
 	 */
-	protected $user_id;
+	protected ?int $user_id = null;
 
 	/**
 	 * Get the on or before date
-	 *
-	 * @return string - the on or before date
 	 */
 	public function on_or_before(): ?string {
 		return $this->on_or_before;
@@ -38,9 +30,6 @@ class PaymentQuery {
 
 	/**
 	 * Set the on or before date
-	 *
-	 * @param string on_or_before - the on or before date
-	 * @return self
 	 */
 	public function set_on_or_before(string $on_or_before): self {
 		$this->on_or_before = $on_or_before;
@@ -49,8 +38,6 @@ class PaymentQuery {
 
 	/**
 	 * Get the on or after date
-	 *
-	 * @return string - the on or after date
 	 */
 	public function on_or_after(): ?string {
 		return $this->on_or_after;
@@ -58,9 +45,6 @@ class PaymentQuery {
 
 	/**
 	 * Set the on or after date
-	 *
-	 * @param string on_or_after - the on or after date
-	 * @return self
 	 */
 	public function set_on_or_after(string $on_or_after): self {
 		$this->on_or_after = $on_or_after;
@@ -69,8 +53,6 @@ class PaymentQuery {
 
 	/**
 	 * Get the user id
-	 *
-	 * @return int - the user id
 	 */
 	public function user_id(): ?int {
 		return $this->user_id;
@@ -78,9 +60,6 @@ class PaymentQuery {
 
 	/**
 	 * Set the user id
-	 *
-	 * @param int user_id - the user id
-	 * @return self
 	 */
 	public function set_user_id(int $user_id): self {
 		$this->user_id = $user_id;

@@ -10,17 +10,13 @@ use Portalbox\Model\RoleModel;
 class User extends AbstractUser {
 	/**
 	 * The configuration to use
-	 *
-	 * @var Config
 	 */
-	private $configuration;
+	private Config $configuration;
 
 	/**
 	 * The name of this user's role
-	 *
-	 * @var string
 	 */
-	private $role_name;
+	private string $role_name;
 
 	/**
 	 * @param Config configuration - the configuration to use

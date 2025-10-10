@@ -2,73 +2,11 @@
 
 namespace Portalbox\Transform;
 
-use InvalidArgumentException;
-use Portalbox\Config;
-use Portalbox\Entity\User;
-// violation of SOLID design... should use these via interfaces and dependency injection
-use Portalbox\Model\EquipmentTypeModel;
-use Portalbox\Model\RoleModel;
-
 /**
  * UserTransformer is our bridge between dictionary representations and User
  * entity instances.
  */
-class UserTransformer implements InputTransformer, OutputTransformer {
-	/**
-	 * Deserialize a User entity object from a dictionary
-	 *
-	 * @param array data - a dictionary representing a User
-	 * @return User - a valid entity object based on the data specified
-	 * @throws InvalidArgumentException if a require field is not specified
-	 */
-	public function deserialize(array $data): User {
-		if (!array_key_exists('role_id', $data)) {
-			throw new InvalidArgumentException('\'role_id\' is a required field');
-		}
-		if (!array_key_exists('name', $data)) {
-			throw new InvalidArgumentException('\'name\' is a required field');
-		}
-		if (!array_key_exists('email', $data)) {
-			throw new InvalidArgumentException('\'email\' is a required field');
-		}
-		if (!array_key_exists('is_active', $data)) {
-			throw new InvalidArgumentException('\'is_active\' is a required field');
-		}
-
-		$role = (new RoleModel(Config::config()))->read($data['role_id']);
-		if (null === $role) {
-			throw new InvalidArgumentException('\'role_id\' must correspond to a valid role');
-		}
-
-		$user = (new User())
-					->set_name(strip_tags($data['name']))
-					->set_email(strip_tags($data['email']))
-					->set_is_active($data['is_active'])
-					->set_role($role);
-
-		// add in optional fields
-		if (array_key_exists('comment', $data)) {
-			$user->set_comment($data['comment']);
-		}
-		if (array_key_exists('authorizations', $data)) {
-			if (!is_array($data['authorizations'])) {
-				throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
-			}
-
-			$model = new EquipmentTypeModel(Config::config());
-			foreach ($data['authorizations'] as $equipment_type_id) {
-				$equipment_type = $model->read($equipment_type_id);
-				if (null === $equipment_type) {
-					throw new InvalidArgumentException('\'authorizations\' must be a list of equipment type ids');
-				}
-			}
-
-			$user->set_authorizations($data['authorizations']);
-		}
-
-		return $user;
-	}
-
+class UserTransformer implements OutputTransformer {
 	/**
 	 * Called to serialize a User entity instance to a dictionary
 	 *

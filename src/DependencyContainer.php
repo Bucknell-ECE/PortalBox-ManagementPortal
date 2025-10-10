@@ -15,6 +15,7 @@ use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Service\CardTypeService;
 use Portalbox\Service\EquipmentService;
+use Portalbox\Service\UserService;
 use Portalbox\Session\Session;
 
 /**
@@ -93,6 +94,13 @@ class DependencyContainer {
 					$this->get(EquipmentTypeModel::class),
 					$this->get(LocationModel::class),
 					$this->get(LoggedEventModel::class)
+				);
+			case UserService::class:
+				return new UserService(
+					$this->get(Session::class),
+					$this->get(EquipmentTypeModel::class),
+					$this->get(RoleModel::class),
+					$this->get(UserModel::class)
 				);
 			case Session::class:
 				return new Session();

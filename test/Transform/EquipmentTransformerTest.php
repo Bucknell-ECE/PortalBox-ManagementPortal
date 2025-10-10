@@ -18,15 +18,13 @@ use Portalbox\Transform\EquipmentTransformer;
 final class EquipmentTransformerTest extends TestCase {
 	/**
 	 * An equipment type guaranteed to exist in the DB
-	 * @var EquipmentType
 	 */
-	private static $type;
+	private static EquipmentType $type;
 
 	/**
 	 * A location guaranteed to exist in the DB
-	 * @var Location
 	 */
-	private static $location;
+	private static Location $location;
 
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();

@@ -22,31 +22,29 @@ use Portalbox\Query\ChargeQuery;
 
 final class ChargeModelTest extends TestCase {
 	/**
-	 * A user guananteed to exist in the DB
-	 * @var User
+	 * A user guaranteed to exist in the DB
 	 */
-	private static $user;
+	private static User $user;
 
 	/**
 	 * A location that exists in the db
 	 */
-	private static $location;
+	private static Location $location;
 
 	/**
 	 * An equipment type which exists in the db
 	 */
-	private static $type;
+	private static EquipmentType $type;
 
 	/**
 	 * An equipment which exists in the db
 	 */
-	private static $equipment;
+	private static Equipment $equipment;
 
 	/**
 	 * The configuration
-	 * @var Config
 	 */
-	private static $config;
+	private static Config $config;
 
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
