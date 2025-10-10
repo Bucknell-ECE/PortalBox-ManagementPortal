@@ -28,9 +28,8 @@ class Session implements SessionInterface {
 
 	/**
 	 * The authenticated user
-	 * @var User|null
 	 */
-	private $authenticated_user = null;
+	private ?User $authenticated_user = null;
 
 	/**
 	 * Get the currently authenticated User
@@ -42,7 +41,7 @@ class Session implements SessionInterface {
 		if (!$this->authenticated_user) {
 			$config = Config::config();
 
-			// Check for Brearer token
+			// Check for Bearer token
 			if (
 				array_key_exists('HTTP_AUTHORIZATION', $_SERVER) &&
 				8 < strlen($_SERVER['HTTP_AUTHORIZATION']) &&

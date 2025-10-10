@@ -23,10 +23,9 @@ use Portalbox\Transform\LoggedEventTransformer;
 
 final class LoggedEventTransformerTest extends TestCase {
 	/**
-	 * A user guananteed to exist in the DB
-	 * @var User
+	 * A user guaranteed to exist in the DB
 	 */
-	private static $user;
+	private static User $user;
 
 	/**
 	 * A location that exists in the db

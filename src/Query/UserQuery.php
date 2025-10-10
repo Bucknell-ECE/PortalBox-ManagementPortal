@@ -25,8 +25,6 @@ class UserQuery {
 
 	/**
 	 * Equipment id to find authorized users for
-	 *
-	 * @var int
 	 */
 	protected ?int $equipment_id = null;
 
@@ -42,8 +40,6 @@ class UserQuery {
 
 	/**
 	 * Get the email address of the user for which to search
-	 *
-	 * @return string|null - the email address of the user for which to search
 	 */
 	public function email(): ?string {
 		return $this->email;
@@ -51,9 +47,6 @@ class UserQuery {
 
 	/**
 	 * Set the email address of the user for which to search
-	 *
-	 * @param string email - the email address of the user for which to search
-	 * @return self
 	 */
 	public function set_email(string $email): self {
 		$this->email = $email;
@@ -62,8 +55,6 @@ class UserQuery {
 
 	/**
 	 * Get the name of the user for which to search
-	 *
-	 * @return string|null - the name of the user for which to search
 	 */
 	public function name(): ?string {
 		return $this->name;
@@ -71,9 +62,6 @@ class UserQuery {
 
 	/**
 	 * Set the name of the user for which to search
-	 *
-	 * @param string email - the name of the user for which to search
-	 * @return self
 	 */
 	public function set_name(string $name): self {
 		$this->name = $name;
@@ -82,17 +70,12 @@ class UserQuery {
 
 	/**
 	 * Get the comment of the user for which to search
-	 *
-	 * @return string|null
 	 */
 	public function comment(): ?string {
 		return $this->comment;
 	}
 	/**
 	 * Set the comment of the user for which to search
-	 *
-	 * @param string comment
-	 * @return self
 	 */
 	public function set_comment(string $comment): self {
 		$this->comment = $comment;
@@ -101,8 +84,6 @@ class UserQuery {
 
 	/**
 	 * Get the equipment id to search for authorized users with
-	 *
-	 * @return int|null
 	 */
 	public function equipment_id(): ?int {
 		return $this->equipment_id;
@@ -110,9 +91,6 @@ class UserQuery {
 
 	/**
 	 * Set the equipment id to search for authorized users with
-	 *
-	 * @param int equipment id
-	 * @return self
 	 */
 	public function set_equipment_id(int $equipment_id): self {
 		$this->equipment_id = $equipment_id;
