@@ -12,10 +12,8 @@ use Portalbox\Model\LocationModel;
 class Equipment extends AbstractEquipment {
 	/**
 	 * The configuration to use
-	 *
-	 * @var Config
 	 */
-	private $configuration;
+	private Config $configuration;
 
 	/**
 	 * @param Config configuration - the configuration to use

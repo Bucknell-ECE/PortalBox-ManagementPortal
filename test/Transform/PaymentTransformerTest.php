@@ -16,9 +16,8 @@ use Portalbox\Transform\PaymentTransformer;
 final class PaymentTransformerTest extends TestCase {
 	/**
 	 * A user guaranteed to exist in the DB
-	 * @var User
 	 */
-	private static $user;
+	private static User $user;
 
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();

@@ -16,15 +16,13 @@ use Portalbox\Query\PaymentQuery;
 final class PaymentModelTest extends TestCase {
 	/**
 	 * A user guaranteed to exist in the DB
-	 * @var User
 	 */
-	private static $user;
+	private static User $user;
 
 	/**
 	 * The configuration
-	 * @var Config
 	 */
-	private static $config;
+	private static Config $config;
 
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();

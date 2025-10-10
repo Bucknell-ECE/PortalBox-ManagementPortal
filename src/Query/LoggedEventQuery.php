@@ -8,50 +8,36 @@ namespace Portalbox\Query;
 class LoggedEventQuery {
 	/**
 	 * Find log events on or before this date
-	 *
-	 * @var string
 	 */
-	protected $on_or_before;
+	protected ?string $on_or_before = null;
 
 	/**
 	 * Find log events on or before this date
-	 *
-	 * @var string
 	 */
-	protected $on_or_after;
+	protected ?string $on_or_after = null;
 
 	/**
 	 * Find log events for this equipment
-	 *
-	 * @var int
 	 */
-	protected $equipment_id;
+	protected ?int $equipment_id = null;
 
 	/**
 	 * Find log events from equipment in this location
-	 *
-	 * @var int
 	 */
-	protected $location_id;
+	protected ?int $location_id = null;
 
 	/**
 	 * Find log events of a given type
-	 *
-	 * @var int
 	 */
-	protected $type_id;
+	protected ?int $type_id = null;
 
 	/**
-	 * Find log events of a giben equipment type
-	 *
-	 * @var int
+	 * Find log events of a given equipment type
 	 */
-	protected $equipment_type_id;
+	protected ?int $equipment_type_id = null;
 
 	/**
 	 * Get the on or before date
-	 *
-	 * @return string - the on or before date
 	 */
 	public function on_or_before(): ?string {
 		return $this->on_or_before;
@@ -59,9 +45,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Set the on or before date
-	 *
-	 * @param string on_or_before - the on or before date
-	 * @return self
 	 */
 	public function set_on_or_before(string $on_or_before): self {
 		$this->on_or_before = $on_or_before;
@@ -70,8 +53,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Get the on or after date
-	 *
-	 * @return string - the on or after date
 	 */
 	public function on_or_after(): ?string {
 		return $this->on_or_after;
@@ -79,9 +60,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Set the on or after date
-	 *
-	 * @param string on_or_after - the on or after date
-	 * @return self
 	 */
 	public function set_on_or_after(string $on_or_after): self {
 		$this->on_or_after = $on_or_after;
@@ -90,8 +68,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Get the equipment id
-	 *
-	 * @return int - the equipment id
 	 */
 	public function equipment_id(): ?int {
 		return $this->equipment_id;
@@ -99,9 +75,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Set the equipment id
-	 *
-	 * @param int equipment_id - the equipment id
-	 * @return self
 	 */
 	public function set_equipment_id(int $equipment_id): self {
 		$this->equipment_id = $equipment_id;
@@ -110,8 +83,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Get the location id
-	 *
-	 * @return int - the location id
 	 */
 	public function location_id(): ?int {
 		return $this->location_id;
@@ -119,9 +90,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Set the location id
-	 *
-	 * @param int location_id - the location id
-	 * @return self
 	 */
 	public function set_location_id(int $location_id): self {
 		$this->location_id = $location_id;
@@ -130,8 +98,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Get the type id
-	 *
-	 * @return int - the type id
 	 */
 	public function type_id(): ?int {
 		return $this->type_id;
@@ -139,9 +105,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Set the type id
-	 *
-	 * @param int type_id - the type id
-	 * @return self
 	 */
 	public function set_type_id(int $type_id): self {
 		$this->type_id = $type_id;
@@ -150,8 +113,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Get the equipment type id
-	 *
-	 * @return int - the equipment type id
 	 */
 	public function equipment_type_id(): ?int {
 		return $this->equipment_type_id;
@@ -159,9 +120,6 @@ class LoggedEventQuery {
 
 	/**
 	 * Set the equipment type id
-	 *
-	 * @param int equipment_type_id - the equipment type id
-	 * @return self
 	 */
 	public function set_equipment_type_id(int $equipment_type_id): self {
 		$this->equipment_type_id = $equipment_type_id;
