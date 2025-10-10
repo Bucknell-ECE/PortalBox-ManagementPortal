@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Test\Portalbox\Service;
 
+use DateInterval;
+use DateTimeImmutable;
 use InvalidArgumentException;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Entity\Charge;
+use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\Equipment;
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Location;
@@ -23,6 +27,7 @@ use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\ActivationModel;
 use Portalbox\Model\CardModel;
+use Portalbox\Model\ChargeModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
@@ -36,6 +41,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testRegisterThrowsWhenNoAuthorizationHeader() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -44,6 +50,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -58,6 +65,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testRegisterThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -66,6 +74,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -80,6 +89,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testRegisterThrowsWhenBearerTokenIsInvalid() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -88,6 +98,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -105,6 +116,7 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(null);
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -113,6 +125,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -130,6 +143,7 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(new ShutdownCard());
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -138,6 +152,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -164,6 +179,7 @@ final class EquipmentServiceTest extends TestCase {
 				)
 		);
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -172,6 +188,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -202,6 +219,7 @@ final class EquipmentServiceTest extends TestCase {
 				)
 		);
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$equipmentModel = $this->createStub(EquipmentModel::class);
@@ -227,6 +245,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -257,6 +276,7 @@ final class EquipmentServiceTest extends TestCase {
 				)
 		);
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
@@ -268,6 +288,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -300,6 +321,8 @@ final class EquipmentServiceTest extends TestCase {
 				)
 		);
 
+		$chargeModel = $this->createStub(ChargeModel::class);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentModel
 			->expects($this->once())
@@ -322,6 +345,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -349,6 +373,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testActivateThrowsWhenNoAuthorizationHeader() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -357,6 +382,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -371,6 +397,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testActivateThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -379,6 +406,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -393,6 +421,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testActivateThrowsWhenBearerTokenIsInvalid() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -401,6 +430,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -418,6 +448,7 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(null);
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -426,6 +457,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -443,6 +475,7 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(new ShutdownCard());
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -451,6 +484,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -468,6 +502,8 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(new UserCard());
 
+		$chargeModel = $this->createStub(ChargeModel::class);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentModel->method('search')->willReturn([]);
 
@@ -478,6 +514,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -501,6 +538,8 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel->method('read')->willReturn(
 			(new UserCard())->set_user((new User())->set_id(1))
 		);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
 
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
@@ -532,6 +571,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -576,6 +616,8 @@ final class EquipmentServiceTest extends TestCase {
 				->set_user($authorized_user)
 		);
 
+		$chargeModel = $this->createStub(ChargeModel::class);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
@@ -602,6 +644,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -619,11 +662,12 @@ final class EquipmentServiceTest extends TestCase {
 
 	#endregion test activate()
 
-	#region test changeStatus()
+	#region test deactivate()
 
-	public function testChangeStatusThrowsWhenFileIsNotReadable() {
+	public function testDeactivateThrowsWhenNoAuthorizationHeader() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -632,6 +676,461 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
+		$service->deactivate('00112233445566', []);
+	}
+
+	public function testDeactivateThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
+		$activationModel = $this->createStub(ActivationModel::class);
+		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		$service->deactivate('00112233445566', ['HTTP_AUTHORIZATION' => 'let me in']);
+	}
+
+	public function testDeactivateThrowsWhenBearerTokenIsInvalid() {
+		$activationModel = $this->createStub(ActivationModel::class);
+		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		$service->deactivate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer let me in']);
+	}
+
+	public function testDeactivateThrowsWhenCardDoesNotExist() {
+		$activationModel = $this->createStub(ActivationModel::class);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(null);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_DEACTIVATION_NOT_AUTHORIZED);
+		$service->deactivate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
+	}
+
+	public function testDeactivateThrowsWhenCardIsNotUserCard() {
+		$activationModel = $this->createStub(ActivationModel::class);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(new ShutdownCard());
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_DEACTIVATION_NOT_AUTHORIZED);
+		$service->deactivate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
+	}
+
+	public function testDeactivateThrowsWhenEquipmentIsNotFound() {
+		$activationModel = $this->createStub(ActivationModel::class);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(new UserCard());
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->method('search')->willReturn([]);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_DEACTIVATION_NOT_AUTHORIZED);
+		$service->deactivate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
+	}
+
+	public function testDeactivateSuccessWithNoCharge() {
+		$mac = '00112233445566';
+		$equipment_type_id = 12;
+		$card_id = 123456789;
+		$equipment_id = 23;
+		$service_minutes = 123;
+		$duration = 2;
+
+		$authorized_user = (new User())
+			->set_id(1)
+			->set_authorizations([$equipment_type_id]);
+
+		$equipment = (new Equipment())
+			->set_id($equipment_id)
+			->set_service_minutes($service_minutes)
+			->set_type(
+				(new EquipmentType())
+					->set_id($equipment_type_id)
+					->set_charge_policy_id(ChargePolicy::NO_CHARGE)
+			);
+
+		$connection = $this->createStub(PDO::class);
+		$connection->expects($this->once())->method('beginTransaction');
+		$connection->expects($this->once())->method('commit');
+
+		$config = $this->createStub(Config::class);
+		$config->method('writable_db_connection')->willReturn($connection);
+
+		$activationModel = $this->createStub(ActivationModel::class);
+		$activationModel->method('configuration')->willReturn($config);
+		$activationModel->expects($this->once())->method('delete')->with(
+			$this->equalTo($equipment_id )
+		)->willReturn(
+			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'M'))
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(
+			(new UserCard())
+				->set_user($authorized_user)
+		);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('search')->with(
+			$this->callback(
+				fn(EquipmentQuery $query) =>
+					$query->exclude_out_of_service() === true
+					&& $query->mac_address() === $mac
+			)
+		)->willReturn([$equipment]);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn (Equipment $equipment) =>
+					$equipment->service_minutes() === $service_minutes + $duration
+			)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(LoggedEvent $event) =>
+					$event->type_id() === LoggedEventType::DEAUTHENTICATION
+					&& $event->card_id() === $card_id
+					&& $event->equipment_id() === $equipment_id
+			)
+		)
+		->willReturnArgument(0);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::assertSame(
+			$equipment,
+			$service->deactivate($mac, ['HTTP_AUTHORIZATION' => "Bearer $card_id"])
+		);
+	}
+
+	public function testDeactivateSuccessWithChargePerUse() {
+		$mac = '00112233445566';
+		$equipment_type_id = 12;
+		$card_id = 123456789;
+		$equipment_id = 23;
+		$service_minutes = 123;
+		$duration = 1;
+		$rate = '1.75';
+		$user_id = 12;
+
+		$authorized_user = (new User())
+			->set_id($user_id)
+			->set_authorizations([$equipment_type_id]);
+
+		$equipment = (new Equipment())
+			->set_id($equipment_id)
+			->set_service_minutes($service_minutes)
+			->set_type(
+				(new EquipmentType())
+					->set_id($equipment_type_id)
+					->set_charge_policy_id(ChargePolicy::PER_USE)
+					->set_charge_rate($rate)
+			);
+
+		$connection = $this->createStub(PDO::class);
+		$connection->expects($this->once())->method('beginTransaction');
+		$connection->expects($this->once())->method('commit');
+
+		$config = $this->createStub(Config::class);
+		$config->method('writable_db_connection')->willReturn($connection);
+
+		$activationModel = $this->createStub(ActivationModel::class);
+		$activationModel->method('configuration')->willReturn($config);
+		$activationModel->expects($this->once())->method('delete')->with(
+			$this->equalTo($equipment_id )
+		)->willReturn(
+			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'S'))
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(
+			(new UserCard())
+				->set_user($authorized_user)
+		);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$chargeModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn (Charge $charge) =>
+					$charge->equipment_id() === $equipment_id
+					&& $charge->user_id() === $user_id
+					&& $charge->amount() === $rate
+					&& $charge->charge_policy_id() === ChargePolicy::PER_USE
+					&& $charge->charge_rate() === $rate
+					&& $charge->charged_time() === $duration
+			)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('search')->with(
+			$this->callback(
+				fn (EquipmentQuery $query) =>
+					$query->exclude_out_of_service() === true
+					&& $query->mac_address() === $mac
+			)
+		)->willReturn([$equipment]);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn (Equipment $equipment) =>
+					$equipment->service_minutes() === $service_minutes + $duration
+			)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(LoggedEvent $event) =>
+					$event->type_id() === LoggedEventType::DEAUTHENTICATION
+					&& $event->card_id() === $card_id
+					&& $event->equipment_id() === $equipment_id
+			)
+		)
+		->willReturnArgument(0);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::assertSame(
+			$equipment,
+			$service->deactivate($mac, ['HTTP_AUTHORIZATION' => "Bearer $card_id"])
+		);
+	}
+
+	public function testDeactivateSuccessWithChargePerMinute() {
+		$mac = '00112233445566';
+		$equipment_type_id = 12;
+		$card_id = 123456789;
+		$equipment_id = 23;
+		$service_minutes = 123;
+		$duration = 1;
+		$rate = '1.75';
+		$user_id = 12;
+
+		$authorized_user = (new User())
+			->set_id($user_id)
+			->set_authorizations([$equipment_type_id]);
+
+		$equipment = (new Equipment())
+			->set_id($equipment_id)
+			->set_service_minutes($service_minutes)
+			->set_type(
+				(new EquipmentType())
+					->set_id($equipment_type_id)
+					->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+					->set_charge_rate($rate)
+			);
+
+		$connection = $this->createStub(PDO::class);
+		$connection->expects($this->once())->method('beginTransaction');
+		$connection->expects($this->once())->method('commit');
+
+		$config = $this->createStub(Config::class);
+		$config->method('writable_db_connection')->willReturn($connection);
+
+		$activationModel = $this->createStub(ActivationModel::class);
+		$activationModel->method('configuration')->willReturn($config);
+		$activationModel->expects($this->once())->method('delete')->with(
+			$this->equalTo($equipment_id )
+		)->willReturn(
+			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'S'))
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(
+			(new UserCard())
+				->set_user($authorized_user)
+		);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$chargeModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn (Charge $charge) =>
+					$charge->equipment_id() === $equipment_id
+					&& $charge->user_id() === $user_id
+					&& $charge->amount() === $rate
+					&& $charge->charge_policy_id() === ChargePolicy::PER_MINUTE
+					&& $charge->charge_rate() === $rate
+					&& $charge->charged_time() === $duration
+			)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('search')->with(
+			$this->callback(
+				fn (EquipmentQuery $query) =>
+					$query->exclude_out_of_service() === true
+					&& $query->mac_address() === $mac
+			)
+		)->willReturn([$equipment]);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn (Equipment $equipment) =>
+					$equipment->service_minutes() === $service_minutes + $duration
+			)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(LoggedEvent $event) =>
+					$event->type_id() === LoggedEventType::DEAUTHENTICATION
+					&& $event->card_id() === $card_id
+					&& $event->equipment_id() === $equipment_id
+			)
+		)
+		->willReturnArgument(0);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::assertSame(
+			$equipment,
+			$service->deactivate($mac, ['HTTP_AUTHORIZATION' => "Bearer $card_id"])
+		);
+	}
+
+	#endregion deactivate
+
+	#region test changeStatus()
+
+	public function testChangeStatusThrowsWhenFileIsNotReadable() {
+		$activationModel = $this->createStub(ActivationModel::class);
+		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -651,6 +1150,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testChangeStatusThrowsWhenFileDataIsNotARecognizedStatusChange() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -659,6 +1159,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -681,6 +1182,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testShutdownThrowsWhenNoAuthorizationHeader() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -689,6 +1191,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -707,6 +1210,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testShutdownThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -715,6 +1219,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -733,6 +1238,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testShutdownThrowsWhenBearerTokenIsInvalid() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -741,6 +1247,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -762,6 +1269,7 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(null);
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -770,6 +1278,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -791,6 +1300,7 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(new UserCard());
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -799,6 +1309,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -820,6 +1331,7 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(new ShutdownCard());
 
+		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentModel->method('search')->willReturn([]);
 
@@ -830,6 +1342,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -857,6 +1370,8 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$cardModel->method('read')->willReturn(new ShutdownCard());
 
+		$chargeModel = $this->createStub(ChargeModel::class);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
@@ -883,6 +1398,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -903,6 +1419,7 @@ final class EquipmentServiceTest extends TestCase {
 	public function testStartupThrowsWhenEquipmentIsNotFound() {
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
 
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentModel->method('search')->willReturn([]);
@@ -914,6 +1431,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,
@@ -937,6 +1455,8 @@ final class EquipmentServiceTest extends TestCase {
 
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
 
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
@@ -964,6 +1484,7 @@ final class EquipmentServiceTest extends TestCase {
 		$service = new EquipmentService(
 			$activationModel,
 			$cardModel,
+			$chargeModel,
 			$equipmentModel,
 			$equipmentTypeModel,
 			$locationModel,

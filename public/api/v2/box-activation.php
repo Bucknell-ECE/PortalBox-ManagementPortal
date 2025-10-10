@@ -19,10 +19,20 @@ try {
 			$data = $service->activate($_GET['mac'], $_SERVER);
 			$equipment = (new EquipmentTransformer())->serialize($data['equipment']);
 			$user = (new UserTransformer())->serialize($data['user']);
+			header('Content-Type: application/json');
 			echo json_encode([
 				'equipment' => $equipment,
 				'user' => $user
 			]);
+			break;
+		case 'POST': // Deactivate Device
+			if(!isset($_GET['mac']) || empty($_GET['mac'])) {
+				throw new InvalidArgumentException('MAC address is required');
+			}
+
+			$service = $container->get(EquipmentService::class);
+			$equipment = $service->deactivate($_GET['mac'], $_SERVER);
+			ResponseHandler::render($equipment, new EquipmentTransformer());
 			break;
 		default:
 			http_response_code(405);
