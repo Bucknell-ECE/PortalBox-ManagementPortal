@@ -6,6 +6,7 @@ use Portalbox\Config;
 use Portalbox\Model\ActivationModel;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\CardTypeModel;
+use Portalbox\Model\ChargeModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
@@ -65,6 +66,8 @@ class DependencyContainer {
 				return new CardModel($this->get(Config::class));
 			case CardTypeModel::class:
 				return new CardTypeModel($this->get(Config::class));
+			case ChargeModel::class:
+				return new ChargeModel($this->get(Config::class));
 			case EquipmentModel::class:
 				return new EquipmentModel($this->get(Config::class));
 			case EquipmentTypeModel::class:
@@ -86,6 +89,7 @@ class DependencyContainer {
 				return new EquipmentService(
 					$this->get(ActivationModel::class),
 					$this->get(CardModel::class),
+					$this->get(ChargeModel::class),
 					$this->get(EquipmentModel::class),
 					$this->get(EquipmentTypeModel::class),
 					$this->get(LocationModel::class),

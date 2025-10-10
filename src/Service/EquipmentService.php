@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Portalbox\Service;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 use Portalbox\Entity\CardType;
+use Portalbox\Entity\Charge;
+use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\Equipment;
 use Portalbox\Entity\LoggedEvent;
 use Portalbox\Entity\LoggedEventType;
@@ -15,6 +18,7 @@ use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\ActivationModel;
 use Portalbox\Model\CardModel;
+use Portalbox\Model\ChargeModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
@@ -37,6 +41,7 @@ class EquipmentService {
 	public const ERROR_INCOMPLETE_SETUP_NO_LOCATIONS = 'You must first setup a location.';
 
 	public const ERROR_ACTIVATION_NOT_AUTHORIZED = 'You are not authorized to activate the specified portalbox.';
+	public const ERROR_DEACTIVATION_NOT_AUTHORIZED = 'You are not authorized to deactivate the specified portalbox.';
 
 	public const ERROR_INVALID_STATUS_CHANGE_BODY = 'We did not recognize the requested device status change.';
 	public const ERROR_SHUTDOWN_NOT_AUTHORIZED = 'You are not authorized to shutdown portalboxes.';
@@ -46,6 +51,7 @@ class EquipmentService {
 
 	protected ActivationModel $activationModel;
 	protected CardModel $cardModel;
+	protected ChargeModel $chargeModel;
 	protected EquipmentModel $equipmentModel;
 	protected EquipmentTypeModel $equipmentTypeModel;
 	protected LocationModel $locationModel;
@@ -54,6 +60,7 @@ class EquipmentService {
 	public function __construct(
 		ActivationModel $activationModel,
 		CardModel $cardModel,
+		ChargeModel $chargeModel,
 		EquipmentModel $equipmentModel,
 		EquipmentTypeModel $equipmentTypeModel,
 		LocationModel $locationModel,
@@ -61,6 +68,7 @@ class EquipmentService {
 	) {
 		$this->activationModel = $activationModel;
 		$this->cardModel = $cardModel;
+		$this->chargeModel = $chargeModel;
 		$this->equipmentModel = $equipmentModel;
 		$this->equipmentTypeModel = $equipmentTypeModel;
 		$this->locationModel = $locationModel;
@@ -131,19 +139,20 @@ class EquipmentService {
 	}
 
 	/**
-	 * Activate a portal box
+	 * Begin a user session and activate a portal box
 	 *
 	 * @param string $mac  the mac address of the portal box
 	 * @param array $headers  the request headers
 	 * @return array  a dictionary with two keys 'equipment' and 'user'. The
-	 * 		value equipment is the portal box which is to activate while the
-	 * 		value of user is the user that activated the equipment
+	 *      value equipment is the portal box which is to activate while the
+	 *      value of user is the user that activated the equipment
 	 * @throws AuthenticationException  if the request headers do not contain a
 	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
 	 *      when the token is the id of a user card
-	 * @throws AuthorizationException  if the card id does not map to a user
-	 *      card or the user mapped to be the card id does not have permission
-	 *      to activate equipment of the type assigned to the portal box
+	 * @throws AuthorizationException  if no equipment is setup for the specified
+	 *      mac address if the card id does not map to a user card or the user
+	 *      mapped to be the card id does not have permission to activate
+	 *      equipment of the type assigned to the portal box
 	 */
 	public function activate(string $mac, array $headers): array {
 		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
@@ -191,6 +200,7 @@ class EquipmentService {
 			throw new AuthorizationException(self::ERROR_ACTIVATION_NOT_AUTHORIZED);
 		}
 
+		// do we need to check if the equipment is in service?
 		// do we need to check charge policy and account balance?
 
 		$connection = $this->activationModel->configuration()->writable_db_connection();
@@ -215,6 +225,123 @@ class EquipmentService {
 			'equipment' => $equipment,
 			'user' => $card->user()
 		];
+	}
+
+	/**
+	 * End a user session and deactivate a portal box
+	 *
+	 * It may seem strange to require authorization here. The reason we do is to
+	 * mitigate the possibility of a malicious user ending a session independent
+	 * of the portalbox i.e. we don't want a random user firing off deactivation
+	 * requests for every mac address and prematurely ending a user session
+	 *
+	 * @param string $mac  the mac address of the portal box
+	 * @param array $headers  the request headers
+	 * @throws AuthenticationException  if the request headers do not contain a
+	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
+	 *      when the token is the id of a user card
+	 * @throws AuthorizationException  if the card id does not map to a user
+	 *      card
+	 */
+	public function deactivate(string $mac, array $headers): Equipment {
+		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
+			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
+		}
+		$header = $headers['HTTP_AUTHORIZATION'];
+
+		if(strlen($header) < 8 || strcmp('Bearer ', substr($header, 0 , 7)) != 0) {
+			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+		}
+
+		$card_id = filter_var(substr($header, 7), FILTER_VALIDATE_INT);
+		if($card_id === false) {
+			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+		}
+
+		$card = $this->cardModel->read($card_id);
+		if ($card === null || $card->type_id() !== CardType::USER) {
+			throw new AuthorizationException(self::ERROR_DEACTIVATION_NOT_AUTHORIZED);
+		}
+
+		$query = (new EquipmentQuery())
+			->set_exclude_out_of_service(true)
+			->set_mac_address($mac);
+		$equipment = $this->equipmentModel->search($query);
+		if (empty($equipment)) {
+			// in order to avoid leaking system details we throw an authorization
+			// exception here where we would typically throw a not found
+			// exception if we had completed authorization
+			throw new AuthorizationException(self::ERROR_DEACTIVATION_NOT_AUTHORIZED);
+		}
+		$equipment = reset($equipment);
+		$equipment_id = $equipment->id();
+
+		$connection = $this->activationModel->configuration()->writable_db_connection();
+		$connection->beginTransaction();
+
+		try {
+			$now = new DateTimeImmutable();
+			$this->loggedEventModel->create(
+				(new LoggedEvent())
+					->set_type_id(LoggedEventType::DEAUTHENTICATION)
+					->set_card_id($card_id)
+					->set_equipment_id($equipment_id)
+					->set_time($now->format('Y-m-d H:i:s'))
+			);
+
+			$start_time = $this->activationModel->delete($equipment_id);
+
+			// how long was equipment in use?
+			$duration = (int)round(
+				($now->getTimestamp() - $start_time->getTimestamp()) / 60
+			);
+
+			// we set a minimum of 1 min per use
+			if ($duration < 1) {
+				$duration = 1;
+			}
+
+			// update equipment with new usage minutes
+			$this->equipmentModel->update($equipment->set_service_minutes(
+				$equipment->service_minutes() + $duration
+			));
+
+			// charge the user as applicable
+			$type = $equipment->type();
+			switch ($type->charge_policy_id()) {
+				case ChargePolicy::PER_USE:
+					$this->chargeModel->create(
+						(new Charge())
+							->set_equipment_id($equipment_id)
+							->set_user_id($card->user_id())
+							->set_amount($type->charge_rate())
+							->set_time($now->format('Y-m-d H:i:s'))
+							->set_charge_policy_id(ChargePolicy::PER_USE)
+							->set_charge_rate($type->charge_rate())
+							->set_charged_time($duration)
+					);
+					break;
+				case ChargePolicy::PER_MINUTE:
+					$this->chargeModel->create(
+						(new Charge())
+							->set_equipment_id($equipment_id)
+							->set_user_id($card->user_id())
+							->set_amount((string)($type->charge_rate() * $duration))
+							->set_time($now->format('Y-m-d H:i:s'))
+							->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+							->set_charge_rate($type->charge_rate())
+							->set_charged_time($duration)
+					);
+					break;
+			}
+
+			$connection->commit();
+
+			return $equipment;
+		} catch (\Throwable $t) {
+			$connection->rollBack();
+			throw $t;
+		}
 	}
 
 	/**

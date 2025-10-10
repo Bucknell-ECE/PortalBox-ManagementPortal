@@ -1,12 +1,12 @@
 meta {
-  name: Shutdown
+  name: Deactivate
   type: http
-  seq: 8
+  seq: 7
 }
 
 post {
-  url: {{HOST}}/api/v2/box.php?mac={{MAC_ADDRESS}}
-  body: text
+  url: {{HOST}}/api/v2/box-activation.php?mac={{MAC_ADDRESS}}
+  body: none
   auth: bearer
 }
 
@@ -16,10 +16,6 @@ params:query {
 
 auth:bearer {
   token: {{CARD_ID}}
-}
-
-body:text {
-  shutdown
 }
 
 settings {
