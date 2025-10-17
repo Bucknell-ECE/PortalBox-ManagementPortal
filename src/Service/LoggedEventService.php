@@ -57,12 +57,30 @@ class LoggedEventService {
 			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_READ_OF_EQUIPMENT_STATISTICS);
 		}
 
-		return $this->loggedEventModel->count(
+		$now = new DateTimeImmutable();
+		$start = $now->sub(new DateInterval('P30D'))->setTime(0, 0);
+
+		$counts = $this->loggedEventModel->count(
 			(new LoggedEventQuery())
 				->set_on_or_after(
-					(new DateTimeImmutable())->sub(new DateInterval('P30D'))->format('Y-m-d')
+					$start->format('Y-m-d')
 				)
 				->set_equipment_id($equipment_id)
 		);
+
+		$current = $start;
+		$paddedCounts = [];
+		while ($current < $now) {
+			$formatted = $current->format('Y-m-d');
+			if (array_key_exists($formatted, $counts)) {
+				$paddedCounts[$formatted] = $counts[$formatted];
+			} else {
+				$paddedCounts[$formatted] = 0;
+			}
+
+			$current = $current->add(new DateInterval('P1D'));
+		}
+
+		return $paddedCounts;
 	}
 }
