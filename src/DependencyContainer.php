@@ -15,6 +15,7 @@ use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Service\CardTypeService;
 use Portalbox\Service\EquipmentService;
+use Portalbox\Service\LoggedEventService;
 use Portalbox\Service\UserService;
 use Portalbox\Session\Session;
 
@@ -95,6 +96,11 @@ class DependencyContainer {
 					$this->get(LocationModel::class),
 					$this->get(LoggedEventModel::class)
 				);
+			case LoggedEventService::class:
+				return new LoggedEventService(
+					$this->get(Session::class),
+					$this->get(LoggedEventModel::class)
+				);
 			case UserService::class:
 				return new UserService(
 					$this->get(Session::class),
@@ -105,7 +111,7 @@ class DependencyContainer {
 			case Session::class:
 				return new Session();
 			default:
-				throw new Exception('DependencyContainer does not have instructions for building instances of ' . $type);
+				throw new \Exception('DependencyContainer does not have instructions for building instances of ' . $type);
 		}
 	}
 }
