@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-bar-chart-web-component@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/bar-chart-web-component/-/bar-chart-web-component-1.0.0.tgz#ee64c61a05d13ab980c4c04409d1232c0ca1c9aa"
-  integrity sha512-gQGrTH0xv7Xuqxcv7OtpKc+t23uavSOtxH0tJqEgX+MwEHxhf0EcS8K4oVLWUnnxgaCNPdxByDgACuC2o0zmGw==
+bar-chart-web-component@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/bar-chart-web-component/-/bar-chart-web-component-1.1.1.tgz#20c283cd3d67eec846e47965e8b9c50b99470347"
+  integrity sha512-ZQ7+fEnFEd+hHyEpArJGAhGljB684mnwbYR1YirptvvwDlKnmgzX2lxDszprxw07yvl8QAnCSdGLIsentVcg7Q==
 
 file-saver@^2.0.2:
   version "2.0.5"

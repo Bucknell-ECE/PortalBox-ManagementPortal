@@ -110,9 +110,11 @@
 </article>
 {{/editable}}
 <bar-chart dependent-axis-label="Daily Usage" style="min-height:30vh; min-width:80vh">
-{{#usage}}
-	<data-point label="{{date}}" value="{{count}}"></data-point>
-{{/usage}}
+	<data-series color="var(--default-primary-color)">
+	{{#usage}}
+		<data-point label="{{date}}" value="{{count}}"></data-point>
+	{{/usage}}
+	</data-series>
 </bar-chart>
 {{/equipment}}
 {{^equipment}}

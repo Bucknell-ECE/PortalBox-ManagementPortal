@@ -5,7 +5,7 @@
     "author": "T.K.Egan",
     "license": "MIT",
     "dependencies": {
-        "bar-chart-web-component": "^1.0.0",
+        "bar-chart-web-component": "^1.1.0",
         "file-saver": "^2.0.2",
         "hellojs": "^1.18.8",
         "mustache": "^4.2.0"
