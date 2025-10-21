@@ -903,10 +903,10 @@ class Application {
 	 * @param {bool} editable - whether to show controls for editing the equipment.
 	 */
 	read_equipment(id, editable) {
-
 		let p1 = EquipmentType.list();
 		let p2 = Location.list();
 		let p3 = null;
+
 		Equipment.read(id).then(value => {
 			p3 = User.list("equipment_id="+value.type_id);
 

@@ -1,0 +1,24 @@
+meta {
+  name: Equipment Usage Statistics
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{HOST}}/api/v2/equipment-usage.php?id=85
+  body: none
+  auth: inherit
+}
+
+params:query {
+  id: 85
+}
+
+headers {
+  Cookie: PHPSESSID={{SESSION_ID}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

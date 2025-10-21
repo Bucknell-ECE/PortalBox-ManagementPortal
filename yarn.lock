@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+bar-chart-web-component@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/bar-chart-web-component/-/bar-chart-web-component-1.1.1.tgz#20c283cd3d67eec846e47965e8b9c50b99470347"
+  integrity sha512-ZQ7+fEnFEd+hHyEpArJGAhGljB684mnwbYR1YirptvvwDlKnmgzX2lxDszprxw07yvl8QAnCSdGLIsentVcg7Q==
+
 file-saver@^2.0.2:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-2.0.5.tgz#d61cfe2ce059f414d899e9dd6d4107ee25670c38"

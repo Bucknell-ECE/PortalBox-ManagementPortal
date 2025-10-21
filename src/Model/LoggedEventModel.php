@@ -3,6 +3,7 @@
 namespace Portalbox\Model;
 
 use Portalbox\Entity\LoggedEvent;
+use Portalbox\Entity\LoggedEventType;
 use Portalbox\Model\Entity\LoggedEvent as PDOAwareLoggedEvent;
 use Portalbox\Query\LoggedEventQuery;
 use Portalbox\Exception\DatabaseException;
@@ -140,6 +141,7 @@ class LoggedEventModel extends AbstractModel {
 				$parameters[':before'] = $query->on_or_before();
 			}
 		}
+
 		if (!empty($where_clause_fragments)) {
 			$sql .= ' WHERE ';
 			$sql .= implode(' AND ', $where_clause_fragments);
@@ -159,6 +161,78 @@ class LoggedEventModel extends AbstractModel {
 			fn (array $data) => $this->buildLoggedEventFromArray($data),
 			$statement->fetchAll(PDO::FETCH_ASSOC)
 		);
+	}
+
+	/**
+	 * Count logged events by day
+	 *
+	 * @todo allow for different time slice widths e.g. week, month, year
+	 * @param LoggedEventQuery query - the search query to perform
+	 * @throws DatabaseException - when the database can not be queried
+	 * @return LoggedEvent[] - a list of logged events
+	 */
+	public function count(?LoggedEventQuery $query = null): array {
+		$connection = $this->configuration()->readonly_db_connection();
+		$sql = <<<EOQ
+		SELECT
+			COUNT(*) AS count,
+			DATE(time) AS date
+		FROM log AS el
+		INNER JOIN equipment AS e ON el.equipment_id = e.id
+		INNER JOIN equipment_types AS et ON e.type_id = et.id
+		INNER JOIN locations AS l ON e.location_id = l.id
+		WHERE
+		EOQ;
+
+		$where_clause_fragments = ['el.event_type_id = :event_type'];
+		$parameters = [':event_type' => LoggedEventType::SUCCESSFUL_AUTHENTICATION] ;
+
+		if ($query) {
+			if ($query->equipment_id()) {
+				$where_clause_fragments[] = 'el.equipment_id = :equipment_id';
+				$parameters[':equipment_id'] = $query->equipment_id();
+			}
+			if ($query->equipment_type_id()) {
+				$where_clause_fragments[] = 'et.id = :equipment_type_id';
+				$parameters[':equipment_type_id'] = $query->equipment_type_id();
+			}
+			if ($query->location_id()) {
+				$where_clause_fragments[] = 'e.location_id = :location_id';
+				$parameters[':location_id'] = $query->location_id();
+			}
+			if ($query->type_id()) {
+				$where_clause_fragments[] = 'el.event_type_id = :event_type_id';
+				$parameters[':event_type_id'] = $query->type_id();
+			}
+			if ($query->on_or_after()) {
+				$where_clause_fragments[] = 'el.time >= :after';
+				$parameters[':after'] = $query->on_or_after();
+			}
+			if ($query->on_or_before()) {
+				$where_clause_fragments[] = 'el.time <= :before';
+				$parameters[':before'] = $query->on_or_before();
+			}
+		}
+		
+		$sql .= "\n\t";
+		$sql .= implode(' AND ', $where_clause_fragments);
+		$sql .= ' GROUP BY DATE(el.time)';
+
+		$statement = $connection->prepare($sql);
+		foreach ($parameters as $k => $v) {
+			$statement->bindValue($k, $v);
+		}
+
+		if (!$statement->execute()) {
+			throw new DatabaseException($statement->errorInfo()[2]);
+		}
+
+		$counts = [];
+		foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $row) {
+			$counts[$row['date']] = $row['count'];
+		}
+
+		return $counts;
 	}
 
 	private function buildLoggedEventFromArray(array $data): LoggedEvent {
