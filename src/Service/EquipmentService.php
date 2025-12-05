@@ -16,6 +16,7 @@ use Portalbox\Entity\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
+use Portalbox\Exception\OutOfServiceDeviceException;
 use Portalbox\Model\ActivationModel;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\ChargeModel;
@@ -46,6 +47,7 @@ class EquipmentService {
 	public const ERROR_INVALID_STATUS_CHANGE_BODY = 'We did not recognize the requested device status change.';
 	public const ERROR_SHUTDOWN_NOT_AUTHORIZED = 'You are not authorized to shutdown portalboxes.';
 	public const ERROR_EQUIPMENT_NOT_FOUND = 'We have no record of that portalbox.';
+	public const ERROR_EQUIPMENT_OUT_OF_SERVICE = 'Portalbox is marked out of service';
 
 	public const DEFAULT_DEVICE_NAME = 'Unassigned Portalbox';
 
@@ -445,7 +447,6 @@ class EquipmentService {
 	 */
 	private function startup(string $mac): Equipment {
 		$query = (new EquipmentQuery())
-			->set_exclude_out_of_service(true)
 			->set_mac_address($mac);
 		$equipment = $this->equipmentModel->search($query);
 		if (empty($equipment)) {
@@ -455,6 +456,10 @@ class EquipmentService {
 		// get the first item in the list... in theory there should only be one
 		// item in the list, but we can afford to be defensive
 		$equipment = reset($equipment);
+
+		if (!$equipment->is_in_service()) {
+			throw new OutOfServiceDeviceException(self::ERROR_EQUIPMENT_OUT_OF_SERVICE);
+		}
 
 		$this->loggedEventModel->create(
 			(new LoggedEvent())

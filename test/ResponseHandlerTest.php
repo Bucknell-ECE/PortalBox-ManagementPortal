@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
+use Portalbox\Exception\OutOfServiceDeviceException;
 use Portalbox\ResponseHandler;
 
 final class ResponseHandlerTest extends TestCase {
@@ -30,6 +31,8 @@ final class ResponseHandlerTest extends TestCase {
 		yield [new AuthorizationException(), 403];
 
 		yield [new NotFoundException(), 404];
+
+		yield [new OutOfServiceDeviceException(), 409];
 
 		yield [new Exception(), 500];
 
