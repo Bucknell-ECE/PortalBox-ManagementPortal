@@ -36,13 +36,13 @@ try {
 			ResponseHandler::render($user, new UserTransformer());
 			break;
 		case 'POST':	// Update
-			// validate that we have an oid
-			if(!isset($_GET['id']) || empty($_GET['id'])) {
+			$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+			if ($id === false) {
 				throw new InvalidArgumentException('You must specify the user to modify via the id param');
 			}
 
 			$service = $container->get(UserService::class);
-			$user = $service->update(intval($_GET['id']), 'php://input');
+			$user = $service->update($id, 'php://input');
 			ResponseHandler::render($user, new UserTransformer());
 			break;
 		case 'PUT':		// Create
