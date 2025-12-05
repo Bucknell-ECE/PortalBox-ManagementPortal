@@ -1,101 +1,54 @@
 <?php
 
-require '../../src/autoload.php';
+require '../../src/bootstrap.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Entity\Permission;
-use Portalbox\Exception\NotFoundException;
-use Portalbox\Model\APIKeyModel;
-use Portalbox\Query\APIKeyQuery;
-use Portalbox\Session\Session;
+use Portalbox\Service\APIKeyService;
 use Portalbox\Transform\APIKeyTransformer;
-
-$session = new Session();
 
 try {
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-				// check authorization
-				$session->require_authorization(Permission::READ_API_KEY);
-
-				$model = new APIKeyModel(Config::config());
-				$key = $model->read($_GET['id']);
-
-				if(!$key) {
-					throw new NotFoundException('We have no record of that API key');
+				$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+				if ($id === false) {
+					throw new InvalidArgumentException('The API key id must be specified as an integer');
 				}
 
-				$transformer = new APIKeyTransformer();
-				ResponseHandler::render($key, $transformer);
+				$service = $container->get(APIKeyService::class);
+				$key = $service->read($id);
+				ResponseHandler::render($key, new APIKeyTransformer());
 			} else { // List
-				// check authorization
-				$session->require_authorization(Permission::LIST_API_KEYS);
-
-				$model = new APIKeyModel(Config::config());
-				$query = new APIKeyQuery();
-				if(isset($_GET['token']) && !empty($_GET['token'])) {
-					$query->set_token($_GET['token']);
-				}
-				$keys = $model->search($query);
-				$transformer = new APIKeyTransformer();
-				ResponseHandler::render($keys, $transformer);
+				$service = $container->get(APIKeyService::class);
+				$keys = $service->readAll($_GET);
+				ResponseHandler::render($keys, new APIKeyTransformer());
 			}
 			break;
 		case 'POST':	// Update
-			// validate that we have an oid
-			if(!isset($_GET['id']) || empty($_GET['id'])) {
+			$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+			if ($id === false) {
 				throw new InvalidArgumentException('You must specify the API key to modify via the id param');
 			}
 
-			// check authorization
-			$session->require_authorization(Permission::MODIFY_API_KEY);
-
-			$data = json_decode(file_get_contents('php://input'), TRUE);
-			if($data === null) {
-				throw new InvalidArgumentException(json_last_error_msg());
-			}
-
-			$transformer = new APIKeyTransformer();
-			$key = $transformer->deserialize($data);
-			$key->set_id($_GET['id']);
-			$model = new APIKeyModel(Config::config());
-			$key = $model->update($key);
-			ResponseHandler::render($key, $transformer);
+			$service = $container->get(APIKeyService::class);
+			$key = $service->update($id, 'php://input');
+			ResponseHandler::render($key, new APIKeyTransformer());
 			break;
 		case 'PUT':		// Create
-			// check authorization
-			$session->require_authorization(Permission::CREATE_API_KEY);
-
-			$data = json_decode(file_get_contents('php://input'), TRUE);
-			if($data === null) {
-				throw new InvalidArgumentException(json_last_error_msg());
-			}
-
-			$transformer = new APIKeyTransformer();
-			$key = $transformer->deserialize($data);
-			$model = new APIKeyModel(Config::config());
-			$key = $model->create($key);
-			ResponseHandler::render($key, $transformer);
+			$service = $container->get(APIKeyService::class);
+			$key = $service->create('php://input');
+			ResponseHandler::render($key, new APIKeyTransformer());
 			break;
 		case 'DELETE':	// Delete
-			// validate that we have an oid
-			if(!isset($_GET['id']) || empty($_GET['id'])) {
-				throw new InvalidArgumentException('You must specify the api key to delete via the id param');
+			$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+			if ($id === false) {
+				throw new InvalidArgumentException('You must specify the API key to delete via the id param');
 			}
 
-			// check authorization
-			$session->require_authorization(Permission::DELETE_API_KEY);
-
-			$model = new APIKeyModel(Config::config());
-			$key = $model->delete($_GET['id']);
-			if(!$key) {
-				throw new NotFoundException('We have no record of that API key');
-			}
-
-			$transformer = new APIKeyTransformer();
-			ResponseHandler::render($key, $transformer);
+			$service = $container->get(APIKeyService::class);
+			$key = $service->delete($id);
+			ResponseHandler::render($key, new APIKeyTransformer());
 			break;
 		default:
 			http_response_code(405);

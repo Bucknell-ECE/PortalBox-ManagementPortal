@@ -4,6 +4,7 @@ namespace Portalbox;
 
 use Portalbox\Config;
 use Portalbox\Model\ActivationModel;
+use Portalbox\Model\APIKeyModel;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\CardTypeModel;
 use Portalbox\Model\ChargeModel;
@@ -13,6 +14,7 @@ use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
+use Portalbox\Service\APIKeyService;
 use Portalbox\Service\CardTypeService;
 use Portalbox\Service\EquipmentService;
 use Portalbox\Service\LoggedEventService;
@@ -63,6 +65,8 @@ class DependencyContainer {
 				return new Config();
 			case ActivationModel::class:
 				return new ActivationModel($this->get(Config::class));
+			case APIKeyModel::class:
+				return new APIKeyModel($this->get(Config::class));
 			case CardModel::class:
 				return new CardModel($this->get(Config::class));
 			case CardTypeModel::class:
@@ -81,6 +85,11 @@ class DependencyContainer {
 				return new RoleModel($this->get(Config::class));
 			case UserModel::class:
 				return new UserModel($this->get(Config::class));
+			case APIKeyService::class:
+				return new APIKeyService(
+					$this->get(Session::class),
+					$this->get(APIKeyModel::class)
+				);
 			case CardTypeService::class:
 				return new CardTypeService(
 					$this->get(Session::class),
