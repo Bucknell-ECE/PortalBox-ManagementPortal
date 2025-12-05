@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
+use Portalbox\Exception\OutOfServiceDeviceException;
 use Portalbox\Transform\NullOutputTransformer;
 use Portalbox\Transform\OutputTransformer;
 use Throwable;
@@ -61,6 +62,9 @@ class ResponseHandler {
 				break;
 			case NotFoundException::class:
 				http_response_code(404);
+				break;
+			case OutOfServiceDeviceException::class:
+				http_response_code(409);
 				break;
 			default:
 				http_response_code(500);

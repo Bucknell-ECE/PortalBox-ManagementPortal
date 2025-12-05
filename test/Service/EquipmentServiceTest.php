@@ -25,6 +25,7 @@ use Portalbox\Entity\UserCard;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
+use Portalbox\Exception\OutOfServiceDeviceException;
 use Portalbox\Model\ActivationModel;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\ChargeModel;
@@ -1447,11 +1448,53 @@ final class EquipmentServiceTest extends TestCase {
 		);
 	}
 
+	public function testStartupThrowsWhenEquipmentIsOutOfService() {
+		$mac = '00112233445566';
+
+		$equipment = (new Equipment())
+			->set_is_in_service(false);
+
+		$activationModel = $this->createStub(ActivationModel::class);
+		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('search')->with(
+			$this->callback(
+				fn(EquipmentQuery $query) => $query->mac_address() === $mac
+			)
+		)->willReturn([$equipment]);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(OutOfServiceDeviceException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_OUT_OF_SERVICE);
+		$service->changeStatus(
+			realpath(__DIR__ . '/EquipmentServiceTestData/StartupStatusChange.txt'),
+			'00112233445566',
+			[]
+		);
+	}
+
 	public function testStartupSuccess() {
 		$mac = '00112233445566';
 		$equipment_id = 23;
 
-		$equipment = (new Equipment())->set_id($equipment_id);
+		$equipment = (new Equipment())
+			->set_id($equipment_id)
+			->set_is_in_service(true);
 
 		$activationModel = $this->createStub(ActivationModel::class);
 		$cardModel = $this->createStub(CardModel::class);
@@ -1461,9 +1504,7 @@ final class EquipmentServiceTest extends TestCase {
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
-				fn(EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
+				fn(EquipmentQuery $query) => $query->mac_address() === $mac
 			)
 		)->willReturn([$equipment]);
 
