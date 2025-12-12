@@ -12,21 +12,40 @@
 			{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
 		</div>
 	</header>
-	<table>
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Type</th>
-			</tr>
-		</thead>
-		<tbody>
-			{{#equipment}}<tr class="link" onclick="go('/equipment/{{id}}', 'Equipment');">
-				<td>{{name}}</td>
-				<td>{{type}}</td>
-			</tr>{{/equipment}}
-			{{^equipment}}<tr><td colspan="5">No equipment found. <a href="/equipment/add">Add equipment now?</a></td></tr>{{/equipment}}
-		</tbody>
-	</table>
+	<div class="row">
+		<section>
+			<header>
+				<h2>Equipment</h2>
+			</header>
+			<table>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Type</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{#equipment}}<tr class="link" onclick="go('/equipment/{{id}}', 'Equipment');">
+						<td>{{name}}</td>
+						<td>{{type}}</td>
+					</tr>{{/equipment}}
+					{{^equipment}}<tr><td colspan="5">No equipment found. <a href="/equipment/add">Add equipment now?</a></td></tr>{{/equipment}}
+				</tbody>
+			</table>
+		</section>
+		<section>
+			<header>
+				<h2>Usage</h2>
+			</header>
+			<bar-chart dependent-axis-label="Daily Usage" style="min-height:30vh; min-width:50vw">
+				<data-series color="var(--default-primary-color)">
+				{{#usage}}
+					<data-point label="{{date}}" value="{{count}}"></data-point>
+				{{/usage}}
+				</data-series>
+			</bar-chart>
+		</section>
+	</div>
 </article>
 {{#editable}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />

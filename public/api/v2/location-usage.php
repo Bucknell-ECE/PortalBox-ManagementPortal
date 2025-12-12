@@ -9,19 +9,19 @@ use Portalbox\Service\LoggedEventService;
 try {
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':
-			if(isset($_GET['id']) && !empty($_GET['id'])) {
-				$equipment_id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
-				if ($equipment_id === false) {
-					throw new InvalidArgumentException('The equipment must be specified as an integer');
-				}
+			$location_id = null;
 
-				$service = $container->get(LoggedEventService::class);
-				$counts = $service->getUsageStatsForEquipment($equipment_id);
-				header('Content-Type: application/json');
-				echo json_encode($counts);
-			} else {
-				throw new InvalidArgumentException('You must specify the equipment via the id param');
+			if(isset($_GET['id']) && !empty($_GET['id'])) {
+				$location_id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+				if ($location_id === false) {
+					throw new InvalidArgumentException('The location must be specified as an integer');
+				}
 			}
+
+			$service = $container->get(LoggedEventService::class);
+			$counts = $service->getUsageStatsForLocation($location_id);
+			header('Content-Type: application/json');
+			echo json_encode($counts);
 			break;
 		default:
 			http_response_code(405);

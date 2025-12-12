@@ -1,7 +1,7 @@
 <article style="align-items:flex-start">
 	{{#features.manage}}
 	<h1>Manage</h1>
-	<div class="row">
+	<div class="row" style="justify-content:flex-start">
 		{{#cards}}<div class="icon-button">
 			<a href="/cards"><i class="material-icons">nfc</i>Cards</a>
 		</div>{{/cards}}
@@ -21,7 +21,7 @@
 	{{/features.manage}}
 	{{#features.reports}}
 	<h1>Reports</h1>
-	<div class="row">
+	<div class="row" style="justify-content:flex-start">
 		{{#logs}}<div class="icon-button">
 			<a href="/logs"><i class="material-icons">format_list_numbered</i>Access Log</a>
 		</div>{{/logs}}
@@ -29,7 +29,7 @@
 	{{/features.reports}}
 	{{#features.system}}
 	<h1>System</h1>
-	<div class="row">
+	<div class="row" style="justify-content:flex-start">
 		{{#api_keys}}<div class="icon-button">
 			<a href="/api-keys"><i class="material-icons">vpn_key</i>API Keys</a>
 		</div>{{/api_keys}}

@@ -35,17 +35,17 @@ export class Location {
 	 * @throws String if any other error occurs
 	 */
 	static async read(id) {
-		const response = await fetch("/api/locations.php?id=" + id, { "credentials": "same-origin" });
+		let response = await fetch("/api/locations.php?id=" + id, { "credentials": "same-origin" });
 
-		if(response.ok) {
-			return await response.json();
+		if(!response.ok) {
+			if(403 == response.status) {
+				throw new SessionTimeOutError();
+			}
+
+			throw "API was unable to find location: " + id;
 		}
 
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to find location: " + id;
+		return await response.json();
 	}
 
 	/**

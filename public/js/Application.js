@@ -1,6 +1,7 @@
 import { SessionTimeOutError } from './SessionTimeOutError.js';
 import { APIKey } from './APIKey.js';
 import { Card } from './Card.js';
+import { CardType } from './CardType.js';
 import { Charge } from './Charge.js';
 import { ChargePolicy } from './ChargePolicy.js';
 import { Equipment } from './Equipment.js';
@@ -9,8 +10,8 @@ import { Location } from './Location.js';
 import { LoggedEvent } from './LoggedEvent.js';
 import { Payment } from './Payment.js';
 import { Role } from './Role.js';
+import { Usage } from './Usage.js';
 import { User } from './User.js';
-import { CardType } from './CardType.js';
 
 import * as Permission from './Permission.js';
 
@@ -654,12 +655,8 @@ class Application {
 	 */
 	#init_routes_for_unauthenticated_user() {
 		this.flush();
-		this.route("/", _params => {
-			Equipment.list().then(equipment => {
-				this.render("#main", "unauthenticated/availability", {"equipment": equipment}, {}, () => {
-					this.set_icon_colors(document);
-				});
-			}).catch(e => this.handleError(e));
+		this.route("/", () => {
+			this.#get_unauthenticated_content();
 		});
 	}
 
@@ -730,6 +727,26 @@ class Application {
 		}
 
 		return data;
+	}
+
+	#get_unauthenticated_content() {
+		let p0 = Equipment.list();
+		let p1 = Usage.listAllUsage();
+
+		Promise.all([p0, p1]).then(values => {
+			this.render(
+				"#main",
+				"unauthenticated/availability",
+				{
+					"equipment": values[0],
+					"usage": values[1]
+				},
+				{},
+				() => {
+					this.set_icon_colors(document);
+				}
+			);
+		}).catch(e => this.handleError(e));
 	}
 
 	/**
@@ -903,36 +920,46 @@ class Application {
 	 * @param {bool} editable - whether to show controls for editing the equipment.
 	 */
 	read_equipment(id, editable) {
-		let p1 = EquipmentType.list();
-		let p2 = Location.list();
-		let p3 = null;
+		let p0 = EquipmentType.list();
+		let p1 = Location.list();
+		let p3 = Usage.listEquipmentUsage(id);
 
-		Equipment.read(id).then(value => {
-			p3 = User.list("equipment_id="+value.type_id);
+		Equipment.read(id).then(equipment => {
+			let p2 = User.list("equipment_id=" + equipment.type_id);
 
-			Promise.all([p1, p2, p3]).then(values => {
-				let equipment = value;
-				equipment["service_hours"] = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
-				let authorized_users = values[2];
+			Promise.all([p0, p1, p2, p3]).then(values => {
+				equipment.service_hours = Math.floor(equipment["service_minutes"] / 60) + "h " + equipment["service_minutes"] % 60 + "min";
+				equipment.usage = values[3];
 
-				this.render("#main", "authenticated/equipment/view", {
-					"equipment": equipment,
-					"users": authorized_users,
-					"types": values[0],
-					"default_type" : values[0].find(type => type.id == value.type_id).name,
-					"locations": values[1],
-					"default_location" : values[1].find(location => location.id == value.location_id).name,
+				this.render(
+					"#main",
+					"authenticated/equipment/view",
+					{
+						"equipment": equipment,
+						"users": values[2],
+						"types": values[0],
+						"default_type" : values[0].find(type => type.id == equipment.type_id).name,
+						"locations": values[1],
+						"default_location" : values[1].find(location => location.id == equipment.location_id).name,
 
-					"editable":editable}, {}, () => {
+						"editable":editable
+					},
+					{},
+					() => {
+						// Commented out since they were preventing a default value from being shown
+						// document.getElementById("type_id").value = values[0].type_id;
+						// document.getElementById("location_id").value = values[0].location_id;
 
-					// Commented out since they were preventing a default value from being shown
-					// document.getElementById("type_id").value = values[0].type_id;
-					// document.getElementById("location_id").value = values[0].location_id;
+						document.getElementById("edit-equipment-form").addEventListener(
+							"submit",
+							(e) => {
+								this.update_equipment(id, e, equipment);
+							}
+						);
 
-					document.getElementById("edit-equipment-form").addEventListener("submit", (e) => { this.update_equipment(id, e, equipment); });
-
-					this.set_icon_colors(document);
-				});
+						this.set_icon_colors(document);
+					}
+				);
 			})
 		}).catch(e => this.handleError(e));
 	}
@@ -1083,13 +1110,29 @@ class Application {
 	read_location(id, editable) {
 		let p0 = Location.read(id);
 		let p1 = Equipment.list("location_id=" + id);
+		let p2 = Usage.listLocationUsage(id);
 
-		Promise.all([p0,p1]).then(values => {
-			this.render("#main", "authenticated/locations/view", {"location": values[0], "equipment": values[1], "editable": editable}, {}, () => {
-				document
-					.getElementById("edit-location-form")
-					.addEventListener("submit", (e) => { this.update_location(id, e); });
-			});
+		Promise.all([p0, p1, p2]).then(values => {
+			const location = values[0];
+			location.usage = values[2];
+
+			this.render(
+				"#main",
+				"authenticated/locations/view",
+				{
+					"location": location,
+					"equipment": values[1],
+					"editable": editable
+				},
+				{},
+				() => {
+					document
+						.getElementById("edit-location-form")
+						.addEventListener("submit", (e) => {
+							this.update_location(id, e);
+						});
+				}
+			);
 		}).catch(e => this.handleError(e));
 	}
 

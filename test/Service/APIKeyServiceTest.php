@@ -530,7 +530,7 @@ final class APIKeyServiceTest extends TestCase {
 					&& $key->token() !== $token
 			)
 		)
-		->willReturnArgument(null);
+		->willReturn(null);
 
 		$service = new APIKeyService(
 			$session,

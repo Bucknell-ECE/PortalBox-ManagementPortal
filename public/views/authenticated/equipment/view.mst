@@ -7,59 +7,69 @@
 {{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
 <article>
 	<div class="row">
-	<section>
-		<header>
-			<h1>Equipment</h1>
-			<div class="button-group">
-				{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
-			</div>
-		</header>
-		<dl>
-			<dt>Name:</dt>
-			<dd>{{name}}</dd>
-			<dt>MAC Address:</dt>
-			<dd>{{mac_address}}</dd>
-			<dt>Type:</dt>
-			<dd><a href="/equipment-types/{{type_id}}">{{type}}</a></dd>
-			<dt>Location:</dt>
-			<dd>{{location}}</dd>
-			<dt>Time out:</dt>
-			<dd>{{timeout}}</dd>
-			<dt>In Service:</dt>
-			<dd>{{#in_service}}<i class="material-icons">check_circle_outline</i>{{/in_service}}{{^in_service}}<i class="material-icons">highlight_off</i>{{/in_service}}</dd>
-			<dt>Service Time:</dt>
-			<dd>{{service_hours}}</dd>
-			<dt>IP Address:</dt>
-			<dd>{{ip_address}}</dd>
-		</dl>
-	</section>
-	<section>
-		<header>
-			<h1>Authorized Users</h1>
-			<div class="button-group">
-				<button type="button" title="Download as (*.csv)" onclick="app.save('users.php?equipment_id=' + '{{type_id}}')"><i class="material-icons">save_alt</i></button>
-			</div>
-		</header>
-		<table style="min-width:100%">
-			<thead>
-				<tr>
-					<th>User</th><th>Email</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#users}}
+		<section>
+			<header>
+				<h1>Equipment</h1>
+				<div class="button-group">
+					{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
+				</div>
+			</header>
+			<dl>
+				<dt>Name:</dt>
+				<dd>{{name}}</dd>
+				<dt>MAC Address:</dt>
+				<dd>{{mac_address}}</dd>
+				<dt>Type:</dt>
+				<dd><a href="/equipment-types/{{type_id}}">{{type}}</a></dd>
+				<dt>Location:</dt>
+				<dd>{{location}}</dd>
+				<dt>Time out:</dt>
+				<dd>{{timeout}}</dd>
+				<dt>In Service:</dt>
+				<dd>{{#in_service}}<i class="material-icons">check_circle_outline</i>{{/in_service}}{{^in_service}}<i class="material-icons">highlight_off</i>{{/in_service}}</dd>
+				<dt>Service Time:</dt>
+				<dd>{{service_hours}}</dd>
+				<dt>IP Address:</dt>
+				<dd>{{ip_address}}</dd>
+			</dl>
+		</section>
+		<section>
+			<header>
+				<h1>Authorized Users</h1>
+				<div class="button-group">
+					<button type="button" title="Download as (*.csv)" onclick="app.save('users.php?equipment_id=' + '{{type_id}}')"><i class="material-icons">save_alt</i></button>
+				</div>
+			</header>
+			<table style="min-width:100%">
+				<thead>
 					<tr>
-						<td>{{name}}</td>
-						<td>{{email}}</td>
+						<th>User</th><th>Email</th>
 					</tr>
+				</thead>
+				<tbody>
+					{{#users}}
+						<tr>
+							<td>{{name}}</td>
+							<td>{{email}}</td>
+						</tr>
+					{{/users}}
+				</tbody>
+				{{^users}}
+					<tr><td colspan="2">No Authorized Users</td></tr>
 				{{/users}}
-			</tbody>
-			{{^users}}
-				<tr><td colspan="2">No Authorized Users</td></tr>
-			{{/users}}
-		</table>
-	</section>
+			</table>
+		</section>
 	</div>
+	<header>
+		<h1>Usage</h1>
+	</header>
+	<bar-chart dependent-axis-label="Daily Usage" style="min-height:30vh; min-width:50vw">
+		<data-series color="var(--default-primary-color)">
+		{{#usage}}
+			<data-point label="{{date}}" value="{{count}}"></data-point>
+		{{/usage}}
+		</data-series>
+	</bar-chart>
 </article>
 {{#editable}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
@@ -109,13 +119,6 @@
 	</form>
 </article>
 {{/editable}}
-<bar-chart dependent-axis-label="Daily Usage" style="min-height:30vh; min-width:80vh">
-	<data-series color="var(--default-primary-color)">
-	{{#usage}}
-		<data-point label="{{date}}" value="{{count}}"></data-point>
-	{{/usage}}
-	</data-series>
-</bar-chart>
 {{/equipment}}
 {{^equipment}}
 <article>
