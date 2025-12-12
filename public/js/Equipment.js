@@ -45,31 +45,7 @@ export class Equipment {
 			throw "API was unable to find equipment: " + id;
 		}
 
-		const equipment = await response.json();
-
-		response = await  fetch("/api/v2/equipment-usage.php?id=" + id, { "credentials": "same-origin" });
-
-		if(!response.ok) {
-			if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to find equipment: " + id;
-		}
-
-		const usage = await response.json();
-
-		equipment.usage = [];
-		for (let prop in usage){
-			if (usage.hasOwnProperty(prop)){
-				equipment.usage.push({
-					'date': prop,
-					'count': usage[prop]
-				});
-			}
-		}
-
-		return equipment;
+		return await response.json();
 	}
 
 	/**
