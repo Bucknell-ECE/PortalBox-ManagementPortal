@@ -27,10 +27,11 @@ article > header > h1, section > header > h2 {
 
 @media(min-width:1024px) {
 	.row {
-		display:flex; flex-direction:row; justify-content:flex-start;
+		display:flex;
+		flex-direction:row;
+		justify-content:space-between;
+		gap: 2em;
 	}
-	.row > * { margin-right:2em }
-	.row > *.last-child { margin-right:0em }
 }
 
 .circular { border-radius:50%; }
