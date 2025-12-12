@@ -14,28 +14,45 @@ use Portalbox\Exception\NotFoundException;
 use Portalbox\Exception\OutOfServiceDeviceException;
 use Portalbox\ResponseHandler;
 
+/**
+ * Note we can't use a data provider and run the tests in separate processes as
+ * needed to test setting the HTTP response code
+ *
+ * @runTestsInSeparateProcesses
+ */
 final class ResponseHandlerTest extends TestCase {
-	/**
-	 * @dataProvider getExceptions
-	 */
-	public function testSetResponseCode($error, int $responseCode) {
-		ResponseHandler::setResponseCode($error);
-		self::assertSame($responseCode, http_response_code());
+	public function testSetResponseCodeWithInvalidArgumentException() {
+		ResponseHandler::setResponseCode(new InvalidArgumentException());
+		self::assertSame(400, http_response_code());
 	}
 
-	public static function getExceptions(): iterable {
-		yield [new InvalidArgumentException(), 400];
+	public function testSetResponseCodeWithAuthenticationException() {
+		ResponseHandler::setResponseCode(new AuthenticationException());
+		self::assertSame(401, http_response_code());
+	}
 
-		yield [new AuthenticationException(), 401];
+	public function testSetResponseCodeWithAuthorizationException() {
+		ResponseHandler::setResponseCode(new AuthorizationException());
+		self::assertSame(403, http_response_code());
+	}
 
-		yield [new AuthorizationException(), 403];
+	public function testSetResponseCodeWithNotFoundException() {
+		ResponseHandler::setResponseCode(new NotFoundException());
+		self::assertSame(404, http_response_code());
+	}
 
-		yield [new NotFoundException(), 404];
+	public function testSetResponseCodeWithOutOfServiceDeviceException() {
+		ResponseHandler::setResponseCode(new OutOfServiceDeviceException());
+		self::assertSame(409, http_response_code());
+	}
 
-		yield [new OutOfServiceDeviceException(), 409];
+	public function testSetResponseCodeWithException() {
+		ResponseHandler::setResponseCode(new Exception());
+		self::assertSame(500, http_response_code());
+	}
 
-		yield [new Exception(), 500];
-
-		yield [new PDOException(), 500];
+	public function testSetResponseCodeWithPDOException() {
+		ResponseHandler::setResponseCode(new PDOException());
+		self::assertSame(500, http_response_code());
 	}
 }
