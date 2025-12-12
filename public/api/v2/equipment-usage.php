@@ -5,7 +5,6 @@ require '../../../src/bootstrap.php';
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Service\LoggedEventService;
-use Portalbox\Transform\EquipmentTransformer;
 
 try {
 	switch($_SERVER['REQUEST_METHOD']) {
