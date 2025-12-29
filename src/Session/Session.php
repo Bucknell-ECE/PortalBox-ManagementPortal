@@ -12,7 +12,7 @@ use Portalbox\Query\APIKeyQuery;
 /**
  * Session by nature is a weird singleton; it is in a sense part of the request
  * but we don't really want to deal with the low level stuff, what we want is to
- * determine if there is an authenticated user and what there permissions are.
+ * determine if there is an authenticated user and what their permissions are.
  * To solve this, we have created `Session` which hides the low level session
  * management. Simply create an instance of `Session`, and ask it for the
  * authenticated user.

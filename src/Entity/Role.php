@@ -13,6 +13,8 @@ use InvalidArgumentException;
 class Role {
 	use \Portalbox\Trait\HasIdProperty;
 
+	public const ERROR_INVALID_PERMISSION = 'permission must be one of the public constants from Permission';
+
 	/** The name of this role */
 	protected string $name = '';
 
@@ -84,7 +86,7 @@ class Role {
 	public function set_permissions(array $permissions): self {
 		foreach ($permissions as $permission) {
 			if (!Permission::is_valid($permission)) {
-				throw new InvalidArgumentException('permission must be one of the public constants from Permission');
+				throw new InvalidArgumentException(self::ERROR_INVALID_PERMISSION);
 			}
 		}
 

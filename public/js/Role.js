@@ -8,7 +8,7 @@ export class Role {
 	 * Get a list of roles matching a query
 	 *
 	 * @param {String} query - a url query string of search parameters
-	 * @return {Array<Equipment>} a list of equipment that match the query
+	 * @return {Array<Role>} a list of roles that match the query
 	 * @throws {SessionTimeOutError} if the user session has expired
 	 * @throws {String} if any other error occurs
 	 */
