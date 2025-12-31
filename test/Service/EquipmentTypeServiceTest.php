@@ -275,7 +275,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 				)
 		);
 
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
 		$equipmentTypeModel->expects($this->once())->method('create')->willReturnArgument(0);
 
 		$service = new EquipmentTypeService(
@@ -304,7 +304,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 				)
 		);
 
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
 		$equipmentTypeModel->expects($this->once())->method('create')->willReturnArgument(0);
 
 		$service = new EquipmentTypeService(
@@ -768,7 +768,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 				)
 		);
 
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
 		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
 		$equipmentTypeModel->expects($this->once())->method('update')->willReturnArgument(0);
 
@@ -801,7 +801,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 				)
 		);
 
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
 		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
 		$equipmentTypeModel->expects($this->once())->method('update')->willReturnArgument(0);
 

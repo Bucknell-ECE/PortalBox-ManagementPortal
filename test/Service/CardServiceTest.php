@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\Portalbox\Service;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\CardType;
 use Portalbox\Entity\EquipmentType;
@@ -416,7 +417,7 @@ final class CardServiceTest extends TestCase {
 				)
 		);
 
-		$cardModel = $this->createStub(CardModel::class);
+		$cardModel = $this->createMock(CardModel::class);
 		$cardModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn($card) =>
@@ -461,7 +462,7 @@ final class CardServiceTest extends TestCase {
 				)
 		);
 
-		$cardModel = $this->createStub(CardModel::class);
+		$cardModel = $this->createMock(CardModel::class);
 		$cardModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn($card) =>
@@ -505,7 +506,7 @@ final class CardServiceTest extends TestCase {
 				)
 		);
 
-		$cardModel = $this->createStub(CardModel::class);
+		$cardModel = $this->createMock(CardModel::class);
 		$cardModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn($card) =>
@@ -545,7 +546,7 @@ final class CardServiceTest extends TestCase {
 				)
 		);
 
-		$cardModel = $this->createStub(CardModel::class);
+		$cardModel = $this->createMock(CardModel::class);
 		$cardModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn($card) =>
@@ -839,7 +840,7 @@ final class CardServiceTest extends TestCase {
 				)
 		);
 
-		$cardModel = $this->createStub(CardModel::class);
+		$cardModel = $this->createMock(CardModel::class);
 		$cardModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(CardQuery $query) => $query->user_id() === $authenticatedUserId
@@ -863,9 +864,7 @@ final class CardServiceTest extends TestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider getReadAllFilters
-	 */
+	#[DataProvider('getReadAllFilters')]
 	public function testReadAllSuccessForAllCards(
 		$filters,
 		$user_id,
@@ -886,7 +885,7 @@ final class CardServiceTest extends TestCase {
 				)
 		);
 
-		$cardModel = $this->createStub(CardModel::class);
+		$cardModel = $this->createMock(CardModel::class);
 		$cardModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(CardQuery $query) =>

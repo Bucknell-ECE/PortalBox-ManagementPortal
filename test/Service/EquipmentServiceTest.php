@@ -223,7 +223,7 @@ final class EquipmentServiceTest extends TestCase {
 		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel
 			->expects($this->once())
 			->method('search')
@@ -324,7 +324,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		$chargeModel = $this->createStub(ChargeModel::class);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel
 			->expects($this->once())
 			->method('create')
@@ -542,7 +542,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		$chargeModel = $this->createStub(ChargeModel::class);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(EquipmentQuery $query) =>
@@ -558,7 +558,7 @@ final class EquipmentServiceTest extends TestCase {
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
@@ -598,14 +598,14 @@ final class EquipmentServiceTest extends TestCase {
 			->set_id($equipment_id)
 			->set_type_id($equipment_type_id);
 
-		$connection = $this->createStub(PDO::class);
+		$connection = $this->createMock(PDO::class);
 		$connection->expects($this->once())->method('beginTransaction');
 		$connection->expects($this->once())->method('commit');
 
 		$config = $this->createStub(Config::class);
 		$config->method('writable_db_connection')->willReturn($connection);
 
-		$activationModel = $this->createStub(ActivationModel::class);
+		$activationModel = $this->createMock(ActivationModel::class);
 		$activationModel->method('configuration')->willReturn($config);
 		$activationModel->expects($this->once())->method('create')->with(
 			$this->equalTo($equipment_id )
@@ -619,7 +619,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		$chargeModel = $this->createStub(ChargeModel::class);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(EquipmentQuery $query) =>
@@ -631,7 +631,7 @@ final class EquipmentServiceTest extends TestCase {
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
@@ -841,14 +841,14 @@ final class EquipmentServiceTest extends TestCase {
 					->set_charge_policy_id(ChargePolicy::NO_CHARGE)
 			);
 
-		$connection = $this->createStub(PDO::class);
+		$connection = $this->createMock(PDO::class);
 		$connection->expects($this->once())->method('beginTransaction');
 		$connection->expects($this->once())->method('commit');
 
 		$config = $this->createStub(Config::class);
 		$config->method('writable_db_connection')->willReturn($connection);
 
-		$activationModel = $this->createStub(ActivationModel::class);
+		$activationModel = $this->createMock(ActivationModel::class);
 		$activationModel->method('configuration')->willReturn($config);
 		$activationModel->expects($this->once())->method('delete')->with(
 			$this->equalTo($equipment_id )
@@ -864,7 +864,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		$chargeModel = $this->createStub(ChargeModel::class);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(EquipmentQuery $query) =>
@@ -882,7 +882,7 @@ final class EquipmentServiceTest extends TestCase {
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
@@ -933,14 +933,14 @@ final class EquipmentServiceTest extends TestCase {
 					->set_charge_rate($rate)
 			);
 
-		$connection = $this->createStub(PDO::class);
+		$connection = $this->createMock(PDO::class);
 		$connection->expects($this->once())->method('beginTransaction');
 		$connection->expects($this->once())->method('commit');
 
 		$config = $this->createStub(Config::class);
 		$config->method('writable_db_connection')->willReturn($connection);
 
-		$activationModel = $this->createStub(ActivationModel::class);
+		$activationModel = $this->createMock(ActivationModel::class);
 		$activationModel->method('configuration')->willReturn($config);
 		$activationModel->expects($this->once())->method('delete')->with(
 			$this->equalTo($equipment_id )
@@ -954,7 +954,7 @@ final class EquipmentServiceTest extends TestCase {
 				->set_user($authorized_user)
 		);
 
-		$chargeModel = $this->createStub(ChargeModel::class);
+		$chargeModel = $this->createMock(ChargeModel::class);
 		$chargeModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn (Charge $charge) =>
@@ -967,7 +967,7 @@ final class EquipmentServiceTest extends TestCase {
 			)
 		);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn (EquipmentQuery $query) =>
@@ -985,7 +985,7 @@ final class EquipmentServiceTest extends TestCase {
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
@@ -1036,14 +1036,14 @@ final class EquipmentServiceTest extends TestCase {
 					->set_charge_rate($rate)
 			);
 
-		$connection = $this->createStub(PDO::class);
+		$connection = $this->createMock(PDO::class);
 		$connection->expects($this->once())->method('beginTransaction');
 		$connection->expects($this->once())->method('commit');
 
 		$config = $this->createStub(Config::class);
 		$config->method('writable_db_connection')->willReturn($connection);
 
-		$activationModel = $this->createStub(ActivationModel::class);
+		$activationModel = $this->createMock(ActivationModel::class);
 		$activationModel->method('configuration')->willReturn($config);
 		$activationModel->expects($this->once())->method('delete')->with(
 			$this->equalTo($equipment_id )
@@ -1057,7 +1057,7 @@ final class EquipmentServiceTest extends TestCase {
 				->set_user($authorized_user)
 		);
 
-		$chargeModel = $this->createStub(ChargeModel::class);
+		$chargeModel = $this->createMock(ChargeModel::class);
 		$chargeModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn (Charge $charge) =>
@@ -1070,7 +1070,7 @@ final class EquipmentServiceTest extends TestCase {
 			)
 		);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn (EquipmentQuery $query) =>
@@ -1088,7 +1088,7 @@ final class EquipmentServiceTest extends TestCase {
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
@@ -1373,7 +1373,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		$chargeModel = $this->createStub(ChargeModel::class);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(EquipmentQuery $query) =>
@@ -1385,7 +1385,7 @@ final class EquipmentServiceTest extends TestCase {
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
@@ -1458,7 +1458,7 @@ final class EquipmentServiceTest extends TestCase {
 		$cardModel = $this->createStub(CardModel::class);
 		$chargeModel = $this->createStub(ChargeModel::class);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(EquipmentQuery $query) => $query->mac_address() === $mac
@@ -1501,7 +1501,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		$chargeModel = $this->createStub(ChargeModel::class);
 
-		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(EquipmentQuery $query) => $query->mac_address() === $mac
@@ -1511,7 +1511,7 @@ final class EquipmentServiceTest extends TestCase {
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>

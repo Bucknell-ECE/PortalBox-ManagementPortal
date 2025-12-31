@@ -283,7 +283,7 @@ final class RoleServiceTest extends TestCase {
 				)
 		);
 
-		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel = $this->createMock(RoleModel::class);
 		$roleModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(Role $role) =>
@@ -450,7 +450,7 @@ final class RoleServiceTest extends TestCase {
 				)
 		);
 
-		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel = $this->createMock(RoleModel::class);
 		$roleModel->expects($this->once())->method('search')->willReturn($roles);
 
 		$service = new RoleService(
@@ -730,7 +730,7 @@ final class RoleServiceTest extends TestCase {
 				)
 		);
 
-		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel = $this->createMock(RoleModel::class);
 		$roleModel->expects($this->once())->method('update')->with(
 			$this->callback(
 				fn(Role $role) =>
@@ -775,7 +775,7 @@ final class RoleServiceTest extends TestCase {
 				)
 		);
 
-		$roleModel = $this->createStub(RoleModel::class);
+		$roleModel = $this->createMock(RoleModel::class);
 		$roleModel->expects($this->once())->method('update')->with(
 			$this->callback(
 				fn(Role $role) =>
