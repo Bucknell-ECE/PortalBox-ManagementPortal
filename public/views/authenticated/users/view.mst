@@ -58,7 +58,7 @@
 					<tr><th>Date</th><th>Equipment</th><th>Amount</th><th>Balance</th></tr>
 				</thead>
 				<tbody class="collapsible-content">
-					{{#ledger}}{{#equipment_id}}<tr class="debit link" onclick="go('/charges/{{id}}', {{name}});">{{/equipment_id}}{{^equipment_id}}<tr onclick="go('/payments/{{id}}', {{name}});">{{/equipment_id}}
+					{{#ledger}}<tr{{#equipment_id}} class="debit"{{/equipment_id}}>
 						<td>{{time}}</td>
 						<td>{{^equipment_id}}- Credit -{{/equipment_id}}{{#equipment}}{{.}}{{/equipment}}{{#charge_policy}} ({{.}}){{/charge_policy}}</td>
 						<td>{{amount}}</td>
