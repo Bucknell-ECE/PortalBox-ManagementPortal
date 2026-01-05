@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\Portalbox\Service;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Permission;
@@ -346,7 +347,7 @@ final class UserServiceTest extends TestCase {
 		$roleModel = $this->createStub(RoleModel::class);
 		$roleModel->method('read')->willReturn($role);
 
-		$userModel = $this->createStub(UserModel::class);
+		$userModel = $this->createMock(UserModel::class);
 		$userModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(User $user) =>
@@ -398,7 +399,7 @@ final class UserServiceTest extends TestCase {
 		$roleModel = $this->createStub(RoleModel::class);
 		$roleModel->method('read')->willReturn($role);
 
-		$userModel = $this->createStub(UserModel::class);
+		$userModel = $this->createMock(UserModel::class);
 		$userModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(User $user) =>
@@ -982,9 +983,7 @@ final class UserServiceTest extends TestCase {
 		$service->readAll(['equipment_id' => 'meh']);
 	}
 
-	/**
-	 * @dataProvider getReadAllFilters
-	 */
+	#[DataProvider('getReadAllFilters')]
 	public function testReadAllSuccess(
 		$filters,
 		$inactive,
@@ -1010,7 +1009,7 @@ final class UserServiceTest extends TestCase {
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
-		$userModel = $this->createStub(UserModel::class);
+		$userModel = $this->createMock(UserModel::class);
 		$userModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(UserQuery $query) =>
@@ -1460,7 +1459,7 @@ final class UserServiceTest extends TestCase {
 		$roleModel = $this->createStub(RoleModel::class);
 		$roleModel->method('read')->willReturn($role);
 
-		$userModel = $this->createStub(UserModel::class);
+		$userModel = $this->createMock(UserModel::class);
 		$userModel->expects($this->once())->method('update')->with(
 			$this->callback(
 				fn(User $user) =>
@@ -1515,7 +1514,7 @@ final class UserServiceTest extends TestCase {
 		$roleModel = $this->createStub(RoleModel::class);
 		$roleModel->method('read')->willReturn($role);
 
-		$userModel = $this->createStub(UserModel::class);
+		$userModel = $this->createMock(UserModel::class);
 		$userModel->expects($this->once())->method('update')->with(
 			$this->callback(
 				fn(User $user) =>
@@ -1807,7 +1806,7 @@ final class UserServiceTest extends TestCase {
 
 		$roleModel = $this->createStub(RoleModel::class);
 
-		$userModel = $this->createStub(UserModel::class);
+		$userModel = $this->createMock(UserModel::class);
 		$userModel->method('read')->willReturn(new User());
 		$userModel->expects($this->once())->method('update')->with(
 			$this->callback(
@@ -1928,7 +1927,7 @@ final class UserServiceTest extends TestCase {
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$roleModel = $this->createStub(RoleModel::class);
 
-		$userModel = $this->createStub(UserModel::class);
+		$userModel = $this->createMock(UserModel::class);
 		$userModel->method('read')->willReturn(
 			(new User())->set_id($authenticatedUserId)
 		);

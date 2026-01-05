@@ -73,7 +73,7 @@ final class CardTypeServiceTest extends TestCase {
 				)
 		);
 
-		$cardTypeModel = $this->createStub(CardTypeModel::class);
+		$cardTypeModel = $this->createMock(CardTypeModel::class);
 		$cardTypeModel->expects($this->once())->method('search')->willReturn($cardTypes);
 
 		$service = new CardTypeService(

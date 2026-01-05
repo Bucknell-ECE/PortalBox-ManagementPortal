@@ -7,6 +7,7 @@ namespace Test\Portalbox;
 use Exception;
 use InvalidArgumentException;
 use PDOException;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -17,9 +18,8 @@ use Portalbox\ResponseHandler;
 /**
  * Note we can't use a data provider and run the tests in separate processes as
  * needed to test setting the HTTP response code
- *
- * @runTestsInSeparateProcesses
  */
+#[RunTestsInSeparateProcesses]
 final class ResponseHandlerTest extends TestCase {
 	public function testSetResponseCodeWithInvalidArgumentException() {
 		ResponseHandler::setResponseCode(new InvalidArgumentException());

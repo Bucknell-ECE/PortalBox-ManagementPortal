@@ -163,7 +163,7 @@ final class APIKeyServiceTest extends TestCase {
 				)
 		);
 
-		$apiKeyModel = $this->createStub(APIKeyModel::class);
+		$apiKeyModel = $this->createMock(APIKeyModel::class);
 		$apiKeyModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(APIKey $key) =>
@@ -327,7 +327,7 @@ final class APIKeyServiceTest extends TestCase {
 				)
 		);
 
-		$apiKeyModel = $this->createStub(APIKeyModel::class);
+		$apiKeyModel = $this->createMock(APIKeyModel::class);
 		$apiKeyModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(APIKeyQuery $query) => $query->token() === null
@@ -359,7 +359,7 @@ final class APIKeyServiceTest extends TestCase {
 				)
 		);
 
-		$apiKeyModel = $this->createStub(APIKeyModel::class);
+		$apiKeyModel = $this->createMock(APIKeyModel::class);
 		$apiKeyModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(APIKeyQuery $query) => $query->token() === $token
@@ -521,7 +521,7 @@ final class APIKeyServiceTest extends TestCase {
 				)
 		);
 
-		$apiKeyModel = $this->createStub(APIKeyModel::class);
+		$apiKeyModel = $this->createMock(APIKeyModel::class);
 		$apiKeyModel->expects($this->once())->method('update')->with(
 			$this->callback(
 				fn(APIKey $key) =>
@@ -558,7 +558,7 @@ final class APIKeyServiceTest extends TestCase {
 				)
 		);
 
-		$apiKeyModel = $this->createStub(APIKeyModel::class);
+		$apiKeyModel = $this->createMock(APIKeyModel::class);
 		$apiKeyModel->expects($this->once())->method('update')->with(
 			$this->callback(
 				fn(APIKey $key) =>
