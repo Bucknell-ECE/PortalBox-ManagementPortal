@@ -2,7 +2,6 @@
 
 require '../../src/bootstrap.php';
 
-use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Service\APIKeyService;
 use Portalbox\Transform\APIKeyTransformer;

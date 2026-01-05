@@ -18,6 +18,7 @@ use Portalbox\Service\APIKeyService;
 use Portalbox\Service\CardTypeService;
 use Portalbox\Service\EquipmentService;
 use Portalbox\Service\LoggedEventService;
+use Portalbox\Service\RoleService;
 use Portalbox\Service\UserService;
 use Portalbox\Session\Session;
 
@@ -109,6 +110,11 @@ class DependencyContainer {
 				return new LoggedEventService(
 					$this->get(Session::class),
 					$this->get(LoggedEventModel::class)
+				);
+			case RoleService::class:
+				return new RoleService(
+					$this->get(Session::class),
+					$this->get(RoleModel::class)
 				);
 			case UserService::class:
 				return new UserService(

@@ -100,7 +100,7 @@ class RoleModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Role|null - the role or null if the role could not be saved
 	 */
-	public function update(Role $role): Role {
+	public function update(Role $role): ?Role {
 		$role_id = $role->id();
 		$old_permissions = $this->read($role_id)->permissions();
 
@@ -200,16 +200,20 @@ class RoleModel extends AbstractModel {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, name, is_system_role, description FROM roles';
 		$statement = $connection->prepare($sql);
-		if ($statement->execute()) {
-			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
-				return $this->buildRolesFromArrays($data);
-			} else {
-				return null;
-			}
-		} else {
-			throw new DatabaseException($statement->errorInfo()[2]);
+
+		if (!$statement->execute()) {
+			throw new DatabaseException($connection->errorInfo()[2]);
 		}
+
+		$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+		if ($data === false) {
+			return [];
+		}
+
+		return array_map(
+			fn (array $record) => $this->buildRoleFromArray($record),
+			$data
+		);
 	}
 
 	private function buildRoleFromArray(array $data): Role {
@@ -218,15 +222,5 @@ class RoleModel extends AbstractModel {
 					->set_name($data['name'])
 					->set_is_system_role($data['is_system_role'])
 					->set_description($data['description']);
-	}
-
-	private function buildRolesFromArrays(array $data): array {
-		$roles = [];
-
-		foreach ($data as $datum) {
-			$roles[] = $this->buildRoleFromArray($datum);
-		}
-
-		return $roles;
 	}
 }
