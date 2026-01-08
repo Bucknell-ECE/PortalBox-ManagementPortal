@@ -7,19 +7,22 @@
 		<h1>Equipment</h1>
 		{{#create_equipment_permission}}
 		<div class="button-group">
+			<label for="search-form-toggle" title="Search"><i class="material-icons">search</i></label>
 			<a href="/equipment/add" class="default">Add</a>
 		</div>
 		{{/create_equipment_permission}}
 	</header>
+	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
 	<form>
 		<label for="include_out_of_service">Include &quot;Out of Service&quot;:</label>
 		<input
-			onchange="app.list_equipment(this.form);"
+			onchange="app.search_equipment(this.form);"
 			type="checkbox"
 			name="include_out_of_service"
 			id="include_out_of_service"
-			{{#search.include_out_of_service}}checked{{/search.include_out_of_service}} />
+			{{#include_out_of_service}}checked{{/include_out_of_service}} />
 	</form>
+	{{/search}}
 	<table>
 		<thead>
 			<tr>

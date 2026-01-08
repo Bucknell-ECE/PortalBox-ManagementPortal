@@ -11,7 +11,7 @@
 		</div>
 	</header>
 	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
-	<form class="advanced_search" onsubmit="return false;">
+	<form onsubmit="return false;">
 		<label for="after">After:</label>
 		<input type="date" name="after" id="after"{{#after}} value="{{.}}"{{/after}} onchange="app.search_log(this.form)" />
 		<label for="before">Before:</label>

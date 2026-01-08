@@ -81,8 +81,8 @@ td.center { text-align:center; }
 .checkbox-hack:checked + article { display:block; }
 
 /* toggle view search form */
-.checkbox-hack + form.advanced_search { display:none; }
-.checkbox-hack:checked + form.advanced_search { display:grid; }
+.checkbox-hack + form { display:none; }
+.checkbox-hack:checked + form { display:grid; }
 
 /* menu revealed by clicking user image */
 #menu hr { border: 0; border-bottom:1px dashed var(--text-primary-color); }

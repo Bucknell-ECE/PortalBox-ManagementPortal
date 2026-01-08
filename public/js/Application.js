@@ -359,9 +359,7 @@ class Application {
 			if(!home_icons.manage_icons) { home_icons.manage_icons = manage_icons }
 			home_icons.manage_icons.cards = true;
 			this.route("/cards", _ => {
-				Card.list().then(cards => {
-					this.render("#main", "authenticated/cards/list", {"cards": cards, "search": {}});
-				}).catch(e => this.handleError(e));
+				this.list_cards();
 			});
 		}
 
@@ -394,21 +392,7 @@ class Application {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.equipment = true;
 			this.route("/equipment", _ => {
-				Equipment.list().then(equipment => {
-					this.render(
-						"#main",
-						"authenticated/equipment/list",
-						{
-							"equipment": equipment,
-							"search": {},
-							"create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)
-						},
-						{},
-						() => {
-							this.set_icon_colors(document);
-						}
-					);
-				}).catch(e => this.handleError(e));
+				this.list_equipment();
 			});
 		}
 
@@ -555,7 +539,7 @@ class Application {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.users = true;
 			this.route("/users", _ => {
-				this.list_users({search: {}});
+				this.list_users();
 			});
 		}
 
@@ -838,6 +822,25 @@ class Application {
 		}).catch(e => this.handleError(e));
 	}
 
+	list_cards(search = {}) {
+		let queryString = "";
+		if(0 < Object.keys(search).length) {
+			queryString = (new URLSearchParams(search)).toString();
+			search.customized = true;
+		}
+
+		Card.list(queryString).then(cards => {
+			this.render(
+				'#main',
+				"authenticated/cards/list",
+				{
+					"cards": cards,
+					"search": search
+				}
+			);
+		}).catch(e => this.handleError(e));
+	}
+
 	search_cards(search_form) {
 		let search = {};
 		let searchParams = this.get_form_data(search_form);
@@ -852,11 +855,7 @@ class Application {
 			}
 		}
 
-		let queryString = (new URLSearchParams(search)).toString();
-
-		Card.list(queryString).then(cards => {
-			this.render('#main', "authenticated/cards/list", {"cards": cards, "search": search});
-		}).catch(e => this.handleError(e));
+		this.list_cards(search);
 	}
 
 	/**
@@ -992,21 +991,17 @@ class Application {
 		});
 	}
 
-	list_equipment(search_form) {
-		let search = {};
-		let searchParams = this.get_form_data(search_form);
-		let keys = Object.getOwnPropertyNames(searchParams);
-
-		for(let k of keys) {
-			if(
-				searchParams[k].length > 0
-				|| (typeof(searchParams[k]) === "boolean" && searchParams[k])
-			) {
-				search[k] = searchParams[k];
-			}
+	/**
+	 * Render an optionally filtered list of equipment
+	 *
+	 * @param {object}  the search used to filter equipment defaults to no filtering
+	 */
+	list_equipment(search = {}) {
+		let queryString = "";
+		if(0 < Object.keys(search).length) {
+			queryString = (new URLSearchParams(search)).toString();
+			search.customized = true;
 		}
-
-		let queryString = (new URLSearchParams(search)).toString();
 
 		Equipment.list(queryString).then(equipment => {
 			this.render(
@@ -1023,6 +1018,19 @@ class Application {
 				}
 			);
 		}).catch(e => this.handleError(e));
+	}
+
+	search_equipment(search_form) {
+		let search = {};
+		let searchParams = this.get_form_data(search_form);
+		let keys = Object.getOwnPropertyNames(searchParams);
+		for(let k of keys) {
+			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]))) {
+				search[k] = searchParams[k];
+			}
+		}
+
+		this.list_equipment(search);
 	}
 
 	/**
@@ -1247,9 +1255,7 @@ class Application {
 			}
 		}
 
-		if(0 < Object.keys(search).length) {
-			this.list_log(search);
-		}
+		this.list_log(search);
 	}
 
 	/**
@@ -1302,20 +1308,6 @@ class Application {
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
-
-	/**
-	 * Callback that handles deleting a role from the backend. Bound to the
-	 * delete button in the View API Key view [views/admin/roles/view.mst]
-	 *
-	 * @param {string} id - the numeric id as a string of the key to delete
-	 */
-	// _delete_role(id) {
-	// 	if(window.confirm("Are you sure you want to delete the Role")) {
-	// 		Role.delete(id).then(_ => {
-	// 			this.navigate("/roles")
-	// 		}).catch(e => this.handleError(e));
-	// 	}
-	// }
 
 	/**
 	 * Helper method to view a role.
@@ -1542,11 +1534,14 @@ class Application {
 
 	/**
 	 * Render an optionally filtered list of users
+	 *
+	 * @param {object}  the search used to filter users defaults to no filtering
 	 */
-	list_users(search) {
+	list_users(search = {}) {
 		let queryString = "";
-		if(search !== null) {
+		if(0 < Object.keys(search).length) {
 			queryString = (new URLSearchParams(search)).toString();
+			search.customized = true;
 		}
 
 		let p0 = User.list(queryString);
@@ -1556,17 +1551,16 @@ class Application {
 			let users = values[0];
 			let roles = values[1];
 
-			if((search !== null) && 0 < Object.keys(search).length) {
-				search.customized = true;
-			}
 			this.render("#main", "authenticated/users/list", {
 				"users": users,
 				"search": search,
 				"roles": roles,
 				"create_user_permission": this.user.has_permission(Permission.CREATE_USER)
 			}, {}, () => {
-				let element = document.getElementById("role_id");
-				this.set_dropdown_selector(element, search.role_id);
+				if (Object.hasOwn(search, "role_id")) {
+					let element = document.getElementById("role_id");
+					this.set_dropdown_selector(element, search.role_id);
+				}
 				this.set_icon_colors(document);
 			});
 		}).catch(e => this.handleError(e));
@@ -1583,9 +1577,7 @@ class Application {
 			}
 		}
 
-		if(0 < Object.keys(search).length) {
-			this.list_users(search);
-		}
+		this.list_users(search);
 	}
 
 	sort_users(sort_column) {

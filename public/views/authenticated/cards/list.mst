@@ -6,13 +6,16 @@
 	<header>
 		<h1>Cards</h1>
 		<div class="button-group">
+			<label for="search-form-toggle" title="Search"><i class="material-icons">search</i></label>
 			<a href="/cards/add" class="default">Add</a>
 		</div>
 	</header>
-	<form class="advanced_search" onsubmit="return false;">
-		<label for="card">Search:</label>
-		<input name="card" id="card" onchange="app.search_cards(this.form);" value="{{search.card}}" autocomplete="off" />
+	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
+	<form onsubmit="return false;">
+		<label for="card">Card ID:</label>
+		<input name="card" id="card" onchange="app.search_cards(this.form);" value="{{card}}" autocomplete="off" />
 	</form>
+	{{/search}}
 	<table>
 		<thead>
 			<tr>
