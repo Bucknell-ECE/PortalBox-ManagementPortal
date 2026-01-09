@@ -7,13 +7,14 @@
 		<h1>Users</h1>
 		{{#create_user_permission}}
 		<div class="button-group">
+			<label for="search-form-toggle" title="Search"><i class="material-icons">search</i></label>
 			<a href="/users/import">Import</a>
 			<a href="/users/add" class="default">Add</a>
 		</div>
 		{{/create_user_permission}}
 	</header>
-	{{#search}}
-	<form class="advanced_search" id="user_search_form" onsubmit="return false;">
+	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
+	<form id="user_search_form" onsubmit="return false;">
 		{{#sort}}<input type="hidden" name="sort" value="{{.}}" />{{/sort}}
 		<label for="name">Search for Name:</label>
 		<input name="name" id="name" onchange="app.search_users(this.form)" value="{{name}}" autocomplete="off" />

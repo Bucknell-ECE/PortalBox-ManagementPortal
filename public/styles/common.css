@@ -47,15 +47,13 @@ article > header > h1, section > header > h2 {
 .crumbs li:last-of-type::after { display:none }
 
 /* tables */
-@media(max-width:500px) {
-	table { 
-		border-spacing:0; 
-		border-collapse:collapse; 
-		font-size: 3vw; 
+table { border-spacing:0; border-collapse:collapse; }
+@media(max-width:600px) {
+	table {
+		font-size:small;
 	}
-}
-@media(min-width:501px) {
-	table { border-spacing:0; border-collapse:collapse; }
+
+	table .collapsible { display:none }
 }
 
 th, td { margin:0; padding:0.2em 0.4em; }
@@ -83,8 +81,8 @@ td.center { text-align:center; }
 .checkbox-hack:checked + article { display:block; }
 
 /* toggle view search form */
-.checkbox-hack + form.advanced_search { display:none; }
-.checkbox-hack:checked + form.advanced_search { display:grid; }
+.checkbox-hack + form { display:none; }
+.checkbox-hack:checked + form { display:grid; }
 
 /* menu revealed by clicking user image */
 #menu hr { border: 0; border-bottom:1px dashed var(--text-primary-color); }

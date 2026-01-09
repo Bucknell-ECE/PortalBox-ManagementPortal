@@ -51,7 +51,7 @@
 				{{/create_payment_permission}}
 			</header>
 			<div class="button-group">
-			<button type="button" id="transaction-button" class="" >Hide Transactions</button>
+				<button type="button" id="transaction-button">Hide Transactions</button>
 			</div>
 			<table style="min-width:100%" id="transaction-table">
 				<thead class="collapsible-content">

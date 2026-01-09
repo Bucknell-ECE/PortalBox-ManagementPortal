@@ -11,7 +11,7 @@
 		</div>
 	</header>
 	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
-	<form class="advanced_search" onsubmit="return false;">
+	<form onsubmit="return false;">
 		<label for="after">After:</label>
 		<input type="date" name="after" id="after"{{#after}} value="{{.}}"{{/after}} onchange="app.search_log(this.form)" />
 		<label for="before">Before:</label>
@@ -38,8 +38,8 @@
 				<th>Time</th>
 				<th>Event</th>
 				<th>Equipment Name</th>
-				<th>Equipment Type</th>
-				<th>Card</th>
+				<th class="collapsible">Equipment Type</th>
+				<th class="collapsible">Card</th>
 				<th>User</th>
 				<th>Location</th>
 			</tr>
@@ -49,8 +49,8 @@
 				<td>{{time}}</td>
 				<td>{{type}}</td>
 				<td>{{equipment_name}}</td>
-				<td>{{equipment_type}}</td>
-				<td>{{card}}</td>
+				<td class="collapsible">{{equipment_type}}</td>
+				<td class="collapsible">{{card}}</td>
 				<td>{{#user}}{{.}}{{/user}}{{^user}}&nbsp;{{/user}}</td>
 				<td>{{location}}</td>
 			</tr>{{/log_messages}}
@@ -58,4 +58,3 @@
 		</tbody>
 	</table>
 </article>
-	
