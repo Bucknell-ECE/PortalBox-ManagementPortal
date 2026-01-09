@@ -23,6 +23,21 @@ class Permission {
 	/** Users with this permission can list API keys */
 	public const LIST_API_KEYS = 5;
 
+	/** Users with this permission can create badge rules */
+	public const CREATE_BADGE_RULE = 51;
+
+	/** Users with this permission can read badge rules */
+	public const READ_BADGE_RULE = 52;
+
+	/** Users with this permission can modify badge rules */
+	public const MODIFY_BADGE_RULE = 53;
+
+	/** Users with this permission can delete badge rules*/
+	public const DELETE_BADGE_RULE = 54;
+
+	/** Users with this permission can list badge rules */
+	public const LIST_BADGE_RULES = 55;
+
 	/** Users with this permission can create equipment authorizations */
 	public const CREATE_EQUIPMENT_AUTHORIZATION = 101;
 
@@ -308,6 +323,11 @@ class Permission {
 			self::MODIFY_API_KEY,
 			self::DELETE_API_KEY,
 			self::LIST_API_KEYS,
+			self::CREATE_BADGE_RULE,
+			self::READ_BADGE_RULE,
+			self::MODIFY_BADGE_RULE,
+			self::DELETE_BADGE_RULE,
+			self::LIST_BADGE_RULES,
 			self::CREATE_EQUIPMENT_AUTHORIZATION,
 			self::DELETE_EQUIPMENT_AUTHORIZATION,
 			self::LIST_EQUIPMENT_AUTHORIZATIONS,
