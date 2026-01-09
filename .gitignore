@@ -25,4 +25,5 @@
 
 # ignore editor settings
 .zed
+.vscode
 .phpactor.json
