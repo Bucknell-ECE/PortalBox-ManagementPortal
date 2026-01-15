@@ -17,7 +17,7 @@
 					<td>{{name}}</td>
 					<td>{{type}}</td>
 					<td>{{location}}</td>
-					<td class="center">{{#in_use}}<i class="material-icons">highlight_off</i>{{/in_use}}{{^in_use}}<i class="material-icons">check_circle_outline</i>{{/in_use}}</td>
+					<td class="center">{{#in_use}}<i class="material-icons in-use">highlight_off</i>{{/in_use}}{{^in_use}}<i class="material-icons available">check_circle_outline</i>{{/in_use}}</td>
 				</tr>{{/equipment}}
 				{{^equipment}}<tr><td colspan="3">No equipment found.</td></tr>{{/equipment}}
 			</tbody>

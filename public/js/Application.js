@@ -724,10 +724,6 @@ class Application {
 				{
 					"equipment": values[0],
 					"usage": values[1]
-				},
-				{},
-				() => {
-					this.set_icon_colors(document);
 				}
 			);
 		}).catch(e => this.handleError(e));
@@ -955,8 +951,6 @@ class Application {
 								this.update_equipment(id, e, equipment);
 							}
 						);
-
-						this.set_icon_colors(document);
 					}
 				);
 			})
@@ -1011,10 +1005,6 @@ class Application {
 					"equipment": equipment,
 					"search": search,
 					"create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)
-				},
-				{},
-				() => {
-					this.set_icon_colors(document);
 				}
 			);
 		}).catch(e => this.handleError(e));
@@ -1510,7 +1500,6 @@ class Application {
 				if(values[3].length + values[4].length > 20) {
 					this.toggle_transactions();
 				}
-				this.set_icon_colors(document);
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -1561,7 +1550,6 @@ class Application {
 					let element = document.getElementById("role_id");
 					this.set_dropdown_selector(element, search.role_id);
 				}
-				this.set_icon_colors(document);
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -1612,19 +1600,6 @@ class Application {
 				element.style.display = 'none';
 			} else {
 				element.style.display = '';
-			}
-		}
-	}
-
-	set_icon_colors(d) {
-		let icons = d.getElementsByClassName("material-icons");
-
-		for(let i = 0; i < icons.length; i++) {
-			if(icons[i].innerText == "check_circle_outline") {
-				icons[i].style.color = "green";
-			}
-			if(icons[i].innerText == "highlight_off") {
-				icons[i].style.color = "red";
 			}
 		}
 	}

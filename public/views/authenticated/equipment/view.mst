@@ -26,7 +26,7 @@
 				<dt>Time out:</dt>
 				<dd>{{timeout}}</dd>
 				<dt>In Service:</dt>
-				<dd>{{#in_service}}<i class="material-icons">check_circle_outline</i>{{/in_service}}{{^in_service}}<i class="material-icons">highlight_off</i>{{/in_service}}</dd>
+				<dd>{{#in_service}}<i class="material-icons in-service">check_circle_outline</i>{{/in_service}}{{^in_service}}<i class="material-icons out-of-service">highlight_off</i>{{/in_service}}</dd>
 				<dt>Service Time:</dt>
 				<dd>{{service_hours}}</dd>
 				<dt>IP Address:</dt>

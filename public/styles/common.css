@@ -263,3 +263,5 @@ dd > ul {
 
 /* Misc */
 .debit { color:red; }
+.material-icons.active, .material-icons.available, .material-icons.in-service { color:green }
+.material-icons.inactive, .material-icons.in-use, .material-icons.out-of-service { color:red }
