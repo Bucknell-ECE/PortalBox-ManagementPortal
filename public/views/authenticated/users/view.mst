@@ -124,7 +124,7 @@
 		<dt>Comment:</dt>
 		<dd>{{comment}}</dd>
 		<dt>Active</dt>
-		<dd>{{#is_active}}<i class="material-icons">check_circle_outline</i>{{/is_active}}{{^is_active}}<i class="material-icons">highlight_off</i>{{/is_active}}</dd>
+		<dd>{{#is_active}}<i class="material-icons active">check_circle_outline</i>{{/is_active}}{{^is_active}}<i class="material-icons inactive">highlight_off</i>{{/is_active}}</dd>
 		<dt>Role:</dt>
 		<dd>{{#role}}{{name}}{{/role}}</dd>
 	</dl>

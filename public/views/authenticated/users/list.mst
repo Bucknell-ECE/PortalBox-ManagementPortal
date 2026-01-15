@@ -44,7 +44,7 @@
 				<td>{{name}}</td>
 				<td>{{email}}</td>
 				<td>{{role}}</td>
-				<td>{{#is_active}}<i class="material-icons">check_circle_outline</i>{{/is_active}}{{^is_active}}<i class="material-icons">highlight_off</i>{{/is_active}}</td>
+				<td>{{#is_active}}<i class="material-icons active">check_circle_outline</i>{{/is_active}}{{^is_active}}<i class="material-icons inactive">highlight_off</i>{{/is_active}}</td>
 			</tr>
 			{{/users}}
 			{{^users}}<tr><td colspan="2">No users found. <a href="/users/add">Add one now?</a></td></tr>{{/users}}
