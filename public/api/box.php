@@ -4,6 +4,7 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
+use Portalbox\Entity\CardType;
 use Portalbox\Entity\Permission;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
@@ -30,6 +31,38 @@ switch ($_SERVER['REQUEST_METHOD']) {
 				// Get user details
 				$card_id = $_GET['card_id'];
 				$e_id = $_GET['equipment_id'];
+
+				// What is the card type?
+				$sql = 'SELECT type_id FROM cards WHERE id = :card_id';
+				$query = $connection->prepare($sql);
+				$query->bindValue(':card_id', $card_id);
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
+				}
+
+				$data = $query->fetch(PDO::FETCH_NUM);
+				if ($data === false) {
+					// card not found; report card as invalid
+					die(json_encode([[
+						'user_auth' => 0,
+						'user_balance' => 0.0,
+						'user_active' => 0,
+						'card_type' => -1,
+						'user_role' => 0
+					]]));
+				}
+
+				$card_type = $data[0];
+				if ($card_type !== CardType::USER) {
+					die(json_encode([[
+						'user_auth' => 0,
+						'user_balance' => 0.0,
+						'user_active' => 0,
+						'card_type' => $card_type,
+						'user_role' => 0
+					]]));
+				}
 
 				// Is the user authorized?
 				$sql = 'SELECT count(u.id) FROM users_x_cards AS u INNER JOIN authorizations AS a ON a.user_id= u.user_id WHERE u.card_id = :card_id AND a.equipment_type_id = :e_id';
@@ -68,17 +101,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
 				}
 
 				$user_active = $query->fetch(PDO::FETCH_NUM)[0];
-
-				// What is the card type?
-				$sql = 'SELECT type_id FROM cards WHERE id = :card_id';
-				$query = $connection->prepare($sql);
-				$query->bindValue(':card_id', $card_id);
-				if (!$query->execute()) {
-					http_response_code(500);
-					die("Database Exception: " . $query->errorInfo()[2]);
-				}
-
-				$card_type = $query->fetch(PDO::FETCH_NUM)[0];
 
 				// What is the user's role
 				$sql = 'SELECT role_id FROM users_x_cards AS c JOIN users AS u ON u.id = c.user_id WHERE c.card_id = :card_id';
