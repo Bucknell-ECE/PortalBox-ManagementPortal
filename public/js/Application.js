@@ -1322,9 +1322,6 @@ class Application {
 				document
 					.getElementById("edit-role-form")
 					.addEventListener("submit", (e) => { this.update_role(id, e); });
-				// document
-				// 	.getElementById("delete-role-button")
-				// 	.addEventListener("click", _ => { this._delete_role(id); });
 			});
 		}).catch(e => this.handleError(e));
 	}
