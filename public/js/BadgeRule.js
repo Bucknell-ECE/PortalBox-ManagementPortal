@@ -3,16 +3,16 @@ import { SessionTimeOutError } from './SessionTimeOutError.js';
 /**
  * Hide away the details of working with the REST API
  */
-export class APIKey {
+export class BadgeRule {
 	/**
-	 * Get a list of api keys
+	 * Get a list of badge rules
 	 *
-	 * @return Array<APIKey> a list of api keys
+	 * @return Array<BadgeRule> a list of badge rules
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
 	static async list() {
-		const response = await fetch("/api/api-keys.php", { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/badge-rules.php", { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -22,19 +22,19 @@ export class APIKey {
 			throw new SessionTimeOutError();
 		}
 
-		throw "API was unable to list api keys";
+		throw "API was unable to list badge rules";
 	}
 
 	/**
-	 * Get an api key by id
+	 * Get a badge rule by id
 	 *
-	 * @param int id the unique id of the APIKey to retrieve
-	 * @return APIKey specified by the id
+	 * @param int id the unique id of the BadgeRule to retrieve
+	 * @return BadgeRule specified by the id
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
 	static async read(id) {
-		const response = await fetch("/api/api-keys.php?id=" + id, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/badge-rules.php?id=" + id, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -44,18 +44,18 @@ export class APIKey {
 			throw new SessionTimeOutError();
 		}
 
-		throw "API was unable to find api key: " + id;
+		throw "API was unable to find badge rule: " + id;
 	}
 
 	/**
-	 * Add api key to those tracked by API
+	 * Add a badge rule to those tracked by API
 	 *
-	 * @return APIKey as tracked by API
+	 * @return BadgeRule as tracked by API
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
 	static async create(data) {
-		const response = await fetch("/api/api-keys.php", {
+		const response = await fetch("/api/v2/badge-rules.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
@@ -72,19 +72,19 @@ export class APIKey {
 			throw new SessionTimeOutError();
 		}
 
-		throw "API was unable to save new api key";
+		throw "API was unable to save new badge rule";
 	}
 
 	/**
-	 * Modify the api key specified by id
+	 * Modify the badge rule specified by id
 	 *
-	 * @param int id the unique id of the APIKey to modify
-	 * @return APIKey specified by the id
+	 * @param int id the unique id of the BadgeRule to modify
+	 * @return BadgeRule as tracked by API
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
 	static async modify(id, data) {
-		const response = await fetch("/api/api-keys.php?id=" + id, {
+		const response = await fetch("/api/v2/badge-rules.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
@@ -101,18 +101,18 @@ export class APIKey {
 			throw new SessionTimeOutError();
 		}
 
-		throw "API was unable to save api key";
+		throw "API was unable to save badge rule";
 	}
 
 	/**
-	 * Delete the api key specified by id
+	 * Delete the badge rule specified by id
 	 *
-	 * @param int id the unique id of the APIKey to delete
+	 * @param int id the unique id of the BadgeRule to delete
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */
 	static async delete(id) {
-		const response = await fetch("/api/api-keys.php?id=" + id, {
+		const response = await fetch("/api/v2/badge-rules.php?id=" + id, {
 			credentials: "include",
 			method: "DELETE"
 		});
@@ -125,6 +125,6 @@ export class APIKey {
 			throw new SessionTimeOutError();
 		}
 
-		throw "API was unable to delete API key";
+		throw "API was unable to delete badge rule";
 	}
 }

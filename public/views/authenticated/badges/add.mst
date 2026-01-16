@@ -1,0 +1,18 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/badges">Badges</a></li>
+	<li>Add Badge</li>
+</ul>
+<article>
+	<header>
+		<h1>Add Badge</h1>
+		<div class="button-group">
+			<a href="/badges">Cancel</a>
+			<button form="add-badge-rule-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="add-badge-rule-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" required />
+	</form>
+</article>

@@ -1,0 +1,50 @@
+{{#key}}
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/badges">Badges</a></li>
+	<li>{{name}} ({{id}})</li>
+</ul>
+{{#editable}}<input type="radio" name="view-edit-toggle" id="view-edit-toggle-view-state" class="checkbox-hack" checked />{{/editable}}
+<article>
+	<header>
+		<h1>Badge</h1>
+		<div class="button-group">
+			{{#deletable}}<button type="button" id="delete-badge-button">Delete</button>{{/deletable}}
+			{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
+		</div>
+	</header>
+	<dl>
+		<dt>Name:</dt>
+		<dd>{{name}}</dd>
+	</dl>
+</article>
+{{#editable}}
+<input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
+<article>
+	<header>
+		<h1>Badge</h1>
+		<div class="button-group">
+			<label for="view-edit-toggle-view-state">Cancel</label>
+			<button form="edit-badge-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="edit-badge-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" value="{{name}}" required />
+	</form>
+</article>
+{{/editable}}
+{{/key}}
+{{^key}}
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/badges">Badges</a></li>
+	<li>Not Found</li>
+</ul>
+<article>
+	<header>
+		<h1>Badge</h1>
+	</header>
+	<p>Sorry we couldn't find that Badge</p>
+</article>
+{{/key}}

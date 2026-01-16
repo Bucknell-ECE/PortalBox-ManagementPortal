@@ -33,6 +33,9 @@
 		{{#api_keys}}<div class="icon-button">
 			<a href="/api-keys"><i class="material-icons">vpn_key</i>API Keys</a>
 		</div>{{/api_keys}}
+		{{#badges}}<div class="icon-button">
+			<a href="/badges"><i class="material-icons">&#xef76;</i>Badges</a>
+		</div>{{/badges}}
 		{{#roles}}<div class="icon-button">
 			<a href="/roles"><i class="material-icons">people_outline</i>Roles</a>
 		</div>{{/roles}}
