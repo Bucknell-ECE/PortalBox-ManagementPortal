@@ -294,7 +294,7 @@ class Application {
 
 		// User needs CREATE_API_KEY Permission to make use of /api-keys/add route
 		if(this.user.has_permission(Permission.CREATE_API_KEY)) {
-			this.route("/api-keys/add", _ => {
+			this.route("/api-keys/add", () => {
 				this.render("#main", "authenticated/api-keys/add", {}, {}, () => {
 					document
 						.getElementById("add-api-key-form")
@@ -307,7 +307,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_API_KEYS)) {
 			if(!home_icons.system) { home_icons.system = system_icons }
 			home_icons.system.api_keys = true;
-			this.route("/api-keys", _ => {
+			this.route("/api-keys", () => {
 				APIKey.list().then(keys => {
 					this.render("#main", "authenticated/api-keys/list", {"keys": keys});
 				}).catch(e => this.handleError(e));
@@ -322,7 +322,7 @@ class Application {
 
 		// User needs CREATE_CARD Permission to make use of /cards/add route
 		if(this.user.has_permission(Permission.CREATE_CARD)) {
-			this.route("/cards/add", _ => {
+			this.route("/cards/add", () => {
 				let p1 = CardType.list();
 				let p2 = User.list();
 				let p3 = EquipmentType.list();
@@ -358,7 +358,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_CARDS)) {
 			if(!home_icons.manage_icons) { home_icons.manage_icons = manage_icons }
 			home_icons.manage_icons.cards = true;
-			this.route("/cards", _ => {
+			this.route("/cards", () => {
 				this.list_cards();
 			});
 		}
@@ -373,7 +373,7 @@ class Application {
 
 		// User needs CREATE_EQUIPMENT Permission to make use of /equipment/add route
 		if(this.user.has_permission(Permission.CREATE_EQUIPMENT)) {
-			this.route("/equipment/add", _ => {
+			this.route("/equipment/add", () => {
 				let p1 = EquipmentType.list();
 				let p2 = Location.list();
 
@@ -391,7 +391,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_EQUIPMENT)) {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.equipment = true;
-			this.route("/equipment", _ => {
+			this.route("/equipment", () => {
 				this.list_equipment();
 			});
 		}
@@ -404,7 +404,7 @@ class Application {
 
 		// User needs CREATE_EQUIPMENT_TYPE Permission to make use of /equipment-types/add route
 		if(this.user.has_permission(Permission.CREATE_EQUIPMENT_TYPE)) {
-			this.route("/equipment-types/add", _ => {
+			this.route("/equipment-types/add", () => {
 				ChargePolicy.list().then(charge_policies => {
 					this.render("#main", "authenticated/equipment-types/add", {"charge_policies":charge_policies}, {}, () => {
 						document
@@ -419,7 +419,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_EQUIPMENT_TYPES)) {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.equipment_types = true;
-			this.route("/equipment-types", _ => {
+			this.route("/equipment-types", () => {
 				EquipmentType.list().then(types => {
 					this.render("#main", "authenticated/equipment-types/list", {"types": types, "create_equipment_type_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT_TYPE)});
 				}).catch(e => this.handleError(e));
@@ -434,7 +434,7 @@ class Application {
 
 		// User needs CREATE_LOCATION Permission to make use of /locations/add route
 		if(this.user.has_permission(Permission.CREATE_LOCATION)) {
-			this.route("/locations/add", _ => {
+			this.route("/locations/add", () => {
 				this.render("#main", "authenticated/locations/add", {}, {}, () => {
 					document
 						.getElementById("add-location-form")
@@ -447,7 +447,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_LOCATIONS)) {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.locations = true;
-			this.route("/locations", _ => {
+			this.route("/locations", () => {
 				Location.list().then(locations => {
 					this.render("#main", "authenticated/locations/list", {"locations": locations, "create_location_permission": this.user.has_permission(Permission.CREATE_LOCATION)});
 				}).catch(e => this.handleError(e));
@@ -482,7 +482,7 @@ class Application {
 
 		// User needs CREATE_ROLE Permission to make use of /roles/add route
 		if(this.user.has_permission(Permission.CREATE_ROLE)) {
-			this.route("/roles/add", _ => {
+			this.route("/roles/add", () => {
 				Permission.list().then(permissions => {
 					this.render("#main", "authenticated/roles/add", { "possible_permissions":permissions }, {}, () => {
 						document
@@ -497,7 +497,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_ROLES) && this.user.has_permission(Permission.READ_ROLE)) {
 			if(!home_icons.system) { home_icons.system = system_icons }
 			home_icons.system.roles = true;
-			this.route("/roles", _ => {
+			this.route("/roles", () => {
 				Role.list().then(roles => {
 					this.render("#main", "authenticated/roles/list", {"roles":roles});
 				}).catch(e => this.handleError(e));
@@ -512,7 +512,7 @@ class Application {
 
 		// User needs CREATE_USER Permission to make use of /users/add and /users/import routes
 		if(this.user.has_permission(Permission.CREATE_USER)) {
-			this.route("/users/add", _ => {
+			this.route("/users/add", () => {
 				let p0 = EquipmentType.list();
 				let p1 = Role.list();
 
@@ -525,7 +525,7 @@ class Application {
 				}).catch(e => this.handleError(e));
 			});
 
-			this.route("/users/import", _ => {
+			this.route("/users/import", () => {
 				this.render("#main", "authenticated/users/import", {}, {}, () => {
 					document
 						.getElementById("import-user-form")
@@ -538,7 +538,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_USERS)) {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.users = true;
-			this.route("/users", _ => {
+			this.route("/users", () => {
 				this.list_users();
 			});
 		}
@@ -553,7 +553,7 @@ class Application {
 		}
 
 		if(this.user.has_permission(Permission.READ_OWN_USER)) {
-			this.route("/profile", _ => {
+			this.route("/profile", () => {
 				let p0 = User.read(this.user.id);
 				let p1 = Charge.list("user_id=" + this.user.id);
 				let p2 = Payment.list("user_id=" + this.user.id);
@@ -616,7 +616,7 @@ class Application {
 				}).catch(e => this.handleError(e));
 			});
 
-			this.route("/profile/set_pin", _ => {
+			this.route("/profile/set_pin", () => {
 				this.render("#main", "authenticated/set_pin", {}, {}, () => {
 					document
 						.getElementById("set-pin-form")
@@ -626,7 +626,7 @@ class Application {
 		}
 
 		// Everyone gets a home route; what it presents them is controlled by home_icons
-		this.route("/", _ => {
+		this.route("/", () => {
 			this.render("#main", "authenticated/top-menu", {"features":home_icons});
 		});
 	}
@@ -774,7 +774,7 @@ class Application {
 					.addEventListener("submit", (e) => { this.update_api_key(id, e); });
 				document
 					.getElementById("delete-api-key-button")
-					.addEventListener("click", _ => { this.delete_api_key(id); });
+					.addEventListener("click", () => { this.delete_api_key(id); });
 			});
 		}).catch(e => this.handleError(e));
 	}
