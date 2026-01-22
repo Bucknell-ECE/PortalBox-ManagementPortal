@@ -64,10 +64,26 @@ switch ($_SERVER['REQUEST_METHOD']) {
 					]]));
 				}
 
-				// Is the user authorized?
-				$sql = 'SELECT count(u.id) FROM users_x_cards AS u INNER JOIN authorizations AS a ON a.user_id= u.user_id WHERE u.card_id = :card_id AND a.equipment_type_id = :e_id';
+				// Get the user associated with the card
+				$sql = 'SELECT user_id FROM users_x_cards as uxc WHERE card_id = :card_id';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $card_id);
+
+				if (!$query->execute()) {
+					http_response_code(500);
+					die("Database Exception: " . $query->errorInfo()[2]);
+				}
+
+				$user_id = $query->fetchColumn();
+				if (!$user_id) {
+					http_response_code(500);
+					die('Invalid User Card');
+				}
+
+				// Is the user authorized for the equipment?
+				$sql = 'SELECT COUNT(*) FROM authorizations WHERE user_id = :user_id AND equipment_type_id = :e_id';
+				$query = $connection->prepare($sql);
+				$query->bindValue(':user_id', $user_id);
 				$query->bindValue(':e_id', $e_id);
 
 				if (!$query->execute()) {
@@ -75,15 +91,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
 					die("Database Exception: " . $query->errorInfo()[2]);
 				}
 
-				if ($query->fetchColumn() !== 1) {
-					http_response_code(401);
-					die();
-				}
+				$user_auth = $query->fetchColumn() === 1;
 
 				// What is the user's balance
 				$sql = 'SELECT get_user_balance_for_card(:card_id)';
 				$query = $connection->prepare($sql);
 				$query->bindValue(':card_id', $card_id);
+
 				if (!$query->execute()) {
 					http_response_code(500);
 					die("Database Exception: " . $query->errorInfo()[2]);
@@ -91,30 +105,20 @@ switch ($_SERVER['REQUEST_METHOD']) {
 
 				$user_balance = $query->fetch(PDO::FETCH_NUM)[0];
 
-				// Is the user active?
-				$sql = 'SELECT u.is_active FROM users AS u INNER JOIN users_x_cards AS uxc ON uxc.user_id = u.id WHERE uxc.card_id = :card_id';
+				// Get user info
+				$sql = 'SELECT is_active, role_id FROM users WHERE id = :user_id';
 				$query = $connection->prepare($sql);
-				$query->bindValue(':card_id', $card_id);
+				$query->bindValue(':user_id', $user_id);
+
 				if (!$query->execute()) {
 					http_response_code(500);
 					die("Database Exception: " . $query->errorInfo()[2]);
 				}
 
-				$user_active = $query->fetch(PDO::FETCH_NUM)[0];
-
-				// What is the user's role
-				$sql = 'SELECT role_id FROM users_x_cards AS c JOIN users AS u ON u.id = c.user_id WHERE c.card_id = :card_id';
-				$query = $connection->prepare($sql);
-				$query->bindValue(':card_id', $card_id);
-				if (!$query->execute()) {
-					http_response_code(500);
-					die("Database Exception: " . $query->errorInfo()[2]);
-				}
-
-				$user_role = $query->fetch(PDO::FETCH_NUM)[0];
+				list($user_active, $user_role) = $query->fetch(PDO::FETCH_NUM);
 
 				die(json_encode([[
-					'user_auth' => 1,
+					'user_auth' => (int)$user_auth,
 					'user_balance' => $user_balance,
 					'user_active' => $user_active,
 					'card_type' => $card_type,
