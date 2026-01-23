@@ -14,10 +14,12 @@ final class BadgeRuleTransformerTest extends TestCase {
 
 		$id = 42;
 		$name = 'Master Gardener';
+		$equipment_type_ids = [21, 34];
 
 		$key = (new BadgeRule())
 			->set_id($id)
-			->set_name($name);
+			->set_name($name)
+			->set_equipment_type_ids($equipment_type_ids);
 
 		$data = $transformer->serialize($key, true);
 
@@ -26,5 +28,7 @@ final class BadgeRuleTransformerTest extends TestCase {
 		self::assertEquals($id, $data['id']);
 		self::assertArrayHasKey('name', $data);
 		self::assertEquals($name, $data['name']);
+		self::assertArrayHasKey('equipment_types', $data);
+		self::assertEquals($equipment_type_ids, $data['equipment_types']);
 	}
 }

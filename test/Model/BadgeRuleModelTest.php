@@ -7,70 +7,127 @@ namespace Test\Portalbox\Model;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Entity\BadgeRule;
+use Portalbox\Entity\ChargePolicy;
+use Portalbox\Entity\EquipmentType;
 use Portalbox\Model\BadgeRuleModel;
+use Portalbox\Model\EquipmentTypeModel;
 
 final class BadgeRuleModelTest extends TestCase {
 	public function testCreateReadUpdateDelete(): void {
-		$model = new BadgeRuleModel(Config::config());
+		$badge_rule_model = new BadgeRuleModel(Config::config());
+		$equipment_type_model = new EquipmentTypeModel(Config::config());
+
+		$equipment_type_id1 = $equipment_type_model->create(
+			(new EquipmentType())
+				->set_name('Miller 211 MIG Welder')
+				->set_requires_training(true)
+				->set_charge_rate('0.01')
+				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_allow_proxy(false)
+		)->id();
+
+		$equipment_type_id2 = $equipment_type_model->create(
+			(new EquipmentType())
+				->set_name('Miller 213 MIG Welder')
+				->set_requires_training(true)
+				->set_charge_rate('0.01')
+				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_allow_proxy(false)
+		)->id();
+
+		$equipment_type_id3 = $equipment_type_model->create(
+			(new EquipmentType())
+				->set_name('Miller 215 MIG Welder')
+				->set_requires_training(true)
+				->set_charge_rate('0.01')
+				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_allow_proxy(false)
+		)->id();
 
 		$name = 'Welding Novice';
+		$equipment_type_ids = [
+			$equipment_type_id1,
+			$equipment_type_id2
+		];
 
-		$rule = $model->create(
+		$rule = $badge_rule_model->create(
 			(new BadgeRule())
 				->set_name($name)
+				->set_equipment_type_ids($equipment_type_ids)
 		);
 
 		self::assertInstanceOf(BadgeRule::class, $rule);
 		$id = $rule->id();
 		self::assertIsInt($id);
-		self::assertEquals($name, $rule->name());
+		self::assertSame($name, $rule->name());
+		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
 
-		$rule = $model->read($id);
+		$rule = $badge_rule_model->read($id);
 
 		self::assertInstanceOf(BadgeRule::class, $rule);
-		self::assertEquals($id, $rule->id());
-		self::assertEquals($name, $rule->name());
+		self::assertSame($id, $rule->id());
+		self::assertSame($name, $rule->name());
+		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
 
 		$name = 'Welding Pro';
+		$equipment_type_ids = [
+			$equipment_type_id1,
+			$equipment_type_id3
+		];
 
-		$rule = $model->update(
+		$rule = $badge_rule_model->update(
 			(new BadgeRule())
 				->set_id($id)
 				->set_name($name)
+				->set_equipment_type_ids($equipment_type_ids)
 		);
 
 		self::assertInstanceOf(BadgeRule::class, $rule);
-		self::assertEquals($id, $rule->id());
-		self::assertEquals($name, $rule->name());
+		self::assertSame($id, $rule->id());
+		self::assertSame($name, $rule->name());
+		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
 
-		$rule = $model->delete($id);
+		$rule = $badge_rule_model->read($id);
 
 		self::assertInstanceOf(BadgeRule::class, $rule);
-		self::assertEquals($id, $rule->id());
-		self::assertEquals($name, $rule->name());
+		self::assertSame($id, $rule->id());
+		self::assertSame($name, $rule->name());
+		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
 
-		self::assertNull($model->read($id));
-		self::assertNull($model->update($rule));
-		self::assertNull($model->delete($id));
+		$rule = $badge_rule_model->delete($id);
+
+		self::assertInstanceOf(BadgeRule::class, $rule);
+		self::assertSame($id, $rule->id());
+		self::assertSame($name, $rule->name());
+		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
+
+		self::assertNull($badge_rule_model->read($id));
+		self::assertNull($badge_rule_model->update($rule));
+		self::assertNull($badge_rule_model->delete($id));
+
+		// cleanup
+		$equipment_type_model->delete($equipment_type_id1);
+		$equipment_type_model->delete($equipment_type_id2);
+		$equipment_type_model->delete($equipment_type_id3);
 	}
 
 	public function testSearch() {
-		$model = new BadgeRuleModel(Config::config());
+		$badge_rule_model = new BadgeRuleModel(Config::config());
 
 		$name1 = 'Welding Novice';
 		$name2 = 'Welding Pro';
 
-		$rule1Id = $model->create(
+		$rule1Id = $badge_rule_model->create(
 			(new BadgeRule())
 				->set_name($name1)
 		)->id();
 
-		$rule2Id = $model->create(
+		$rule2Id = $badge_rule_model->create(
 			(new BadgeRule())
 				->set_name($name2)
 		)->id();
 
-		$rules = $model->search();
+		$rules = $badge_rule_model->search();
 
 		self::assertIsIterable($rules);
 		self::assertNotEmpty($rules);
@@ -85,7 +142,7 @@ final class BadgeRuleModelTest extends TestCase {
 		self::assertContains($rule2Id, $ruleIds);
 
 		// cleanup
-		$model->delete($rule1Id);
-		$model->delete($rule2Id);
+		$badge_rule_model->delete($rule1Id);
+		$badge_rule_model->delete($rule2Id);
 	}
 }

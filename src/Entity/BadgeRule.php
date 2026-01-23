@@ -10,8 +10,15 @@ use InvalidArgumentException;
 class BadgeRule {
 	use \Portalbox\Trait\HasIdProperty;
 
-	/** The name of the badge */
+	/**
+	 * The name of the badge
+	 */
 	protected string $name = '';
+
+	/**
+	 * The list of ids of the equipment types a user must use to earn the badge
+	 */
+	protected array $equipment_type_ids = [];
 
 	/**
 	 * Get the name of the badge
@@ -31,6 +38,23 @@ class BadgeRule {
 		}
 
 		$this->name = $name;
+		return $this;
+	}
+
+	/**
+	 * Get the list of ids of the equipment types a user must use to earn the
+	 * badge
+	 */
+	public function equipment_type_ids(): array {
+		return $this->equipment_type_ids;
+	}
+
+	/**
+	 * Set the list of ids of the equipment types a user must use to earn the
+	 * badge
+	 */
+	public function set_equipment_type_ids(array $ids): self {
+		$this->equipment_type_ids = $ids;
 		return $this;
 	}
 }

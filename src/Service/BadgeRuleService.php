@@ -11,6 +11,7 @@ use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\BadgeRuleModel;
+use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Session\SessionInterface;
 
 /**
@@ -22,6 +23,7 @@ class BadgeRuleService {
 	public const ERROR_INVALID_BADGE_RULE_DATA = 'We can not construct a badge rule from the provided data';
 	public const ERROR_NAME_IS_REQUIRED = '\'name\' is a required field';
 	public const ERROR_NAME_IS_INVALID = '\'name\' must not be an empty string';
+	public const ERROR_EQUIPMENT_TYPES_ARE_INVALID = '\'equipment_types\' must be an array of the ids of equipment types';
 
 	public const ERROR_UNAUTHENTICATED_READ = 'You must be authenticated to read badge rules';
 	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read the specified badge rule(s)';
@@ -35,13 +37,16 @@ class BadgeRuleService {
 
 	protected SessionInterface $session;
 	protected BadgeRuleModel $badgeRuleModel;
+	protected EquipmentTypeModel $equipmentTypeModel;
 
 	public function __construct(
 		SessionInterface $session,
-		BadgeRuleModel $badgeRuleModel
+		BadgeRuleModel $badgeRuleModel,
+		EquipmentTypeModel $equipmentTypeModel
 	) {
 		$this->session = $session;
 		$this->badgeRuleModel = $badgeRuleModel;
+		$this->equipmentTypeModel = $equipmentTypeModel;
 	}
 
 	/**
@@ -62,8 +67,36 @@ class BadgeRuleService {
 			throw new InvalidArgumentException(self::ERROR_NAME_IS_INVALID);
 		}
 
+		$equipment_type_ids = [];
+
+		// equipment types are optional
+		if (array_key_exists('equipment_types', $data)) {
+			if (!is_array($data['equipment_types'])) {
+				throw new InvalidArgumentException(self::ERROR_EQUIPMENT_TYPES_ARE_INVALID);
+			}
+
+			$known_equipment_type_ids = [];
+			foreach ($this->equipmentTypeModel->search() as $equipment_type) {
+				$known_equipment_type_ids[] = $equipment_type->id();
+			}
+
+			foreach ($data['equipment_types'] as $id) {
+				$equipment_type_id = filter_var($id, FILTER_VALIDATE_INT);
+				if($equipment_type_id === false) {
+					throw new InvalidArgumentException(self::ERROR_EQUIPMENT_TYPES_ARE_INVALID);
+				}
+
+				if (!in_array($id, $known_equipment_type_ids)) {
+					throw new InvalidArgumentException(self::ERROR_EQUIPMENT_TYPES_ARE_INVALID);
+				}
+
+				$equipment_type_ids[] = $id;
+			}
+		}
+
 		return (new BadgeRule())
-			->set_name($name);
+			->set_name($name)
+			->set_equipment_type_ids($equipment_type_ids);
 	}
 
 	/**

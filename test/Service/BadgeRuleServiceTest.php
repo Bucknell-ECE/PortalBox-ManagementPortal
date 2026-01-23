@@ -7,6 +7,7 @@ namespace Test\Portalbox\Service;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\BadgeRule;
+use Portalbox\Entity\EquipmentType;
 use Portalbox\Entity\Permission;
 use Portalbox\Entity\Role;
 use Portalbox\Entity\User;
@@ -14,6 +15,7 @@ use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\BadgeRuleModel;
+use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Service\BadgeRuleService;
 use Portalbox\Session\SessionInterface;
 
@@ -25,10 +27,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthenticationException::class);
@@ -44,10 +48,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthorizationException::class);
@@ -67,10 +73,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
@@ -91,10 +99,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
@@ -114,10 +124,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
@@ -137,10 +149,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
@@ -148,7 +162,83 @@ final class BadgeRuleServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/BadgeRuleServiceTestData/CreateThrowsWhenNameIsInvalid.json'));
 	}
 
-	public function testCreateSuccess() {
+	public function testCreateThrowsWhenEquipmentTypesIsWrongType() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_BADGE_RULE])
+				)
+		);
+
+		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(BadgeRuleService::ERROR_EQUIPMENT_TYPES_ARE_INVALID);
+		$service->create(realpath(__DIR__ . '/BadgeRuleServiceTestData/CreateThrowsWhenEquipmentTypesIsWrongType.json'));
+	}
+
+	public function testCreateThrowsWhenEquipmentTypeIdIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_BADGE_RULE])
+				)
+		);
+
+		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(BadgeRuleService::ERROR_EQUIPMENT_TYPES_ARE_INVALID);
+		$service->create(realpath(__DIR__ . '/BadgeRuleServiceTestData/CreateThrowsWhenEquipmentTypeIdIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenEquipmentTypeDoesNotExist() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_BADGE_RULE])
+				)
+		);
+
+		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([]);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(BadgeRuleService::ERROR_EQUIPMENT_TYPES_ARE_INVALID);
+		$service->create(realpath(__DIR__ . '/BadgeRuleServiceTestData/CreateThrowsWhenEquipmentTypeDoesNotExist.json'));
+	}
+
+	public function testCreateSuccessNoEquipmentTypes() {
 		$name = 'Electronics Technician'; // the sanitized name from the input file
 
 		$session = $this->createStub(SessionInterface::class);
@@ -169,15 +259,59 @@ final class BadgeRuleServiceTest extends TestCase {
 		)
 		->willReturnArgument(0);
 
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([]);
+
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
+		);
+
+		$rule = $service->create(realpath(__DIR__ . '/BadgeRuleServiceTestData/CreateSuccessNoEquipmentTypes.json'));
+
+		self::assertInstanceOf(BadgeRule::class, $rule);
+		self::assertSame($name, $rule->name());
+	}
+
+	public function testCreateSuccess() {
+		$name = 'Electronics Technician'; // the sanitized name from the input file
+		$equipment_type_id = 2;
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_BADGE_RULE])
+				)
+		);
+
+		$badgeRuleModel = $this->createMock(BadgeRuleModel::class);
+		$badgeRuleModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(BadgeRule $rule) => $rule->name() === $name
+			)
+		)
+		->willReturnArgument(0);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([
+			(new EquipmentType())->set_id($equipment_type_id)
+		]);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		$rule = $service->create(realpath(__DIR__ . '/BadgeRuleServiceTestData/CreateSuccess.json'));
 
 		self::assertInstanceOf(BadgeRule::class, $rule);
 		self::assertSame($name, $rule->name());
+		self::assertSame([$equipment_type_id], $rule->equipment_type_ids());
 	}
 
 	#endregion test create()
@@ -189,10 +323,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthenticationException::class);
@@ -208,10 +344,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthorizationException::class);
@@ -231,10 +369,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(NotFoundException::class);
@@ -258,9 +398,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
 		$badgeRuleModel->method('read')->willReturn($rule);
 
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::assertSame($rule, $service->read(23));
@@ -275,10 +418,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthenticationException::class);
@@ -294,10 +439,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthorizationException::class);
@@ -324,9 +471,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		$badgeRuleModel = $this->createMock(BadgeRuleModel::class);
 		$badgeRuleModel->expects($this->once())->method('search')->willReturn($rules);
 
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::assertSame($rules, $service->readAll([]));
@@ -341,10 +491,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthenticationException::class);
@@ -360,10 +512,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthorizationException::class);
@@ -383,10 +537,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
@@ -407,10 +563,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
@@ -430,10 +588,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
@@ -453,15 +613,100 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(BadgeRuleService::ERROR_NAME_IS_INVALID);
 		$service->update(1, realpath(__DIR__ . '/BadgeRuleServiceTestData/UpdateThrowsWhenNameIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenEquipmentTypesIsWrongType() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_BADGE_RULE])
+				)
+		);
+
+		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(BadgeRuleService::ERROR_EQUIPMENT_TYPES_ARE_INVALID);
+		$service->update(1, realpath(__DIR__ . '/BadgeRuleServiceTestData/UpdateThrowsWhenEquipmentTypesIsWrongType.json'));
+	}
+
+	public function testUpdateThrowsWhenEquipmentTypeIdIsInvalid() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_BADGE_RULE])
+				)
+		);
+
+		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([
+			(new EquipmentType())->set_id(34),
+			(new EquipmentType())->set_id(52)
+		]);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(BadgeRuleService::ERROR_EQUIPMENT_TYPES_ARE_INVALID);
+		$service->update(1, realpath(__DIR__ . '/BadgeRuleServiceTestData/UpdateThrowsWhenEquipmentTypeIdIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenEquipmentTypeDoesNotExist() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_BADGE_RULE])
+				)
+		);
+
+		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([
+			(new EquipmentType())->set_id(30),
+			(new EquipmentType())->set_id(58)
+		]);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(BadgeRuleService::ERROR_EQUIPMENT_TYPES_ARE_INVALID);
+		$service->update(1, realpath(__DIR__ . '/BadgeRuleServiceTestData/UpdateThrowsWhenEquipmentTypeDoesNotExist.json'));
 	}
 
 	public function testUpdateThrowsWhenNotFound() {
@@ -488,9 +733,16 @@ final class BadgeRuleServiceTest extends TestCase {
 		)
 		->willReturn(null);
 
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([
+			(new EquipmentType())->set_id(34),
+			(new EquipmentType())->set_id(52)
+		]);
+
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(NotFoundException::class);
@@ -498,7 +750,7 @@ final class BadgeRuleServiceTest extends TestCase {
 		$service->update($id, realpath(__DIR__ . '/BadgeRuleServiceTestData/UpdateSuccess.json'));
 	}
 
-	public function testUpdateSuccess() {
+	public function testUpdateSuccessNoEquipmentTypes() {
 		$id = 12;
 		$name = 'Electronics Technician'; // the sanitized name from the input file
 
@@ -522,9 +774,59 @@ final class BadgeRuleServiceTest extends TestCase {
 		)
 		->willReturnArgument(0);
 
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
+		);
+
+		$rule = $service->update($id, realpath(__DIR__ . '/BadgeRuleServiceTestData/UpdateSuccessNoEquipmentTypes.json'));
+
+		self::assertInstanceOf(BadgeRule::class, $rule);
+		self::assertSame($id, $rule->id());
+		self::assertSame($name, $rule->name());
+	}
+
+	public function testUpdateSuccess() {
+		$id = 12;
+		$name = 'Electronics Technician'; // the sanitized name from the input file
+		$equipment_type_ids = [34, 52];
+
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_BADGE_RULE])
+				)
+		);
+
+		$badgeRuleModel = $this->createMock(BadgeRuleModel::class);
+		$badgeRuleModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn(BadgeRule $rule) =>
+					$rule->id() === $id
+					&& $rule->name() === $name
+					&& $rule->equipment_type_ids() === $equipment_type_ids
+			)
+		)
+		->willReturnArgument(0);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('search')->willReturn([
+			(new EquipmentType())->set_id(30),
+			(new EquipmentType())->set_id(34),
+			(new EquipmentType())->set_id(52),
+			(new EquipmentType())->set_id(58)
+		]);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		$rule = $service->update($id, realpath(__DIR__ . '/BadgeRuleServiceTestData/UpdateSuccess.json'));
@@ -532,6 +834,7 @@ final class BadgeRuleServiceTest extends TestCase {
 		self::assertInstanceOf(BadgeRule::class, $rule);
 		self::assertSame($id, $rule->id());
 		self::assertSame($name, $rule->name());
+		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
 	}
 
 	#endregion test update()
@@ -543,10 +846,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthenticationException::class);
@@ -562,10 +867,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(AuthorizationException::class);
@@ -585,10 +892,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::expectException(NotFoundException::class);
@@ -612,9 +921,12 @@ final class BadgeRuleServiceTest extends TestCase {
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
 		$badgeRuleModel->method('delete')->willReturn($rule);
 
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+
 		$service = new BadgeRuleService(
 			$session,
-			$badgeRuleModel
+			$badgeRuleModel,
+			$equipmentTypeModel
 		);
 
 		self::assertSame($rule, $service->delete(23));

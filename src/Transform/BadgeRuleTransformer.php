@@ -21,7 +21,8 @@ class BadgeRuleTransformer implements OutputTransformer {
 	public function serialize($data, bool $traverse = false): array {
 		return [
 			'id' => $data->id(),
-			'name' => $data->name()
+			'name' => $data->name(),
+			'equipment_types' => $data->equipment_type_ids()
 		];
 	}
 

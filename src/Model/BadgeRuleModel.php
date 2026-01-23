@@ -24,11 +24,33 @@ class BadgeRuleModel extends AbstractModel {
 
 		$statement->bindValue(':name', $rule->name());
 
-		if (!$statement->execute()) {
+		if (!$connection->beginTransaction()) {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
 
-		return $rule->set_id($connection->lastInsertId('badge_rules_id_seq'));
+		if (!$statement->execute()) {
+			$connection->rollBack();	// This is unlikely to succeed but
+										// it balances the beginTransaction
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		$badge_rule_id = $connection->lastInsertId('badge_rules_id_seq');
+
+		$sql = 'INSERT INTO badge_rules_x_equipment_types (badge_rule_id, equipment_type_id) VALUES (:badge_rule_id, :equipment_type_id)';
+		$statement = $connection->prepare($sql);
+
+		foreach ($rule->equipment_type_ids() as $equipment_type_id) {
+			$statement->bindValue(':badge_rule_id', $badge_rule_id, PDO::PARAM_INT);
+			$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
+
+			if (!$statement->execute()) {
+				$connection->rollBack();
+				throw new DatabaseException($statement->errorInfo()[2]);
+			}
+		}
+
+		$connection->commit();
+		return $rule->set_id($badge_rule_id);
 	}
 
 	/**
@@ -54,7 +76,27 @@ class BadgeRuleModel extends AbstractModel {
 			return null;
 		}
 
-		return $this->buildBadgeRuleFromArray($data);
+		$badge_rule = $this->buildBadgeRuleFromArray($data);
+
+		$sql = <<<EOQ
+		SELECT
+			et.id, et.name
+		FROM
+			equipment_types AS et
+		INNER JOIN
+			badge_rules_x_equipment_types AS bret ON et.id = bret.equipment_type_id
+		WHERE
+			badge_rule_id = :badge_rule_id
+		EOQ;
+		$statement = $connection->prepare($sql);
+
+		$statement->bindValue(':badge_rule_id', $id, PDO::PARAM_INT);
+
+		if (!$statement->execute()) {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		return $badge_rule->set_equipment_type_ids($statement->fetchAll(PDO::FETCH_COLUMN));
 	}
 
 	/**
@@ -67,6 +109,10 @@ class BadgeRuleModel extends AbstractModel {
 	public function update(BadgeRule $rule): ?BadgeRule {
 		$id = $rule->id();
 
+		if ($this->read($id) === null) {
+			return null;
+		}
+
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE badge_rules SET name = :name WHERE id = :id';
 		$statement = $connection->prepare($sql);
@@ -74,9 +120,42 @@ class BadgeRuleModel extends AbstractModel {
 		$statement->bindValue(':id', $id, PDO::PARAM_INT);
 		$statement->bindValue(':name', $rule->name());
 
-		if (!$statement->execute()) {
+		
+		if (!$connection->beginTransaction()) {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
+
+		if (!$statement->execute()) {
+			$connection->rollBack();	// This is unlikely to succeed but
+										// it balances the beginTransaction
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		// We don't care about the row ids of the equipment type mappings so
+		// the easy way to update is to delete and recreate them
+		$sql = 'DELETE FROM badge_rules_x_equipment_types WHERE badge_rule_id = :id';
+		$statement = $connection->prepare($sql);
+
+		$statement->bindValue(':id', $id, PDO::PARAM_INT);
+		if (!$statement->execute()) {
+			$connection->rollBack();
+			throw new DatabaseException($statement->errorInfo()[2]);
+		}
+
+		$sql = 'INSERT INTO badge_rules_x_equipment_types (badge_rule_id, equipment_type_id) VALUES (:badge_rule_id, :equipment_type_id)';
+		$statement = $connection->prepare($sql);
+
+		foreach ($rule->equipment_type_ids() as $equipment_type_id) {
+			$statement->bindValue(':badge_rule_id', $id, PDO::PARAM_INT);
+			$statement->bindValue(':equipment_type_id', $equipment_type_id, PDO::PARAM_INT);
+
+			if (!$statement->execute()) {
+				$connection->rollBack();
+				throw new DatabaseException($statement->errorInfo()[2]);
+			}
+		}
+
+		$connection->commit();
 
 		return $this->read($id);
 	}

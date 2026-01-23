@@ -1,4 +1,4 @@
-{{#key}}
+{{#badge_rule}}
 <ul class="crumbs">
 	<li><a href="/">Home</a></li>
 	<li><a href="/badges">Badges</a></li>
@@ -16,6 +16,15 @@
 	<dl>
 		<dt>Name:</dt>
 		<dd>{{name}}</dd>
+		<dt>Equipment Types</dt>
+		<dd>
+			{{#included_equipment_types}}
+			<ul>
+				<li>{{name}}</li>
+			</ul>
+			{{/included_equipment_types}}
+			{{^included_equipment_types}}Badge currently has no equipment types{{/included_equipment_types}}
+		</dd>
 	</dl>
 </article>
 {{#editable}}
@@ -31,11 +40,16 @@
 	<form id="edit-badge-form">
 		<label for="name">Name:</label>
 		<input type="text" name="name" id="name" value="{{name}}" required />
+		<label for="equipment-types" style="align-self:baseline">Equipment Types:</label>
+		<fieldset id="equipment-types">
+			{{#available_equipment_types}}<label><input type="checkbox" name="equipment_types.{{id}}" id="equipment_types.{{id}}" /> {{name}}</label>{{/available_equipment_types}}
+			{{^available_equipment_types}}<p>No equipment types yet defined that the user can be authorized for.</p>{{/available_equipment_types}}
+		</fieldset>
 	</form>
 </article>
 {{/editable}}
-{{/key}}
-{{^key}}
+{{/badge_rule}}
+{{^badge_rule}}
 <ul class="crumbs">
 	<li><a href="/">Home</a></li>
 	<li><a href="/badges">Badges</a></li>
@@ -47,4 +61,4 @@
 	</header>
 	<p>Sorry we couldn't find that Badge</p>
 </article>
-{{/key}}
+{{/badge_rule}}

@@ -14,5 +14,9 @@
 	<form id="add-badge-rule-form">
 		<label for="name">Name:</label>
 		<input type="text" name="name" id="name" required />
+		<label for="equipment-types" style="align-self:baseline">Equipment Types:</label>
+		<fieldset id="equipment-types">
+			{{#equipment_types}}<label><input type="checkbox" name="equipment_types.{{id}}" id="equipment_types.{{id}}" /> {{name}}</label>{{/equipment_types}}
+		</fieldset>
 	</form>
 </article>

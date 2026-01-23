@@ -98,7 +98,8 @@ class DependencyContainer {
 			case BadgeRuleService::class:
 				return new BadgeRuleService(
 					$this->get(Session::class),
-					$this->get(BadgeRuleModel::class)
+					$this->get(BadgeRuleModel::class),
+					$this->get(EquipmentTypeModel::class)
 				);
 			case CardTypeService::class:
 				return new CardTypeService(

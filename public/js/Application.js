@@ -1,5 +1,6 @@
 import { SessionTimeOutError } from './SessionTimeOutError.js';
 import { APIKey } from './APIKey.js';
+import { BadgeRule } from './BadgeRule.js';
 import { Card } from './Card.js';
 import { CardType } from './CardType.js';
 import { Charge } from './Charge.js';
@@ -284,6 +285,7 @@ class Application {
 		}
 		let system_icons = {
 			api_keys: false,
+			badges: false,
 			roles: false
 		}
 		let home_icons = {
@@ -318,6 +320,48 @@ class Application {
 		if(this.user.has_permission(Permission.READ_API_KEY)) {
 			// User needs MODIFY_API_KEY to make use of /api-keys/id for editing
 			this.route("/api-keys/:id", params => this.read_api_key(params.id, this.user.has_permission(Permission.MODIFY_API_KEY), this.user.has_permission(Permission.DELETE_API_KEY)));
+		}
+
+		if(this.user.has_permission(Permission.CREATE_BADGE_RULE)) {
+			this.route("/badges/add", () => {
+				EquipmentType.list().then(equipment_types => {
+					this.render(
+						"#main",
+						"authenticated/badges/add",
+						{"equipment_types": equipment_types},
+						{},
+						() => {
+							document
+								.getElementById("add-badge-rule-form")
+								.addEventListener("submit", (e) => this.#add_badge_rule(e));
+						}
+					);
+				});
+			});
+		}
+
+		// User needs LIST_BADGE_RULES Permission to make use of /badges route
+		if(this.user.has_permission(Permission.LIST_BADGE_RULES)) {
+			if(!home_icons.system) { home_icons.system = system_icons }
+			home_icons.system.badges = true;
+			this.route("/badges", () => {
+				BadgeRule.list().then(badges => {
+					this.render("#main", "authenticated/badges/list", {"badges": badges});
+				}).catch(e => this.handleError(e));
+			});
+		}
+
+		// User needs READ_BADGE_RULE to make use of /badges/id
+		if(this.user.has_permission(Permission.READ_BADGE_RULE)) {
+			// User needs MODIFY_BADGE_RULE to make use of /badges/id for editing
+			this.route(
+				"/badges/:id",
+				(params) => this.#read_badge_rule(
+					params.id,
+					this.user.has_permission(Permission.MODIFY_BADGE_RULE),
+					this.user.has_permission(Permission.DELETE_BADGE_RULE)
+				)
+			);
 		}
 
 		// User needs CREATE_CARD Permission to make use of /cards/add route
@@ -396,7 +440,7 @@ class Application {
 			});
 		}
 
-		// User needs READ_EQUIPMENT to make use of /api-keys/id
+		// User needs READ_EQUIPMENT to make use of /equipment/id
 		if(this.user.has_permission(Permission.READ_EQUIPMENT)) {
 			// User needs MODIFY_EQUIPMENT to make use of /equipment/id for editing
 			this.route("/equipment/:id", params => this.read_equipment(params.id, this.user.has_permission(Permission.MODIFY_EQUIPMENT)));
@@ -739,8 +783,8 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		APIKey.create(data).then(_ => {
-			this.navigate("/api-keys");
+		APIKey.create(data).then((key) => {
+			this.navigate("/api-keys/" + key.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -753,7 +797,7 @@ class Application {
 	 */
 	delete_api_key(id) {
 		if(window.confirm("Are you sure you want to delete the API key")) {
-			APIKey.delete(id).then(_ => {
+			APIKey.delete(id).then(() => {
 				this.navigate("/api-keys")
 			}).catch(e => this.handleError(e));
 		}
@@ -790,8 +834,99 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		APIKey.modify(id, data).then(_ => {
-			this.navigate("/api-keys");
+		APIKey.modify(id, data).then((key) => {
+			this.navigate("/api-keys/" + key.id);
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles adding a badge rule to the backend. Bound to the
+	 * form.submit() for the view
+	 *
+	 * @param {Event} event - the form submission event
+	 */
+	#add_badge_rule(event) {
+		event.preventDefault();
+		let data = this.get_form_data(event.target);
+
+		BadgeRule.create(data).then((badge) => {
+			this.navigate("/badges/" + badge.id);
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles deleting an api key from the backend. Bound to the
+	 * delete button in the View API Key view [views/admin/api-keys/view.mst]
+	 *
+	 * @param {string} id - the numeric id as a string of the key to delete
+	 */
+	delete_badge_rule(id) {
+		if(window.confirm("Are you sure you want to delete this Badge?")) {
+			BadgeRule.delete(id).then(() => {
+				this.navigate("/badges")
+			}).catch(e => this.handleError(e));
+		}
+	}
+
+	/**
+	 * Helper method to view a badge rule.
+	 *
+	 * @param {Integer} id - the unique id of the api key to view
+	 * @param {bool} editable - whether to show controls for editing the api key.
+	 * @param {bool} deletable - whether to show controls for deleting the api key.
+	 */
+	#read_badge_rule(id, editable, deletable) {
+		const p1 = BadgeRule.read(id);
+		const p2 = EquipmentType.list();
+
+		Promise.all([p1, p2]).then((values) => {
+			const badge_rule = values[0];
+			const available_equipment_types = values[1];
+			const included_equipment_types = available_equipment_types.filter(
+				(type) => badge_rule.equipment_types.includes(type.id)
+			);
+
+			this.render(
+				"#main",
+				"authenticated/badges/view",
+				{
+					badge_rule,
+					editable,
+					deletable,
+					available_equipment_types,
+					included_equipment_types
+				},
+				{},
+				() => {
+					document
+						.getElementById("edit-badge-form")
+						.addEventListener("submit", (e) => { this.update_badge_rule(id, e); });
+					document
+						.getElementById("delete-badge-button")
+						.addEventListener("click", () => { this.delete_badge_rule(id); });
+					for(const equipment_type_id of badge_rule.equipment_types) {
+						document.getElementById("equipment_types." + equipment_type_id).checked = true;
+					}
+				}
+			);
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles updating cards on backend. Bound
+	 * to the form.submit() for the view.
+	 *
+	 * @param {Integer} id - the unique id of the location to modify
+	 * @param {Event} event - the form submission event
+	 */
+	update_badge_rule(id, event) {
+		event.preventDefault();
+		const data = this.get_form_data(event.target);
+
+		BadgeRule.modify(id, data).then((badge_rule) => {
+			this.navigate("/badges/" + badge_rule.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -806,8 +941,8 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		Card.create(data).then(_data => {
-			this.navigate("/cards");
+		Card.create(data).then((card) => {
+			this.navigate("/cards/" + card.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -894,14 +1029,13 @@ class Application {
 		let data = this.get_form_data(event.target);
 
 		Equipment.list().then(equipment_list => {
-
 			let contains = equipment_list.reduce((accumulator, equipment) => ((equipment.mac_address === data.mac_address) || accumulator), false);
 
 			if(contains) {
 				this.handleError(Error('Cannot save equipment. MAC address already exists.'));
 			} else {
-				Equipment.create(data).then(_data => {
-					this.navigate("/equipment");
+				Equipment.create(data).then((equipment) => {
+					this.navigate("/equipment/" + equipment.id);
 					// notify user of success
 				}).catch(e => this.handleError(e));
 			}
@@ -977,8 +1111,8 @@ class Application {
 			if(contains) {
 				this.handleError(Error('Cannot save equipment. MAC address already exists.'));
 			} else {
-				Equipment.modify(id, data).then(_ => {
-					this.navigate("/equipment");
+				Equipment.modify(id, data).then(() => {
+					this.navigate("/equipment/" + id);
 					// notify user of success
 				}).catch(e => this.handleError(e));
 			}
@@ -1033,8 +1167,8 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		EquipmentType.create(data).then(_ => {
-			this.navigate("/equipment-types");
+		EquipmentType.create(data).then((equipmentType) => {
+			this.navigate("/equipment-types/" + equipmentType.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1077,8 +1211,8 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		EquipmentType.modify(id, data).then(_ => {
-			this.navigate("/equipment-types");
+		EquipmentType.modify(id, data).then(() => {
+			this.navigate("/equipment-types/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1093,8 +1227,8 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		Location.create(data).then(_ => {
-			this.navigate("/locations");
+		Location.create(data).then((location) => {
+			this.navigate("/locations/" + location.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1145,8 +1279,8 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		Location.modify(id, data).then(_ => {
-			this.navigate("/locations");
+		Location.modify(id, data).then(() => {
+			this.navigate("/locations/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1293,8 +1427,8 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		Role.create(data).then(_ => {
-			this.navigate("/roles");
+		Role.create(data).then((role) => {
+			this.navigate("/roles/" + role.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1337,8 +1471,8 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		Role.modify(id, data).then(_ => {
-			this.navigate("/roles");
+		Role.modify(id, data).then(() => {
+			this.navigate("/roles/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1353,8 +1487,8 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		User.create(data).then(_ => {
-			this.navigate("/users");
+		User.create(data).then((user) => {
+			this.navigate("/users/" + user.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1370,7 +1504,7 @@ class Application {
 
 		const inputs = event.target.getElementsByTagName('input');
 
-		User.import(inputs[0].files[0]).then(_ => {
+		User.import(inputs[0].files[0]).then(() => {
 			this.navigate("/users");
 		}).catch(e => this.handleError(e));
 	}
@@ -1386,7 +1520,7 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		User.authorize(id, data).then(_ => {
+		User.authorize(id, data).then(() => {
 			this.navigate("/users/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
@@ -1402,7 +1536,7 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		User.changePIN(this.user.id, data.pin).then(_ => {
+		User.changePIN(this.user.id, data.pin).then(() => {
 			this.navigate("/profile");
 			// notify user of success
 		}).catch(e => this.handleError(e));
@@ -1512,7 +1646,7 @@ class Application {
 		event.preventDefault();
 		let data = this.get_form_data(event.target);
 
-		User.modify(id, data).then(_ => {
+		User.modify(id, data).then(() => {
 			this.navigate("/users/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
