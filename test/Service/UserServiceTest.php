@@ -1694,8 +1694,7 @@ final class UserServiceTest extends TestCase {
 						->set_id(2)
 						->set_permissions([
 							Permission::CREATE_EQUIPMENT_AUTHORIZATION,
-							Permission::DELETE_EQUIPMENT_AUTHORIZATION,
-							Permission::MODIFY_USER
+							Permission::DELETE_EQUIPMENT_AUTHORIZATION
 						])
 				)
 		);
@@ -1726,8 +1725,6 @@ final class UserServiceTest extends TestCase {
 					(new Role())
 						->set_id(2)
 						->set_permissions([
-							Permission::CREATE_EQUIPMENT_AUTHORIZATION,
-							Permission::DELETE_EQUIPMENT_AUTHORIZATION,
 							Permission::MODIFY_USER
 						])
 				)
@@ -1760,8 +1757,7 @@ final class UserServiceTest extends TestCase {
 						->set_id(2)
 						->set_permissions([
 							Permission::CREATE_EQUIPMENT_AUTHORIZATION,
-							Permission::DELETE_EQUIPMENT_AUTHORIZATION,
-							Permission::MODIFY_USER
+							Permission::DELETE_EQUIPMENT_AUTHORIZATION
 						])
 				)
 		);
@@ -1786,7 +1782,47 @@ final class UserServiceTest extends TestCase {
 		$service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchAuthorizationThrowsWhenEquipmentTypeDoesNotExist.json'));
 	}
 
-	public function testPatchAuthorizationSuccess() {
+	public function testPatchAuthorizationSuccessAsAdmin() {
+		$session = $this->createStub(SessionInterface::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([
+							Permission::MODIFY_USER
+						])
+				)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$roleModel = $this->createStub(RoleModel::class);
+
+		$userModel = $this->createMock(UserModel::class);
+		$userModel->method('read')->willReturn(new User());
+		$userModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn(User $user) =>
+					$user instanceof User
+					&& $user->authorizations() === [9, 10]
+			)
+		)->willReturnArgument(0);
+
+		$service = new UserService(
+			$session,
+			$equipmentTypeModel,
+			$roleModel,
+			$userModel
+		);
+
+		$user = $service->patch(1, realpath(__DIR__ . '/UserServiceTestData/PatchAuthorizationSuccess.json'));
+		self::assertInstanceOf(User::class, $user);
+		self::assertSame([9, 10], $user->authorizations());
+	}
+
+	public function testPatchAuthorizationSuccessAsTrainer() {
 		$session = $this->createStub(SessionInterface::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -1795,8 +1831,7 @@ final class UserServiceTest extends TestCase {
 						->set_id(2)
 						->set_permissions([
 							Permission::CREATE_EQUIPMENT_AUTHORIZATION,
-							Permission::DELETE_EQUIPMENT_AUTHORIZATION,
-							Permission::MODIFY_USER
+							Permission::DELETE_EQUIPMENT_AUTHORIZATION
 						])
 				)
 		);
