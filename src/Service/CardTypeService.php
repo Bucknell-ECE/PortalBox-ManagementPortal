@@ -8,17 +8,17 @@ use Portalbox\Entity\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Model\CardTypeModel;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
 
 class CardTypeService {
 	public const ERROR_UNAUTHENTICATED_READ = 'You must be authenticated to read card types';
 	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read card types';
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected CardTypeModel $cardTypeModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		CardTypeModel $cardTypeModel
 	) {
 		$this->session = $session;

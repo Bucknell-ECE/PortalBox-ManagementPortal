@@ -24,13 +24,13 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\CardQuery;
 use Portalbox\Service\CardService;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
 
 final class CardServiceTest extends TestCase {
 	#region test create()
 
 	public function testCreateThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$cardModel = $this->createStub(CardModel::class);
@@ -50,7 +50,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -73,7 +73,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -101,7 +101,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -128,7 +128,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenIdIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -155,7 +155,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenIdIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -182,7 +182,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenTypeIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -209,7 +209,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenTypeIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -236,7 +236,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenUserIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -263,7 +263,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenUserIdIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -290,7 +290,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenUserDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -319,7 +319,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenEquipmentTypeIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -346,7 +346,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenEquipmentTypeIdIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -373,7 +373,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenEquipmentTypeDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -407,7 +407,7 @@ final class CardServiceTest extends TestCase {
 		$id = 123456789;
 		$user_id = 12;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -452,7 +452,7 @@ final class CardServiceTest extends TestCase {
 		$id = 123456789;
 		$equipment_type_id = 12;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -496,7 +496,7 @@ final class CardServiceTest extends TestCase {
 		// some data that matches values in the json file
 		$id = 123456789;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -536,7 +536,7 @@ final class CardServiceTest extends TestCase {
 		// some data that matches values in the json file
 		$id = 123456789;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -577,7 +577,7 @@ final class CardServiceTest extends TestCase {
 	#region test read()
 
 	public function testReadThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$cardModel = $this->createStub(CardModel::class);
@@ -597,7 +597,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testReadThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -620,7 +620,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testReadThrowsWhenCardDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -651,7 +651,7 @@ final class CardServiceTest extends TestCase {
 	public function testReadSuccess() {
 		$card = new TrainingCard();
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -682,7 +682,7 @@ final class CardServiceTest extends TestCase {
 	#region test readAll()
 
 	public function testReadAllThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$cardModel = $this->createStub(CardModel::class);
@@ -702,7 +702,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenEquipmentTypeFilterIsNotInteger() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -725,7 +725,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenIdFilterIsNotInteger() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -748,7 +748,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenUserFilterIsNotInteger() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -771,7 +771,7 @@ final class CardServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -796,7 +796,7 @@ final class CardServiceTest extends TestCase {
 	public function testReadAllThrowsWhenUserTriesToReadOtherUsersCards() {
 		$authenticatedUserId = 123;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_id($authenticatedUserId)
@@ -829,7 +829,7 @@ final class CardServiceTest extends TestCase {
 			new UserCard()
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_id($authenticatedUserId)
@@ -875,7 +875,7 @@ final class CardServiceTest extends TestCase {
 			new UserCard()
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(

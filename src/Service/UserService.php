@@ -14,7 +14,7 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\UserQuery;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
 
 /**
  * Manage Users
@@ -49,13 +49,13 @@ class UserService {
 	public const ERROR_ROLE_FILTER_MUST_BE_INT = 'The value of role_id must be an integer';
 	public const ERROR_EQUIPMENT_FILTER_MUST_BE_INT = 'The value of equipment_id must be an integer';
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected EquipmentTypeModel $equipmentTypeModel;
 	protected RoleModel $roleModel;
 	protected UserModel $userModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		EquipmentTypeModel $equipmentTypeModel,
 		RoleModel $roleModel,
 		UserModel $userModel

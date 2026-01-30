@@ -12,7 +12,7 @@ use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\APIKeyModel;
 use Portalbox\Query\APIKeyQuery;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
 
 /**
  * Manage API Keys
@@ -34,11 +34,11 @@ class APIKeyService {
 	public const ERROR_UNAUTHENTICATED_DELETE = 'You must be authenticated to delete API keys';
 	public const ERROR_UNAUTHORIZED_DELETE = 'You are not authorized to delete API keys';
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected APIKeyModel $apiKeyModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		APIKeyModel $apiKeyModel
 	) {
 		$this->session = $session;

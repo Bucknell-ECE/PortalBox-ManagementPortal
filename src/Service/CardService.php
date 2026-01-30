@@ -19,7 +19,7 @@ use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\CardQuery;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
 
 /**
  * Manage Cards
@@ -43,13 +43,13 @@ class CardService {
 	public const ERROR_ID_FILTER_MUST_BE_INT = 'The value of search must be an integer';
 	public const ERROR_USER_FILTER_MUST_BE_INT = 'The value of user_id must be an integer';
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected CardModel $cardModel;
 	protected EquipmentTypeModel $equipmentTypeModel;
 	protected UserModel $userModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		CardModel $cardModel,
 		EquipmentTypeModel $equipmentTypeModel,
 		UserModel $userModel

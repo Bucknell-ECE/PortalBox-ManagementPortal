@@ -11,7 +11,7 @@ use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\RoleModel;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
 
 /**
  * Manage Roles
@@ -33,11 +33,11 @@ class RoleService {
 	public const ERROR_UNAUTHENTICATED_MODIFY = 'You must be authenticated to modify roles';
 	public const ERROR_UNAUTHORIZED_MODIFY = 'You are not authorized to modify roles';
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected RoleModel $roleModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		RoleModel $roleModel
 	) {
 		$this->session = $session;

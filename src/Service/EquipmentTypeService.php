@@ -12,7 +12,7 @@ use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
 
 /**
  * Manage Equipment Types
@@ -35,11 +35,11 @@ class EquipmentTypeService {
 	public const ERROR_EQUIPMENT_TYPE_NOT_FOUND = 'We have no record of that equipment type';
 
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected EquipmentTypeModel $equipmentTypeModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		EquipmentTypeModel $equipmentTypeModel
 	) {
 		$this->session = $session;

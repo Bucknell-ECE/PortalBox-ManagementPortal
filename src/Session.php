@@ -1,6 +1,6 @@
 <?php
 
-namespace Portalbox\Session;
+namespace Portalbox;
 
 use Portalbox\Config;
 use Portalbox\Entity\User;
@@ -22,7 +22,7 @@ use Portalbox\Query\APIKeyQuery;
  * authentication and authorization decisions in a manner that lends itself to
  * automated testing.
  */
-class Session implements SessionInterface {
+class Session {
 	public const ERROR_NOT_AUTHENTICATED = 'Your session is invalid. Perhaps you need to reauthenticate.';
 	public const ERROR_NOT_AUTHORIZED = 'You have not been granted access to this information.';
 
