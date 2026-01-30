@@ -451,7 +451,7 @@ class UserService {
 	 * @throws InvalidArgumentException if equipment_types is not a list of
 	 *      integers corresponding to equipment types
 	 * @throws AuthorizationException  if the user does not have the
-	 *      CREATE_EQUIPMENT_AUTHORIZATION, DELETE_EQUIPMENT_AUTHORIZATION, and
+	 *      CREATE_EQUIPMENT_AUTHORIZATION and DELETE_EQUIPMENT_AUTHORIZATION or
 	 *      MODIFY_USER permissions
 	 * @todo allow users to have CREATE_EQUIPMENT_AUTHORIZATION and
 	 *      DELETE_EQUIPMENT_AUTHORIZATION permissions separately and restrict
@@ -459,11 +459,13 @@ class UserService {
 	 */
 	private function patchUserAuthorizations(User $user, mixed $equipment_types): User {
 		$role = $this->session->get_authenticated_user()->role();
-		if(!(
-			$role->has_permission(Permission::CREATE_EQUIPMENT_AUTHORIZATION)
-			&& $role->has_permission(Permission::DELETE_EQUIPMENT_AUTHORIZATION)
-			&& $role->has_permission(Permission::MODIFY_USER)
-		)) {
+		if(
+			!(
+				$role->has_permission(Permission::CREATE_EQUIPMENT_AUTHORIZATION)
+				&& $role->has_permission(Permission::DELETE_EQUIPMENT_AUTHORIZATION)
+			)
+			&& !$role->has_permission(Permission::MODIFY_USER)
+		) {
 			throw new AuthorizationException(self::ERROR_NOT_AUTHORIZED_TO_PATCH_AUTHORIZATIONS);
 		}
 
@@ -478,13 +480,13 @@ class UserService {
 				throw new InvalidArgumentException(self::ERROR_INVALID_AUTHORIZATIONS);
 			}
 
-			$equipment_type = $this->equipmentTypeModel->read($equipment_type_id);
+			$equipment_type = $this->equipmentTypeModel->read($id);
 			if ($equipment_type === null) {
 				throw new InvalidArgumentException(self::ERROR_INVALID_AUTHORIZATIONS);
 			}
 
 			if (!in_array($id, $authorizations)) {
-				$authorizations[] = $equipment_type_id;
+				$authorizations[] = $id;
 			}
 		}
 
