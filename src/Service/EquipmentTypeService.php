@@ -7,7 +7,7 @@ namespace Portalbox\Service;
 use InvalidArgumentException;
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;

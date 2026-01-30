@@ -12,7 +12,7 @@ use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\Equipment;
 use Portalbox\Entity\LoggedEvent;
 use Portalbox\Entity\LoggedEventType;
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;

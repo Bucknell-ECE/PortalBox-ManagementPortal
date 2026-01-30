@@ -5,7 +5,7 @@ require '../../src/autoload.php';
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Entity\CardType;
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;

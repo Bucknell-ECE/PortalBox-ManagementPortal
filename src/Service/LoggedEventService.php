@@ -6,7 +6,7 @@ namespace Portalbox\Service;
 
 use DateInterval;
 use DateTimeImmutable;
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Model\LoggedEventModel;

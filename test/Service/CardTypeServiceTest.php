@@ -6,9 +6,9 @@ namespace Test\Portalbox\Service;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Entity\CardType;
-use Portalbox\Entity\Permission;
 use Portalbox\Entity\Role;
 use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Model\CardTypeModel;

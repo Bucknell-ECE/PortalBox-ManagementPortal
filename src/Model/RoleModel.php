@@ -3,6 +3,7 @@
 namespace Portalbox\Model;
 
 use Portalbox\Entity\Role;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\DatabaseException;
 use PDO;
 
@@ -36,9 +37,9 @@ class RoleModel extends AbstractModel {
 				$sql = 'INSERT INTO roles_x_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)';
 				$statement = $connection->prepare($sql);
 
-				foreach ($permissions as $permission_id) {
+				foreach ($permissions as $permission) {
 					$statement->bindValue(':role_id', $role_id, PDO::PARAM_INT);
-					$statement->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
+					$statement->bindValue(':permission_id', $permission->value, PDO::PARAM_INT);
 					if (!$statement->execute()) {
 						// cancel transaction
 						$connection->rollBack();
@@ -80,7 +81,12 @@ class RoleModel extends AbstractModel {
 				$statement = $connection->prepare($sql);
 				$statement->bindValue(':role_id', $data['id'], PDO::PARAM_INT);
 				if ($statement->execute()) {
-					return $role->set_permissions(array_map('intval', $statement->fetchAll(PDO::FETCH_COLUMN)));
+					return $role->set_permissions(
+						array_map(
+							fn ($p) => Permission::from($p),
+							$statement->fetchAll(PDO::FETCH_COLUMN)
+						)
+					);
 				}
 
 				// throw exception?
@@ -128,9 +134,9 @@ class RoleModel extends AbstractModel {
 				$sql = 'INSERT INTO roles_x_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)';
 				$statement = $connection->prepare($sql);
 
-				foreach ($added_permissions as $permission_id) {
+				foreach ($added_permissions as $permission) {
 					$statement->bindValue(':role_id', $role_id, PDO::PARAM_INT);
-					$statement->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
+					$statement->bindValue(':permission_id', $permission->value, PDO::PARAM_INT);
 					if (!$statement->execute()) {
 						// cancel transaction
 						$connection->rollBack();
@@ -141,9 +147,9 @@ class RoleModel extends AbstractModel {
 				$sql = 'DELETE FROM roles_x_permissions WHERE role_id = :role_id AND permission_id = :permission_id';
 				$statement = $connection->prepare($sql);
 
-				foreach ($removed_permissions as $permission_id) {
+				foreach ($removed_permissions as $permission) {
 					$statement->bindValue(':role_id', $role_id, PDO::PARAM_INT);
-					$statement->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
+					$statement->bindValue(':permission_id', $permission->value, PDO::PARAM_INT);
 					if (!$statement->execute()) {
 						// cancel transaction
 						$connection->rollBack();

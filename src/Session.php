@@ -4,6 +4,7 @@ namespace Portalbox;
 
 use Portalbox\Config;
 use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Model\Entity\User as PDOAwareUser;
 use Portalbox\Model\APIKeyModel;
 use Portalbox\Model\UserModel;
@@ -75,7 +76,7 @@ class Session {
 				if (!$success) {
 					session_abort();	// should shutdown execution but just in case...
 					http_response_code(500);
-					die('The operating evnvironment is improperly configured for tracking user sessions. Please notify the administrator');
+					die('The operating environment is improperly configured for tracking user sessions. Please notify the administrator');
 				}
 			}
 
@@ -106,13 +107,11 @@ class Session {
 	 * has the specified permission. An HTTP 403 response will be sent and
 	 * script execution terminated if the user is not authenticated.
 	 *
-	 * @param int permission the Permission for which to check. Must be one of
-	 *     the constants exposed in Portalbox\Entity\Permission to result in
-	 *     true being returned
+	 * @param Permission $permission  the Permission for which to check.
 	 * @return bool true iff the User is authenticated and has the specified
 	 *     permission
 	 */
-	public function check_authorization(int $permission): bool {
+	public function check_authorization(Permission $permission): bool {
 		$this->require_authentication();
 
 		return $this->get_authenticated_user()->role()->has_permission($permission);
@@ -122,7 +121,7 @@ class Session {
 	 * A convenience method that returns an HTTP 403 response if the user is
 	 * not authorized.
 	 */
-	public function require_authorization(int $permission): void {
+	public function require_authorization(Permission $permission): void {
 		if (!$this->check_authorization($permission)) {
 			http_response_code(403);
 			die('You have not been granted access to this information.');

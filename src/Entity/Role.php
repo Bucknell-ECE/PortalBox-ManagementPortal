@@ -3,6 +3,7 @@
 namespace Portalbox\Entity;
 
 use InvalidArgumentException;
+use Portalbox\Enumeration\Permission;
 
 /**
  * Role represents an assignable group of permissions.
@@ -27,7 +28,7 @@ class Role {
 	/**
 	 * A list of permissions assigned to this role
 	 *
-	 * @var int[]|null
+	 * @var Permission[]|null
 	 */
 	protected ?array $permissions = null;
 
@@ -85,7 +86,7 @@ class Role {
 	 */
 	public function set_permissions(array $permissions): self {
 		foreach ($permissions as $permission) {
-			if (!Permission::is_valid($permission)) {
+			if (!($permission instanceof Permission)) {
 				throw new InvalidArgumentException(self::ERROR_INVALID_PERMISSION);
 			}
 		}
@@ -95,11 +96,7 @@ class Role {
 	}
 
 	/** Determine whether the role has a permission */
-	public function has_permission(int $permission): bool {
-		if (is_array($this->permissions)) {
-			return in_array($permission, $this->permissions);
-		} else {
-			return false;
-		}
+	public function has_permission(Permission $permission): bool {
+		return is_array($this->permissions) && in_array($permission, $this->permissions);
 	}
 }

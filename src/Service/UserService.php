@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
-use Portalbox\Entity\Permission;
 use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;

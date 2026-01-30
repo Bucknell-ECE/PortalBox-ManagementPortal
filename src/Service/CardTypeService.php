@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Portalbox\Service;
 
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Model\CardTypeModel;

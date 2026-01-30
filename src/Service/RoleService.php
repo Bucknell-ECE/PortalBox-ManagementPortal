@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
-use Portalbox\Entity\Permission;
 use Portalbox\Entity\Role;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
@@ -81,7 +81,13 @@ class RoleService {
 			if ($id === false) {
 				throw new InvalidArgumentException(self::ERROR_PERMISSIONS_ARE_INVALID);
 			}
-			$validatedPermissions[] = $id;
+
+			$permission = Permission::tryFrom($id);
+			if ($permission === null) {
+				throw new InvalidArgumentException(self::ERROR_PERMISSIONS_ARE_INVALID);
+			}
+
+			$validatedPermissions[] = $permission;
 		}
 
 		return (new Role())

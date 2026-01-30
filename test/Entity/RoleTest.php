@@ -6,8 +6,8 @@ namespace Test\Portalbox\Entity;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\Permission;
 use Portalbox\Entity\Role;
+use Portalbox\Enumeration\Permission;
 
 final class RoleTest extends TestCase {
 	public function testAgreement(): void {
@@ -45,8 +45,8 @@ final class RoleTest extends TestCase {
 			-1
 		];
 
-		$this->expectException(InvalidArgumentException::class);
-
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(Role::ERROR_INVALID_PERMISSION);
 		$role = (new Role())->set_permissions($permissions);
 	}
 }

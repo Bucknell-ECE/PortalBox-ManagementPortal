@@ -4,7 +4,7 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;

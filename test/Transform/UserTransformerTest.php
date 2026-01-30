@@ -9,9 +9,9 @@ use PHPUnit\Framework\TestCase;
 use PortalBox\Config;
 use Portalbox\Entity\ChargePolicy;
 use Portalbox\Entity\EquipmentType;
-use PortalBox\Entity\Permission;
 use PortalBox\Entity\Role;
 use PortalBox\Entity\User;
+use PortalBox\Enumeration\Permission;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Transform\UserTransformer;
 

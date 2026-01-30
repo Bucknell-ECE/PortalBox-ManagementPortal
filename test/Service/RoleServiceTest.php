@@ -6,9 +6,9 @@ namespace Test\Portalbox\Service;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\Permission;
 use Portalbox\Entity\Role;
 use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
@@ -239,6 +239,29 @@ final class RoleServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/RoleServiceTestData/CreateThrowsWhenPermissionsAreInvalidType.json'));
 	}
 
+	public function testCreateThrowsWhenPermissionIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_ROLE])
+				)
+		);
+
+		$roleModel = $this->createStub(RoleModel::class);
+
+		$service = new RoleService(
+			$session,
+			$roleModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_INVALID);
+		$service->create(realpath(__DIR__ . '/RoleServiceTestData/CreateThrowsWhenPermissionIsInvalid.json'));
+	}
+
 	public function testCreateThrowsWhenPermissionsAreInvalid() {
 		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
@@ -258,7 +281,7 @@ final class RoleServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(Role::ERROR_INVALID_PERMISSION);
+		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_INVALID);
 		$service->create(realpath(__DIR__ . '/RoleServiceTestData/CreateThrowsWhenPermissionsAreInvalid.json'));
 	}
 
@@ -704,7 +727,7 @@ final class RoleServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(Role::ERROR_INVALID_PERMISSION);
+		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_INVALID);
 		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreInvalid.json'));
 	}
 
