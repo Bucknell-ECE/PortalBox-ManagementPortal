@@ -6,7 +6,7 @@ use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Entity\Permission;
 use Portalbox\Model\LocationModel;
-use Portalbox\Session\Session;
+use Portalbox\Session;
 use Portalbox\Transform\LocationTransformer;
 
 $session = new Session();

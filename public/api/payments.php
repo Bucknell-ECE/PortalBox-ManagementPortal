@@ -8,7 +8,7 @@ use Portalbox\Entity\Permission;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\PaymentModel;
 use Portalbox\Query\PaymentQuery;
-use Portalbox\Session\Session;
+use Portalbox\Session;
 use Portalbox\Transform\PaymentTransformer;
 
 $session = new Session();

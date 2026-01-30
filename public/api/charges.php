@@ -8,7 +8,7 @@ use Portalbox\Entity\Permission;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\ChargeModel;
 use Portalbox\Query\ChargeQuery;
-use Portalbox\Session\Session;
+use Portalbox\Session;
 use Portalbox\Transform\ChargeTransformer;
 
 $session = new Session();

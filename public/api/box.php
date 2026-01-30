@@ -12,7 +12,7 @@ use Portalbox\Model\LocationModel;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Transform\EquipmentTransformer;
 use Portalbox\Query\CardQuery;
-use Portalbox\Session\Session;
+use Portalbox\Session;
 
 $session = new Session();
 

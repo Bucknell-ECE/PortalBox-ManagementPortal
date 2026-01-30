@@ -10,7 +10,7 @@ use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Service\CardService;
-use Portalbox\Session\Session;
+use Portalbox\Session;
 use Portalbox\Transform\CardTransformer;
 
 $session = new Session();

@@ -10,7 +10,7 @@ use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Query\EquipmentQuery;
-use Portalbox\Session\Session;
+use Portalbox\Session;
 use Portalbox\Transform\EquipmentTransformer;
 
 $session = new Session();
