@@ -2,14 +2,14 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\User;
-use Portalbox\Model\Entity\User as PDOAwareUser;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Model\Type\User as PDOAwareUser;
 use Portalbox\Query\UserQuery;
+use Portalbox\Type\User;
 use PDO;
 
 /**
- * UserModel is our bridge between the database and higher level Entities.
+ * UserModel is our bridge between the database and User instances.
  */
 class UserModel extends AbstractModel {
 	/**

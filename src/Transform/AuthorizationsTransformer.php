@@ -13,7 +13,7 @@ use Portalbox\Model\EquipmentTypeModel;
  */
 class AuthorizationsTransformer implements InputTransformer {
 	/**
-	 * Deserialize an Authorizations entity object from a dictionary
+	 * Deserialize an Authorizations object from a dictionary
 	 *
 	 * @param array data - a dictionary representing an Authorizations list
 	 * @return array<int> - a list of authorization ids

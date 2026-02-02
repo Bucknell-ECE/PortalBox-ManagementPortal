@@ -7,14 +7,14 @@ namespace Test\Portalbox\Model;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\Equipment;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Location;
 use Portalbox\Model\ActivationModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\Equipment;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Location;
 
 final class ActivationModelTest extends TestCase {
 	/** A location that exists in the db */

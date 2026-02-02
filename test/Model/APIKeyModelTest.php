@@ -6,9 +6,9 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\APIKey;
 use Portalbox\Model\APIKeyModel;
 use Portalbox\Query\APIKeyQuery;
+use Portalbox\Type\APIKey;
 
 final class APIKeyModelTest extends TestCase {
 	public function testModel(): void {

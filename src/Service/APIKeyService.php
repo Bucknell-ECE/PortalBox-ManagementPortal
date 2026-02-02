@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
-use Portalbox\Entity\APIKey;
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\APIKeyModel;
 use Portalbox\Query\APIKeyQuery;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
+use Portalbox\Type\APIKey;
 
 /**
  * Manage API Keys
@@ -34,11 +34,11 @@ class APIKeyService {
 	public const ERROR_UNAUTHENTICATED_DELETE = 'You must be authenticated to delete API keys';
 	public const ERROR_UNAUTHORIZED_DELETE = 'You are not authorized to delete API keys';
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected APIKeyModel $apiKeyModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		APIKeyModel $apiKeyModel
 	) {
 		$this->session = $session;
@@ -46,10 +46,10 @@ class APIKeyService {
 	}
 
 	/**
-	 * Deserialize an APIKey entity object from a dictionary
+	 * Deserialize an APIKey from a dictionary
 	 *
 	 * @param array data - a dictionary representing a Payment
-	 * @return APIKey - a valid entity object based on the data specified
+	 * @return APIKey - an object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	private function deserialize(array $data): APIKey {

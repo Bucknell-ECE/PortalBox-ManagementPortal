@@ -24,6 +24,6 @@
 .phpunit.result.cache
 
 # ignore editor settings
-.zed
-.vscode
 .phpactor.json
+.vscode
+.zed

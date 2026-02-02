@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
-use Portalbox\Entity\BadgeRule;
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\BadgeRuleModel;
 use Portalbox\Model\EquipmentTypeModel;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
+use Portalbox\Type\BadgeRule;
 
 /**
  * Manage badge rules
@@ -35,12 +35,12 @@ class BadgeRuleService {
 	public const ERROR_UNAUTHENTICATED_DELETE = 'You must be authenticated to delete badge rules';
 	public const ERROR_UNAUTHORIZED_DELETE = 'You are not authorized to delete badge rules';
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected BadgeRuleModel $badgeRuleModel;
 	protected EquipmentTypeModel $equipmentTypeModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		BadgeRuleModel $badgeRuleModel,
 		EquipmentTypeModel $equipmentTypeModel
 	) {

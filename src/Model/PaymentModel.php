@@ -2,13 +2,13 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\Payment;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\PaymentQuery;
+use Portalbox\Type\Payment;
 use PDO;
 
 /**
- * PaymentModel is our bridge between the database and higher level Entities.
+ * PaymentModel is our bridge between the database and Payment instances.
  */
 class PaymentModel extends AbstractModel {
 	/**

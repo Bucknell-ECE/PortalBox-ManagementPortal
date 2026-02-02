@@ -6,7 +6,7 @@ use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Service\EquipmentTypeService;
-use Portalbox\Session\Session;
+use Portalbox\Session;
 use Portalbox\Transform\EquipmentTypeTransformer;
 
 $session = new Session();

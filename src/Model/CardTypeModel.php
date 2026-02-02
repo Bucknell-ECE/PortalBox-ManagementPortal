@@ -2,8 +2,8 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\CardType;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Type\CardType;
 use PDO;
 
 class CardTypeModel extends AbstractModel {

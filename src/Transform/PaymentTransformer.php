@@ -4,20 +4,19 @@ namespace Portalbox\Transform;
 
 use InvalidArgumentException;
 use Portalbox\Config;
-use Portalbox\Entity\Payment;
-// violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\UserModel;
+use Portalbox\Type\Payment;
 
 /**
  * PaymentTransformer is our bridge between dictionary representations and
- * Payment entity instances.
+ * Payment instances.
  */
 class PaymentTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * Deserialize a Payment entity object from a dictionary
+	 * Deserialize a Payment object from a dictionary
 	 *
 	 * @param array data - a dictionary representing a Payment
-	 * @return Payment - a valid entity object based on the data specified
+	 * @return Payment - an object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Payment {
@@ -43,7 +42,7 @@ class PaymentTransformer implements InputTransformer, OutputTransformer {
 	}
 
 	/**
-	 * Called to serialize a Payment entity instance to a dictionary
+	 * Called to serialize a Payment instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

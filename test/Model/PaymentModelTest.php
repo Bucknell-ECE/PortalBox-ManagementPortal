@@ -6,12 +6,12 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\Payment;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
 use Portalbox\Model\PaymentModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\PaymentQuery;
+use Portalbox\Type\Payment;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class PaymentModelTest extends TestCase {
 	/**

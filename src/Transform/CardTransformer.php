@@ -4,16 +4,16 @@ namespace Portalbox\Transform;
 
 use InvalidArgumentException;
 use Portalbox\Config;
-use Portalbox\Entity\Card;
-use Portalbox\Entity\CardType;
+use Portalbox\Type\Card;
+use Portalbox\Type\CardType;
 
 /**
  * CardTransformer is our bridge between dictionary representations and
- * Card entity instances.
+ * Card instances.
  */
 class CardTransformer implements OutputTransformer {
 	/**
-	 * Called to serialize Card entity instance to a dictionary
+	 * Called to serialize Card instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

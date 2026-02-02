@@ -5,13 +5,7 @@ declare(strict_types=1);
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
-use Portalbox\Entity\Card;
-use Portalbox\Entity\CardType;
-use Portalbox\Entity\Permission;
-use Portalbox\Entity\ProxyCard;
-use Portalbox\Entity\ShutdownCard;
-use Portalbox\Entity\TrainingCard;
-use Portalbox\Entity\UserCard;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
@@ -19,7 +13,13 @@ use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\CardQuery;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
+use Portalbox\Type\Card;
+use Portalbox\Type\CardType;
+use Portalbox\Type\ProxyCard;
+use Portalbox\Type\ShutdownCard;
+use Portalbox\Type\TrainingCard;
+use Portalbox\Type\UserCard;
 
 /**
  * Manage Cards
@@ -43,13 +43,13 @@ class CardService {
 	public const ERROR_ID_FILTER_MUST_BE_INT = 'The value of search must be an integer';
 	public const ERROR_USER_FILTER_MUST_BE_INT = 'The value of user_id must be an integer';
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected CardModel $cardModel;
 	protected EquipmentTypeModel $equipmentTypeModel;
 	protected UserModel $userModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		CardModel $cardModel,
 		EquipmentTypeModel $equipmentTypeModel,
 		UserModel $userModel
@@ -95,10 +95,10 @@ class CardService {
 	}
 
 	/**
-	 * Deserialize a Card entity object from a dictionary
+	 * Deserialize a Card object from a dictionary
 	 *
 	 * @param array data - a dictionary representing a Card
-	 * @return Card - a valid entity object based on the data specified
+	 * @return Card - an object based on the data specified
 	 * @throws InvalidArgumentException if a required field is not specified
 	 */
 	private function deserialize(array $data): Card {

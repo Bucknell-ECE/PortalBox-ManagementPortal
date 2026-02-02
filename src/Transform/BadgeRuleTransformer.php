@@ -2,7 +2,7 @@
 
 namespace Portalbox\Transform;
 
-use Portalbox\Entity\BadgeRule;
+use Portalbox\Type\BadgeRule;
 
 /**
  * BadgeRuleTransformer handles serializing a BadgeRule or list of BadgeRules

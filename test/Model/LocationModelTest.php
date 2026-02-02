@@ -6,8 +6,8 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\Location;
 use Portalbox\Model\LocationModel;
+use Portalbox\Type\Location;
 
 final class LocationModelTest extends TestCase {
 	public function testModel(): void {

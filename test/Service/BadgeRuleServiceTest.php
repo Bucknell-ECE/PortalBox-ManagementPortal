@@ -6,24 +6,24 @@ namespace Test\Portalbox\Service;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\BadgeRule;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Permission;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\BadgeRuleModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Service\BadgeRuleService;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
+use Portalbox\Type\BadgeRule;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class BadgeRuleServiceTest extends TestCase {
 	#region test create()
 
 	public function testCreateThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
@@ -41,7 +41,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -62,7 +62,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -88,7 +88,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -113,7 +113,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNameIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -138,7 +138,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNameIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -163,7 +163,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenEquipmentTypesIsWrongType() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -188,7 +188,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenEquipmentTypeIdIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -213,7 +213,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenEquipmentTypeDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -241,7 +241,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	public function testCreateSuccessNoEquipmentTypes() {
 		$name = 'Electronics Technician'; // the sanitized name from the input file
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -278,7 +278,7 @@ final class BadgeRuleServiceTest extends TestCase {
 		$name = 'Electronics Technician'; // the sanitized name from the input file
 		$equipment_type_id = 2;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -319,7 +319,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	#region test read()
 
 	public function testReadThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
@@ -337,7 +337,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testReadThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -358,7 +358,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testReadThrowsWhenKeyDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -385,7 +385,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	public function testReadSuccess() {
 		$rule = new BadgeRule();
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -414,7 +414,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	#region test readAll()
 
 	public function testReadAllThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
@@ -432,7 +432,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -458,7 +458,7 @@ final class BadgeRuleServiceTest extends TestCase {
 			(new BadgeRule())->set_id(2)
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -487,7 +487,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	#region test update()
 
 	public function testUpdateThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
@@ -505,7 +505,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -526,7 +526,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -552,7 +552,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -577,7 +577,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNameIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -602,7 +602,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNameIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -627,7 +627,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenEquipmentTypesIsWrongType() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -652,7 +652,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenEquipmentTypeIdIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -681,7 +681,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenEquipmentTypeDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -713,7 +713,7 @@ final class BadgeRuleServiceTest extends TestCase {
 		$id = 12;
 		$name = 'Electronics Technician'; // the sanitized name from the input file
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -754,7 +754,7 @@ final class BadgeRuleServiceTest extends TestCase {
 		$id = 12;
 		$name = 'Electronics Technician'; // the sanitized name from the input file
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -794,7 +794,7 @@ final class BadgeRuleServiceTest extends TestCase {
 		$name = 'Electronics Technician'; // the sanitized name from the input file
 		$equipment_type_ids = [34, 52];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -842,7 +842,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	#region test delete()
 
 	public function testDeleteThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
@@ -860,7 +860,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testDeleteThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -881,7 +881,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	public function testDeleteThrowsWhenKeyDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -908,7 +908,7 @@ final class BadgeRuleServiceTest extends TestCase {
 	public function testDeleteSuccess() {
 		$rule = new BadgeRule();
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(

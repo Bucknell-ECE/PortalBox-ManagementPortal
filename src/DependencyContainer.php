@@ -22,7 +22,7 @@ use Portalbox\Service\EquipmentService;
 use Portalbox\Service\LoggedEventService;
 use Portalbox\Service\RoleService;
 use Portalbox\Service\UserService;
-use Portalbox\Session\Session;
+use Portalbox\Session;
 
 /**
  * Dependency Containers are programming magic wiring up objects with the other

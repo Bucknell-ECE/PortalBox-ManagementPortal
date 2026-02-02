@@ -4,21 +4,20 @@ namespace Portalbox\Transform;
 
 use InvalidArgumentException;
 use Portalbox\Config;
-use Portalbox\Entity\Equipment;
-// violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
+use Portalbox\Type\Equipment;
 
 /**
  * EquipmentTransformer is our bridge between dictionary representations and
- * Equipment entity instances.
+ * Equipment instances.
  */
 class EquipmentTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * Deserialize a Equipment entity object from a dictionary
+	 * Deserialize a Equipment object from a dictionary
 	 *
 	 * @param array data - a dictionary representing a Equipment
-	 * @return Equipment - a valid entity object based on the data specified
+	 * @return Equipment - an object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Equipment {
@@ -67,7 +66,7 @@ class EquipmentTransformer implements InputTransformer, OutputTransformer {
 	}
 
 	/**
-	 * Called to serialize Equipment entity instance to a dictionary
+	 * Called to serialize Equipment instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

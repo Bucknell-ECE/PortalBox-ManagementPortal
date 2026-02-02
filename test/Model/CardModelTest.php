@@ -6,19 +6,19 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\CardType;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\ProxyCard;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\ShutdownCard;
-use Portalbox\Entity\TrainingCard;
-use Portalbox\Entity\User;
-use Portalbox\Entity\UserCard;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\CardQuery;
+use Portalbox\Type\CardType;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\ProxyCard;
+use Portalbox\Type\Role;
+use Portalbox\Type\ShutdownCard;
+use Portalbox\Type\TrainingCard;
+use Portalbox\Type\User;
+use Portalbox\Type\UserCard;
 
 final class CardModelTest extends TestCase {
 	/**

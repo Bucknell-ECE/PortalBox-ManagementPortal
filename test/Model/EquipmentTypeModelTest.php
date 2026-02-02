@@ -7,9 +7,9 @@ namespace Test\Portalbox\Model;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\EquipmentType;
 use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\EquipmentType;
 
 final class EquipmentTypeModelTest extends TestCase {
 	public function testCreateReadUpdateDelete(): void {

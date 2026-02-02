@@ -3,18 +3,18 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-use Portalbox\Entity\Location;
+use Portalbox\Type\Location;
 
 /**
  * LocationTransformer is our bridge between dictionary representations and
- * Location entity instances.
+ * Location instances.
  */
 class LocationTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * Deserialize a Location entity object from a dictionary
+	 * Deserialize a Location from a dictionary
 	 *
 	 * @param array data - a dictionary representing a Location
-	 * @return Location - a valid entity object based on the data specified
+	 * @return Location - an object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Location {
@@ -26,7 +26,7 @@ class LocationTransformer implements InputTransformer, OutputTransformer {
 	}
 
 	/**
-	 * Called to serialize a Location entity instance to a dictionary
+	 * Called to serialize a Location instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

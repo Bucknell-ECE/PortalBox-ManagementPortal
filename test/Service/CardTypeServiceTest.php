@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Test\Portalbox\Service;
 
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\CardType;
-use Portalbox\Entity\Permission;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Model\CardTypeModel;
 use Portalbox\Service\CardTypeService;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
+use Portalbox\Type\CardType;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class CardTypeServiceTest extends TestCase {
 	public function testReadAllThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$cardTypeModel = $this->createStub(CardTypeModel::class);
@@ -37,7 +37,7 @@ final class CardTypeServiceTest extends TestCase {
 			new CardType()
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -63,7 +63,7 @@ final class CardTypeServiceTest extends TestCase {
 			new CardType()
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(

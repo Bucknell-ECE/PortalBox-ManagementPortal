@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Test\Portalbox\Transform;
 
 use PHPUnit\Framework\TestCase;
-use PortalBox\Entity\BadgeRule;
 use Portalbox\Transform\BadgeRuleTransformer;
+use PortalBox\Type\BadgeRule;
 
 final class BadgeRuleTransformerTest extends TestCase {
 	public function testSerialize(): void {

@@ -6,21 +6,21 @@ namespace Test\Portalbox\Service;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\Permission;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\RoleModel;
 use Portalbox\Service\RoleService;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class RoleServiceTest extends TestCase {
 	#region test create()
 
 	public function testCreateThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -36,7 +36,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -55,7 +55,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -79,7 +79,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -102,7 +102,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNameIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -125,7 +125,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNameIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -148,7 +148,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenDescriptionIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -171,7 +171,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenPermissionsAreNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -194,7 +194,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenPermissionsAreNotList() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -217,7 +217,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenPermissionsAreInvalidType() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -239,8 +239,8 @@ final class RoleServiceTest extends TestCase {
 		$service->create(realpath(__DIR__ . '/RoleServiceTestData/CreateThrowsWhenPermissionsAreInvalidType.json'));
 	}
 
-	public function testCreateThrowsWhenPermissionsAreInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+	public function testCreateThrowsWhenPermissionIsInvalid() {
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -258,7 +258,30 @@ final class RoleServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(Role::ERROR_INVALID_PERMISSION);
+		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_INVALID);
+		$service->create(realpath(__DIR__ . '/RoleServiceTestData/CreateThrowsWhenPermissionIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenPermissionsAreInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_ROLE])
+				)
+		);
+
+		$roleModel = $this->createStub(RoleModel::class);
+
+		$service = new RoleService(
+			$session,
+			$roleModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_INVALID);
 		$service->create(realpath(__DIR__ . '/RoleServiceTestData/CreateThrowsWhenPermissionsAreInvalid.json'));
 	}
 
@@ -273,7 +296,7 @@ final class RoleServiceTest extends TestCase {
 			Permission::READ_OWN_USER,
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -314,7 +337,7 @@ final class RoleServiceTest extends TestCase {
 	#region test read()
 
 	public function testReadThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -330,7 +353,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testReadThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -349,7 +372,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testReadThrowsWhenKeyDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -374,7 +397,7 @@ final class RoleServiceTest extends TestCase {
 	public function testReadSuccess() {
 		$role = new Role();
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -400,7 +423,7 @@ final class RoleServiceTest extends TestCase {
 	#region test readAll()
 
 	public function testReadAllThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -416,7 +439,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -440,7 +463,7 @@ final class RoleServiceTest extends TestCase {
 			(new Role())->set_id(2)
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -466,7 +489,7 @@ final class RoleServiceTest extends TestCase {
 	#region test update()
 
 	public function testUpdateThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$roleModel = $this->createStub(RoleModel::class);
@@ -482,7 +505,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -501,7 +524,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -525,7 +548,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -548,7 +571,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNameIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -571,7 +594,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNameIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -594,7 +617,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenDescriptionIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -617,7 +640,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenPermissionsAreNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -640,7 +663,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenPermissionsAreNotList() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -663,7 +686,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenPermissionsAreInvalidType() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -686,7 +709,7 @@ final class RoleServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenPermissionsAreInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -704,7 +727,7 @@ final class RoleServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(Role::ERROR_INVALID_PERMISSION);
+		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_INVALID);
 		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreInvalid.json'));
 	}
 
@@ -720,7 +743,7 @@ final class RoleServiceTest extends TestCase {
 			Permission::READ_OWN_USER,
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -765,7 +788,7 @@ final class RoleServiceTest extends TestCase {
 			Permission::READ_OWN_USER,
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(

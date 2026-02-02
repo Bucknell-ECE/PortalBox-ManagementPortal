@@ -2,9 +2,9 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\BadgeRule;
-use Portalbox\Exception\DatabaseException;
 use PDO;
+use Portalbox\Exception\DatabaseException;
+use Portalbox\Type\BadgeRule;
 
 /**
  * Adapter for storing and retrieving badge configurations from the database.

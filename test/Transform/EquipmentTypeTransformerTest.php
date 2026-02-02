@@ -6,9 +6,9 @@ namespace Test\Portalbox\Transform;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\ChargePolicy;
-use PortalBox\Entity\EquipmentType;
 use Portalbox\Transform\EquipmentTypeTransformer;
+use Portalbox\Type\ChargePolicy;
+use PortalBox\Type\EquipmentType;
 
 final class EquipmentTypeTransformerTest extends TestCase {
 	public function testSerialize(): void {

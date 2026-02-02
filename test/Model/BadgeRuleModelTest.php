@@ -6,11 +6,11 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\BadgeRule;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\EquipmentType;
 use Portalbox\Model\BadgeRuleModel;
 use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Type\BadgeRule;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\EquipmentType;
 
 final class BadgeRuleModelTest extends TestCase {
 	public function testCreateReadUpdateDelete(): void {
