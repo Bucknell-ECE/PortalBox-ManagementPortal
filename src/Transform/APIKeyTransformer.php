@@ -3,18 +3,18 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-use Portalbox\Entity\APIKey;
+use Portalbox\Type\APIKey;
 
 /**
  * APIKeyTransformer is our bridge between dictionary representations and
- * APIKey entity instances.
+ * APIKey instances.
  */
 class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * Deserialize an APIKey entity object from a dictionary
+	 * Deserialize an APIKey object from a dictionary
 	 *
 	 * @param array data - a dictionary representing a Payment
-	 * @return APIKey - a valid entity object based on the data specified
+	 * @return APIKey - an object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): APIKey {
@@ -27,7 +27,7 @@ class APIKeyTransformer implements InputTransformer, OutputTransformer {
 	}
 
 	/**
-	 * Called to serialize a APIKey entity instance to a dictionary
+	 * Called to serialize a APIKey to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

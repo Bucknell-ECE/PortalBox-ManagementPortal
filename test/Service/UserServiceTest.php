@@ -7,10 +7,7 @@ namespace Test\Portalbox\Service;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Permission;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
@@ -19,13 +16,16 @@ use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\UserQuery;
 use Portalbox\Service\UserService;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class UserServiceTest extends TestCase {
 	#region test create()
 
 	public function testCreateThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -45,7 +45,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -68,7 +68,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -96,7 +96,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -123,7 +123,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenRoleIdIsNotInteger() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -150,7 +150,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenRoleDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -177,7 +177,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNameIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -207,7 +207,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenEmailIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -237,7 +237,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenInActiveIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -267,7 +267,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenAuthorizationsIsNotList() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -297,7 +297,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenAuthorizationIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -331,7 +331,7 @@ final class UserServiceTest extends TestCase {
 		$role = (new Role())
 			->set_id(2);
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -381,7 +381,7 @@ final class UserServiceTest extends TestCase {
 		$role = (new Role())
 			->set_id(2);
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -434,7 +434,7 @@ final class UserServiceTest extends TestCase {
 	#region test import()
 
 	public function testImportThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -454,7 +454,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testImportThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -477,7 +477,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testImportThrowsWhenLineTooShort() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -509,7 +509,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testImportThrowsWhenLineTooLong() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -541,7 +541,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testImportThrowsWhenRoleDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -573,7 +573,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testImportThrowsWhenNameIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -605,7 +605,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testImportThrowsWhenEmailIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -639,7 +639,7 @@ final class UserServiceTest extends TestCase {
 	public function testImportSuccess() {
 		$role = (new Role())->set_id(3)->set_name('admin');
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -689,7 +689,7 @@ final class UserServiceTest extends TestCase {
 	#region test read()
 
 	public function testReadThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -711,7 +711,7 @@ final class UserServiceTest extends TestCase {
 	public function testReadThrowsWhenNotAuthorizedToReadSelf() {
 		$authenticatedUserId = 12;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_id($authenticatedUserId)
@@ -737,7 +737,7 @@ final class UserServiceTest extends TestCase {
 	public function testReadThrowsWhenNotAuthorizedToReadOthers() {
 		$authenticatedUserId = 12;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_id($authenticatedUserId)
@@ -767,7 +767,7 @@ final class UserServiceTest extends TestCase {
 	public function testReadThrowsWhenUserDoesNotExist() {
 		$authenticatedUserId = 12;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_id($authenticatedUserId)
@@ -799,7 +799,7 @@ final class UserServiceTest extends TestCase {
 		$authenticatedUserId = 12;
 		$user = new User();
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_id($authenticatedUserId)
@@ -829,7 +829,7 @@ final class UserServiceTest extends TestCase {
 		$authenticatedUserId = 12;
 		$user = new User();
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_id($authenticatedUserId)
@@ -860,7 +860,7 @@ final class UserServiceTest extends TestCase {
 	#region test readAll()
 
 	public function testReadAllThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -880,7 +880,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -903,7 +903,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenNotInactiveFilterIsNotBoolean() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -930,7 +930,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenNotRoleFilterIsNotInteger() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -957,7 +957,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenNotEquipmentFilterIsNotInteger() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -997,7 +997,7 @@ final class UserServiceTest extends TestCase {
 			new User()
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1100,7 +1100,7 @@ final class UserServiceTest extends TestCase {
 	#region test update()
 
 	public function testUpdateThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -1120,7 +1120,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -1143,7 +1143,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1171,7 +1171,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1198,7 +1198,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenRoleIdIsNotInteger() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1225,7 +1225,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenRoleDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1252,7 +1252,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNameIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1282,7 +1282,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenEmailIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1312,7 +1312,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenInActiveIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1342,7 +1342,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenAuthorizationsIsNotList() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1372,7 +1372,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenAuthorizationIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1406,7 +1406,7 @@ final class UserServiceTest extends TestCase {
 		$role = (new Role())
 			->set_id(2);
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1443,7 +1443,7 @@ final class UserServiceTest extends TestCase {
 		$role = (new Role())
 			->set_id(2);
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1496,7 +1496,7 @@ final class UserServiceTest extends TestCase {
 		$role = (new Role())
 			->set_id(2);
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1550,7 +1550,7 @@ final class UserServiceTest extends TestCase {
 	#region test patch()
 
 	public function testPatchThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -1570,7 +1570,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchThrowsWhenUserDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(new User());
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -1592,7 +1592,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(new User());
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -1615,7 +1615,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(new User());
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -1637,7 +1637,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchThrowsWhenPatchIncludesUnsupportedProperty() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(new User());
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -1661,7 +1661,7 @@ final class UserServiceTest extends TestCase {
 	#region test patch(authorizations)
 
 	public function testPatchAuthorizationThrowsNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -1686,7 +1686,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchAuthorizationThrowsWhenAuthorizationsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1718,7 +1718,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchAuthorizationThrowsWhenAuthorizationIsNotInt() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1749,7 +1749,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchAuthorizationThrowsWhenEquipmentTypeDoesNotExist() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1783,7 +1783,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchAuthorizationSuccessAsAdmin() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1823,7 +1823,7 @@ final class UserServiceTest extends TestCase {
 	}
 
 	public function testPatchAuthorizationSuccessAsTrainer() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -1870,7 +1870,7 @@ final class UserServiceTest extends TestCase {
 	public function testPatchPINThrowsWhenNotAuthorized() {
 		$authenticatedUserId = 501;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())->set_id($authenticatedUserId)
 		);
@@ -1898,7 +1898,7 @@ final class UserServiceTest extends TestCase {
 	public function testPatchPINThrowsWhenNotString() {
 		$authenticatedUserId = 501;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())->set_id($authenticatedUserId)
 		);
@@ -1926,7 +1926,7 @@ final class UserServiceTest extends TestCase {
 	public function testPatchPINThrowsWhenNotFourDigits() {
 		$authenticatedUserId = 501;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())->set_id($authenticatedUserId)
 		);
@@ -1954,7 +1954,7 @@ final class UserServiceTest extends TestCase {
 	public function testPatchPINSuccess() {
 		$authenticatedUserId = 501;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())->set_id($authenticatedUserId)
 		);

@@ -2,12 +2,12 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\Location;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Type\Location;
 use PDO;
 
 /**
- * LocationModel is our bridge between the database and higher level Entities.
+ * LocationModel is our bridge between the database and Location instances.
  */
 class LocationModel extends AbstractModel {
 	/**

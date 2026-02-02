@@ -6,9 +6,9 @@ namespace Test\Portalbox\Transform;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use PortalBox\Entity\Permission;
-use PortalBox\Entity\Role;
+use PortalBox\Enumeration\Permission;
 use Portalbox\Transform\RoleTransformer;
+use PortalBox\Type\Role;
 
 final class RoleTransformerTest extends TestCase {
 	public function testDeserialize(): void {
@@ -40,7 +40,7 @@ final class RoleTransformerTest extends TestCase {
 		self::assertEquals($description, $role->description());
 		self::assertIsArray($role->permissions());
 		self::assertNotEmpty($role->permissions());
-		self::assertContainsOnly('int', $role->permissions());
+		self::assertContainsOnly(Permission::class, $role->permissions());
 	}
 
 	public function testDeserializeInvalidDataName(): void {

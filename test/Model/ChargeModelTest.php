@@ -6,19 +6,19 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\Charge;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\Equipment;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Location;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
 use Portalbox\Model\ChargeModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\ChargeQuery;
+use Portalbox\Type\Charge;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\Equipment;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Location;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class ChargeModelTest extends TestCase {
 	/**

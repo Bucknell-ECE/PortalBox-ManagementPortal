@@ -2,17 +2,17 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\Charge;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Model\EquipmentModel;
+use Portalbox\Model\UserModel;
 use Portalbox\Query\ChargeQuery;
 use Portalbox\Query\EquipmentQuery;
 use Portalbox\Query\UserQuery;
-use Portalbox\Model\EquipmentModel;
-use Portalbox\Model\UserModel;
+use Portalbox\Type\Charge;
 use PDO;
 
 /**
- * ChargeModel is our bridge between the database and higher level Entities.
+ * ChargeModel is our bridge between the database and Charge instances.
  */
 class ChargeModel extends AbstractModel {
 	/**

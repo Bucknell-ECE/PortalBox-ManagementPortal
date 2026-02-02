@@ -2,14 +2,14 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\Equipment;
 use Portalbox\Exception\DatabaseException;
-use Portalbox\Model\Entity\Equipment as PDOAwareEquipment;
+use Portalbox\Model\Type\Equipment as PDOAwareEquipment;
 use Portalbox\Query\EquipmentQuery;
+use Portalbox\Type\Equipment;
 use PDO;
 
 /**
- * EquipmentModel is our bridge between the database and higher level Entities.
+ * EquipmentModel is our bridge between the database and Equipment instances.
  */
 class EquipmentModel extends AbstractModel {
 	/**

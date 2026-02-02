@@ -7,20 +7,20 @@ namespace Test\Portalbox\Service;
 use DateInterval;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\Permission;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Service\LoggedEventService;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class LoggedEventServiceTest extends TestCase {
 	#region test getUsageStatsForEquipment
 
 	public function testGetUsageStatsForEquipmentThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
@@ -36,7 +36,7 @@ final class LoggedEventServiceTest extends TestCase {
 	}
 
 	public function testGetUsageStatsForEquipmentThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -78,7 +78,7 @@ final class LoggedEventServiceTest extends TestCase {
 			$day = $day->add(new DateInterval('P1D'));
 		}
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -107,7 +107,7 @@ final class LoggedEventServiceTest extends TestCase {
 	#region test getUsageStatsForLocation
 
 	public function testGetUsageStatsForLocationThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
@@ -123,7 +123,7 @@ final class LoggedEventServiceTest extends TestCase {
 	}
 
 	public function testGetUsageStatsForLocationThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -165,7 +165,7 @@ final class LoggedEventServiceTest extends TestCase {
 			$day = $day->add(new DateInterval('P1D'));
 		}
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -213,7 +213,7 @@ final class LoggedEventServiceTest extends TestCase {
 			$day = $day->add(new DateInterval('P1D'));
 		}
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);

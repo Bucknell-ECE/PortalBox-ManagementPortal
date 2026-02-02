@@ -4,7 +4,7 @@ require '../../src/bootstrap.php';
 
 use Portalbox\ResponseHandler;
 use Portalbox\Service\CardTypeService;
-use Portalbox\Session\Session;
+use Portalbox\Session;
 use Portalbox\Transform\CardTypeTransformer;
 
 try {

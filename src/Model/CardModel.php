@@ -2,19 +2,18 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\Card;
-use Portalbox\Entity\CardType;
-use Portalbox\Entity\ProxyCard;
-use Portalbox\Entity\ShutdownCard;
 use Portalbox\Exception\DatabaseException;
-use Portalbox\Model\Entity\TrainingCard;
-use Portalbox\Model\Entity\UserCard;
+use Portalbox\Model\Type\TrainingCard;
+use Portalbox\Model\Type\UserCard;
 use Portalbox\Query\CardQuery;
-use Exception;
+use Portalbox\Type\Card;
+use Portalbox\Type\CardType;
+use Portalbox\Type\ProxyCard;
+use Portalbox\Type\ShutdownCard;
 use PDO;
 
 /**
- * CardModel is our bridge between the database and higher level Entities.
+ * CardModel is our bridge between the database and Card instances.
  */
 class CardModel extends AbstractModel {
 	// we cache the models injected into model aware cards

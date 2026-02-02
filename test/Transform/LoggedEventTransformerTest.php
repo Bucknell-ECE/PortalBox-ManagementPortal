@@ -7,19 +7,19 @@ namespace Test\Portalbox\Transform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\Equipment;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Location;
-use Portalbox\Entity\LoggedEvent;
-use Portalbox\Entity\LoggedEventType;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Transform\LoggedEventTransformer;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\Equipment;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Location;
+use Portalbox\Type\LoggedEvent;
+use Portalbox\Type\LoggedEventType;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class LoggedEventTransformerTest extends TestCase {
 	/**

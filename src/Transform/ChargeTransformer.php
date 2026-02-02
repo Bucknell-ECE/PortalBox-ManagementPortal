@@ -4,22 +4,22 @@ namespace Portalbox\Transform;
 
 use InvalidArgumentException;
 use Portalbox\Config;
-use Portalbox\Entity\Charge;
-use Portalbox\Entity\ChargePolicy;
+use Portalbox\Type\Charge;
+use Portalbox\Type\ChargePolicy;
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\UserModel;
 
 /**
  * ChargeTransformer is our bridge between dictionary representations and
- * Charge entity instances.
+ * Charge instances.
  */
 class ChargeTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * Deserialize a Charge entity object from a dictionary
+	 * Deserialize a Charge  object from a dictionary
 	 *
 	 * @param array data - a dictionary representing a Charge
-	 * @return Charge - a valid entity object based on the data specified
+	 * @return Charge - an object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Charge {
@@ -68,7 +68,7 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 	}
 
 	/**
-	 * Called to serialize Charge entity instance to a dictionary
+	 * Called to serialize Charge instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

@@ -6,13 +6,7 @@ namespace Portalbox\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use Portalbox\Entity\CardType;
-use Portalbox\Entity\Charge;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\Equipment;
-use Portalbox\Entity\LoggedEvent;
-use Portalbox\Entity\LoggedEventType;
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
@@ -25,6 +19,12 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\EquipmentQuery;
+use Portalbox\Type\CardType;
+use Portalbox\Type\Charge;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\Equipment;
+use Portalbox\Type\LoggedEvent;
+use Portalbox\Type\LoggedEventType;
 
 /**
  * Handle requests from Portal Boxes

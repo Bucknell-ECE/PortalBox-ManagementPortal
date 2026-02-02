@@ -6,23 +6,23 @@ namespace Test\Portalbox\Service;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Permission;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Service\EquipmentTypeService;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class EquipmentTypeServiceTest extends TestCase {
 	#region test create()
 
 	public function testCreateThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -38,7 +38,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -57,7 +57,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -81,7 +81,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -104,7 +104,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNameIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -127,7 +127,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenNameIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -150,7 +150,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenRequiresTrainingIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -173,7 +173,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenChargePolicyIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -196,7 +196,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenChargeRateIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -219,7 +219,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenChargeRateIsOutOfRange() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -242,7 +242,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateThrowsWhenAllowProxyIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -265,7 +265,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateSuccess() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -294,7 +294,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testCreateSuccessSanitizesData() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -327,7 +327,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	#region test read()
 
 	public function testReadThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -343,7 +343,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testReadThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -362,7 +362,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testReadThrowsWhenNotFound() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -388,7 +388,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	public function testReadSuccess() {
 		$type = (new EquipmentType())->set_id(1);
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -414,7 +414,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	#region test readAll()
 
 	public function testReadAllThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -430,7 +430,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -454,7 +454,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 			(new EquipmentType())->set_id(2)
 		];
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -480,7 +480,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	#region test update()
 
 	public function testUpdateThrowsWhenNotAuthenticated() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
@@ -496,7 +496,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNotAuthorized() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role((new Role())->set_id(2))
@@ -515,7 +515,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenEquipmentTypeNotFound() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -539,7 +539,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenFileIsNotReadable() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -564,7 +564,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenDataIsNotArray() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -588,7 +588,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNameIsNotSpecified() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -612,7 +612,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenNameIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -636,7 +636,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenRequiresTrainingIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -660,7 +660,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenChargePolicyIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -684,7 +684,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenChargeRateIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -708,7 +708,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenChargeRateIsOutOfRange() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -732,7 +732,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	}
 
 	public function testUpdateThrowsWhenAllowProxyIsInvalid() {
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -758,7 +758,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	public function testUpdateSuccess() {
 		$id = 34;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(
@@ -791,7 +791,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 	public function testUpdateSuccessSanitizesData() {
 		$id = 34;
 
-		$session = $this->createStub(SessionInterface::class);
+		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
 				->set_role(

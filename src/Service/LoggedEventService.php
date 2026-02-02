@@ -6,12 +6,12 @@ namespace Portalbox\Service;
 
 use DateInterval;
 use DateTimeImmutable;
-use Portalbox\Entity\Permission;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\LoggedEventQuery;
-use Portalbox\Session\SessionInterface;
+use Portalbox\Session;
 
 /**
  * Access Event Logs
@@ -20,11 +20,11 @@ class LoggedEventService {
 	public const ERROR_UNAUTHENTICATED = 'You must be authenticated to read the requested statistics';
 	public const ERROR_UNAUTHORIZED_READ_OF_STATISTICS = 'You are not authorized to read the requested statistics';
 
-	protected SessionInterface $session;
+	protected Session $session;
 	protected LoggedEventModel $loggedEventModel;
 
 	public function __construct(
-		SessionInterface $session,
+		Session $session,
 		LoggedEventModel $loggedEventModel
 	) {
 		$this->session = $session;

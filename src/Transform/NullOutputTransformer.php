@@ -10,7 +10,7 @@ use DomainException;
  */
 class NullOutputTransformer implements OutputTransformer {
 	/**
-	 * Called to serialize a non-entity
+	 * Called to serialize data that is not an instance of Portalbox\Type\*
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

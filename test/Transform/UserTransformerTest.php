@@ -7,13 +7,13 @@ namespace Test\Portalbox\Transform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PortalBox\Config;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\EquipmentType;
-use PortalBox\Entity\Permission;
-use PortalBox\Entity\Role;
-use PortalBox\Entity\User;
+use PortalBox\Enumeration\Permission;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Transform\UserTransformer;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\EquipmentType;
+use PortalBox\Type\Role;
+use PortalBox\Type\User;
 
 final class UserTransformerTest extends TestCase {
 	/**
