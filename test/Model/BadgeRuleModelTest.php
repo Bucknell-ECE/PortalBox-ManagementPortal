@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Model\BadgeRuleModel;
 use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Type\BadgeLevel;
 use Portalbox\Type\BadgeRule;
 use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\EquipmentType;
@@ -44,16 +45,30 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_allow_proxy(false)
 		)->id();
 
-		$name = 'Welding Novice';
+		$name = 'Welder';
+		$level1_name = 'Novice Welder';
+		$level2_name = 'Expert Welder';
+		$level1_uses = 5;
+		$level2_uses = 10;
 		$equipment_type_ids = [
 			$equipment_type_id1,
 			$equipment_type_id2
+		];
+		$level1 = (new BadgeLevel())
+			->set_name($level1_name)
+			->set_uses($level1_uses);
+		$levels = [
+			(new BadgeLevel())
+				->set_name($level2_name)
+				->set_uses($level2_uses),
+			$level1
 		];
 
 		$rule = $badge_rule_model->create(
 			(new BadgeRule())
 				->set_name($name)
 				->set_equipment_type_ids($equipment_type_ids)
+				->set_levels($levels)
 		);
 
 		self::assertInstanceOf(BadgeRule::class, $rule);
@@ -61,6 +76,29 @@ final class BadgeRuleModelTest extends TestCase {
 		self::assertIsInt($id);
 		self::assertSame($name, $rule->name());
 		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
+		$level_names = [];
+		foreach($rule->levels() as $level) {
+			$level_id = $level->id();
+			self::assertIsInt($level_id);
+			self::assertGreaterThan(0, $level_id);
+			self::assertSame($id, $level->badge_rule_id());
+			switch($level->name()) {
+				case $level1_name:
+					self::assertSame($level1_uses, $level->uses());
+					break;
+				case $level2_name:
+					self::assertSame($level2_uses, $level->uses());
+					break;
+			}
+			$level_names[] = $level->name();
+		}
+		self::assertEqualsCanonicalizing(
+			$level_names,
+			[
+				$level1_name,
+				$level2_name
+			]
+		);
 
 		$rule = $badge_rule_model->read($id);
 
@@ -68,11 +106,47 @@ final class BadgeRuleModelTest extends TestCase {
 		self::assertSame($id, $rule->id());
 		self::assertSame($name, $rule->name());
 		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
+		$level_names = [];
+		foreach($rule->levels() as $level) {
+			$level_id = $level->id();
+			self::assertIsInt($level_id);
+			self::assertGreaterThan(0, $level_id);
+			self::assertSame($id, $level->badge_rule_id());
+			switch($level->name()) {
+				case $level1_name:
+					self::assertSame($level1_uses, $level->uses());
+					break;
+				case $level2_name:
+					self::assertSame($level2_uses, $level->uses());
+					break;
+			}
+			$level_names[] = $level->name();
+		}
+		self::assertEqualsCanonicalizing(
+			$level_names,
+			[
+				$level1_name,
+				$level2_name
+			]
+		);
 
 		$name = 'Welding Pro';
+		$level2_name = 'Journeyman Welder';
+		$level3_name = 'Professional Welder';
+		$level2_uses = 25;
+		$level3_uses = 150;
 		$equipment_type_ids = [
 			$equipment_type_id1,
 			$equipment_type_id3
+		];
+		$levels = [
+			(new BadgeLevel())
+				->set_name($level2_name)
+				->set_uses($level2_uses),
+			$level1,
+			(new BadgeLevel())
+				->set_name($level3_name)
+				->set_uses($level3_uses),
 		];
 
 		$rule = $badge_rule_model->update(
@@ -80,12 +154,40 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_id($id)
 				->set_name($name)
 				->set_equipment_type_ids($equipment_type_ids)
+				->set_levels($levels)
 		);
 
 		self::assertInstanceOf(BadgeRule::class, $rule);
 		self::assertSame($id, $rule->id());
 		self::assertSame($name, $rule->name());
 		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
+		$level_names = [];
+		foreach($rule->levels() as $level) {
+			$level_id = $level->id();
+			self::assertIsInt($level_id);
+			self::assertGreaterThan(0, $level_id);
+			self::assertSame($id, $level->badge_rule_id());
+			switch($level->name()) {
+				case $level1_name:
+					self::assertSame($level1_uses, $level->uses());
+					break;
+				case $level2_name:
+					self::assertSame($level2_uses, $level->uses());
+					break;
+				case $level3_name:
+					self::assertSame($level3_uses, $level->uses());
+					break;
+			}
+			$level_names[] = $level->name();
+		}
+		self::assertEqualsCanonicalizing(
+			$level_names,
+			[
+				$level1_name,
+				$level2_name,
+				$level3_name
+			]
+		);
 
 		$rule = $badge_rule_model->read($id);
 
@@ -93,6 +195,33 @@ final class BadgeRuleModelTest extends TestCase {
 		self::assertSame($id, $rule->id());
 		self::assertSame($name, $rule->name());
 		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
+		$level_names = [];
+		foreach($rule->levels() as $level) {
+			$level_id = $level->id();
+			self::assertIsInt($level_id);
+			self::assertGreaterThan(0, $level_id);
+			self::assertSame($id, $level->badge_rule_id());
+			switch($level->name()) {
+				case $level1_name:
+					self::assertSame($level1_uses, $level->uses());
+					break;
+				case $level2_name:
+					self::assertSame($level2_uses, $level->uses());
+					break;
+				case $level3_name:
+					self::assertSame($level3_uses, $level->uses());
+					break;
+			}
+			$level_names[] = $level->name();
+		}
+		self::assertEqualsCanonicalizing(
+			$level_names,
+			[
+				$level1_name,
+				$level2_name,
+				$level3_name
+			]
+		);
 
 		$rule = $badge_rule_model->delete($id);
 
@@ -100,6 +229,33 @@ final class BadgeRuleModelTest extends TestCase {
 		self::assertSame($id, $rule->id());
 		self::assertSame($name, $rule->name());
 		self::assertSame($equipment_type_ids, $rule->equipment_type_ids());
+		$level_names = [];
+		foreach($rule->levels() as $level) {
+			$level_id = $level->id();
+			self::assertIsInt($level_id);
+			self::assertGreaterThan(0, $level_id);
+			self::assertSame($id, $level->badge_rule_id());
+			switch($level->name()) {
+				case $level1_name:
+					self::assertSame($level1_uses, $level->uses());
+					break;
+				case $level2_name:
+					self::assertSame($level2_uses, $level->uses());
+					break;
+				case $level3_name:
+					self::assertSame($level3_uses, $level->uses());
+					break;
+			}
+			$level_names[] = $level->name();
+		}
+		self::assertEqualsCanonicalizing(
+			$level_names,
+			[
+				$level1_name,
+				$level2_name,
+				$level3_name
+			]
+		);
 
 		self::assertNull($badge_rule_model->read($id));
 		self::assertNull($badge_rule_model->update($rule));

@@ -4,6 +4,7 @@ namespace Portalbox\Model;
 
 use PDO;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Type\BadgeLevel;
 use Portalbox\Type\BadgeRule;
 
 /**
@@ -49,6 +50,24 @@ class BadgeRuleModel extends AbstractModel {
 			}
 		}
 
+		$sql = 'INSERT INTO badge_rule_levels (badge_rule_id, name, uses) VALUES (:badge_rule_id, :name, :uses)';
+		$statement = $connection->prepare($sql);
+
+		foreach ($rule->levels() as $level) {
+			$statement->bindValue(':badge_rule_id', $badge_rule_id, PDO::PARAM_INT);
+			$statement->bindValue(':name', $level->name());
+			$statement->bindValue(':uses', $level->uses(), PDO::PARAM_INT);
+
+			if (!$statement->execute()) {
+				$connection->rollBack();
+				throw new DatabaseException($statement->errorInfo()[2]);
+			}
+
+			$level
+				->set_id($connection->lastInsertId('badge_rule_levels_id_seq'))
+				->set_badge_rule_id($badge_rule_id);
+		}
+
 		$connection->commit();
 		return $rule->set_id($badge_rule_id);
 	}
@@ -77,6 +96,23 @@ class BadgeRuleModel extends AbstractModel {
 		}
 
 		$badge_rule = $this->buildBadgeRuleFromArray($data);
+
+		$sql = 'SELECT * FROM badge_rule_levels WHERE badge_rule_id = :badge_rule_id';
+		$statement = $connection->prepare($sql);
+
+		$statement->bindValue(':badge_rule_id', $id, PDO::PARAM_INT);
+
+		if (!$statement->execute()) {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+		if (false !== $data) {
+			$badge_rule->set_levels(array_map(
+				fn ($datum) => $this->buildBadgeRuleLevelFromArray($datum),
+				$data
+			));
+		}
 
 		$sql = <<<EOQ
 		SELECT
@@ -155,6 +191,32 @@ class BadgeRuleModel extends AbstractModel {
 			}
 		}
 
+		// Again we don't really care about level ids so we'll delete and
+		// recreate as needed
+		$sql = 'DELETE FROM badge_rule_levels WHERE badge_rule_id = :id';
+		$statement = $connection->prepare($sql);
+
+		$statement->bindValue(':id', $id, PDO::PARAM_INT);
+
+		if (!$statement->execute()) {
+			$connection->rollBack();
+			throw new DatabaseException($statement->errorInfo()[2]);
+		}
+
+		$sql = 'INSERT INTO badge_rule_levels (badge_rule_id, name, uses) VALUES (:badge_rule_id, :name, :uses)';
+		$statement = $connection->prepare($sql);
+
+		foreach ($rule->levels() as $level) {
+			$statement->bindValue(':badge_rule_id', $id, PDO::PARAM_INT);
+			$statement->bindValue(':name', $level->name());
+			$statement->bindValue(':uses', $level->uses(), PDO::PARAM_INT);
+
+			if (!$statement->execute()) {
+				$connection->rollBack();
+				throw new DatabaseException($statement->errorInfo()[2]);
+			}
+		}
+
 		$connection->commit();
 
 		return $this->read($id);
@@ -218,5 +280,13 @@ class BadgeRuleModel extends AbstractModel {
 		return (new BadgeRule())
 			->set_id($data['id'])
 			->set_name($data['name']);
+	}
+
+	private function buildBadgeRuleLevelFromArray(array $data): BadgeLevel {
+		return (new BadgeLevel())
+			->set_id($data['id'])
+			->set_badge_rule_id($data['badge_rule_id'])
+			->set_name($data['name'])
+			->set_uses($data['uses']);
 	}
 }

@@ -2,8 +2,6 @@
 
 namespace Portalbox\Type;
 
-use InvalidArgumentException;
-
 /**
  * A rule for awarding badges to users
  */
@@ -11,7 +9,7 @@ class BadgeRule {
 	use \Portalbox\Trait\HasIdProperty;
 
 	/**
-	 * The name of the badge
+	 * The name of the badge rule
 	 */
 	protected string $name = '';
 
@@ -21,22 +19,21 @@ class BadgeRule {
 	protected array $equipment_type_ids = [];
 
 	/**
-	 * Get the name of the badge
+	 * The levels of this badge rule
+	 */
+	protected array $levels = [];
+
+	/**
+	 * Get the name of the badge rule
 	 */
 	public function name(): string {
 		return $this->name;
 	}
 
 	/**
-	 * Set the name of the badge
-	 *
-	 * @throws InvalidArgumentException if the name is the empty string
+	 * Set the name of the badge rule
 	 */
 	public function set_name(string $name): self {
-		if ($name === '') {
-			throw new InvalidArgumentException('You must specify the badge\'s name');
-		}
-
 		$this->name = $name;
 		return $this;
 	}
@@ -55,6 +52,21 @@ class BadgeRule {
 	 */
 	public function set_equipment_type_ids(array $ids): self {
 		$this->equipment_type_ids = $ids;
+		return $this;
+	}
+
+	/**
+	 * Get the levels of this badge rule
+	 */
+	public function levels(): array {
+		return $this->levels;
+	}
+
+	/**
+	 * Set the levels of this badge rule
+	 */
+	public function set_levels(array $levels): self {
+		$this->levels = $levels;
 		return $this;
 	}
 }

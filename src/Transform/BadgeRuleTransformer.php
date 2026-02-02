@@ -22,7 +22,16 @@ class BadgeRuleTransformer implements OutputTransformer {
 		return [
 			'id' => $data->id(),
 			'name' => $data->name(),
-			'equipment_types' => $data->equipment_type_ids()
+			'equipment_types' => $data->equipment_type_ids(),
+			'levels' => array_map(
+				fn ($level) => [
+					'id' => $level->id(),
+					'badge_rule_id' => $level->badge_rule_id(),
+					'name' => $level->name(),
+					'uses' => $level->uses()
+				],
+				$data->levels()
+			)
 		];
 	}
 
