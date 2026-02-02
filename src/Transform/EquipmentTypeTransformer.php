@@ -3,16 +3,16 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\EquipmentType;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\EquipmentType;
 
 /**
  * EquipmentTypeTransformer is our bridge between dictionary representations
- * and EquipmentType entity instances.
+ * and EquipmentType instances.
  */
 class EquipmentTypeTransformer implements OutputTransformer {
 	/**
-	 * Called to serialize a Location entity instance to a dictionary
+	 * Called to serialize an EquipmentType instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

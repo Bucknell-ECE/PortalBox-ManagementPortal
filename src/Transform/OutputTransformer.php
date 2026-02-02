@@ -8,7 +8,7 @@ namespace Portalbox\Transform;
  */
 interface OutputTransformer {
 	/**
-	 * Called to serialize an entity
+	 * Called to serialize an object
 	 *
 	 * REST services end up with two output modes a single element and a list.
 	 * In the single element mode, the whole object graph is normally desired
@@ -16,7 +16,7 @@ interface OutputTransformer {
 	 * dichotomy is supported with the $traverse flag. Implementors should give
 	 * fuller representations including descending into the object graph when
 	 * $traverse is true and limiting output to a flat structure when false...
-	 * typically the serialize entity is to be presented in a table or list
+	 * typically the serialized object is to be presented in a table or list
 	 * when $traverse is false.
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise

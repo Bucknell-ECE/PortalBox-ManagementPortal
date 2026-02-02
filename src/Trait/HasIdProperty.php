@@ -7,19 +7,19 @@ namespace Portalbox\Trait;
  */
 trait HasIdProperty {
 	/**
-	 * The unique id for this entity
+	 * The unique id for this object
 	 */
 	protected ?int $id = null;
 
 	/**
-	 * Get the id of this entity
+	 * Get the id of this object
 	 */
 	public function id(): ?int {
 		return $this->id;
 	}
 
 	/**
-	 * Set the unique id of this entity
+	 * Set the unique id of this object
 	 */
 	public function set_id(?int $id): self {
 		$this->id = $id;

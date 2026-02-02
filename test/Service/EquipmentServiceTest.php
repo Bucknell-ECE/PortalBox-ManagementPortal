@@ -10,17 +10,6 @@ use InvalidArgumentException;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\Charge;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\Equipment;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Location;
-use Portalbox\Entity\LoggedEvent;
-use Portalbox\Entity\LoggedEventType;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\ShutdownCard;
-use Portalbox\Entity\User;
-use Portalbox\Entity\UserCard;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -35,6 +24,17 @@ use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\EquipmentQuery;
 use Portalbox\Service\EquipmentService;
+use Portalbox\Type\Charge;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\Equipment;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Location;
+use Portalbox\Type\LoggedEvent;
+use Portalbox\Type\LoggedEventType;
+use Portalbox\Type\Role;
+use Portalbox\Type\ShutdownCard;
+use Portalbox\Type\User;
+use Portalbox\Type\UserCard;
 
 final class EquipmentServiceTest extends TestCase {
 	#region test register()

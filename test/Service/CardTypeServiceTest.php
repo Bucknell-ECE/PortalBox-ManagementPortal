@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Test\Portalbox\Service;
 
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\CardType;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Model\CardTypeModel;
 use Portalbox\Service\CardTypeService;
 use Portalbox\Session;
+use Portalbox\Type\CardType;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class CardTypeServiceTest extends TestCase {
 	public function testReadAllThrowsWhenNotAuthenticated() {

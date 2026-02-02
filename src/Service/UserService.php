@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
-use Portalbox\Entity\User;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -15,6 +14,7 @@ use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\UserQuery;
 use Portalbox\Session;
+use Portalbox\Type\User;
 
 /**
  * Manage Users
@@ -67,10 +67,10 @@ class UserService {
 	}
 
 	/**
-	 * Deserialize a User entity object from a dictionary
+	 * Deserialize a User object from a dictionary
 	 *
 	 * @param array data - a dictionary representing a User
-	 * @return User - a valid entity object based on the data specified
+	 * @return User - an object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	private function deserialize(array $data): User {

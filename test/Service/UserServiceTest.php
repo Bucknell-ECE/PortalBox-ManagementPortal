@@ -7,9 +7,6 @@ namespace Test\Portalbox\Service;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -20,6 +17,9 @@ use Portalbox\Model\UserModel;
 use Portalbox\Query\UserQuery;
 use Portalbox\Service\UserService;
 use Portalbox\Session;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class UserServiceTest extends TestCase {
 	#region test create()

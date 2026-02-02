@@ -3,15 +3,15 @@
 require '../../src/autoload.php';
 
 use Portalbox\Config;
-use Portalbox\ResponseHandler;
-use Portalbox\Entity\CardType;
+use Portalbox\Exception\DatabaseException;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
-use Portalbox\Exception\DatabaseException;
-use Portalbox\Transform\EquipmentTransformer;
 use Portalbox\Query\CardQuery;
+use Portalbox\ResponseHandler;
+use Portalbox\Transform\EquipmentTransformer;
+use Portalbox\Type\CardType;
 use Portalbox\Session;
 
 $session = new Session();

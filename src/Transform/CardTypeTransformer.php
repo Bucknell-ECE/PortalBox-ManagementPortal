@@ -3,7 +3,7 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-use Portalbox\Entity\CardType;
+use Portalbox\Type\CardType;
 
 class CardTypeTransformer implements InputTransformer, OutputTransformer {
 	public function deserialize(array $data): CardType {

@@ -6,13 +6,13 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\UserQuery;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class UserModelTest extends TestCase {
 	/** An equipment type which exists in the db */

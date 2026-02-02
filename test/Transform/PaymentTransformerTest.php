@@ -7,11 +7,11 @@ namespace Test\Portalbox\Transform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PortalBox\Config;
-use PortalBox\Entity\Payment;
-use PortalBox\Entity\Role;
-use PortalBox\Entity\User;
 use PortalBox\Model\UserModel;
 use Portalbox\Transform\PaymentTransformer;
+use PortalBox\Type\Payment;
+use PortalBox\Type\Role;
+use PortalBox\Type\User;
 
 final class PaymentTransformerTest extends TestCase {
 	/**

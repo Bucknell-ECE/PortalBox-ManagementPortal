@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
-use Portalbox\Entity\Role;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\RoleModel;
 use Portalbox\Session;
+use Portalbox\Type\Role;
 
 /**
  * Manage Roles
@@ -45,10 +45,10 @@ class RoleService {
 	}
 
 	/**
-	 * Deserialize a Role entity object from a dictionary
+	 * Deserialize a Role object from a dictionary
 	 *
 	 * @param array data  a dictionary representing a Role
-	 * @return Role  a valid entity object based on the data specified
+	 * @return Role  an object based on the data specified
 	 * @throws InvalidArgumentException if a required field is not specified or
 	 *      a value is unacceptable
 	 */

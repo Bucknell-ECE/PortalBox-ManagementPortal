@@ -6,9 +6,9 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\Role;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Model\RoleModel;
+use Portalbox\Type\Role;
 
 final class RoleModelTest extends TestCase {
 	public function testModel(): void {

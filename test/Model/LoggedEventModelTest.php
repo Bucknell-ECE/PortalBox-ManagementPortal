@@ -6,19 +6,19 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\Equipment;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Location;
-use Portalbox\Entity\LoggedEvent;
-use Portalbox\Entity\LoggedEventType;
-use Portalbox\Entity\ShutdownCard;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\LoggedEventQuery;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\Equipment;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Location;
+use Portalbox\Type\LoggedEvent;
+use Portalbox\Type\LoggedEventType;
+use Portalbox\Type\ShutdownCard;
 
 /**
  * Test LoggedEvent Model... because this model is read only we need to

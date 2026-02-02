@@ -2,13 +2,13 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\APIKey;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Query\APIKeyQuery;
+use Portalbox\Type\APIKey;
 use PDO;
 
 /**
- * APIKeyModel is our bridge between the database and higher level Entities.
+ * APIKeyModel is our bridge between the database and APIKey instances.
  */
 class APIKeyModel extends AbstractModel {
 	/**

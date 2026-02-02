@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\EquipmentType;
+
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Session;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\EquipmentType;
 
 /**
  * Manage Equipment Types
@@ -173,10 +174,10 @@ class EquipmentTypeService {
 	}
 
 	/**
-	 * Deserialize an EquipmentType entity object from a dictionary
+	 * Deserialize an EquipmentType object from a dictionary
 	 *
 	 * @param array data - a dictionary representing an equipment type
-	 * @return EquipmentType - a valid entity object based on the data specified
+	 * @return EquipmentType - an object based on the data specified
 	 * @throws InvalidArgumentException if a required field is not specified
 	 */
 	private function deserialize(array $data): EquipmentType {

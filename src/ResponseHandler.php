@@ -12,10 +12,7 @@ use Portalbox\Transform\OutputTransformer;
 use Throwable;
 
 /**
- * OutputTransformer - Is used to send encoded responses to a requester. Can
- * be subclassed to control the fields exposed in the response. Subclasses
- * may override json_encode_entity, json_encode_list, get_cvs_header,
- * list_item_to_array.
+ * Use a transformer to convert data to an HTTP response
  */
 class ResponseHandler {
 	public const GENERIC_ERROR_MESSAGE = 'An error occurred and unfortunately, we don\'t know how to describe it.';
@@ -23,10 +20,10 @@ class ResponseHandler {
 	/**
 	 * Encodes and sends data to the requester
 	 *
-	 * @param AbstractEntity|array $data - an Entity or list of entities to
+	 * @param Portalbox\Type\*|array $data - an object or list of objects to
 	 *     render into an HTTP response
 	 * @param OutputTransformer|null $transformer - a transformer which can
-	 *     transform the $data entity object into a dictionary whose values
+	 *     transform the $data object into a dictionary whose values
 	 *     are null, string, int, float, dictionaries, or arrays with the
 	 *     compound types having the same restrictions when $traverse is
 	 *     true or a dictionary whose values are null, string, int, and float
@@ -42,7 +39,7 @@ class ResponseHandler {
 		} else if (is_array($data)) {
 			self::render_list_response($transformer, $data);
 		} else {
-			self::render_entity_response($transformer, $data);
+			self::render_object_response($transformer, $data);
 		}
 	}
 
@@ -75,7 +72,7 @@ class ResponseHandler {
 	 * Decide on the encoding for the response and render the data into
 	 * the response accordingly
 	 *
-	 * @param array $data - the list of entity instances to render into the response
+	 * @param array $data - the list of objects to render into the response
 	 */
 	private static function render_list_response(OutputTransformer $transformer, $data): void {
 		// check request for desired encoding
@@ -110,9 +107,9 @@ class ResponseHandler {
 	/**
 	 * Render the data into the response
 	 *
-	 * @param AbstractEntity $data - the entity instance to render into the response
+	 * @param Portalbox\Type\* $data - the object to render into the response
 	 */
-	private static function render_entity_response(OutputTransformer $transformer, $data): void {
+	private static function render_object_response(OutputTransformer $transformer, $data): void {
 		$encoded = json_encode($transformer->serialize($data, true));
 
 		if (false !== $encoded) {

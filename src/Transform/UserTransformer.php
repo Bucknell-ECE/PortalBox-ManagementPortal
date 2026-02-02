@@ -4,11 +4,11 @@ namespace Portalbox\Transform;
 
 /**
  * UserTransformer is our bridge between dictionary representations and User
- * entity instances.
+ * instances.
  */
 class UserTransformer implements OutputTransformer {
 	/**
-	 * Called to serialize a User entity instance to a dictionary
+	 * Called to serialize a User instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

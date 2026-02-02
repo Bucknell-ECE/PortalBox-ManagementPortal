@@ -3,18 +3,18 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-use Portalbox\Entity\Role;
+use Portalbox\Type\Role;
 
 /**
  * RoleTransformer is our bridge between dictionary representations and Role
- * entity instances.
+ * instances.
  */
 class RoleTransformer implements InputTransformer, OutputTransformer {
 	/**
-	 * Deserialize a Role entity object from a dictionary
+	 * Deserialize a Role object from a dictionary
 	 *
 	 * @param array data - a dictionary representing a Role
-	 * @return Role - a valid entity object based on the data specified
+	 * @return Role - an object based on the data specified
 	 * @throws InvalidArgumentException if a require field is not specified
 	 */
 	public function deserialize(array $data): Role {
@@ -36,7 +36,7 @@ class RoleTransformer implements InputTransformer, OutputTransformer {
 	}
 
 	/**
-	 * Called to serialize a Role entity instance to a dictionary
+	 * Called to serialize a Role instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.
@@ -52,7 +52,10 @@ class RoleTransformer implements InputTransformer, OutputTransformer {
 				'name' => $data->name(),
 				'system_role' => $data->is_system_role(),
 				'description' => $data->description(),
-				'permissions' => $data->permissions()
+				'permissions' => array_map(
+					fn ($p) => $p->value,
+					$data->permissions()
+				)
 			];
 		} else {
 			return [

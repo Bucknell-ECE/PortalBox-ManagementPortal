@@ -4,11 +4,11 @@ namespace Portalbox\Transform;
 
 /**
  * LoggedEventTransformer is our bridge between dictionary representations and
- * LoggedEvent entity instances.
+ * LoggedEvent instances.
  */
 class LoggedEventTransformer implements OutputTransformer {
 	/**
-	 * Called to serialize LoggedEvent entity instance to a dictionary
+	 * Called to serialize LoggedEvent instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.

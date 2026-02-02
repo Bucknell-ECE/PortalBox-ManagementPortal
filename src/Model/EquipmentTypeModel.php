@@ -3,12 +3,13 @@
 namespace Portalbox\Model;
 
 use InvalidArgumentException;
-use Portalbox\Entity\EquipmentType;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Type\EquipmentType;
 use PDO;
 
 /**
- * EquipmentTypeModel is our bridge between the database and higher level Entities.
+ * EquipmentTypeModel is our bridge between the database and EquipmentType
+ * instances.
  */
 class EquipmentTypeModel extends AbstractModel {
 	public const ERROR_INVALID_SORT_COLUMN = 'Invalid sort field';

@@ -2,15 +2,15 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\LoggedEvent;
-use Portalbox\Entity\LoggedEventType;
-use Portalbox\Model\Entity\LoggedEvent as PDOAwareLoggedEvent;
-use Portalbox\Query\LoggedEventQuery;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Model\Type\LoggedEvent as PDOAwareLoggedEvent;
+use Portalbox\Query\LoggedEventQuery;
+use Portalbox\Type\LoggedEvent;
+use Portalbox\Type\LoggedEventType;
 use PDO;
 
 /**
- * LoggedEventModel is our bridge between the database and higher level Entities.
+ * LoggedEventModel is our bridge between the database and LoggedEvent instances.
  */
 class LoggedEventModel extends AbstractModel {
 	public function create(LoggedEvent $event): LoggedEvent {

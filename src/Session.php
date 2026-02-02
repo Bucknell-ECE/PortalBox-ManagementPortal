@@ -3,12 +3,13 @@
 namespace Portalbox;
 
 use Portalbox\Config;
-use Portalbox\Entity\User;
+
 use Portalbox\Enumeration\Permission;
-use Portalbox\Model\Entity\User as PDOAwareUser;
 use Portalbox\Model\APIKeyModel;
 use Portalbox\Model\UserModel;
+use Portalbox\Model\Type\User as PDOAwareUser;
 use Portalbox\Query\APIKeyQuery;
+use Portalbox\Type\User;
 
 /**
  * Session by nature is a weird singleton; it is in a sense part of the request

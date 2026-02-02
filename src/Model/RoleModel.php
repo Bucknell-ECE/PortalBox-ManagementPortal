@@ -2,13 +2,13 @@
 
 namespace Portalbox\Model;
 
-use Portalbox\Entity\Role;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Type\Role;
 use PDO;
 
 /**
- * RoleModel is our bridge between the database and higher level Entities.
+ * RoleModel is our bridge between the database and Role instances.
  */
 class RoleModel extends AbstractModel {
 	/**
@@ -108,7 +108,10 @@ class RoleModel extends AbstractModel {
 	 */
 	public function update(Role $role): ?Role {
 		$role_id = $role->id();
-		$old_permissions = $this->read($role_id)->permissions();
+		$old_permissions = array_map(
+			fn ($p) => $p->value,
+			$this->read($role_id)->permissions()
+		);
 
 		$connection = $this->configuration()->writable_db_connection();
 		$sql = 'UPDATE roles SET name = :name, is_system_role = :is_system_role, description = :description WHERE id = :id';
@@ -126,7 +129,10 @@ class RoleModel extends AbstractModel {
 				//	2) Permissions which were added -> insert
 				//	3) Permissions which were not changed -> do nothing
 
-				$permissions = $role->permissions();
+				$permissions = array_map(
+					fn ($p) => $p->value,
+					$role->permissions()
+				);
 				$unchanged_permissions = array_intersect($old_permissions, $permissions);
 				$added_permissions = array_diff($permissions, $unchanged_permissions);
 				$removed_permissions = array_diff($old_permissions, $unchanged_permissions);
@@ -134,9 +140,9 @@ class RoleModel extends AbstractModel {
 				$sql = 'INSERT INTO roles_x_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)';
 				$statement = $connection->prepare($sql);
 
-				foreach ($added_permissions as $permission) {
+				foreach ($added_permissions as $permission_id) {
 					$statement->bindValue(':role_id', $role_id, PDO::PARAM_INT);
-					$statement->bindValue(':permission_id', $permission->value, PDO::PARAM_INT);
+					$statement->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
 					if (!$statement->execute()) {
 						// cancel transaction
 						$connection->rollBack();
@@ -147,9 +153,9 @@ class RoleModel extends AbstractModel {
 				$sql = 'DELETE FROM roles_x_permissions WHERE role_id = :role_id AND permission_id = :permission_id';
 				$statement = $connection->prepare($sql);
 
-				foreach ($removed_permissions as $permission) {
+				foreach ($removed_permissions as $permission_id) {
 					$statement->bindValue(':role_id', $role_id, PDO::PARAM_INT);
-					$statement->bindValue(':permission_id', $permission->value, PDO::PARAM_INT);
+					$statement->bindValue(':permission_id', $permission_id, PDO::PARAM_INT);
 					if (!$statement->execute()) {
 						// cancel transaction
 						$connection->rollBack();
@@ -224,9 +230,9 @@ class RoleModel extends AbstractModel {
 
 	private function buildRoleFromArray(array $data): Role {
 		return (new Role())
-					->set_id($data['id'])
-					->set_name($data['name'])
-					->set_is_system_role($data['is_system_role'])
-					->set_description($data['description']);
+			->set_id($data['id'])
+			->set_name($data['name'])
+			->set_is_system_role($data['is_system_role'])
+			->set_description($data['description']);
 	}
 }

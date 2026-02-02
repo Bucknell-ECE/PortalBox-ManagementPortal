@@ -6,10 +6,6 @@ namespace Test\Portalbox\Service;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\ChargePolicy;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\User;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -17,6 +13,10 @@ use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Service\EquipmentTypeService;
 use Portalbox\Session;
+use Portalbox\Type\ChargePolicy;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Role;
+use Portalbox\Type\User;
 
 final class EquipmentTypeServiceTest extends TestCase {
 	#region test create()

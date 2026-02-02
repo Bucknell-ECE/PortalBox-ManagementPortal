@@ -7,14 +7,6 @@ namespace Test\Portalbox\Service;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Entity\CardType;
-use Portalbox\Entity\EquipmentType;
-use Portalbox\Entity\ProxyCard;
-use Portalbox\Entity\Role;
-use Portalbox\Entity\ShutdownCard;
-use Portalbox\Entity\TrainingCard;
-use Portalbox\Entity\User;
-use Portalbox\Entity\UserCard;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -25,6 +17,14 @@ use Portalbox\Model\UserModel;
 use Portalbox\Query\CardQuery;
 use Portalbox\Service\CardService;
 use Portalbox\Session;
+use Portalbox\Type\CardType;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\ProxyCard;
+use Portalbox\Type\Role;
+use Portalbox\Type\ShutdownCard;
+use Portalbox\Type\TrainingCard;
+use Portalbox\Type\User;
+use Portalbox\Type\UserCard;
 
 final class CardServiceTest extends TestCase {
 	#region test create()
