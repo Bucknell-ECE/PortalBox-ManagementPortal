@@ -13,19 +13,37 @@
 			{{#editable}}<label for="view-edit-toggle-edit-state" class="default">Edit</label>{{/editable}}
 		</div>
 	</header>
-	<dl>
-		<dt>Name:</dt>
-		<dd>{{name}}</dd>
-		<dt>Equipment Types</dt>
-		<dd>
-			{{#included_equipment_types}}
-			<ul>
-				<li>{{name}}</li>
-			</ul>
-			{{/included_equipment_types}}
-			{{^included_equipment_types}}Badge currently has no equipment types{{/included_equipment_types}}
-		</dd>
-	</dl>
+	<div class="row">
+		<section>
+			<dl>
+				<dt>Name:</dt>
+				<dd>{{name}}</dd>
+				<dt>Equipment Types:</dt>
+				<dd>
+					{{#included_equipment_types}}
+					<ul>
+						<li>{{name}}</li>
+					</ul>
+					{{/included_equipment_types}}
+					{{^included_equipment_types}}Badge currently has no equipment types{{/included_equipment_types}}
+				</dd>
+			</dl>
+		</section>
+		<section>
+			<table>
+				<thead>
+					<tr><th>Name</th><th>Uses</th></tr>
+				</thead>
+				<tbody>
+					{{#levels}}<tr>
+						<td>{{name}}</td>
+						<td>{{uses}}</td>
+					</tr>{{/levels}}
+					{{^levels}}<tr><td colspan="2">No levels configured</td></tr>{{/levels}}
+				</tbody>
+			</table>
+		</section>
+	</div>
 </article>
 {{#editable}}
 <input type="radio" name="view-edit-toggle" id="view-edit-toggle-edit-state" class="checkbox-hack" />
@@ -44,6 +62,15 @@
 		<fieldset id="equipment-types">
 			{{#available_equipment_types}}<label><input type="checkbox" name="equipment_types.{{id}}" id="equipment_types.{{id}}" /> {{name}}</label>{{/available_equipment_types}}
 			{{^available_equipment_types}}<p>No equipment types yet defined that the user can be authorized for.</p>{{/available_equipment_types}}
+		</fieldset>
+		<label for="levels" style="align-self:baseline">Levels:</label>
+		<div class="button-group">
+			<button id="add-level" type="button" class="small">Add Level</button>
+		</div>
+		<fieldset id="levels">
+			{{#levels}}
+			<badge-level-input name="{{name}}" uses="{{uses}}"></badge-level-input>
+			{{/levels}}
 		</fieldset>
 	</form>
 </article>

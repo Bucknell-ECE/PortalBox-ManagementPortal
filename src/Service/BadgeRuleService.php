@@ -12,6 +12,7 @@ use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\BadgeRuleModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Session;
+use Portalbox\Type\BadgeLevel;
 use Portalbox\Type\BadgeRule;
 
 /**
@@ -24,6 +25,8 @@ class BadgeRuleService {
 	public const ERROR_NAME_IS_REQUIRED = '\'name\' is a required field';
 	public const ERROR_NAME_IS_INVALID = '\'name\' must not be an empty string';
 	public const ERROR_EQUIPMENT_TYPES_ARE_INVALID = '\'equipment_types\' must be an array of the ids of equipment types';
+	public const ERROR_LEVELS_ARE_INVALID = '\'levels\' must be an array of badge level objects';
+	public const ERROR_LEVEL_IS_INVALID = 'A badge level must be specified as a dictionary including name and uses keys';
 
 	public const ERROR_UNAUTHENTICATED_READ = 'You must be authenticated to read badge rules';
 	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read the specified badge rule(s)';
@@ -94,9 +97,50 @@ class BadgeRuleService {
 			}
 		}
 
+		$levels = [];
+
+		// levels are optional
+		if (array_key_exists('levels', $data)) {
+			if (!is_array($data['levels'])) {
+				throw new InvalidArgumentException(self::ERROR_LEVELS_ARE_INVALID);
+			}
+
+			foreach($data['levels'] as $level) {
+				if (!is_array($level)) {
+					throw new InvalidArgumentException(self::ERROR_LEVEL_IS_INVALID);
+				}
+
+				if (
+					!array_key_exists('name', $level)
+					|| !is_string($level['name'])
+				) {
+					throw new InvalidArgumentException(self::ERROR_LEVEL_IS_INVALID);
+				}
+
+				$level_name = strip_tags($level['name']);
+				if (empty($level_name)) {
+					throw new InvalidArgumentException(self::ERROR_LEVEL_IS_INVALID);
+				}
+
+				$uses = filter_var(
+					$level['uses'] ?? '',
+					FILTER_VALIDATE_INT,
+					['options' => ['min_range' => 1]]
+				);
+				if ($uses === false) {
+					throw new InvalidArgumentException(self::ERROR_LEVEL_IS_INVALID);
+				}
+
+				$levels[] = (new BadgeLevel())
+					->set_name($level_name)
+					->set_uses($uses);
+			}
+		}
+
 		return (new BadgeRule())
 			->set_name($name)
-			->set_equipment_type_ids($equipment_type_ids);
+			->set_equipment_type_ids($equipment_type_ids)
+			->set_levels($levels);
 	}
 
 	/**

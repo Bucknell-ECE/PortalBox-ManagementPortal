@@ -324,6 +324,13 @@ class Application {
 
 		if(this.user.has_permission(Permission.CREATE_BADGE_RULE)) {
 			this.route("/badges/add", () => {
+				if (!customElements.get("badge-level-input")) {
+					const js = document.createElement("script");
+					js.src = "/components/BadgeLevelInput.js";
+					js.setAttribute("async", "");
+					document.head.appendChild(js);
+				}
+
 				EquipmentType.list().then(equipment_types => {
 					this.render(
 						"#main",
@@ -334,6 +341,14 @@ class Application {
 							document
 								.getElementById("add-badge-rule-form")
 								.addEventListener("submit", (e) => this.#add_badge_rule(e));
+							document
+								.getElementById("add-level")
+								.addEventListener("click", () => {
+									const field = document.createElement("badge-level-input");
+									field.setAttribute("name", "Badge Name");
+									field.setAttribute("uses", "1");
+									document.getElementById("levels").appendChild(field);
+								});
 						}
 					);
 				});
@@ -722,7 +737,7 @@ class Application {
 	 * @return Object - an object with an attribute for each form input or
 	 *     group of inputs.
 	 */
-	get_form_data(form) {
+	#get_form_data(form) {
 		// should check that form is a form
 
 		let data = {};
@@ -781,7 +796,7 @@ class Application {
 	 */
 	add_api_key(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		APIKey.create(data).then((key) => {
 			this.navigate("/api-keys/" + key.id);
@@ -832,7 +847,7 @@ class Application {
 	 */
 	update_api_key(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		APIKey.modify(id, data).then((key) => {
 			this.navigate("/api-keys/" + key.id);
@@ -848,7 +863,16 @@ class Application {
 	 */
 	#add_badge_rule(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		const data = this.#get_form_data(event.target);
+
+		// custom inputs are not found by #get_form_data and that's okay because
+		// levels are not structured like other inputs so we'll fill in levels
+		// here
+		data.levels = [];
+		const levelElements = event.target.children.levels.children;
+		for (let field of levelElements) {
+			data.levels.push(field.value);
+		}
 
 		BadgeRule.create(data).then((badge) => {
 			this.navigate("/badges/" + badge.id);
@@ -881,8 +905,16 @@ class Application {
 		const p1 = BadgeRule.read(id);
 		const p2 = EquipmentType.list();
 
+		if (!customElements.get("badge-level-input")) {
+			const js = document.createElement("script");
+			js.src = "/components/BadgeLevelInput.js";
+			js.setAttribute("async", "");
+			document.head.appendChild(js);
+		}
+
 		Promise.all([p1, p2]).then((values) => {
 			const badge_rule = values[0];
+			badge_rule.levels.sort((a,b) => a.uses - b.uses);
 			const available_equipment_types = values[1];
 			const included_equipment_types = available_equipment_types.filter(
 				(type) => badge_rule.equipment_types.includes(type.id)
@@ -906,6 +938,14 @@ class Application {
 					document
 						.getElementById("delete-badge-button")
 						.addEventListener("click", () => { this.delete_badge_rule(id); });
+					document
+						.getElementById("add-level")
+						.addEventListener("click", () => {
+							const field = document.createElement("badge-level-input");
+							field.setAttribute("name", "Badge Name");
+							field.setAttribute("uses", "1");
+							document.getElementById("levels").appendChild(field);
+						});
 					for(const equipment_type_id of badge_rule.equipment_types) {
 						document.getElementById("equipment_types." + equipment_type_id).checked = true;
 					}
@@ -923,7 +963,16 @@ class Application {
 	 */
 	update_badge_rule(id, event) {
 		event.preventDefault();
-		const data = this.get_form_data(event.target);
+		const data = this.#get_form_data(event.target);
+
+		// custom inputs are not found by #get_form_data and that's okay because
+		// levels are not structured like other inputs so we'll fill in levels
+		// here
+		data.levels = [];
+		const levelElements = event.target.children.levels.children;
+		for (let field of levelElements) {
+			data.levels.push(field.value);
+		}
 
 		BadgeRule.modify(id, data).then((badge_rule) => {
 			this.navigate("/badges/" + badge_rule.id);
@@ -939,7 +988,7 @@ class Application {
 	 */
 	add_card(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		Card.create(data).then((card) => {
 			this.navigate("/cards/" + card.id);
@@ -974,7 +1023,7 @@ class Application {
 
 	search_cards(search_form) {
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 
 		for(let k of keys) {
@@ -995,7 +1044,7 @@ class Application {
 	 */
 	update_charge(charge, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		fetch("/api/charges.php?id=" + charge.id, {
 			body: JSON.stringify(data),
@@ -1026,7 +1075,7 @@ class Application {
 	 */
 	add_equipment(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		Equipment.list().then(equipment_list => {
 			let contains = equipment_list.reduce((accumulator, equipment) => ((equipment.mac_address === data.mac_address) || accumulator), false);
@@ -1100,7 +1149,7 @@ class Application {
 	 */
 	update_equipment(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 
 		Equipment.list().then(equipment_list => {
@@ -1146,7 +1195,7 @@ class Application {
 
 	search_equipment(search_form) {
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]))) {
@@ -1165,7 +1214,7 @@ class Application {
 	 */
 	add_equipment_type(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		EquipmentType.create(data).then((equipmentType) => {
 			this.navigate("/equipment-types/" + equipmentType.id);
@@ -1209,7 +1258,7 @@ class Application {
 	 */
 	update_equipment_type(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		EquipmentType.modify(id, data).then(() => {
 			this.navigate("/equipment-types/" + id);
@@ -1225,7 +1274,7 @@ class Application {
 	 */
 	add_location(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		Location.create(data).then((location) => {
 			this.navigate("/locations/" + location.id);
@@ -1277,7 +1326,7 @@ class Application {
 	 */
 	update_location(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		Location.modify(id, data).then(() => {
 			this.navigate("/locations/" + id);
@@ -1371,7 +1420,7 @@ class Application {
 	search_log(search_form) {
 		// look at search params to insure we have a search
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length) {
@@ -1390,7 +1439,7 @@ class Application {
 	 */
 	add_payment(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		Payment.create(data).then(data => {
 			this.navigate("/users/" + data.user_id);
@@ -1408,7 +1457,7 @@ class Application {
 	 */
 	confirm_payment(user, event) {
 		event.preventDefault();
-		let payment = this.get_form_data(event.target);
+		let payment = this.#get_form_data(event.target);
 
 		this.render("#main", "authenticated/users/confirm_payment", {"user": user, "payment": payment}, {}, () => {
 			document
@@ -1425,7 +1474,7 @@ class Application {
 	 */
 	add_role(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		Role.create(data).then((role) => {
 			this.navigate("/roles/" + role.id);
@@ -1469,7 +1518,7 @@ class Application {
 	 */
 	update_role(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		Role.modify(id, data).then(() => {
 			this.navigate("/roles/" + id);
@@ -1485,7 +1534,7 @@ class Application {
 	 */
 	add_user(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		User.create(data).then((user) => {
 			this.navigate("/users/" + user.id);
@@ -1518,7 +1567,7 @@ class Application {
 	 */
 	authorize_user(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		User.authorize(id, data).then(() => {
 			this.navigate("/users/" + id);
@@ -1534,7 +1583,7 @@ class Application {
 	 */
 	set_pin(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		User.changePIN(this.user.id, data.pin).then(() => {
 			this.navigate("/profile");
@@ -1644,7 +1693,7 @@ class Application {
 	 */
 	update_user(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		User.modify(id, data).then(() => {
 			this.navigate("/users/" + id);
@@ -1688,7 +1737,7 @@ class Application {
 	search_users(search_form) {
 		// look at search params to insure we have a search
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]))) {
@@ -1703,7 +1752,7 @@ class Application {
 		let search_form = document.getElementById('user_search_form');
 		// look at search params to insure we have a search
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {
