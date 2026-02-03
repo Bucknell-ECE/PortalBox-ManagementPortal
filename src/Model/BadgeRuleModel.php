@@ -270,10 +270,73 @@ class BadgeRuleModel extends AbstractModel {
 			return [];
 		}
 
-		return array_map(
+		$rules = array_map(
 			fn ($datum) => $this->buildBadgeRuleFromArray($datum),
 			$data
 		);
+
+		$level_map = [];
+		$equipment_type_map = [];
+		foreach ($rules as $rule) {
+			$id = $rule->id();
+			$level_map[$id] = [];
+			$equipment_type_map[$id] = [];
+		}
+
+		// get badge levels for the badge rules
+		$sql = 'SELECT * FROM badge_rule_levels';
+		$statement = $connection->prepare($sql);
+
+		if (!$statement->execute()) {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+		if (false === $data) {
+			throw new DatabaseException('Unable to read badge levels from result set');
+		}
+
+		foreach ($data as $datum) {
+			$level = $this->buildBadgeRuleLevelFromArray($datum);
+			$badge_rule_id = $level->badge_rule_id();
+			if (array_key_exists($badge_rule_id, $level_map)) {
+				$level_map[$badge_rule_id][] = $level;
+			}
+		}
+
+		// get equipment types for the badge rules
+		$sql = 'SELECT * FROM badge_rules_x_equipment_types';
+		$statement = $connection->prepare($sql);
+
+		if (!$statement->execute()) {
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		$data = $statement->fetchAll(PDO::FETCH_ASSOC);
+		if (false === $data) {
+			throw new DatabaseException('Unable to read equipment types from result set');
+		}
+
+		foreach ($data as $datum) {
+			$badge_rule_id = $datum['badge_rule_id'];
+			if (array_key_exists($badge_rule_id, $equipment_type_map)) {
+				$equipment_type_map[$badge_rule_id][] = $datum['equipment_type_id'];
+			}
+		}
+
+		// merge data together
+		foreach ($rules as $rule) {
+			$id = $rule->id();
+
+			$levels = $level_map[$id];
+			usort($levels, fn($a, $b) => $a->uses() - $b->uses());
+
+			$rule
+				->set_levels($levels)
+				->set_equipment_type_ids($equipment_type_map[$id]);
+		}
+
+		return $rules;
 	}
 
 	private function buildBadgeRuleFromArray(array $data): BadgeRule {

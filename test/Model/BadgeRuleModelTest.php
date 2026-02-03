@@ -269,18 +269,67 @@ final class BadgeRuleModelTest extends TestCase {
 
 	public function testSearch() {
 		$badge_rule_model = new BadgeRuleModel(Config::config());
+		$equipment_type_model = new EquipmentTypeModel(Config::config());
 
-		$name1 = 'Welding Novice';
-		$name2 = 'Welding Pro';
+		$equipment_type_id1 = $equipment_type_model->create(
+			(new EquipmentType())
+				->set_name('Miller 211 MIG Welder')
+				->set_requires_training(true)
+				->set_charge_rate('0.01')
+				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_allow_proxy(false)
+		)->id();
+
+		$equipment_type_id2 = $equipment_type_model->create(
+			(new EquipmentType())
+				->set_name('Miller 213 MIG Welder')
+				->set_requires_training(true)
+				->set_charge_rate('0.01')
+				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_allow_proxy(false)
+		)->id();
+
+		$equipment_type_id3 = $equipment_type_model->create(
+			(new EquipmentType())
+				->set_name('Printmatic 2000')
+				->set_requires_training(true)
+				->set_charge_rate('0.01')
+				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_allow_proxy(false)
+		)->id();
 
 		$rule1Id = $badge_rule_model->create(
 			(new BadgeRule())
-				->set_name($name1)
+				->set_name('Welder')
+				->set_equipment_type_ids([
+					$equipment_type_id1,
+					$equipment_type_id2
+				])
+				->set_levels([
+					(new BadgeLevel())
+						->set_name('Pro')
+						->set_uses(1000),
+					(new BadgeLevel())
+						->set_name('Novice')
+						->set_uses(10),
+					(new BadgeLevel())
+						->set_name('Journeyman')
+						->set_uses(100),
+				])
 		)->id();
 
 		$rule2Id = $badge_rule_model->create(
 			(new BadgeRule())
-				->set_name($name2)
+				->set_name('Crafter')
+				->set_equipment_type_ids([$equipment_type_id3])
+				->set_levels([
+					(new BadgeLevel())
+						->set_name('Pro')
+						->set_uses(100),
+					(new BadgeLevel())
+						->set_name('Apprentice')
+						->set_uses(10),
+				])
 		)->id();
 
 		$rules = $badge_rule_model->search();
@@ -297,8 +346,42 @@ final class BadgeRuleModelTest extends TestCase {
 		self::assertContains($rule1Id, $ruleIds);
 		self::assertContains($rule2Id, $ruleIds);
 
+		foreach ($rules as $rule) {
+			switch ($rule->id()) {
+				case $rule1Id:
+					self::assertEquals(
+						[
+							$equipment_type_id1,
+							$equipment_type_id2
+						],
+						$rule->equipment_type_ids()
+					);
+					$levels = $rule->levels();
+					self::assertCount(3, $levels);
+					self::assertSame(10, $levels[0]->uses());
+					self::assertSame('Novice', $levels[0]->name());
+					self::assertSame(100, $levels[1]->uses());
+					self::assertSame('Journeyman', $levels[1]->name());
+					self::assertSame(1000, $levels[2]->uses());
+					self::assertSame('Pro', $levels[2]->name());
+					break;
+				case $rule2Id:
+					self::assertEquals([$equipment_type_id3], $rule->equipment_type_ids());
+					$levels = $rule->levels();
+					self::assertCount(2, $levels);
+					self::assertSame(10, $levels[0]->uses());
+					self::assertSame('Apprentice', $levels[0]->name());
+					self::assertSame(100, $levels[1]->uses());
+					self::assertSame('Pro', $levels[1]->name());
+					break;
+			}
+		}
+
 		// cleanup
 		$badge_rule_model->delete($rule1Id);
 		$badge_rule_model->delete($rule2Id);
+		$equipment_type_model->delete($equipment_type_id1);
+		$equipment_type_model->delete($equipment_type_id2);
+		$equipment_type_model->delete($equipment_type_id3);
 	}
 }
