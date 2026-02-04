@@ -9,23 +9,7 @@ use Portalbox\Type\APIKey;
  * APIKeyTransformer is our bridge between dictionary representations and
  * APIKey instances.
  */
-class APIKeyTransformer implements InputTransformer, OutputTransformer {
-	/**
-	 * Deserialize an APIKey object from a dictionary
-	 *
-	 * @param array data - a dictionary representing a Payment
-	 * @return APIKey - an object based on the data specified
-	 * @throws InvalidArgumentException if a require field is not specified
-	 */
-	public function deserialize(array $data): APIKey {
-		if (!array_key_exists('name', $data)) {
-			throw new InvalidArgumentException('\'name\' is a required field');
-		}
-
-		return (new APIKey())
-			->set_name(strip_tags($data['name']));
-	}
-
+class APIKeyTransformer implements OutputTransformer {
 	/**
 	 * Called to serialize a APIKey to a dictionary
 	 *

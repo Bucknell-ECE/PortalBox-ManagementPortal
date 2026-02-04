@@ -13,8 +13,7 @@ try {
 		case 'GET':     // List
 			$service = $container->get(CardTypeService::class);
 			$card_types = $service->readAll();
-			$transformer = new CardTypeTransformer();
-			ResponseHandler::render($card_types, $transformer);
+			ResponseHandler::render($card_types, new CardTypeTransformer());
 		break;
 	}
 } catch(Throwable $t) {
