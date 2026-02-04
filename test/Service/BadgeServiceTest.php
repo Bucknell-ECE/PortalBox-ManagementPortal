@@ -116,13 +116,9 @@ final class BadgeServiceTest extends TestCase {
 		$badges = $service->getBadgesForUser($user_id);
 
 		self::assertCount(2, $badges);
-		$badge_names = array_map(
-			fn ($level) => $level->name(),
-			$badges
-		);
 		self::assertEqualsCanonicalizing(
 			['Beginner', 'Journeyman'],
-			$badge_names
+			$badges
 		);
 	}
 
@@ -185,13 +181,9 @@ final class BadgeServiceTest extends TestCase {
 		$badges = $service->getBadgesForUser($user_id);
 
 		self::assertCount(2, $badges);
-		$badge_names = array_map(
-			fn ($level) => $level->name(),
-			$badges
-		);
 		self::assertEqualsCanonicalizing(
 			['Beginner', 'Journeyman'],
-			$badge_names
+			$badges
 		);
 	}
 }
