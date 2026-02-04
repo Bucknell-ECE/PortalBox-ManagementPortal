@@ -139,7 +139,7 @@ final class RoleTransformerTest extends TestCase {
 		self::assertArrayHasKey('permissions', $data);
 		self::assertIsArray($data['permissions']);
 		self::assertNotEmpty($data['permissions']);
-		self::assertContains(Permission::LIST_OWN_EQUIPMENT_AUTHORIZATIONS, $data['permissions']);
-		self::assertContains(Permission::LIST_OWN_CARDS, $data['permissions']);
+		self::assertContains(Permission::LIST_OWN_EQUIPMENT_AUTHORIZATIONS->value, $data['permissions']);
+		self::assertContains(Permission::LIST_OWN_CARDS->value, $data['permissions']);
 	}
 }
