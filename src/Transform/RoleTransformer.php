@@ -9,32 +9,7 @@ use Portalbox\Type\Role;
  * RoleTransformer is our bridge between dictionary representations and Role
  * instances.
  */
-class RoleTransformer implements InputTransformer, OutputTransformer {
-	/**
-	 * Deserialize a Role object from a dictionary
-	 *
-	 * @param array data - a dictionary representing a Role
-	 * @return Role - an object based on the data specified
-	 * @throws InvalidArgumentException if a require field is not specified
-	 */
-	public function deserialize(array $data): Role {
-		if (!array_key_exists('name', $data)) {
-			throw new InvalidArgumentException('\'name\' is a required field');
-		}
-		if (!array_key_exists('description', $data)) {
-			throw new InvalidArgumentException('\'description\' is a required field');
-		}
-		if (!array_key_exists('permissions', $data)) {
-			throw new InvalidArgumentException('\'permissions\' is a required field');
-		}
-
-		return (new Role())
-			->set_name(strip_tags($data['name']))
-			->set_description(strip_tags($data['description']))
-			->set_is_system_role(false)	// hard coded as a business rule
-			->set_permissions($data['permissions']);
-	}
-
+class RoleTransformer implements OutputTransformer {
 	/**
 	 * Called to serialize a Role instance to a dictionary
 	 *

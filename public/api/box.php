@@ -10,7 +10,6 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Query\CardQuery;
 use Portalbox\ResponseHandler;
-use Portalbox\Transform\EquipmentTransformer;
 use Portalbox\Type\CardType;
 use Portalbox\Session;
 

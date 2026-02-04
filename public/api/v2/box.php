@@ -16,8 +16,7 @@ try {
 
 			$service = $container->get(EquipmentService::class);
 			$equipment = $service->register($_GET['mac'], $_SERVER);
-			$transformer = new EquipmentTransformer();
-			ResponseHandler::render($equipment, $transformer);
+			ResponseHandler::render($equipment, new EquipmentTransformer());
 			break;
 		case 'POST': // Device Status Change (Startup / Shutdown)
 			if(!isset($_GET['mac']) || empty($_GET['mac'])) {
@@ -26,8 +25,7 @@ try {
 
 			$service = $container->get(EquipmentService::class);
 			$equipment = $service->changeStatus('php://input', $_GET['mac'], $_SERVER);
-			$transformer = new EquipmentTransformer();
-			ResponseHandler::render($equipment, $transformer);
+			ResponseHandler::render($equipment, new EquipmentTransformer());
 			break;
 		default:
 			http_response_code(405);
