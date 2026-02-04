@@ -1,5 +1,6 @@
 import { SessionTimeOutError } from './SessionTimeOutError.js';
 import { APIKey } from './APIKey.js';
+import { Badge } from './Badge.js';
 import { BadgeRule } from './BadgeRule.js';
 import { Card } from './Card.js';
 import { CardType } from './CardType.js';
@@ -606,19 +607,26 @@ class Application {
 		if(this.user.has_permission(Permission.READ_USER)) {
 			// User needs MODIFY_USER to make use of /users/id for editing user attributes eg email address
 			// User needs CREATE_EQUIPMENT_AUTHORIZATION or DELETE_EQUIPMENT_AUTHORIZATION to manage authorizations
-			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER),
-				this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION),
-				this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.CREATE_PAYMENT)));
+			this.route(
+				"/users/:id",
+				params => this.read_user(
+					params.id,
+					this.user.has_permission(Permission.MODIFY_USER),
+					this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION),
+					this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.CREATE_PAYMENT)
+				)
+			);
 		}
 
 		if(this.user.has_permission(Permission.READ_OWN_USER)) {
 			this.route("/profile", () => {
-				let p0 = User.read(this.user.id);
-				let p1 = Charge.list("user_id=" + this.user.id);
-				let p2 = Payment.list("user_id=" + this.user.id);
-				let p3 = EquipmentType.list();
+				const p0 = User.read(this.user.id);
+				const p1 = Charge.list("user_id=" + this.user.id);
+				const p2 = Payment.list("user_id=" + this.user.id);
+				const p3 = EquipmentType.list();
+				const p4 = Badge.listForUser(this.user.id);
 
-				Promise.all([p0, p1, p2, p3]).then(values => {
+				Promise.all([p0, p1, p2, p3, p4]).then(values => {
 					let user = values[0];
 					let ledger = values[1].concat(values[2]).map(e => {
 						e.ts = new Date(e.time);
@@ -658,6 +666,7 @@ class Application {
 					});
 
 					this.render("#main", "authenticated/profile", {
+						"badges": values[4],
 						"total_balance": total_balance,
 						"equipment_type": authorized_equipment_types,
 						"ledger": ledger,
@@ -1599,13 +1608,14 @@ class Application {
 	 * @param {bool} authorizable - whether to show controls for authorizing the user.
 	 */
 	read_user(id, editable, authorizable, role_editable, payment_permission) {
-		let p0 = User.read(id);
-		let p1 = EquipmentType.list();
-		let p2 = Role.list();
-		let p3 = Charge.list("user_id=" + id);
-		let p4 = Payment.list("user_id=" + id);
+		const p0 = User.read(id);
+		const p1 = EquipmentType.list();
+		const p2 = Role.list();
+		const p3 = Charge.list("user_id=" + id);
+		const p4 = Payment.list("user_id=" + id);
+		const p5 = Badge.listForUser(id);
 
-		Promise.all([p0,p1,p2,p3,p4]).then(values => {
+		Promise.all([p0, p1, p2, p3, p4, p5]).then(values => {
 			let currency_formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 			let date_formatter = new Intl.DateTimeFormat();
 			let user = values[0];
@@ -1646,6 +1656,7 @@ class Application {
 
 			this.render("#main", "authenticated/users/view", {
 					"user":user,
+					"badges": values[5],
 					"equipment_types":equipment_types,
 					"roles":roles,
 					"authorized_equipment_types":authorized_equipment_types,

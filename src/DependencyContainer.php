@@ -5,6 +5,7 @@ namespace Portalbox;
 use Portalbox\Config;
 use Portalbox\Model\ActivationModel;
 use Portalbox\Model\APIKeyModel;
+use Portalbox\Model\BadgeModel;
 use Portalbox\Model\BadgeRuleModel;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\CardTypeModel;
@@ -17,6 +18,7 @@ use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Service\APIKeyService;
 use Portalbox\Service\BadgeRuleService;
+use Portalbox\Service\BadgeService;
 use Portalbox\Service\CardTypeService;
 use Portalbox\Service\EquipmentService;
 use Portalbox\Service\LoggedEventService;
@@ -70,6 +72,8 @@ class DependencyContainer {
 				return new ActivationModel($this->get(Config::class));
 			case APIKeyModel::class:
 				return new APIKeyModel($this->get(Config::class));
+			case BadgeModel::class:
+				return new BadgeModel($this->get(Config::class));
 			case BadgeRuleModel::class:
 				return new BadgeRuleModel($this->get(Config::class));
 			case CardModel::class:
@@ -100,6 +104,12 @@ class DependencyContainer {
 					$this->get(Session::class),
 					$this->get(BadgeRuleModel::class),
 					$this->get(EquipmentTypeModel::class)
+				);
+			case BadgeService::class:
+				return new BadgeService(
+					$this->get(Session::class),
+					$this->get(BadgeRuleModel::class),
+					$this->get(BadgeModel::class)
 				);
 			case CardTypeService::class:
 				return new CardTypeService(

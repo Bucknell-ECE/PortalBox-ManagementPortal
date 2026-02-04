@@ -39,6 +39,15 @@
 					{{/authorized_equipment_types}}
 					{{^authorized_equipment_types}}Not yet Authorized for any Equipment{{/authorized_equipment_types}}
 				</dd>
+				<dt>Badges</dt>
+				<dd>
+					{{#badges}}
+					<ul>
+						<li>{{.}}</li>
+					</ul>
+					{{/badges}}
+					{{^badges}}No badges earned yet{{/badges}}
+				</dd>
 			</dl>
 		</section>
 		<section>
