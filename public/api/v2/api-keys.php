@@ -1,6 +1,6 @@
 <?php
 
-require '../../src/bootstrap.php';
+require '../../../src/bootstrap.php';
 
 use Portalbox\ResponseHandler;
 use Portalbox\Service\APIKeyService;
