@@ -1,8 +1,7 @@
 <?php
 
-require '../../src/bootstrap.php';
+require '../../../src/bootstrap.php';
 
-use Portalbox\Config;
 use Portalbox\ResponseHandler;
 use Portalbox\Service\UserService;
 use Portalbox\Transform\UserTransformer;

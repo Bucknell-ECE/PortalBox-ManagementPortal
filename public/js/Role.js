@@ -13,7 +13,7 @@ export class Role {
 	 * @throws {String} if any other error occurs
 	 */
 	static async list(query = '') {
-		const response = await fetch("/api/roles.php?" + query, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/roles.php?" + query, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -35,7 +35,7 @@ export class Role {
 	 * @throws {String} if any other error occurs
 	 */
 	static async read(id) {
-		const response = await fetch("/api/roles.php?id=" + id, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/roles.php?id=" + id, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -57,7 +57,7 @@ export class Role {
 	 * @throws {String} if any other error occurs
 	 */
 	static async create(data) {
-		const response = await fetch("/api/roles.php", {
+		const response = await fetch("/api/v2/roles.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
@@ -87,7 +87,7 @@ export class Role {
 	 * @throws {String} if any other error occurs
 	 */
 	static async modify(id, data) {
-		const response = await fetch("/api/roles.php?id=" + id, {
+		const response = await fetch("/api/v2/roles.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
