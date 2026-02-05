@@ -12,7 +12,7 @@ export class APIKey {
 	 * @throws String if any other error occurs
 	 */
 	static async list() {
-		const response = await fetch("/api/api-keys.php", { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/api-keys.php", { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -34,7 +34,7 @@ export class APIKey {
 	 * @throws String if any other error occurs
 	 */
 	static async read(id) {
-		const response = await fetch("/api/api-keys.php?id=" + id, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/api-keys.php?id=" + id, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -55,7 +55,7 @@ export class APIKey {
 	 * @throws String if any other error occurs
 	 */
 	static async create(data) {
-		const response = await fetch("/api/api-keys.php", {
+		const response = await fetch("/api/v2/api-keys.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
@@ -84,7 +84,7 @@ export class APIKey {
 	 * @throws String if any other error occurs
 	 */
 	static async modify(id, data) {
-		const response = await fetch("/api/api-keys.php?id=" + id, {
+		const response = await fetch("/api/v2/api-keys.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
@@ -112,7 +112,7 @@ export class APIKey {
 	 * @throws String if any other error occurs
 	 */
 	static async delete(id) {
-		const response = await fetch("/api/api-keys.php?id=" + id, {
+		const response = await fetch("/api/v2/api-keys.php?id=" + id, {
 			credentials: "include",
 			method: "DELETE"
 		});

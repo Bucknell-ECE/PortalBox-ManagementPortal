@@ -1,10 +1,9 @@
 <?php
 
-require '../../src/bootstrap.php';
+require '../../../src/bootstrap.php';
 
 use Portalbox\ResponseHandler;
 use Portalbox\Service\CardTypeService;
-use Portalbox\Session;
 use Portalbox\Transform\CardTypeTransformer;
 
 try {

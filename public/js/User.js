@@ -76,7 +76,7 @@ export class User {
 	 * @throws String if any other error occurs
 	 */
 	static async list(query = '') {
-		const response = await fetch("/api/users.php?" + query, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/users.php?" + query, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -98,7 +98,7 @@ export class User {
 	 * @throws String if any other error occurs
 	 */
 	static async read(id) {
-		const response = await fetch("/api/users.php?id=" + id, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/users.php?id=" + id, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -119,7 +119,7 @@ export class User {
 	 * @throws String if any other error occurs
 	 */
 	static async create(data) {
-		const response = await fetch("/api/users.php", {
+		const response = await fetch("/api/v2/users.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
@@ -148,7 +148,7 @@ export class User {
 	 * @throws String if any other error occurs
 	 */
 	static async import(file) {
-		const response = await fetch("/api/users.php", {
+		const response = await fetch("/api/v2/users.php", {
 			body: file,
 			credentials: "include",
 			headers: {
@@ -178,7 +178,7 @@ export class User {
 	 * @throws String if any other error occurs
 	 */
 	static async changePIN(id, pin) {
-		const response = await fetch("/api/users.php?id=" + id, {
+		const response = await fetch("/api/v2/users.php?id=" + id, {
 			body: JSON.stringify({pin}),
 			credentials: "include",
 			headers: {
@@ -207,7 +207,7 @@ export class User {
 	 * @throws String if any other error occurs
 	 */
 	static async authorize(id, data) {
-		const response = await fetch("/api/users.php?id=" + id, {
+		const response = await fetch("/api/v2/users.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
@@ -236,7 +236,7 @@ export class User {
 	 * @throws String if any other error occurs
 	 */
 	static async modify(id, data) {
-		const response = await fetch("/api/users.php?id=" + id, {
+		const response = await fetch("/api/v2/users.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
