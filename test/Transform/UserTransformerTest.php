@@ -7,10 +7,10 @@ namespace Test\Portalbox\Transform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PortalBox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use PortalBox\Enumeration\Permission;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Transform\UserTransformer;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\EquipmentType;
 use PortalBox\Type\Role;
 use PortalBox\Type\User;
@@ -29,12 +29,12 @@ final class UserTransformerTest extends TestCase {
 
 		$name = 'Floodlight';
 		$requires_training = false;
-		$charge_policy_id = ChargePolicy::NO_CHARGE;
+		$charge_policy = ChargePolicy::NO_CHARGE;
 
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_allow_proxy(false);
 
 		self::$type = $model->create($type);

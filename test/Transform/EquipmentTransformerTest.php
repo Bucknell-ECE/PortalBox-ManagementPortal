@@ -7,10 +7,10 @@ namespace Test\Portalbox\Transform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use PortalBox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use PortalBox\Model\EquipmentTypeModel;
 use PortalBox\Model\LocationModel;
 use Portalbox\Transform\EquipmentTransformer;
-use PortalBox\Type\ChargePolicy;
 use PortalBox\Type\Equipment;
 use PortalBox\Type\EquipmentType;
 use PortalBox\Type\Location;
@@ -46,13 +46,13 @@ final class EquipmentTransformerTest extends TestCase {
 		$name = 'ceramics printer';
 		$requires_training = true;
 		$charge_rate = "0.01";
-		$charge_policy_id = ChargePolicy::PER_MINUTE;
+		$charge_policy = ChargePolicy::PER_MINUTE;
 
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_rate($charge_rate)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_allow_proxy(false);
 
 		self::$type = $model->create($type);

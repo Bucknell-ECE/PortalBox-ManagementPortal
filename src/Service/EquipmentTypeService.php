@@ -6,13 +6,13 @@ namespace Portalbox\Service;
 
 use InvalidArgumentException;
 
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Session;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\EquipmentType;
 
 /**
@@ -24,7 +24,7 @@ class EquipmentTypeService {
 	public const ERROR_INVALID_EQUIPMENT_TYPE_DATA = 'We can not create an equipment type from the provided data';
 	public const ERROR_NAME_IS_REQUIRED = '\'name\' is a required field';
 	public const ERROR_REQUIRES_TRAINING_IS_REQUIRED = '\'requires_training\' is a required field';
-	public const ERROR_INVALID_CHARGE_POLICY = '\'charge_policy_id\' is required and must be a valid charge policy id';
+	public const ERROR_INVALID_CHARGE_POLICY = '\'charge_policy\' is required and must be a valid charge policy';
 	public const ERROR_INVALID_RATE = '\'charge_rate\' is a required and must be a positive number';
 	public const ERROR_ALLOWS_PROXY_IS_REQUIRED = '\'allow_proxy\' is a required field';
 
@@ -191,8 +191,12 @@ class EquipmentTypeService {
 			throw new InvalidArgumentException(self::ERROR_REQUIRES_TRAINING_IS_REQUIRED);
 		}
 
-		$chargePolicyId = filter_var($data['charge_policy_id'] ?? '', FILTER_VALIDATE_INT);
-		if ($chargePolicyId === false || !ChargePolicy::is_valid($chargePolicyId)) {
+		$charge_policy_id = filter_var($data['charge_policy'] ?? '', FILTER_VALIDATE_INT);
+		if ($charge_policy_id === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_CHARGE_POLICY);
+		}
+		$charge_policy = ChargePolicy::tryFrom($charge_policy_id);
+		if (!$charge_policy) {
 			throw new InvalidArgumentException(self::ERROR_INVALID_CHARGE_POLICY);
 		}
 
@@ -214,7 +218,7 @@ class EquipmentTypeService {
 			->set_name($name)
 			->set_requires_training($requiresTraining)
 			->set_charge_rate((string)$chargeRate)
-			->set_charge_policy_id($chargePolicyId)
+			->set_charge_policy($charge_policy)
 			->set_allow_proxy($allowProxy);
 	}
 }

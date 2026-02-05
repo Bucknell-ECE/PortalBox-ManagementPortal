@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\Portalbox\Type;
 
 use PHPUnit\Framework\TestCase;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Type\Charge;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\User;
@@ -16,7 +17,7 @@ final class ChargeTest extends TestCase {
 		$user_id = 7;
 		$amount = '2.00';
 		$time = '2020-04-18 20:12:34';
-		$charge_policy_id = 1;
+		$charge_policy = ChargePolicy::MANUALLY_ADJUSTED;
 		$charge_rate = '0.05';
 		$charged_time = 40;
 
@@ -26,7 +27,7 @@ final class ChargeTest extends TestCase {
 			->set_user_id($user_id)
 			->set_amount($amount)
 			->set_time($time)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_charge_rate($charge_rate)
 			->set_charged_time($charged_time);
 
@@ -35,7 +36,7 @@ final class ChargeTest extends TestCase {
 		self::assertEquals($user_id, $charge->user_id());
 		self::assertEquals($amount, $charge->amount());
 		self::assertEquals($time, $charge->time());
-		self::assertEquals($charge_policy_id, $charge->charge_policy_id());
+		self::assertEquals($charge_policy, $charge->charge_policy());
 		self::assertEquals($charge_rate, $charge->charge_rate());
 		self::assertEquals($charged_time, $charge->charged_time());
 	}

@@ -6,8 +6,8 @@ namespace Test\Portalbox\Transform;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Transform\EquipmentTypeTransformer;
-use Portalbox\Type\ChargePolicy;
 use PortalBox\Type\EquipmentType;
 
 final class EquipmentTypeTransformerTest extends TestCase {
@@ -18,8 +18,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		$name = 'laser scalpel';
 		$requires_training = true;
 		$charge_rate = "2.50";
-		$charge_policy_id = ChargePolicy::PER_USE;
-		$charge_policy = ChargePolicy::name_for_policy($charge_policy_id);
+		$charge_policy = ChargePolicy::PER_USE;
 		$allow_proxy = true;
 
 		$type = (new EquipmentType())
@@ -27,7 +26,7 @@ final class EquipmentTypeTransformerTest extends TestCase {
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_rate($charge_rate)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_allow_proxy($allow_proxy);
 
 		$data = $transformer->serialize($type, true);
@@ -41,10 +40,8 @@ final class EquipmentTypeTransformerTest extends TestCase {
 		self::assertEquals($requires_training, $data['requires_training']);
 		self::assertArrayHasKey('charge_rate', $data);
 		self::assertEquals($charge_rate, $data['charge_rate']);
-		self::assertArrayHasKey('charge_policy_id', $data);
-		self::assertEquals($charge_policy_id, $data['charge_policy_id']);
 		self::assertArrayHasKey('charge_policy', $data);
-		self::assertEquals($charge_policy, $data['charge_policy']);
+		self::assertEquals($charge_policy->value, $data['charge_policy']);
 		self::assertArrayHasKey('allow_proxy', $data);
 		self::assertEquals($allow_proxy, $data['allow_proxy']);
 	}

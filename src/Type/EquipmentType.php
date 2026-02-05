@@ -3,6 +3,7 @@
 namespace Portalbox\Type;
 
 use InvalidArgumentException;
+use Portalbox\Enumeration\ChargePolicy;
 
 /**
  * Equipment Type binds policy to equipment of the same type
@@ -19,8 +20,8 @@ class EquipmentType {
 	/** The rate to charge */
 	protected ?string $charge_rate = null;
 
-	/** The id of the Charge policy for this equipment type */
-	protected int $charge_policy_id = ChargePolicy::MANUALLY_ADJUSTED;
+	/** The Charge policy for this equipment type */
+	protected ChargePolicy $charge_policy = ChargePolicy::MANUALLY_ADJUSTED;
 
 	/** Whether this equipment type allows proxy cards */
 	protected bool $allow_proxy = false;
@@ -66,31 +67,15 @@ class EquipmentType {
 		throw new InvalidArgumentException('Charge rate must be a decimal number');
 	}
 
-	/**
-	 * Get the charge policy id for this equipment type. Must be one of the
-	 * public ChargePolicy constants
-	 */
-	public function charge_policy_id(): int {
-		return $this->charge_policy_id;
-	}
-
 	/** Get the charge policy for this equipment type */
-	public function charge_policy(): string {
-		return ChargePolicy::name_for_policy($this->charge_policy_id);
+	public function charge_policy(): ChargePolicy {
+		return $this->charge_policy;
 	}
 
-	/** Set the charge policy id for this equipment type
-	 *
-	 * @throws InvalidArgumentException if the specified id is not one of the
-	 *             public constants from ChargePolicy
-	 */
-	public function set_charge_policy_id(int $charge_policy_id): self {
-		if (ChargePolicy::is_valid($charge_policy_id)) {
-			$this->charge_policy_id = $charge_policy_id;
-			return $this;
-		}
-
-		throw new InvalidArgumentException("charge_policy_id must be one of the public constants from ChargePolicy");
+	/** Set the charge policy id for this equipment type */
+	public function set_charge_policy(ChargePolicy $policy): self {
+		$this->charge_policy = $policy;
+		return $this;
 	}
 
 	/** Get whether this equipment type allows proxy cards */

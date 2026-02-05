@@ -6,6 +6,7 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Model\ChargeModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
@@ -13,7 +14,6 @@ use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\ChargeQuery;
 use Portalbox\Type\Charge;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
@@ -87,12 +87,12 @@ final class ChargeModelTest extends TestCase {
 
 		$name = 'Floodlight';
 		$requires_training = false;
-		$charge_policy_id = ChargePolicy::NO_CHARGE;
+		$charge_policy = ChargePolicy::NO_CHARGE;
 
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_allow_proxy(false);
 
 		self::$type = $model->create($type);
@@ -145,7 +145,7 @@ final class ChargeModelTest extends TestCase {
 		$user_id = self::$user->id();
 		$amount = '2.00';
 		$time = '2020-04-22 21:44:55';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '0.05';
 		$charged_time = 40;
 
@@ -154,7 +154,7 @@ final class ChargeModelTest extends TestCase {
 			->set_user_id($user_id)
 			->set_amount($amount)
 			->set_time($time)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_charge_rate($charge_rate)
 			->set_charged_time($charged_time);
 
@@ -166,7 +166,7 @@ final class ChargeModelTest extends TestCase {
 		self::assertEquals($user_id, $charge_as_created->user_id());
 		self::assertEquals($amount, $charge_as_created->amount());
 		self::assertEquals($time, $charge_as_created->time());
-		self::assertEquals($charge_policy_id, $charge_as_created->charge_policy_id());
+		self::assertEquals($charge_policy, $charge_as_created->charge_policy());
 		self::assertEquals($charge_rate, $charge_as_created->charge_rate());
 		self::assertEquals($charged_time, $charge_as_created->charged_time());
 
@@ -178,20 +178,20 @@ final class ChargeModelTest extends TestCase {
 		self::assertEquals($user_id, $charge_as_found->user_id());
 		self::assertEquals($amount, $charge_as_found->amount());
 		self::assertEquals($time, $charge_as_found->time());
-		self::assertEquals($charge_policy_id, $charge_as_found->charge_policy_id());
+		self::assertEquals($charge_policy, $charge_as_found->charge_policy());
 		self::assertEquals($charge_rate, $charge_as_found->charge_rate());
 		self::assertEquals($charged_time, $charge_as_found->charged_time());
 
 		$amount = '3.00';
 		$time = '2020-04-21 08:09:10';
-		$charge_policy_id = ChargePolicy::MANUALLY_ADJUSTED;
+		$charge_policy = ChargePolicy::MANUALLY_ADJUSTED;
 		$charge_rate = '0.10';
 		$charged_time = 30;
 
 		$charge_as_found
 			->set_amount($amount)
 			->set_time($time)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_charge_rate($charge_rate)
 			->set_charged_time($charged_time);
 
@@ -203,7 +203,7 @@ final class ChargeModelTest extends TestCase {
 		self::assertEquals($user_id, $charge_as_modified->user_id());
 		self::assertEquals($amount, $charge_as_modified->amount());
 		self::assertEquals($time, $charge_as_modified->time());
-		self::assertEquals($charge_policy_id, $charge_as_modified->charge_policy_id());
+		self::assertEquals($charge_policy, $charge_as_modified->charge_policy());
 		self::assertEquals($charge_rate, $charge_as_modified->charge_rate());
 		self::assertEquals($charged_time, $charge_as_modified->charged_time());
 
@@ -215,7 +215,7 @@ final class ChargeModelTest extends TestCase {
 		self::assertEquals($user_id, $charge_as_deleted->user_id());
 		self::assertEquals($amount, $charge_as_deleted->amount());
 		self::assertEquals($time, $charge_as_deleted->time());
-		self::assertEquals($charge_policy_id, $charge_as_deleted->charge_policy_id());
+		self::assertEquals($charge_policy, $charge_as_deleted->charge_policy());
 		self::assertEquals($charge_rate, $charge_as_deleted->charge_rate());
 		self::assertEquals($charged_time, $charge_as_deleted->charged_time());
 
@@ -231,7 +231,7 @@ final class ChargeModelTest extends TestCase {
 		$user_id = self::$user->id();
 		$amount = '2.00';
 		$time = '2020-04-22 21:44:55';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '0.05';
 		$charged_time = 40;
 
@@ -240,7 +240,7 @@ final class ChargeModelTest extends TestCase {
 			->set_user_id($user_id)
 			->set_amount($amount)
 			->set_time($time)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_charge_rate($charge_rate)
 			->set_charged_time($charged_time);
 

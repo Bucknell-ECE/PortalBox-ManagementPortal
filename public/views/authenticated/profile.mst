@@ -26,9 +26,6 @@
 		</dd>
 		<dt>Charge/Payment History:</dt>
 		<dd>
-			<div class="button-group">
-				<button type="button" id="transaction-button">Hide Transactions</button>
-			</div>
 			<table id="transaction-table">
 				<thead class="collapsible-content">
 					<tr><th>Date</th><th>Equipment</th><th>Amount</th><th>Balance</th></tr>

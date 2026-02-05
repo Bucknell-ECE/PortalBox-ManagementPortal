@@ -4,8 +4,8 @@ namespace Portalbox\Transform;
 
 use InvalidArgumentException;
 use Portalbox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Type\Charge;
-use Portalbox\Type\ChargePolicy;
 // violation of SOLID design... should use these via interfaces and dependency injection
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\UserModel;
@@ -35,11 +35,12 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 		if (!array_key_exists('time', $data)) {
 			throw new InvalidArgumentException('\'time\' is a required field');
 		}
-		if (!array_key_exists('charge_policy_id', $data)) {
-			throw new InvalidArgumentException('\'charge_policy_id\' is a required field');
+		if (!array_key_exists('charge_policy', $data)) {
+			throw new InvalidArgumentException('\'charge_policy\' is a required field');
 		}
-		if (!ChargePolicy::is_valid($data['charge_policy_id'])) {
-			throw new InvalidArgumentException('\'charge_policy_id\' must be a valid charge policy id');
+		$charge_policy = ChargePolicy::tryFrom($data['charge_policy']);
+		if (!$charge_policy) {
+			throw new InvalidArgumentException('\'charge_policy\' must be a valid charge policy');
 		}
 		if (!array_key_exists('charge_rate', $data)) {
 			throw new InvalidArgumentException('\'charge_rate\' is a required field');
@@ -62,7 +63,7 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 			->set_user($user)
 			->set_amount($data['amount'])
 			->set_time($data['time'])
-			->set_charge_policy_id($data['charge_policy_id'])
+			->set_charge_policy($charge_policy)
 			->set_charge_rate($data['charge_rate'])
 			->set_charged_time($data['charged_time']);
 	}
@@ -88,7 +89,7 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 				'user' => $user_transformer->serialize($data->user(), $traverse),
 				'amount' => $data->amount(),
 				'time' => $data->time(),
-				'charge_policy_id' => $data->charge_policy_id(),
+				'charge_policy' => $data->charge_policy()->value,
 				'charge_rate' => $data->charge_rate(),
 				'charged_time' => $data->charged_time()
 			];
@@ -101,8 +102,7 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 				'user' => $data->user_name(),
 				'amount' => $data->amount(),
 				'time' => $data->time(),
-				'charge_policy_id' => $data->charge_policy_id(),
-				'charge_policy' => $data->charge_policy(),
+				'charge_policy' => $data->charge_policy()->value,
 				'charge_rate' => $data->charge_rate(),
 				'charged_time' => $data->charged_time()
 			];

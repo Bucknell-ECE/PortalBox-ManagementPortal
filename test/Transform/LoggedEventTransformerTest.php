@@ -7,12 +7,12 @@ namespace Test\Portalbox\Transform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Transform\LoggedEventTransformer;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
@@ -86,12 +86,12 @@ final class LoggedEventTransformerTest extends TestCase {
 
 		$name = 'Floodlight';
 		$requires_training = false;
-		$event_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
-			->set_charge_policy_id($event_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_charge_rate('2.00')
 			->set_allow_proxy(false);
 
