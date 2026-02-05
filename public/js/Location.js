@@ -13,7 +13,7 @@ export class Location {
 	 * @throws String if any other error occurs
 	 */
 	static async list(query = '') {
-		const response = await fetch("/api/locations.php?" + query, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/locations.php?" + query, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -35,7 +35,7 @@ export class Location {
 	 * @throws String if any other error occurs
 	 */
 	static async read(id) {
-		let response = await fetch("/api/locations.php?id=" + id, { "credentials": "same-origin" });
+		let response = await fetch("/api/v2/locations.php?id=" + id, { "credentials": "same-origin" });
 
 		if(!response.ok) {
 			if(403 == response.status) {
@@ -56,7 +56,7 @@ export class Location {
 	 * @throws String if any other error occurs
 	 */
 	static async create(data) {
-		const response = await fetch("/api/locations.php", {
+		const response = await fetch("/api/v2/locations.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
@@ -85,7 +85,7 @@ export class Location {
 	 * @throws String if any other error occurs
 	 */
 	static async modify(id, data) {
-		const response = await fetch("/api/locations.php?id=" + id, {
+		const response = await fetch("/api/v2/locations.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
