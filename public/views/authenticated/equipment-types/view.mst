@@ -20,7 +20,7 @@
 				<dt>Requires Training:</dt>
 				<dd>{{#requires_training}}Yes{{/requires_training}}{{^requires_training}}No{{/requires_training}}</dd>
 				<dt>Charge Policy:</dt>
-				<dd>{{charge_policy}}</dd>
+				<dd>{{formatted_charge_policy}}</dd>
 				{{#charge_rate}}<dt>Rate:</dt>
 				<dd>{{.}}</dd>{{/charge_rate}}
 				<dt>Allows Proxy:</dt>
@@ -82,8 +82,8 @@
 				</div>
 			</div>
 		</div>
-		<label for="charge_policy_id">Charge Policy:</label>
-		<select name="charge_policy_id" id="charge_policy_id" required />
+		<label for="charge_policy">Charge Policy:</label>
+		<select name="charge_policy" id="charge_policy" required />
 			<option></option>
 			{{#charge_policies}}<option value="{{id}}">{{name}}</option>{{/charge_policies}}
 		</select>

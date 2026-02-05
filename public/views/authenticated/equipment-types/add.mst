@@ -28,8 +28,8 @@
 				</div>
 			</div>
 		</div>
-		<label for="charge_policy_id">Charge Policy:</label>
-		<select name="charge_policy_id" id="charge_policy_id" required />
+		<label for="charge_policy">Charge Policy:</label>
+		<select name="charge_policy" id="charge_policy" required />
 			<option></option>
 			{{#charge_policies}}<option value="{{id}}">{{name}}</option>{{/charge_policies}}
 		</select>

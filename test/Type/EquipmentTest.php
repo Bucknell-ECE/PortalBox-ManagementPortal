@@ -6,7 +6,7 @@ namespace Test\Portalbox\Type;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Type\ChargePolicy;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
@@ -60,13 +60,13 @@ final class EquipmentTest extends TestCase {
 		$type_id = 7;
 		$type_name = 'Vinyl Cutter';
 		$requires_training = true;
-		$charge_policy_id = ChargePolicy::NO_CHARGE;
+		$charge_policy = ChargePolicy::NO_CHARGE;
 
 		$type = (new EquipmentType())
 			->set_id($type_id)
 			->set_name($type_name)
 			->set_requires_training($requires_training)
-			->set_charge_policy_id($charge_policy_id);
+			->set_charge_policy($charge_policy);
 
 		$location_id = 6;
 		$location_name = 'Sign Shop';

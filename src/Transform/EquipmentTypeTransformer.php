@@ -3,7 +3,6 @@
 namespace Portalbox\Transform;
 
 use InvalidArgumentException;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\EquipmentType;
 
 /**
@@ -28,8 +27,7 @@ class EquipmentTypeTransformer implements OutputTransformer {
 				'name' => $data->name(),
 				'requires_training' => $data->requires_training(),
 				'charge_rate' => $data->charge_rate(),
-				'charge_policy_id' => $data->charge_policy_id(),
-				'charge_policy' => $data->charge_policy(),
+				'charge_policy' => $data->charge_policy()->value,
 				'allow_proxy' => $data->allow_proxy()
 			];
 		} else {
@@ -38,7 +36,7 @@ class EquipmentTypeTransformer implements OutputTransformer {
 				'name' => $data->name(),
 				'requires_training' => $data->requires_training(),
 				'charge_rate' => $data->charge_rate(),
-				'charge_policy' => $data->charge_policy(),
+				'charge_policy' => $data->charge_policy()->value,
 				'allow_proxy' => $data->allow_proxy()
 			];
 		}

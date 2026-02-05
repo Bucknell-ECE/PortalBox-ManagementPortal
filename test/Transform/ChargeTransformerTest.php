@@ -7,13 +7,13 @@ namespace Test\Portalbox\Transform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Transform\ChargeTransformer;
 use Portalbox\Type\Charge;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
@@ -85,12 +85,12 @@ final class ChargeTransformerTest extends TestCase {
 
 		$name = 'Floodlight';
 		$requires_training = false;
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_charge_rate('2.00')
 			->set_allow_proxy(false);
 
@@ -146,7 +146,7 @@ final class ChargeTransformerTest extends TestCase {
 		$user_id = self::$user->id();
 		$equipment_id = self::$equipment->id();
 		$amount = '2.00';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '2.00';
 		$charged_time = 25;
 		$time = '2020-05-31 10:46:34';
@@ -156,7 +156,7 @@ final class ChargeTransformerTest extends TestCase {
 			'user_id' => $user_id,
 			'equipment_id' => $equipment_id,
 			'amount' => $amount,
-			'charge_policy_id' => $charge_policy_id,
+			'charge_policy' => $charge_policy->value,
 			'charge_rate' => $charge_rate,
 			'charged_time' => $charged_time,
 			'time' => $time
@@ -169,19 +169,19 @@ final class ChargeTransformerTest extends TestCase {
 		self::assertEquals($user_id, $charge->user_id());
 		self::assertEquals($equipment_id, $charge->equipment_id());
 		self::assertEquals($amount, $charge->amount());
-		self::assertEquals($charge_policy_id, $charge->charge_policy_id());
+		self::assertEquals($charge_policy, $charge->charge_policy());
 		self::assertEquals($charge_rate, $charge->charge_rate());
 		self::assertEquals($charged_time, $charge->charged_time());
 		self::assertEquals($time, $charge->time());
 	}
 
-	public function testDeserializeInvalidDataUserIDMissing(): void {
+	public function testDeserializeInvalidDataUserIdMissing(): void {
 		$transformer = new ChargeTransformer();
 
 		$id = 42;
 		$equipment_id = self::$equipment->id();
 		$amount = '2.00';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '2.00';
 		$charged_time = 25;
 		$time = '2020-05-31 10:46:34';
@@ -190,7 +190,7 @@ final class ChargeTransformerTest extends TestCase {
 			'id' => $id,
 			'equipment_id' => $equipment_id,
 			'amount' => $amount,
-			'charge_policy_id' => $charge_policy_id,
+			'charge_policy' => $charge_policy->value,
 			'charge_rate' => $charge_rate,
 			'charged_time' => $charged_time,
 			'time' => $time
@@ -207,7 +207,7 @@ final class ChargeTransformerTest extends TestCase {
 		$user_id = self::$user->id() + 100;
 		$equipment_id = self::$equipment->id();
 		$amount = '2.00';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '2.00';
 		$charged_time = 25;
 		$time = '2020-05-31 10:46:34';
@@ -217,7 +217,7 @@ final class ChargeTransformerTest extends TestCase {
 			'user_id' => $user_id,
 			'equipment_id' => $equipment_id,
 			'amount' => $amount,
-			'charge_policy_id' => $charge_policy_id,
+			'charge_policy' => $charge_policy->value,
 			'charge_rate' => $charge_rate,
 			'charged_time' => $charged_time,
 			'time' => $time
@@ -233,7 +233,7 @@ final class ChargeTransformerTest extends TestCase {
 		$id = 42;
 		$user_id = self::$user->id();
 		$amount = '2.00';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '2.00';
 		$charged_time = 25;
 		$time = '2020-05-31 10:46:34';
@@ -242,7 +242,7 @@ final class ChargeTransformerTest extends TestCase {
 			'id' => $id,
 			'user_id' => $user_id,
 			'amount' => $amount,
-			'charge_policy_id' => $charge_policy_id,
+			'charge_policy' => $charge_policy->value,
 			'charge_rate' => $charge_rate,
 			'charged_time' => $charged_time,
 			'time' => $time
@@ -252,14 +252,14 @@ final class ChargeTransformerTest extends TestCase {
 		$charge = $transformer->deserialize($data);
 	}
 
-	public function testDeserializeInvalidDataEquipmentID(): void {
+	public function testDeserializeInvalidDataEquipmentId(): void {
 		$transformer = new ChargeTransformer();
 
 		$id = 42;
 		$user_id = self::$user->id();
 		$equipment_id = self::$equipment->id() + 100;
 		$amount = '2.00';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '2.00';
 		$charged_time = 25;
 		$time = '2020-05-31 10:46:34';
@@ -269,7 +269,7 @@ final class ChargeTransformerTest extends TestCase {
 			'user_id' => $user_id,
 			'equipment_id' => $equipment_id,
 			'amount' => $amount,
-			'charge_policy_id' => $charge_policy_id,
+			'charge_policy' => $charge_policy->value,
 			'charge_rate' => $charge_rate,
 			'charged_time' => $charged_time,
 			'time' => $time
@@ -285,7 +285,7 @@ final class ChargeTransformerTest extends TestCase {
 		$id = 42;
 		$user_id = self::$user->id();
 		$equipment_id = self::$equipment->id();
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '2.00';
 		$charged_time = 25;
 		$time = '2020-05-31 10:46:34';
@@ -294,7 +294,7 @@ final class ChargeTransformerTest extends TestCase {
 			'id' => $id,
 			'user_id' => $user_id,
 			'equipment_id' => $equipment_id,
-			'charge_policy_id' => $charge_policy_id,
+			'charge_policy' => $charge_policy->value,
 			'charge_rate' => $charge_rate,
 			'charged_time' => $charged_time,
 			'time' => $time
@@ -336,7 +336,7 @@ final class ChargeTransformerTest extends TestCase {
 		$user_id = self::$user->id();
 		$equipment_id = self::$equipment->id();
 		$amount = '2.00';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charged_time = 25;
 		$time = '2020-05-31 10:46:34';
 
@@ -345,7 +345,7 @@ final class ChargeTransformerTest extends TestCase {
 			'user_id' => $user_id,
 			'equipment_id' => $equipment_id,
 			'amount' => $amount,
-			'charge_policy_id' => $charge_policy_id,
+			'charge_policy' => $charge_policy->value,
 			'charged_time' => $charged_time,
 			'time' => $time
 		];
@@ -361,7 +361,7 @@ final class ChargeTransformerTest extends TestCase {
 		$user_id = self::$user->id();
 		$equipment_id = self::$equipment->id();
 		$amount = '2.00';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '2.00';
 		$time = '2020-05-31 10:46:34';
 
@@ -370,7 +370,7 @@ final class ChargeTransformerTest extends TestCase {
 			'user_id' => $user_id,
 			'equipment_id' => $equipment_id,
 			'amount' => $amount,
-			'charge_policy_id' => $charge_policy_id,
+			'charge_policy' => $charge_policy->value,
 			'charge_rate' => $charge_rate,
 			'time' => $time
 		];
@@ -386,7 +386,7 @@ final class ChargeTransformerTest extends TestCase {
 		$user_id = self::$user->id();
 		$equipment_id = self::$equipment->id();
 		$amount = '2.00';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '2.00';
 		$charged_time = 25;
 
@@ -395,7 +395,7 @@ final class ChargeTransformerTest extends TestCase {
 			'user_id' => $user_id,
 			'equipment_id' => $equipment_id,
 			'amount' => $amount,
-			'charge_policy_id' => $charge_policy_id,
+			'charge_policy' => $charge_policy->value,
 			'charge_rate' => $charge_rate,
 			'charged_time' => $charged_time
 		];
@@ -409,7 +409,7 @@ final class ChargeTransformerTest extends TestCase {
 
 		$id = 42;
 		$amount = '2.00';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '2.00';
 		$charged_time = 25;
 		$time = '2020-05-31 10:46:34';
@@ -419,7 +419,7 @@ final class ChargeTransformerTest extends TestCase {
 			->set_user(self::$user)
 			->set_equipment(self::$equipment)
 			->set_amount($amount)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_charge_rate($charge_rate)
 			->set_charged_time($charged_time)
 			->set_time($time);
@@ -439,8 +439,8 @@ final class ChargeTransformerTest extends TestCase {
 		self::assertEquals(self::$equipment->id(), $data['equipment']['id']);
 		self::assertArrayHasKey('amount', $data);
 		self::assertEquals($amount, $data['amount']);
-		self::assertArrayHasKey('charge_policy_id', $data);
-		self::assertEquals($charge_policy_id, $data['charge_policy_id']);
+		self::assertArrayHasKey('charge_policy', $data);
+		self::assertEquals($charge_policy->value, $data['charge_policy']);
 		self::assertArrayHasKey('charge_rate', $data);
 		self::assertEquals($charge_rate, $data['charge_rate']);
 		self::assertArrayHasKey('charged_time', $data);

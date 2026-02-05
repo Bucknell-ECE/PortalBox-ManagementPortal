@@ -6,7 +6,7 @@ namespace Test\Portalbox\Type;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Type\ChargePolicy;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Type\EquipmentType;
 
 final class EquipmentTypeTest extends TestCase {
@@ -15,7 +15,7 @@ final class EquipmentTypeTest extends TestCase {
 		$name = 'laser scalpel';
 		$requires_training = true;
 		$charge_rate = "2.50";
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$allow_proxy = true;
 
 		$type = (new EquipmentType())
@@ -23,14 +23,14 @@ final class EquipmentTypeTest extends TestCase {
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_rate($charge_rate)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_allow_proxy($allow_proxy);
 
 		self::assertEquals($id, $type->id());
 		self::assertEquals($name, $type->name());
 		self::assertEquals($requires_training, $type->requires_training());
 		self::assertEquals($charge_rate, $type->charge_rate());
-		self::assertEquals($charge_policy_id, $type->charge_policy_id());
+		self::assertEquals($charge_policy, $type->charge_policy());
 		self::assertEquals($allow_proxy, $type->allow_proxy());
 	}
 
@@ -42,10 +42,5 @@ final class EquipmentTypeTest extends TestCase {
 	public function testInvalidRateTriggersException(): void {
 		self::expectException(InvalidArgumentException::class);
 		(new EquipmentType())->set_charge_rate('');
-	}
-
-	public function testInvalidChargePolicyTriggersException(): void {
-		self::expectException(InvalidArgumentException::class);
-		(new EquipmentType())->set_charge_policy_id(-1);
 	}
 }

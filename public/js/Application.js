@@ -582,6 +582,7 @@ class Application {
 						transaction.amount = parseFloat(transaction.amount);
 						if("charge_policy" in transaction) {
 							transaction.amount *= -1;
+							transaction.charge_policy = ChargePolicy.format(transaction.charge_policy);
 						}
 
 						if(new_ledger.length > 0) {
@@ -1058,7 +1059,7 @@ class Application {
 					"editable": editable,
 					"users": values[2]
 				}, {}, () => {
-				document.getElementById("charge_policy_id").value = type.charge_policy_id;
+				document.getElementById("charge_policy").value = type.charge_policy;
 				document
 					.getElementById("edit-equipment-type-form")
 					.addEventListener("submit", (e) => { this.update_equipment_type(id, e); });
@@ -1448,6 +1449,7 @@ class Application {
 				transaction.amount = parseFloat(transaction.amount);
 				if("charge_policy" in transaction) {
 					transaction.amount *= -1;
+					transaction.charge_policy = ChargePolicy.format(transaction.charge_policy);
 				}
 
 				if(new_ledger.length > 0) {

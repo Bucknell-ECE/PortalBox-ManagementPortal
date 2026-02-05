@@ -6,6 +6,7 @@ namespace Portalbox\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -21,7 +22,6 @@ use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\EquipmentQuery;
 use Portalbox\Type\CardType;
 use Portalbox\Type\Charge;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\LoggedEvent;
 use Portalbox\Type\LoggedEventType;
@@ -310,7 +310,7 @@ class EquipmentService {
 
 			// charge the user as applicable
 			$type = $equipment->type();
-			switch ($type->charge_policy_id()) {
+			switch ($type->charge_policy()) {
 				case ChargePolicy::PER_USE:
 					$this->chargeModel->create(
 						(new Charge())
@@ -318,7 +318,7 @@ class EquipmentService {
 							->set_user_id($card->user_id())
 							->set_amount($type->charge_rate())
 							->set_time($now->format('Y-m-d H:i:s'))
-							->set_charge_policy_id(ChargePolicy::PER_USE)
+							->set_charge_policy(ChargePolicy::PER_USE)
 							->set_charge_rate($type->charge_rate())
 							->set_charged_time($duration)
 					);
@@ -330,7 +330,7 @@ class EquipmentService {
 							->set_user_id($card->user_id())
 							->set_amount((string)($type->charge_rate() * $duration))
 							->set_time($now->format('Y-m-d H:i:s'))
-							->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+							->set_charge_policy(ChargePolicy::PER_MINUTE)
 							->set_charge_rate($type->charge_rate())
 							->set_charged_time($duration)
 					);
