@@ -371,7 +371,7 @@ final class RoleServiceTest extends TestCase {
 		$service->read(123456789);
 	}
 
-	public function testReadThrowsWhenKeyDoesNotExist() {
+	public function testReadThrowsWhenRoleDoesNotExist() {
 		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -554,7 +554,7 @@ final class RoleServiceTest extends TestCase {
 				->set_role(
 					(new Role())
 						->set_id(2)
-						->set_permissions([Permission::CREATE_ROLE])
+						->set_permissions([Permission::MODIFY_ROLE])
 				)
 		);
 
@@ -567,7 +567,7 @@ final class RoleServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(RoleService::ERROR_INVALID_ROLE_DATA);
-		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenDataIsNotArray.json'));
+		$service->update(1, realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenDataIsNotArray.json'));
 	}
 
 	public function testUpdateThrowsWhenNameIsNotSpecified() {
@@ -577,7 +577,7 @@ final class RoleServiceTest extends TestCase {
 				->set_role(
 					(new Role())
 						->set_id(2)
-						->set_permissions([Permission::CREATE_ROLE])
+						->set_permissions([Permission::MODIFY_ROLE])
 				)
 		);
 
@@ -590,7 +590,7 @@ final class RoleServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(RoleService::ERROR_NAME_IS_REQUIRED);
-		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenNameIsNotSpecified.json'));
+		$service->update(1, realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenNameIsNotSpecified.json'));
 	}
 
 	public function testUpdateThrowsWhenNameIsInvalid() {
@@ -600,7 +600,7 @@ final class RoleServiceTest extends TestCase {
 				->set_role(
 					(new Role())
 						->set_id(2)
-						->set_permissions([Permission::CREATE_ROLE])
+						->set_permissions([Permission::MODIFY_ROLE])
 				)
 		);
 
@@ -613,7 +613,7 @@ final class RoleServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(RoleService::ERROR_NAME_IS_INVALID);
-		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenNameIsInvalid.json'));
+		$service->update(1, realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenNameIsInvalid.json'));
 	}
 
 	public function testUpdateThrowsWhenDescriptionIsNotSpecified() {
@@ -623,7 +623,7 @@ final class RoleServiceTest extends TestCase {
 				->set_role(
 					(new Role())
 						->set_id(2)
-						->set_permissions([Permission::CREATE_ROLE])
+						->set_permissions([Permission::MODIFY_ROLE])
 				)
 		);
 
@@ -636,7 +636,7 @@ final class RoleServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(RoleService::ERROR_DESCRIPTION_IS_REQUIRED);
-		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenDescriptionIsNotSpecified.json'));
+		$service->update(1, realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenDescriptionIsNotSpecified.json'));
 	}
 
 	public function testUpdateThrowsWhenPermissionsAreNotSpecified() {
@@ -646,7 +646,7 @@ final class RoleServiceTest extends TestCase {
 				->set_role(
 					(new Role())
 						->set_id(2)
-						->set_permissions([Permission::CREATE_ROLE])
+						->set_permissions([Permission::MODIFY_ROLE])
 				)
 		);
 
@@ -659,7 +659,7 @@ final class RoleServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_REQUIRED);
-		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreNotSpecified.json'));
+		$service->update(1, realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreNotSpecified.json'));
 	}
 
 	public function testUpdateThrowsWhenPermissionsAreNotList() {
@@ -669,7 +669,7 @@ final class RoleServiceTest extends TestCase {
 				->set_role(
 					(new Role())
 						->set_id(2)
-						->set_permissions([Permission::CREATE_ROLE])
+						->set_permissions([Permission::MODIFY_ROLE])
 				)
 		);
 
@@ -682,7 +682,7 @@ final class RoleServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_INVALID);
-		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreNotList.json'));
+		$service->update(1, realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreNotList.json'));
 	}
 
 	public function testUpdateThrowsWhenPermissionsAreInvalidType() {
@@ -692,7 +692,7 @@ final class RoleServiceTest extends TestCase {
 				->set_role(
 					(new Role())
 						->set_id(2)
-						->set_permissions([Permission::CREATE_ROLE])
+						->set_permissions([Permission::MODIFY_ROLE])
 				)
 		);
 
@@ -705,7 +705,7 @@ final class RoleServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_INVALID);
-		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreInvalidType.json'));
+		$service->update(1, realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreInvalidType.json'));
 	}
 
 	public function testUpdateThrowsWhenPermissionsAreInvalid() {
@@ -715,7 +715,7 @@ final class RoleServiceTest extends TestCase {
 				->set_role(
 					(new Role())
 						->set_id(2)
-						->set_permissions([Permission::CREATE_ROLE])
+						->set_permissions([Permission::MODIFY_ROLE])
 				)
 		);
 
@@ -728,7 +728,7 @@ final class RoleServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(RoleService::ERROR_PERMISSIONS_ARE_INVALID);
-		$service->create(realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreInvalid.json'));
+		$service->update(1, realpath(__DIR__ . '/RoleServiceTestData/UpdateThrowsWhenPermissionsAreInvalid.json'));
 	}
 
 	public function testUpdateThrowsWhenNotFound() {
