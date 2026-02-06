@@ -185,7 +185,7 @@ class LoggedEventModel extends AbstractModel {
 		EOQ;
 
 		$where_clause_fragments = ['el.event_type_id = :event_type'];
-		$parameters = [':event_type' => LoggedEventType::SUCCESSFUL_AUTHENTICATION] ;
+		$parameters = [':event_type' => LoggedEventType::SUCCESSFUL_AUTHENTICATION];
 
 		if ($query) {
 			if ($query->equipment_id()) {

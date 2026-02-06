@@ -29,7 +29,7 @@ hello.on("auth.login", auth => {
 			hello(auth.network).api("me").then(profile => {
 				user.profile_image_url = profile.picture;
 				app.set_user(user);
-				app.route("/logout", _ => {
+				app.route("/logout", () => {
 					hello("google").logout();
 				});
 			});

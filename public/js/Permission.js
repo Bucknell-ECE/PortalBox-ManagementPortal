@@ -14,8 +14,23 @@ export const MODIFY_API_KEY = 3;
 /** Users with this permission can delete API keys */
 export const DELETE_API_KEY = 4;
 
-/** Users with this permission can list API keys */
+/** Users with this permission can list badge rules */
 export const LIST_API_KEYS = 5;
+
+/** Users with this permission can create badge rules */
+export const CREATE_BADGE_RULE = 51;
+
+/** Users with this permission can read badge rules */
+export const READ_BADGE_RULE = 52;
+
+/** Users with this permission can modify badge rules */
+export const MODIFY_BADGE_RULE = 53;
+
+/** Users with this permission can delete badge rules*/
+export const DELETE_BADGE_RULE = 54;
+
+/** Users with this permission can list badge rules */
+export const LIST_BADGE_RULES = 55;
 
 /** Users with this permission can create equipment authorizations */
 export const CREATE_EQUIPMENT_AUTHORIZATION = 101;
@@ -300,6 +315,11 @@ let permissions = {
 	3:{id:MODIFY_API_KEY, name:"Modify API keys"},
 	4:{id:DELETE_API_KEY, name:"Delete API keys"},
 	5:{id:LIST_API_KEYS, name:"List API keys"},
+	51:{id:CREATE_BADGE_RULE, name:"Add badges"},
+	52:{id:READ_BADGE_RULE, name:"View badges"},
+	53:{id:MODIFY_BADGE_RULE, name:"Modify badges"},
+	54:{id:DELETE_BADGE_RULE, name:"Delete badges"},
+	55:{id:LIST_BADGE_RULES, name:"List badges"},
 	101:{id:CREATE_EQUIPMENT_AUTHORIZATION, name:"Add equipment authorization to system"},
 	// 102:{id:READ_EQUIPMENT_AUTHORIZATION, name:""},
 	// 103:{id:MODIFY_AUTHORIZATIONS, name:"Modify the list of equipment for which a user is authorized"},

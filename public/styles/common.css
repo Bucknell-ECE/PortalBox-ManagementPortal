@@ -182,6 +182,10 @@ td.center { text-align:center; }
 	text-align:center; text-decoration:none;
 	flex-grow:1;
 }
+.button-group a.small, .button-group button.small, .button-group label.small {
+	margin:0;
+	font-size:0.7em;
+}
 .button-group a.default, .button-group button.default, .button-group label.default {
 	background:var(--default-primary-color);
 	border-color:var(--dark-primary-color);
