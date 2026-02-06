@@ -3,9 +3,9 @@
 
 
 bar-chart-web-component@^1.1.0:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/bar-chart-web-component/-/bar-chart-web-component-1.1.1.tgz#20c283cd3d67eec846e47965e8b9c50b99470347"
-  integrity sha512-ZQ7+fEnFEd+hHyEpArJGAhGljB684mnwbYR1YirptvvwDlKnmgzX2lxDszprxw07yvl8QAnCSdGLIsentVcg7Q==
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/bar-chart-web-component/-/bar-chart-web-component-1.3.0.tgz#dd767f6f544f4deb0d5940361f7b39ee81d7d915"
+  integrity sha512-ggczY15I5qPYV0+y/faaJ4uviwdGJl/6BM1uvDA3fvM1MK1LBXglmz4wlM2tYXPBT4kYXw4IZO2WuH/F+2jjEg==
 
 file-saver@^2.0.2:
   version "2.0.5"
@@ -13,9 +13,9 @@ file-saver@^2.0.2:
   integrity sha512-P9bmyZ3h/PRG+Nzga+rbdI4OEpNDzAVyy74uVO9ATgzLK6VtAsYybF/+TOCvrc0MO793d6+42lLyZTw7/ArVzA==
 
 hellojs@^1.18.8:
-  version "1.20.0"
-  resolved "https://registry.yarnpkg.com/hellojs/-/hellojs-1.20.0.tgz#5d54c88a3333c4782593df992773676de06433ba"
-  integrity sha512-zfZGRt0J0OpJHnw2GJz4uh+rzMNAMWpIymiaRbSmCqCvqDMLSx2/qR5JucqnHPsZHUEjyKj5aLJ8K54kyHHjLQ==
+  version "1.21.4"
+  resolved "https://registry.yarnpkg.com/hellojs/-/hellojs-1.21.4.tgz#b62d5cb68406dfd2aa0dc06b4e0a380f547ac21b"
+  integrity sha512-2TbCJmpIczSYLS8GNVhWJUXISPLUd110xQJwVfhnfX2M5/V+ftxNGIzdpFjyDR3rMoMuN1P60fHlsjdotkKV8A==
 
 mustache@^4.2.0:
   version "4.2.0"
