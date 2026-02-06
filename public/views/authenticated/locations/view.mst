@@ -37,8 +37,8 @@
 			<header>
 				<h2>Usage</h2>
 			</header>
-			<bar-chart dependent-axis-label="Daily Usage" style="min-height:30vh; min-width:50vw">
-				<data-series color="var(--default-primary-color)">
+			<bar-chart dependent-axis-label="Daily Usage" dependent-axis-ticks="5" style="min-height:30vh; min-width:50vw">
+				<data-series>
 				{{#usage}}
 					<data-point label="{{date}}" value="{{count}}"></data-point>
 				{{/usage}}
