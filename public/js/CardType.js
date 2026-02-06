@@ -12,7 +12,7 @@ export class CardType {
 	 * @throws String if any other error occurs
 	 */
 	static async list() {
-		const response = await fetch("/api/card-types.php", { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/card-types.php", { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();

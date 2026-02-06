@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -25,7 +26,6 @@ use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\EquipmentQuery;
 use Portalbox\Service\EquipmentService;
 use Portalbox\Type\Charge;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
@@ -838,7 +838,7 @@ final class EquipmentServiceTest extends TestCase {
 			->set_type(
 				(new EquipmentType())
 					->set_id($equipment_type_id)
-					->set_charge_policy_id(ChargePolicy::NO_CHARGE)
+					->set_charge_policy(ChargePolicy::NO_CHARGE)
 			);
 
 		$connection = $this->createMock(PDO::class);
@@ -929,7 +929,7 @@ final class EquipmentServiceTest extends TestCase {
 			->set_type(
 				(new EquipmentType())
 					->set_id($equipment_type_id)
-					->set_charge_policy_id(ChargePolicy::PER_USE)
+					->set_charge_policy(ChargePolicy::PER_USE)
 					->set_charge_rate($rate)
 			);
 
@@ -961,7 +961,7 @@ final class EquipmentServiceTest extends TestCase {
 					$charge->equipment_id() === $equipment_id
 					&& $charge->user_id() === $user_id
 					&& $charge->amount() === $rate
-					&& $charge->charge_policy_id() === ChargePolicy::PER_USE
+					&& $charge->charge_policy() === ChargePolicy::PER_USE
 					&& $charge->charge_rate() === $rate
 					&& $charge->charged_time() === $duration
 			)
@@ -1032,7 +1032,7 @@ final class EquipmentServiceTest extends TestCase {
 			->set_type(
 				(new EquipmentType())
 					->set_id($equipment_type_id)
-					->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+					->set_charge_policy(ChargePolicy::PER_MINUTE)
 					->set_charge_rate($rate)
 			);
 
@@ -1064,7 +1064,7 @@ final class EquipmentServiceTest extends TestCase {
 					$charge->equipment_id() === $equipment_id
 					&& $charge->user_id() === $user_id
 					&& $charge->amount() === $rate
-					&& $charge->charge_policy_id() === ChargePolicy::PER_MINUTE
+					&& $charge->charge_policy() === ChargePolicy::PER_MINUTE
 					&& $charge->charge_rate() === $rate
 					&& $charge->charged_time() === $duration
 			)

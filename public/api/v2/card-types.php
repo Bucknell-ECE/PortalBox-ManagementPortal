@@ -1,10 +1,9 @@
 <?php
 
-require '../../src/bootstrap.php';
+require '../../../src/bootstrap.php';
 
 use Portalbox\ResponseHandler;
 use Portalbox\Service\CardTypeService;
-use Portalbox\Session;
 use Portalbox\Transform\CardTypeTransformer;
 
 try {
@@ -13,8 +12,7 @@ try {
 		case 'GET':     // List
 			$service = $container->get(CardTypeService::class);
 			$card_types = $service->readAll();
-			$transformer = new CardTypeTransformer();
-			ResponseHandler::render($card_types, $transformer);
+			ResponseHandler::render($card_types, new CardTypeTransformer());
 		break;
 	}
 } catch(Throwable $t) {

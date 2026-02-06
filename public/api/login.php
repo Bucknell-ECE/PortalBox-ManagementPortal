@@ -7,19 +7,16 @@
  * 3) If token is valid, check for user in db
  * 4) If user in db, start a session and stick user id in the session. Returning the user
  * 
- * We will do this is a procedural style since it is so linear.
+ * We will do this in a procedural style since it is so linear.
  */
 
 // Step 0 load up our code
 require '../../src/autoload.php';
 
 use Portalbox\Config;
-use Portalbox\ResponseHandler;
-
 use Portalbox\Model\UserModel;
-
 use Portalbox\Query\UserQuery;
-
+use Portalbox\ResponseHandler;
 use Portalbox\Transform\UserTransformer;
 
 // Step 1 check for AUTHORIZATION header
@@ -53,19 +50,16 @@ if(array_key_exists('error_description', $response)) {
 
 		// Step 4 user is found start a session and return the user
 		if(session_status() !== PHP_SESSION_ACTIVE) {
-			$success = session_start();
-			if($success) {
-				$_SESSION['user_id'] = $users[0]->id();
-				$transformer = new UserTransformer();
-				ResponseHandler::render($users[0], $transformer);
-			} else {
+			if(!session_start()) {
 				session_abort(); 
 				http_response_code(500);
 				die('We were unable to start your session. Please ask your server administrator to investigate');
 			}
+
+			$_SESSION['user_id'] = $users[0]->id();
+			ResponseHandler::render($users[0], new UserTransformer());
 		} else {
-			$transformer = new UserTransformer();
-			ResponseHandler::render($users[0], $transformer);
+			ResponseHandler::render($users[0], new UserTransformer());
 		}
 	} else {
 		http_response_code(403);

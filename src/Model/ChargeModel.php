@@ -3,6 +3,7 @@
 namespace Portalbox\Model;
 
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\ChargeQuery;
@@ -31,7 +32,7 @@ class ChargeModel extends AbstractModel {
 		$query->bindValue(':equipment_id', $charge->equipment_id(), PDO::PARAM_INT);
 		$query->bindValue(':time', $charge->time());
 		$query->bindValue(':amount', $charge->amount());
-		$query->bindValue(':charge_policy_id', $charge->charge_policy_id(), PDO::PARAM_INT);
+		$query->bindValue(':charge_policy_id', $charge->charge_policy()->value, PDO::PARAM_INT);
 		$query->bindValue(':charge_rate', $charge->charge_rate());
 		$query->bindValue(':charged_time', $charge->charged_time());
 
@@ -82,7 +83,7 @@ class ChargeModel extends AbstractModel {
 		$query->bindValue(':equipment_id', $charge->equipment_id(), PDO::PARAM_INT);
 		$query->bindValue(':time', $charge->time());
 		$query->bindValue(':amount', $charge->amount());
-		$query->bindValue(':charge_policy_id', $charge->charge_policy_id(), PDO::PARAM_INT);
+		$query->bindValue(':charge_policy_id', $charge->charge_policy()->value, PDO::PARAM_INT);
 		$query->bindValue(':charge_rate', $charge->charge_rate());
 		$query->bindValue(':charged_time', $charge->charged_time());
 
@@ -192,7 +193,7 @@ class ChargeModel extends AbstractModel {
 					->set_equipment_id($data['equipment_id'])
 					->set_time($data['time'])
 					->set_amount($data['amount'])
-					->set_charge_policy_id($data['charge_policy_id'])
+					->set_charge_policy(ChargePolicy::from($data['charge_policy_id']))
 					->set_charge_rate($data['charge_rate'])
 					->set_charged_time($data['charged_time']);
 	}

@@ -24,7 +24,7 @@
 		<tbody>
 			{{#types}}<tr class="link" onclick="go('/equipment-types/{{id}}', 'Equipment Types');">
 				<td>{{name}}</td>
-				<td>{{charge_policy}}</td>
+				<td>{{formatted_charge_policy}}</td>
 				<td>{{#charge_rate}}{{.}}{{/charge_rate}}</td>
 				<td>{{#requires_training}}Yes{{/requires_training}}{{^requires_training}}No{{/requires_training}}</td>
 				<td>{{#allow_proxy}}Yes{{/allow_proxy}}{{^allow_proxy}}No{{/allow_proxy}}</td>

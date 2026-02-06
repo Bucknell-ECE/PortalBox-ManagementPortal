@@ -3,6 +3,7 @@
 namespace Portalbox\Model;
 
 use InvalidArgumentException;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Type\EquipmentType;
 use PDO;
@@ -29,7 +30,7 @@ class EquipmentTypeModel extends AbstractModel {
 		$query->bindValue(':name', $type->name());
 		$query->bindValue(':requires_training', $type->requires_training(), PDO::PARAM_BOOL);
 		$query->bindValue(':charge_rate', $type->charge_rate());
-		$query->bindValue(':charge_policy_id', $type->charge_policy_id(), PDO::PARAM_INT);
+		$query->bindValue(':charge_policy_id', $type->charge_policy()->value, PDO::PARAM_INT);
 		$query->bindValue(':allow_proxy', $type->allow_proxy(), PDO::PARAM_BOOL);
 
 		if ($query->execute()) {
@@ -78,7 +79,7 @@ class EquipmentTypeModel extends AbstractModel {
 		$query->bindValue(':name', $type->name());
 		$query->bindValue(':requires_training', $type->requires_training(), PDO::PARAM_BOOL);
 		$query->bindValue(':charge_rate', $type->charge_rate());
-		$query->bindValue(':charge_policy_id', $type->charge_policy_id(), PDO::PARAM_INT);
+		$query->bindValue(':charge_policy_id', $type->charge_policy()->value, PDO::PARAM_INT);
 		$query->bindValue(':allow_proxy', $type->allow_proxy(), PDO::PARAM_BOOL);
 
 		if ($query->execute()) {
@@ -155,7 +156,7 @@ class EquipmentTypeModel extends AbstractModel {
 			->set_name($data['name'])
 			->set_requires_training($data['requires_training'])
 			->set_charge_rate($data['charge_rate'])
-			->set_charge_policy_id($data['charge_policy_id'])
+			->set_charge_policy(ChargePolicy::from($data['charge_policy_id']))
 			->set_allow_proxy($data['allow_proxy']);
 	}
 }

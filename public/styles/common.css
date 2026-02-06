@@ -269,3 +269,4 @@ dd > ul {
 .debit { color:red; }
 .material-icons.active, .material-icons.available, .material-icons.in-service { color:green }
 .material-icons.inactive, .material-icons.in-use, .material-icons.out-of-service { color:red }
+bar-chart { --bar-chart-default-bar-color: var(--default-primary-color) }

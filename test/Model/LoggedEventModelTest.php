@@ -6,13 +6,13 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\LoggedEventQuery;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
@@ -72,13 +72,13 @@ final class LoggedEventModelTest extends TestCase {
 
 		$name = 'Floodlight';
 		$requires_training = false;
-		$charge_policy_id = ChargePolicy::NO_CHARGE;
+		$charge_policy = ChargePolicy::NO_CHARGE;
 
 		self::$type = $model->create(
 			(new EquipmentType())
 				->set_name($name)
 				->set_requires_training($requires_training)
-				->set_charge_policy_id($charge_policy_id)
+				->set_charge_policy($charge_policy)
 				->set_allow_proxy(false)
 		);
 

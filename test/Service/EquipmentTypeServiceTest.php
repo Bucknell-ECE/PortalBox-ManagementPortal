@@ -6,6 +6,7 @@ namespace Test\Portalbox\Service;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -13,7 +14,6 @@ use Portalbox\Exception\NotFoundException;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Service\EquipmentTypeService;
 use Portalbox\Session;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Role;
 use Portalbox\Type\User;
@@ -289,7 +289,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		self::assertSame('Flashlight', $equipmentType->name());
 		self::assertSame(false, $equipmentType->requires_training());
 		self::assertSame('0.01', $equipmentType->charge_rate());
-		self::assertSame(ChargePolicy::NO_CHARGE, $equipmentType->charge_policy_id());
+		self::assertSame(ChargePolicy::NO_CHARGE, $equipmentType->charge_policy());
 		self::assertSame(true, $equipmentType->allow_proxy());
 	}
 
@@ -318,7 +318,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		self::assertSame('Flashlight', $equipmentType->name());
 		self::assertSame(true, $equipmentType->requires_training());
 		self::assertSame('10', $equipmentType->charge_rate());
-		self::assertSame(ChargePolicy::PER_MINUTE, $equipmentType->charge_policy_id());
+		self::assertSame(ChargePolicy::PER_MINUTE, $equipmentType->charge_policy());
 		self::assertSame(false, $equipmentType->allow_proxy());
 	}
 
@@ -784,7 +784,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		self::assertSame('Flashlight', $equipmentType->name());
 		self::assertSame(false, $equipmentType->requires_training());
 		self::assertSame('0.01', $equipmentType->charge_rate());
-		self::assertSame(ChargePolicy::NO_CHARGE, $equipmentType->charge_policy_id());
+		self::assertSame(ChargePolicy::NO_CHARGE, $equipmentType->charge_policy());
 		self::assertSame(true, $equipmentType->allow_proxy());
 	}
 
@@ -817,7 +817,7 @@ final class EquipmentTypeServiceTest extends TestCase {
 		self::assertSame('Flashlight', $equipmentType->name());
 		self::assertSame(true, $equipmentType->requires_training());
 		self::assertSame('10', $equipmentType->charge_rate());
-		self::assertSame(ChargePolicy::PER_MINUTE, $equipmentType->charge_policy_id());
+		self::assertSame(ChargePolicy::PER_MINUTE, $equipmentType->charge_policy());
 		self::assertSame(false, $equipmentType->allow_proxy());
 	}
 

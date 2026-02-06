@@ -1,1 +1,1 @@
-{"name":"<blink></blink>", "requires_training": false, "charge_policy_id": 2, "charge_rate": 0.01, "allow_proxy": true}
+{"name":"<blink></blink>", "requires_training": false, "charge_policy": 2, "charge_rate": 0.01, "allow_proxy": true}

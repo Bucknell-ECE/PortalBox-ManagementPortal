@@ -40,8 +40,7 @@ try {
 			}
 
 			$log = $model->search($query);
-			$transformer = new LoggedEventTransformer();
-			ResponseHandler::render($log, $transformer);
+			ResponseHandler::render($log, new LoggedEventTransformer());
 			break;
 		case 'POST':	// Update
 			// intentional fall through, users should not modify log entries

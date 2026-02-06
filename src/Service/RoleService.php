@@ -208,18 +208,18 @@ class RoleService {
 			throw new InvalidArgumentException(self::ERROR_INVALID_ROLE_DATA);
 		}
 
-		$key = json_decode($data, TRUE);
-		if (!is_array($key)) {
+		$role = json_decode($data, TRUE);
+		if (!is_array($role)) {
 			throw new InvalidArgumentException(self::ERROR_INVALID_ROLE_DATA);
 		}
 
-		$key = $this->roleModel->update(
-			$this->deserialize($key)->set_id($id)
+		$role = $this->roleModel->update(
+			$this->deserialize($role)->set_id($id)
 		);
-		if ($key === null) {
+		if ($role === null) {
 			throw new NotFoundException(self::ERROR_ROLE_NOT_FOUND);
 		}
 
-		return $key;
+		return $role;
 	}
 }

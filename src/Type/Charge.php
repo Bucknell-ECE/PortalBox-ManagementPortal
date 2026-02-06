@@ -2,6 +2,8 @@
 
 namespace Portalbox\Type;
 
+use Portalbox\Enumeration\ChargePolicy;
+
 /**
  * Charge represents a charge to a user for use of equipment in the
  * portalbox network
@@ -30,7 +32,7 @@ class Charge {
 	/**
 	 * The id of the charge policy in effect during the creation of the Charge
 	 */
-	protected int $charge_policy_id = ChargePolicy::MANUALLY_ADJUSTED;
+	protected ChargePolicy $charge_policy = ChargePolicy::MANUALLY_ADJUSTED;
 
 	/** The charge rate in effect during the creation of the Charge */
 	protected string $charge_rate = '';
@@ -130,24 +132,16 @@ class Charge {
 	}
 
 	/** Get the policy for this charge */
-	public function charge_policy(): string {
-		return ChargePolicy::name_for_policy($this->charge_policy_id);
-	}
-
-	/**
-	 * Get the id of the charge policy in effect during the creation of the
-	 * Charge
-	 */
-	public function charge_policy_id(): int {
-		return $this->charge_policy_id;
+	public function charge_policy(): ChargePolicy {
+		return $this->charge_policy;
 	}
 
 	/**
 	 * Set the id of the charge policy in effect during the creation of the
 	 * Charge
 	 */
-	public function set_charge_policy_id(int $charge_policy_id): self {
-		$this->charge_policy_id = $charge_policy_id;
+	public function set_charge_policy(ChargePolicy $policy): self {
+		$this->charge_policy = $policy;
 		return $this;
 	}
 

@@ -7,8 +7,8 @@ namespace Test\Portalbox\Model;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Model\EquipmentTypeModel;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\EquipmentType;
 
 final class EquipmentTypeModelTest extends TestCase {
@@ -18,14 +18,14 @@ final class EquipmentTypeModelTest extends TestCase {
 		$name = 'ceramics printer';
 		$requires_training = true;
 		$charge_rate = "0.01";
-		$charge_policy_id = ChargePolicy::PER_MINUTE;
+		$charge_policy = ChargePolicy::PER_MINUTE;
 		$allow_proxy = true;
 
 		$type = (new EquipmentType())
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_rate($charge_rate)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_allow_proxy($allow_proxy);
 
 		$type_as_created = $model->create($type);
@@ -35,7 +35,7 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($name, $type_as_created->name());
 		self::assertEquals($requires_training, $type_as_created->requires_training());
 		self::assertEquals($charge_rate, $type_as_created->charge_rate());
-		self::assertEquals($charge_policy_id, $type_as_created->charge_policy_id());
+		self::assertEquals($charge_policy, $type_as_created->charge_policy());
 		self::assertEquals($allow_proxy, $type_as_created->allow_proxy());
 
 		$type_as_found = $model->read($type_id);
@@ -45,20 +45,20 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($name, $type_as_found->name());
 		self::assertEquals($requires_training, $type_as_found->requires_training());
 		self::assertEquals($charge_rate, $type_as_found->charge_rate());
-		self::assertEquals($charge_policy_id, $type_as_found->charge_policy_id());
+		self::assertEquals($charge_policy, $type_as_found->charge_policy());
 		self::assertEquals($allow_proxy, $type_as_found->allow_proxy());
 
 		$name = '3D Clay Printer';
 		$requires_training = false;
 		$charge_rate = '2.50';
-		$charge_policy_id = ChargePolicy::PER_USE;
+		$charge_policy = ChargePolicy::PER_USE;
 		$allow_proxy = false;
 
 		$type_as_found
 			->set_name($name)
 			->set_requires_training($requires_training)
 			->set_charge_rate($charge_rate)
-			->set_charge_policy_id($charge_policy_id)
+			->set_charge_policy($charge_policy)
 			->set_allow_proxy($allow_proxy);
 
 		$type_as_modified = $model->update($type_as_found);
@@ -68,7 +68,7 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($name, $type_as_modified->name());
 		self::assertEquals($requires_training, $type_as_modified->requires_training());
 		self::assertEquals($charge_rate, $type_as_modified->charge_rate());
-		self::assertEquals($charge_policy_id, $type_as_modified->charge_policy_id());
+		self::assertEquals($charge_policy, $type_as_modified->charge_policy());
 		self::assertEquals($allow_proxy, $type_as_modified->allow_proxy());
 
 		$type_as_deleted = $model->delete($type_id);
@@ -78,7 +78,7 @@ final class EquipmentTypeModelTest extends TestCase {
 		self::assertEquals($name, $type_as_deleted->name());
 		self::assertEquals($requires_training, $type_as_deleted->requires_training());
 		self::assertEquals($charge_rate, $type_as_deleted->charge_rate());
-		self::assertEquals($charge_policy_id, $type_as_deleted->charge_policy_id());
+		self::assertEquals($charge_policy, $type_as_deleted->charge_policy());
 		self::assertEquals($allow_proxy, $type_as_deleted->allow_proxy());
 
 		self::assertNull($model->read($type_id));
@@ -99,7 +99,7 @@ final class EquipmentTypeModelTest extends TestCase {
 		$name2 = '3D Printer';
 		$requires_training = true;
 		$charge_rate = "0.01";
-		$charge_policy_id = ChargePolicy::PER_MINUTE;
+		$charge_policy = ChargePolicy::PER_MINUTE;
 		$allow_proxy = true;
 
 		$typeId1 = $model->create(
@@ -107,7 +107,7 @@ final class EquipmentTypeModelTest extends TestCase {
 				->set_name($name1)
 				->set_requires_training($requires_training)
 				->set_charge_rate($charge_rate)
-				->set_charge_policy_id($charge_policy_id)
+				->set_charge_policy($charge_policy)
 				->set_allow_proxy($allow_proxy)
 		)->id();
 
@@ -116,7 +116,7 @@ final class EquipmentTypeModelTest extends TestCase {
 				->set_name($name2)
 				->set_requires_training($requires_training)
 				->set_charge_rate($charge_rate)
-				->set_charge_policy_id($charge_policy_id)
+				->set_charge_policy($charge_policy)
 				->set_allow_proxy($allow_proxy)
 		)->id();
 
