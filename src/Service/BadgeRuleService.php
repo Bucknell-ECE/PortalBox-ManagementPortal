@@ -39,6 +39,9 @@ class BadgeRuleService {
 	public const ERROR_UNAUTHENTICATED_DELETE = 'You must be authenticated to delete badge rules';
 	public const ERROR_UNAUTHORIZED_DELETE = 'You are not authorized to delete badge rules';
 
+	public const ERROR_UNAUTHENTICATED_IMAGES_READ = 'You must be authenticated to read badge resources';
+	public const ERROR_UNAUTHORIZED_IMAGES_READ = 'You are not authorized to read badge resource';
+
 	protected Session $session;
 	protected BadgeRuleModel $badgeRuleModel;
 	protected EquipmentTypeModel $equipmentTypeModel;
@@ -317,9 +320,25 @@ class BadgeRuleService {
 	/**
 	 * Get the list of badge images on the web server
 	 *
-	 * @todo permissions?
+	 * @return String[]  the list of image files in the images/badges directory
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not read
+	 *      badge resources
 	 */
 	public function getBadgeImages(): array {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_IMAGES_READ);
+		}
+
+		$role = $authenticatedUser->role();
+		if (
+			!$role->has_permission(Permission::CREATE_BADGE_RULE)
+			&& !$role->has_permission(Permission::MODIFY_BADGE_RULE)
+		) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_IMAGES_READ);
+		}
+
 		return $this->imageModel->search();
 	}
 }

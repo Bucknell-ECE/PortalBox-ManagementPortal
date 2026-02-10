@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\Portalbox\Service;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
@@ -1863,4 +1864,88 @@ final class BadgeRuleServiceTest extends TestCase {
 	}
 
 	#endregion test delete()
+
+	#region test getBadgeImages()
+
+	public function testGetBadgeImagesThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$imageModel = $this->createStub(ImageModel::class);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel,
+			$imageModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(BadgeRuleService::ERROR_UNAUTHENTICATED_IMAGES_READ);
+		$service->getBadgeImages();
+	}
+
+	public function testGetBadgeImagesThrowsWhenNotAuthorized() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$imageModel = $this->createStub(ImageModel::class);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel,
+			$imageModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(BadgeRuleService::ERROR_UNAUTHORIZED_IMAGES_READ);
+		$service->getBadgeImages();
+	}
+
+	#[DataProvider('getPermissionsForResourceAccess')]
+	public function testGetBadgeImagesSuccess($permission) {
+		$images = [
+			'wrench.svg',
+			'bolt.svg'
+		];
+
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([$permission])
+				)
+		);
+
+		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$imageModel = $this->createStub(ImageModel::class);
+		$imageModel->method('search')->willReturn($images);
+
+		$service = new BadgeRuleService(
+			$session,
+			$badgeRuleModel,
+			$equipmentTypeModel,
+			$imageModel
+		);
+
+		self::assertSame($images, $service->getBadgeImages());
+	}
+
+	public static function getPermissionsForResourceAccess(): iterable {
+		yield [Permission::CREATE_BADGE_RULE];
+		yield [Permission::MODIFY_BADGE_RULE];
+	}
+
+	#endregion test getBadgeImages()
 }
