@@ -21,15 +21,14 @@ class BadgeModel extends AbstractModel {
 		$sql = <<<EOQ
 		SELECT
 			COUNT(*) AS count,
-			et.id AS equipment_type_id
+			e.type_id AS equipment_type_id
 		FROM log AS l
 		INNER JOIN equipment AS e ON e.id = l.equipment_id
-		INNER JOIN equipment_types AS et ON et.id = e.type_id
 		INNER JOIN users_x_cards AS uxc ON uxc.card_id = l.card_id
 		WHERE
 			l.event_type_id = :event_type
 			AND uxc.user_id = :user_id
-		GROUP BY et.id
+		GROUP BY e.type_id
 		EOQ;
 		$query = $connection->prepare($sql);
 		$query->bindValue(
