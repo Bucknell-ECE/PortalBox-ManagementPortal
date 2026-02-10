@@ -25,6 +25,20 @@ export class BadgeRule {
 		throw "API was unable to list badge rules";
 	}
 
+	static async listBadgeImages() {
+		const response = await fetch("/api/v2/badge-resources.php", { "credentials": "same-origin" });
+
+		if(response.ok) {
+			return await response.json();
+		}
+
+		if(403 == response.status) {
+			throw new SessionTimeOutError();
+		}
+
+		throw "API was unable to list allowed badge images";
+	}
+
 	/**
 	 * Get a badge rule by id
 	 *

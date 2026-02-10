@@ -14,6 +14,11 @@ class BadgeLevel {
 	protected string $name = '';
 
 	/**
+	 * The name of the image file used to represent the badge
+	 */
+	protected string $image = '';
+
+	/**
 	 * The id of the badge rule
 	 */
 	protected int $badge_rule_id = -1;
@@ -22,6 +27,21 @@ class BadgeLevel {
 	 * The number of equipment uses to achieve this level
 	 */
 	protected int $uses = -1;
+
+	/**
+	 * Get the name of the image file used to represent the badge
+	 */
+	public function image(): string {
+		return $this->image;
+	}
+
+	/**
+	 * Set the name of the image file used to represent the badge
+	 */
+	public function set_image(string $image): self {
+		$this->image = $image;
+		return $this;
+	}
 
 	/**
 	 * Get the name of the badge

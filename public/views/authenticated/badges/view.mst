@@ -69,7 +69,7 @@
 		</div>
 		<fieldset id="levels">
 			{{#levels}}
-			<badge-level-input name="{{name}}" uses="{{uses}}"></badge-level-input>
+			<badge-level-input name="{{name}}" image="{{image}}" uses="{{uses}}"></badge-level-input>
 			{{/levels}}
 		</fieldset>
 	</form>

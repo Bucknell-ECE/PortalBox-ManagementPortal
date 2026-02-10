@@ -6,6 +6,7 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Model\BadgeModel;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentModel;
@@ -13,7 +14,6 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Model\UserModel;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
@@ -56,14 +56,14 @@ final class BadgeModelTest extends TestCase {
 			(new EquipmentType())
 				->set_name('Laser Cutter')
 				->set_requires_training(false)
-				->set_charge_policy_id(ChargePolicy::NO_CHARGE)
+				->set_charge_policy(ChargePolicy::NO_CHARGE)
 				->set_allow_proxy(false)
 		);
 		self::$type2 = $model->create(
 			(new EquipmentType())
 				->set_name('3D Printer')
 				->set_requires_training(false)
-				->set_charge_policy_id(ChargePolicy::NO_CHARGE)
+				->set_charge_policy(ChargePolicy::NO_CHARGE)
 				->set_allow_proxy(false)
 		);
 

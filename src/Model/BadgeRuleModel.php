@@ -50,12 +50,13 @@ class BadgeRuleModel extends AbstractModel {
 			}
 		}
 
-		$sql = 'INSERT INTO badge_rule_levels (badge_rule_id, name, uses) VALUES (:badge_rule_id, :name, :uses)';
+		$sql = 'INSERT INTO badge_rule_levels (badge_rule_id, name, image, uses) VALUES (:badge_rule_id, :name, :image, :uses)';
 		$statement = $connection->prepare($sql);
 
 		foreach ($rule->levels() as $level) {
 			$statement->bindValue(':badge_rule_id', $badge_rule_id, PDO::PARAM_INT);
 			$statement->bindValue(':name', $level->name());
+			$statement->bindValue(':image', $level->image());
 			$statement->bindValue(':uses', $level->uses(), PDO::PARAM_INT);
 
 			if (!$statement->execute()) {
@@ -203,12 +204,13 @@ class BadgeRuleModel extends AbstractModel {
 			throw new DatabaseException($statement->errorInfo()[2]);
 		}
 
-		$sql = 'INSERT INTO badge_rule_levels (badge_rule_id, name, uses) VALUES (:badge_rule_id, :name, :uses)';
+		$sql = 'INSERT INTO badge_rule_levels (badge_rule_id, name, image, uses) VALUES (:badge_rule_id, :name, :image, :uses)';
 		$statement = $connection->prepare($sql);
 
 		foreach ($rule->levels() as $level) {
 			$statement->bindValue(':badge_rule_id', $id, PDO::PARAM_INT);
 			$statement->bindValue(':name', $level->name());
+			$statement->bindValue(':image', $level->image());
 			$statement->bindValue(':uses', $level->uses(), PDO::PARAM_INT);
 
 			if (!$statement->execute()) {
@@ -350,6 +352,7 @@ class BadgeRuleModel extends AbstractModel {
 			->set_id($data['id'])
 			->set_badge_rule_id($data['badge_rule_id'])
 			->set_name($data['name'])
+			->set_image($data['image'])
 			->set_uses($data['uses']);
 	}
 }

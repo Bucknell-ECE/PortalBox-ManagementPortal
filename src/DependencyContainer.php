@@ -12,6 +12,7 @@ use Portalbox\Model\CardTypeModel;
 use Portalbox\Model\ChargeModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Model\ImageModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Model\RoleModel;
@@ -87,6 +88,8 @@ class DependencyContainer {
 				return new EquipmentModel($this->get(Config::class));
 			case EquipmentTypeModel::class:
 				return new EquipmentTypeModel($this->get(Config::class));
+			case ImageModel::class:
+				return new ImageModel();
 			case LocationModel::class:
 				return new LocationModel($this->get(Config::class));
 			case LoggedEventModel::class:
@@ -104,7 +107,8 @@ class DependencyContainer {
 				return new BadgeRuleService(
 					$this->get(Session::class),
 					$this->get(BadgeRuleModel::class),
-					$this->get(EquipmentTypeModel::class)
+					$this->get(EquipmentTypeModel::class),
+					$this->get(ImageModel::class)
 				);
 			case BadgeService::class:
 				return new BadgeService(

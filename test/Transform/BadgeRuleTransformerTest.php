@@ -18,19 +18,23 @@ final class BadgeRuleTransformerTest extends TestCase {
 		$equipment_type_ids = [21, 34];
 
 		$level1_name = 'Home Gardener';
+		$level1_image = 'greenThumb.svg';
 		$level1_uses = 10;
 		$level2_name = 'Landscaper';
+		$level2_image = 'wheelbarrow.svg';
 		$level2_uses = 100;
 		$levels = [
 			(new BadgeLevel())
 				->set_id(42)
-				->set_name($level1_name)
 				->set_badge_rule_id($id)
+				->set_name($level1_name)
+				->set_image($level1_image)
 				->set_uses($level1_uses),
 			(new BadgeLevel())
 				->set_id(43)
-				->set_name($level2_name)
 				->set_badge_rule_id($id)
+				->set_name($level2_name)
+				->set_image($level2_image)
 				->set_uses($level2_uses)
 		];
 
@@ -59,12 +63,15 @@ final class BadgeRuleTransformerTest extends TestCase {
 			self::assertArrayHasKey('badge_rule_id', $level);
 			self::assertSame($id, $level['badge_rule_id']);
 			self::assertArrayHasKey('name', $level);
+			self::assertArrayHasKey('image', $level);
 			self::assertArrayHasKey('uses', $level);
 			switch($level['name']) {
 				case $level1_name:
+					self::assertSame($level1_image, $level['image']);
 					self::assertSame($level1_uses, $level['uses']);
 					break;
 				case $level2_name:
+					self::assertSame($level2_image, $level['image']);
 					self::assertSame($level2_uses, $level['uses']);
 					break;
 			}

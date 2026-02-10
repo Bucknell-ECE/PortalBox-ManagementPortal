@@ -17,13 +17,15 @@ final class BadgeRuleTest extends TestCase {
 		$levels = [
 			(new BadgeLevel())
 				->set_id(42)
-				->set_name('Journeyman Welder')
 				->set_badge_rule_id($badge_rule_id)
+				->set_name('Journeyman Welder')
+				->set_image('journeyman.svg')
 				->set_uses(10),
 			(new BadgeLevel())
 				->set_id(43)
-				->set_name('Pro Welder')
 				->set_badge_rule_id($badge_rule_id)
+				->set_name('Pro Welder')
+				->set_image('pro.svg')
 				->set_uses(100)
 		];
 

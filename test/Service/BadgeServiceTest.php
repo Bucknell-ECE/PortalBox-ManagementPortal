@@ -87,12 +87,15 @@ final class BadgeServiceTest extends TestCase {
 				->set_levels([
 					(new BadgeLevel())
 						->set_name('Novice')
+						->set_image('novice.svg')
 						->set_uses(10),
 					(new BadgeLevel())
 						->set_name('Journeyman')
+						->set_image('journeyman.svg')
 						->set_uses(100),
 					(new BadgeLevel())
 						->set_name('Pro')
+						->set_image('pro.svg')
 						->set_uses(1000),
 				]),
 			(new BadgeRule())
@@ -100,9 +103,11 @@ final class BadgeServiceTest extends TestCase {
 				->set_levels([
 					(new BadgeLevel())
 						->set_name('Beginner')
+						->set_image('beginner.svg')
 						->set_uses(10),
 					(new BadgeLevel())
 						->set_name('Expert')
+						->set_image('expert.svg')
 						->set_uses(100),
 				]),
 		]);
@@ -152,12 +157,15 @@ final class BadgeServiceTest extends TestCase {
 				->set_levels([
 					(new BadgeLevel())
 						->set_name('Novice')
+						->set_image('novice.svg')
 						->set_uses(10),
 					(new BadgeLevel())
 						->set_name('Journeyman')
+						->set_image('journeyman.svg')
 						->set_uses(100),
 					(new BadgeLevel())
 						->set_name('Pro')
+						->set_image('pro.svg')
 						->set_uses(1000),
 				]),
 			(new BadgeRule())
@@ -165,9 +173,11 @@ final class BadgeServiceTest extends TestCase {
 				->set_levels([
 					(new BadgeLevel())
 						->set_name('Beginner')
+						->set_image('beginner.svg')
 						->set_uses(10),
 					(new BadgeLevel())
 						->set_name('Expert')
+						->set_image('expert.svg')
 						->set_uses(100),
 				]),
 		]);

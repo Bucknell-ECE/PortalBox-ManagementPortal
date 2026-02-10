@@ -325,14 +325,13 @@ class Application {
 
 		if(this.user.has_permission(Permission.CREATE_BADGE_RULE)) {
 			this.route("/badges/add", () => {
-				if (!customElements.get("badge-level-input")) {
-					const js = document.createElement("script");
-					js.src = "/components/BadgeLevelInput.js";
-					js.setAttribute("async", "");
-					document.head.appendChild(js);
-				}
+				this.#load_custom_element("badge-level-input", "/components/BadgeLevelInput.js");
 
-				EquipmentType.list().then(equipment_types => {
+				Promise.all([
+					EquipmentType.list(),
+					BadgeRule.listBadgeImages()
+				]).then((values) => {
+					const [equipment_types, imageOptions] = values;
 					this.render(
 						"#main",
 						"authenticated/badges/add",
@@ -349,6 +348,11 @@ class Application {
 									field.setAttribute("name", "Badge Name");
 									field.setAttribute("uses", "1");
 									document.getElementById("levels").appendChild(field);
+
+									// have to wait until after the field has been added
+									// to the page so teh controls can be realized
+									// before setting the available image options
+									field.imageOptions = imageOptions;
 								});
 						}
 					);
@@ -798,6 +802,15 @@ class Application {
 		}).catch(e => this.handleError(e));
 	}
 
+	#load_custom_element (name, source) {
+		if (!customElements.get(name)) {
+			const js = document.createElement("script");
+			js.src = source;
+			js.setAttribute("async", "");
+			document.head.appendChild(js);
+		}
+	}
+
 	/**
 	 * Callback that handles adding an api key to the backend. Bound
 	 * to the form.submit() for the view
@@ -912,20 +925,16 @@ class Application {
 	 * @param {bool} deletable - whether to show controls for deleting the api key.
 	 */
 	#read_badge_rule(id, editable, deletable) {
-		const p1 = BadgeRule.read(id);
-		const p2 = EquipmentType.list();
+		this.#load_custom_element("badge-level-input", "/components/BadgeLevelInput.js");
 
-		if (!customElements.get("badge-level-input")) {
-			const js = document.createElement("script");
-			js.src = "/components/BadgeLevelInput.js";
-			js.setAttribute("async", "");
-			document.head.appendChild(js);
-		}
+		Promise.all([
+			BadgeRule.read(id),
+			EquipmentType.list(),
+			BadgeRule.listBadgeImages()
+		]).then((values) => {
+			const [badge_rule, available_equipment_types, imageOptions] = values;
 
-		Promise.all([p1, p2]).then((values) => {
-			const badge_rule = values[0];
 			badge_rule.levels.sort((a,b) => a.uses - b.uses);
-			const available_equipment_types = values[1];
 			const included_equipment_types = available_equipment_types.filter(
 				(type) => badge_rule.equipment_types.includes(type.id)
 			);
@@ -954,10 +963,19 @@ class Application {
 							const field = document.createElement("badge-level-input");
 							field.setAttribute("name", "Badge Name");
 							field.setAttribute("uses", "1");
+							// field.setAttribute("image", "unknown.svg");
 							document.getElementById("levels").appendChild(field);
+
+							// have to wait until after the field has been added
+							// to the page so teh controls can be realized
+							// before setting the available image options
+							field.imageOptions = imageOptions;
 						});
-					for(const equipment_type_id of badge_rule.equipment_types) {
+					for (const equipment_type_id of badge_rule.equipment_types) {
 						document.getElementById("equipment_types." + equipment_type_id).checked = true;
+					}
+					for (const field of document.getElementsByTagName("badge-level-input")) {
+						field.imageOptions = imageOptions;
 					}
 				}
 			);

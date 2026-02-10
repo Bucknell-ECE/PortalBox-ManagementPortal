@@ -6,11 +6,11 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Model\BadgeRuleModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Type\BadgeLevel;
 use Portalbox\Type\BadgeRule;
-use Portalbox\Type\ChargePolicy;
 use Portalbox\Type\EquipmentType;
 
 final class BadgeRuleModelTest extends TestCase {
@@ -23,7 +23,7 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_name('Miller 211 MIG Welder')
 				->set_requires_training(true)
 				->set_charge_rate('0.01')
-				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_charge_policy(ChargePolicy::PER_MINUTE)
 				->set_allow_proxy(false)
 		)->id();
 
@@ -32,7 +32,7 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_name('Miller 213 MIG Welder')
 				->set_requires_training(true)
 				->set_charge_rate('0.01')
-				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_charge_policy(ChargePolicy::PER_MINUTE)
 				->set_allow_proxy(false)
 		)->id();
 
@@ -41,13 +41,15 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_name('Miller 215 MIG Welder')
 				->set_requires_training(true)
 				->set_charge_rate('0.01')
-				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_charge_policy(ChargePolicy::PER_MINUTE)
 				->set_allow_proxy(false)
 		)->id();
 
 		$name = 'Welder';
 		$level1_name = 'Novice Welder';
 		$level2_name = 'Expert Welder';
+		$level1_image = 'noviceWelder.svg';
+		$level2_image = 'expertWelder.svg';
 		$level1_uses = 5;
 		$level2_uses = 10;
 		$equipment_type_ids = [
@@ -56,10 +58,12 @@ final class BadgeRuleModelTest extends TestCase {
 		];
 		$level1 = (new BadgeLevel())
 			->set_name($level1_name)
+			->set_image($level1_image)
 			->set_uses($level1_uses);
 		$levels = [
 			(new BadgeLevel())
 				->set_name($level2_name)
+				->set_image($level2_image)
 				->set_uses($level2_uses),
 			$level1
 		];
@@ -84,9 +88,11 @@ final class BadgeRuleModelTest extends TestCase {
 			self::assertSame($id, $level->badge_rule_id());
 			switch($level->name()) {
 				case $level1_name:
+					self::assertSame($level1_image, $level->image());
 					self::assertSame($level1_uses, $level->uses());
 					break;
 				case $level2_name:
+					self::assertSame($level2_image, $level->image());
 					self::assertSame($level2_uses, $level->uses());
 					break;
 			}
@@ -114,9 +120,11 @@ final class BadgeRuleModelTest extends TestCase {
 			self::assertSame($id, $level->badge_rule_id());
 			switch($level->name()) {
 				case $level1_name:
+					self::assertSame($level1_image, $level->image());
 					self::assertSame($level1_uses, $level->uses());
 					break;
 				case $level2_name:
+					self::assertSame($level2_image, $level->image());
 					self::assertSame($level2_uses, $level->uses());
 					break;
 			}
@@ -133,6 +141,8 @@ final class BadgeRuleModelTest extends TestCase {
 		$name = 'Welding Pro';
 		$level2_name = 'Journeyman Welder';
 		$level3_name = 'Professional Welder';
+		$level2_image = 'journeymanWelder.svg';
+		$level3_image = 'professionalWelder.svg';
 		$level2_uses = 25;
 		$level3_uses = 150;
 		$equipment_type_ids = [
@@ -142,10 +152,12 @@ final class BadgeRuleModelTest extends TestCase {
 		$levels = [
 			(new BadgeLevel())
 				->set_name($level2_name)
+				->set_image($level2_image)
 				->set_uses($level2_uses),
 			$level1,
 			(new BadgeLevel())
 				->set_name($level3_name)
+				->set_image($level3_image)
 				->set_uses($level3_uses),
 		];
 
@@ -169,12 +181,15 @@ final class BadgeRuleModelTest extends TestCase {
 			self::assertSame($id, $level->badge_rule_id());
 			switch($level->name()) {
 				case $level1_name:
+					self::assertSame($level1_image, $level->image());
 					self::assertSame($level1_uses, $level->uses());
 					break;
 				case $level2_name:
+					self::assertSame($level2_image, $level->image());
 					self::assertSame($level2_uses, $level->uses());
 					break;
 				case $level3_name:
+					self::assertSame($level3_image, $level->image());
 					self::assertSame($level3_uses, $level->uses());
 					break;
 			}
@@ -203,12 +218,15 @@ final class BadgeRuleModelTest extends TestCase {
 			self::assertSame($id, $level->badge_rule_id());
 			switch($level->name()) {
 				case $level1_name:
+					self::assertSame($level1_image, $level->image());
 					self::assertSame($level1_uses, $level->uses());
 					break;
 				case $level2_name:
+					self::assertSame($level2_image, $level->image());
 					self::assertSame($level2_uses, $level->uses());
 					break;
 				case $level3_name:
+					self::assertSame($level3_image, $level->image());
 					self::assertSame($level3_uses, $level->uses());
 					break;
 			}
@@ -237,12 +255,15 @@ final class BadgeRuleModelTest extends TestCase {
 			self::assertSame($id, $level->badge_rule_id());
 			switch($level->name()) {
 				case $level1_name:
+					self::assertSame($level1_image, $level->image());
 					self::assertSame($level1_uses, $level->uses());
 					break;
 				case $level2_name:
+					self::assertSame($level2_image, $level->image());
 					self::assertSame($level2_uses, $level->uses());
 					break;
 				case $level3_name:
+					self::assertSame($level3_image, $level->image());
 					self::assertSame($level3_uses, $level->uses());
 					break;
 			}
@@ -276,7 +297,7 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_name('Miller 211 MIG Welder')
 				->set_requires_training(true)
 				->set_charge_rate('0.01')
-				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_charge_policy(ChargePolicy::PER_MINUTE)
 				->set_allow_proxy(false)
 		)->id();
 
@@ -285,7 +306,7 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_name('Miller 213 MIG Welder')
 				->set_requires_training(true)
 				->set_charge_rate('0.01')
-				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_charge_policy(ChargePolicy::PER_MINUTE)
 				->set_allow_proxy(false)
 		)->id();
 
@@ -294,7 +315,7 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_name('Printmatic 2000')
 				->set_requires_training(true)
 				->set_charge_rate('0.01')
-				->set_charge_policy_id(ChargePolicy::PER_MINUTE)
+				->set_charge_policy(ChargePolicy::PER_MINUTE)
 				->set_allow_proxy(false)
 		)->id();
 
@@ -308,12 +329,15 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_levels([
 					(new BadgeLevel())
 						->set_name('Pro')
+						->set_image('pro.svg')
 						->set_uses(1000),
 					(new BadgeLevel())
 						->set_name('Novice')
+						->set_image('novice.svg')
 						->set_uses(10),
 					(new BadgeLevel())
 						->set_name('Journeyman')
+						->set_image('journeyman.svg')
 						->set_uses(100),
 				])
 		)->id();
@@ -325,9 +349,11 @@ final class BadgeRuleModelTest extends TestCase {
 				->set_levels([
 					(new BadgeLevel())
 						->set_name('Pro')
+						->set_image('pro.svg')
 						->set_uses(100),
 					(new BadgeLevel())
 						->set_name('Apprentice')
+						->set_image('apprentice.svg')
 						->set_uses(10),
 				])
 		)->id();

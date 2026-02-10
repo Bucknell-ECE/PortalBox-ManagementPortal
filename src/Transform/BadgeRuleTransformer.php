@@ -28,6 +28,7 @@ class BadgeRuleTransformer implements OutputTransformer {
 					'id' => $level->id(),
 					'badge_rule_id' => $level->badge_rule_id(),
 					'name' => $level->name(),
+					'image' => $level->image(),
 					'uses' => $level->uses()
 				],
 				$data->levels()
@@ -43,6 +44,6 @@ class BadgeRuleTransformer implements OutputTransformer {
 	 * @return array - a list of strings that can be column headers
 	 */
 	public function get_column_headers(): array {
-		return ['id', 'Name'];
+		return ['id', 'Badge Rule', 'Name', 'Image', 'Uses'];
 	}
 }

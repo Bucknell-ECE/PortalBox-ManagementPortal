@@ -1,1 +1,1 @@
-{"name":"<blink>Electronics Technician</blink>","equipment_types":[34,52],"levels":[{"name": "Novice", "uses": 10},{"name":"<blink>Pro</blink","uses":100}]}
+{"name":"<blink>Electronics Technician</blink>","equipment_types":[34,52],"levels":[{"name":"Novice","image":"spark.svg","uses":10},{"name":"<blink>Pro</blink","image":"bolt.svg","uses":100}]}
