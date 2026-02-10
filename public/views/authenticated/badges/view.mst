@@ -32,10 +32,11 @@
 		<section>
 			<table>
 				<thead>
-					<tr><th>Name</th><th>Uses</th></tr>
+					<tr><th></th><th>Name</th><th>Uses</th></tr>
 				</thead>
 				<tbody>
 					{{#levels}}<tr>
+						<td><img class="badge" src="/images/badges/{{image}}"></td>
 						<td>{{name}}</td>
 						<td>{{uses}}</td>
 					</tr>{{/levels}}

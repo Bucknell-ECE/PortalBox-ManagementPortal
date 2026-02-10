@@ -13,11 +13,13 @@
 		<thead>
 			<tr>
 				<th>Name</th>
+				<th></th>
 			</tr>
 		</thead>
 		<tbody>
 			{{#badges}}<tr class="link" onclick="go('/badges/{{id}}', 'Badges');">
 				<td>{{name}}</td>
+				<td>{{#levels}}<img class="badge" src="/images/badges/{{image}}" />{{/levels}}</td>
 			</tr>{{/badges}}
 			{{^badges}}<tr><td>No badges found. <a href="/badges/add">Add one now?</a></td></tr>{{/badges}}
 		</tbody>
