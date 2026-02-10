@@ -39,15 +39,12 @@
 					{{/authorized_equipment_types}}
 					{{^authorized_equipment_types}}Not yet Authorized for any Equipment{{/authorized_equipment_types}}
 				</dd>
-				<dt>Badges</dt>
+				{{#badges}}<dt>Badges</dt>
 				<dd>
-					{{#badges}}
-					<ul>
-						<li>{{.}}</li>
-					</ul>
-					{{/badges}}
-					{{^badges}}No badges earned yet{{/badges}}
-				</dd>
+					<div class="row">
+						<img class="badge" src="/images/badges/{{image}}" alt="{{name}}" title="{{name}}" />
+					</div>
+				</dd>{{/badges}}
 			</dl>
 		</section>
 		<section>

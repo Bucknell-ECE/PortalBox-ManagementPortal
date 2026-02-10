@@ -24,15 +24,12 @@
 			{{/equipment_type}}
 			{{^equipment_type}}Not yet Authorized for any Equipment{{/equipment_type}}
 		</dd>
-		<dt>Badges</dt>
+		{{#badges}}<dt>Badges</dt>
 		<dd>
-			{{#badges}}
-			<ul>
-				<li>{{.}}</li>
-			</ul>
-			{{/badges}}
-			{{^badges}}You have not yet earned a badge.{{/badges}}
-		</dd>
+			<div class="row">
+				<img class="badge" src="/images/badges/{{image}}" alt="{{name}}" title="{{name}}" />
+			</div>
+		</dd>{{/badges}}
 		<dt>Charge/Payment History:</dt>
 		<dd>
 			<table id="transaction-table">

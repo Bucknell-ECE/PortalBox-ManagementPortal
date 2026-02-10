@@ -2,14 +2,14 @@
 
 namespace Portalbox\Transform;
 
-use Portalbox\Type\BadgeRule;
+use Portalbox\Type\BadgeLevel;
 
 /**
- * BadgeRuleTransformer handles serializing a BadgeRule or list of BadgeRules
+ * BadgeLevelTransformer handles serializing a BadgeLevel or list of BadgeLevels
  */
-class BadgeRuleTransformer implements OutputTransformer {
+class BadgeLevelTransformer implements OutputTransformer {
 	/**
-	 * Called to serialize a BadgeRule instance to a dictionary
+	 * Called to serialize a BadgeLevel instance to a dictionary
 	 *
 	 * @param bool $traverse - traverse the object graph if true, otherwise
 	 *      may substitute flattened representations where appropriate.
@@ -20,19 +20,9 @@ class BadgeRuleTransformer implements OutputTransformer {
 	 */
 	public function serialize($data, bool $traverse = false): array {
 		return [
-			'id' => $data->id(),
 			'name' => $data->name(),
-			'equipment_types' => $data->equipment_type_ids(),
-			'levels' => array_map(
-				fn ($level) => [
-					'id' => $level->id(),
-					'badge_rule_id' => $level->badge_rule_id(),
-					'name' => $level->name(),
-					'image' => $level->image(),
-					'uses' => $level->uses()
-				],
-				$data->levels()
-			)
+			'image' => $data->image(),
+			'uses' => $data->uses()
 		];
 	}
 
@@ -44,6 +34,6 @@ class BadgeRuleTransformer implements OutputTransformer {
 	 * @return array - a list of strings that can be column headers
 	 */
 	public function get_column_headers(): array {
-		return ['id', 'Name', 'Equipment Types', 'Levels'];
+		return ['Name', 'Image', 'Uses'];
 	}
 }

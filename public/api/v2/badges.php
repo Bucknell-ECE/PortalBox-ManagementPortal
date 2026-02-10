@@ -4,6 +4,7 @@ require '../../../src/bootstrap.php';
 
 use Portalbox\ResponseHandler;
 use Portalbox\Service\BadgeService;
+use Portalbox\Transform\BadgeLevelTransformer;
 
 try {
 	switch($_SERVER['REQUEST_METHOD']) {
@@ -14,8 +15,7 @@ try {
 			}
 			$service = $container->get(BadgeService::class);
 			$badges = $service->getBadgesForUser($user_id);
-			header('Content-Type: application/json');
-			echo json_encode($badges);
+			ResponseHandler::render($badges, new BadgeLevelTransformer());
 			break;
 		default:
 			http_response_code(405);

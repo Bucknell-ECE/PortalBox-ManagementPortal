@@ -80,6 +80,15 @@ final class BadgeServiceTest extends TestCase {
 				4 => 72
 			]);
 
+		$badgeLevel1 = (new BadgeLevel())
+			->set_name('Beginner')
+			->set_image('beginner.svg')
+			->set_uses(10);
+		$badgeLevel2 = (new BadgeLevel())
+			->set_name('Journeyman')
+			->set_image('journeyman.svg')
+			->set_uses(100);
+
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
 		$badgeRuleModel->method('search')->willReturn([
 			(new BadgeRule())
@@ -89,10 +98,7 @@ final class BadgeServiceTest extends TestCase {
 						->set_name('Novice')
 						->set_image('novice.svg')
 						->set_uses(10),
-					(new BadgeLevel())
-						->set_name('Journeyman')
-						->set_image('journeyman.svg')
-						->set_uses(100),
+					$badgeLevel2,
 					(new BadgeLevel())
 						->set_name('Pro')
 						->set_image('pro.svg')
@@ -101,10 +107,7 @@ final class BadgeServiceTest extends TestCase {
 			(new BadgeRule())
 				->set_equipment_type_ids([1,3])
 				->set_levels([
-					(new BadgeLevel())
-						->set_name('Beginner')
-						->set_image('beginner.svg')
-						->set_uses(10),
+					$badgeLevel1,
 					(new BadgeLevel())
 						->set_name('Expert')
 						->set_image('expert.svg')
@@ -120,9 +123,9 @@ final class BadgeServiceTest extends TestCase {
 
 		$badges = $service->getBadgesForUser($user_id);
 
-		self::assertCount(2, $badges);
+		self::assertIsArray($badges);
 		self::assertEqualsCanonicalizing(
-			['Beginner', 'Journeyman'],
+			[$badgeLevel1, $badgeLevel2],
 			$badges
 		);
 	}
@@ -150,6 +153,15 @@ final class BadgeServiceTest extends TestCase {
 				4 => 72
 			]);
 
+		$badgeLevel1 = (new BadgeLevel())
+			->set_name('Beginner')
+			->set_image('beginner.svg')
+			->set_uses(10);
+		$badgeLevel2 = (new BadgeLevel())
+			->set_name('Journeyman')
+			->set_image('journeyman.svg')
+			->set_uses(100);
+
 		$badgeRuleModel = $this->createStub(BadgeRuleModel::class);
 		$badgeRuleModel->method('search')->willReturn([
 			(new BadgeRule())
@@ -159,10 +171,7 @@ final class BadgeServiceTest extends TestCase {
 						->set_name('Novice')
 						->set_image('novice.svg')
 						->set_uses(10),
-					(new BadgeLevel())
-						->set_name('Journeyman')
-						->set_image('journeyman.svg')
-						->set_uses(100),
+					$badgeLevel2,
 					(new BadgeLevel())
 						->set_name('Pro')
 						->set_image('pro.svg')
@@ -171,10 +180,7 @@ final class BadgeServiceTest extends TestCase {
 			(new BadgeRule())
 				->set_equipment_type_ids([1,3])
 				->set_levels([
-					(new BadgeLevel())
-						->set_name('Beginner')
-						->set_image('beginner.svg')
-						->set_uses(10),
+					$badgeLevel1,
 					(new BadgeLevel())
 						->set_name('Expert')
 						->set_image('expert.svg')
@@ -190,9 +196,9 @@ final class BadgeServiceTest extends TestCase {
 
 		$badges = $service->getBadgesForUser($user_id);
 
-		self::assertCount(2, $badges);
+		self::assertIsArray($badges);
 		self::assertEqualsCanonicalizing(
-			['Beginner', 'Journeyman'],
+			[$badgeLevel1, $badgeLevel2],
 			$badges
 		);
 	}

@@ -38,13 +38,13 @@ final class BadgeRuleTransformerTest extends TestCase {
 				->set_uses($level2_uses)
 		];
 
-		$key = (new BadgeRule())
+		$rule = (new BadgeRule())
 			->set_id($id)
 			->set_name($name)
 			->set_equipment_type_ids($equipment_type_ids)
 			->set_levels($levels);
 
-		$data = $transformer->serialize($key, true);
+		$data = $transformer->serialize($rule, true);
 
 		self::assertIsArray($data);
 		self::assertArrayHasKey('id', $data);

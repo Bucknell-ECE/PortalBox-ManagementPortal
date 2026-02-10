@@ -76,8 +76,7 @@ class BadgeService {
 			}
 
 			if ($level_achieved) {
-				// @todo don't use name here, use an object and a transformer
-				$badges[] = $level_achieved->name();
+				$badges[] = $level_achieved;
 			}
 		}
 
