@@ -1,0 +1,21 @@
+meta {
+  name: Report User Badges
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{HOST}}/api/v2/badges.php
+  body: none
+  auth: none
+}
+
+headers {
+  Cookie: PHPSESSID={{SESSION_ID}}
+  Accept: text/csv
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

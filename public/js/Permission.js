@@ -32,6 +32,9 @@ export const DELETE_BADGE_RULE = 54;
 /** Users with this permission can list badge rules */
 export const LIST_BADGE_RULES = 55;
 
+/** Users with this permission can generate badge reports */
+export const REPORT_BADGES = 57;
+
 /** Users with this permission can create equipment authorizations */
 export const CREATE_EQUIPMENT_AUTHORIZATION = 101;
 
@@ -320,6 +323,7 @@ let permissions = {
 	53:{id:MODIFY_BADGE_RULE, name:"Modify badges"},
 	54:{id:DELETE_BADGE_RULE, name:"Delete badges"},
 	55:{id:LIST_BADGE_RULES, name:"List badges"},
+	57:{id:REPORT_BADGES, name:"Report badges"},
 	101:{id:CREATE_EQUIPMENT_AUTHORIZATION, name:"Add equipment authorization to system"},
 	// 102:{id:READ_EQUIPMENT_AUTHORIZATION, name:""},
 	// 103:{id:MODIFY_AUTHORIZATIONS, name:"Modify the list of equipment for which a user is authorized"},

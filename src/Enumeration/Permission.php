@@ -36,6 +36,9 @@ enum Permission: int {
 	/** Users with this permission can list badge rules */
 	case LIST_BADGE_RULES = 55;
 
+	/** Users with this permission can generate badge reports */
+	case REPORT_BADGES = 57;
+
 	/** Users with this permission can create equipment authorizations */
 	case CREATE_EQUIPMENT_AUTHORIZATION = 101;
 
