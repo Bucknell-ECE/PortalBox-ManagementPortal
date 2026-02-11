@@ -366,7 +366,14 @@ class Application {
 			home_icons.system.badges = true;
 			this.route("/badges", () => {
 				BadgeRule.list().then(badges => {
-					this.render("#main", "authenticated/badges/list", {"badges": badges});
+					this.render(
+						"#main",
+						"authenticated/badges/list",
+						{
+							"badges": badges,
+							"may_run_report": this.user.has_permission(Permission.REPORT_BADGES)
+						}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}

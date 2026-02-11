@@ -6,6 +6,7 @@
 	<header>
 		<h1>Badges</h1>
 		<div class="button-group">
+			{{#may_run_report}}<button type="button" title="Download as (*.csv)" onclick="app.save('v2/badges.php')"><i class="material-icons">save_alt</i></button>{{/may_run_report}}
 			<a href="/badges/add" class="default">Add</a>
 		</div>
 	</header>
