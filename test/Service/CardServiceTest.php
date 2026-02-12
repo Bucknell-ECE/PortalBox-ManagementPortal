@@ -7,6 +7,7 @@ namespace Test\Portalbox\Service;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Portalbox\Enumeration\CardType;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -17,7 +18,6 @@ use Portalbox\Model\UserModel;
 use Portalbox\Query\CardQuery;
 use Portalbox\Service\CardService;
 use Portalbox\Session;
-use Portalbox\Type\CardType;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\ProxyCard;
 use Portalbox\Type\Role;
@@ -206,6 +206,33 @@ final class CardServiceTest extends TestCase {
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(CardService::ERROR_CARD_TYPE_IS_REQUIRED);
 		$service->create(realpath(__DIR__ . '/CardServiceTestData/CreateThrowsWhenTypeIsNotSpecified.json'));
+	}
+
+	public function testCreateThrowsWhenTypeIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_CARD])
+				)
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new CardService(
+			$session,
+			$cardModel,
+			$equipmentTypeModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(CardService::ERROR_CARD_TYPE_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/CardServiceTestData/CreateThrowsWhenTypeIsNotInt.json'));
 	}
 
 	public function testCreateThrowsWhenTypeIsInvalid() {
@@ -421,7 +448,7 @@ final class CardServiceTest extends TestCase {
 		$cardModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn($card) =>
-					$card->type_id() === CardType::USER
+					$card->type() === CardType::USER
 					&& $card->id() === $id
 					&& $card->user_id() === $user_id
 			)
@@ -466,7 +493,7 @@ final class CardServiceTest extends TestCase {
 		$cardModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn($card) =>
-					$card->type_id() === CardType::TRAINING
+					$card->type() === CardType::TRAINING
 					&& $card->id() === $id
 					&& $card->equipment_type_id() === $equipment_type_id
 			)
@@ -510,7 +537,7 @@ final class CardServiceTest extends TestCase {
 		$cardModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn($card) =>
-					$card->type_id() === CardType::SHUTDOWN
+					$card->type() === CardType::SHUTDOWN
 					&& $card->id() === $id
 			)
 		)
@@ -550,7 +577,7 @@ final class CardServiceTest extends TestCase {
 		$cardModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn($card) =>
-					$card->type_id() === CardType::PROXY
+					$card->type() === CardType::PROXY
 					&& $card->id() === $id
 			)
 		)
