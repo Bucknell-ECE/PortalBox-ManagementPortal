@@ -2,12 +2,12 @@
 
 namespace Portalbox\Model;
 
+use Portalbox\Enumeration\CardType;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Model\Type\TrainingCard;
 use Portalbox\Model\Type\UserCard;
 use Portalbox\Query\CardQuery;
 use Portalbox\Type\Card;
-use Portalbox\Type\CardType;
 use Portalbox\Type\ProxyCard;
 use Portalbox\Type\ShutdownCard;
 use PDO;
@@ -33,11 +33,11 @@ class CardModel extends AbstractModel {
 		$query = $connection->prepare($sql);
 
 		$query->bindValue(':id', $card->id());	//BIGINT
-		$query->bindValue(':type_id', $card->type_id(), PDO::PARAM_INT);
+		$query->bindValue(':type_id', $card->type()->value, PDO::PARAM_INT);
 
 		if ($connection->beginTransaction()) {
 			if ($query->execute()) {
-				if (CardType::USER == $card->type_id()) {
+				if (CardType::USER === $card->type()) {
 					$sql = 'INSERT INTO users_x_cards (user_id, card_id) VALUES (:user_id, :card_id)';
 					$query = $connection->prepare($sql);
 
@@ -51,7 +51,7 @@ class CardModel extends AbstractModel {
 					}
 				}
 
-				if (CardType::TRAINING == $card->type_id()) {
+				if (CardType::TRAINING === $card->type()) {
 					$sql = 'INSERT INTO equipment_type_x_cards (equipment_type_id, card_id) VALUES (:equipment_type_id, :card_id)';
 					$query = $connection->prepare($sql);
 
@@ -117,7 +117,7 @@ class CardModel extends AbstractModel {
 			$connection = $this->configuration()->writable_db_connection();
 
 			if ($connection->beginTransaction()) {
-				if (CardType::USER == $card->type_id()) {
+				if (CardType::USER === $card->type()) {
 					$sql = 'DELETE FROM users_x_cards WHERE card_id = :id';
 					$query = $connection->prepare($sql);
 
@@ -130,7 +130,7 @@ class CardModel extends AbstractModel {
 					}
 				}
 
-				if (CardType::TRAINING == $card->type_id()) {
+				if (CardType::TRAINING === $card->type()) {
 					$sql = 'DELETE FROM equipment_type_x_cards WHERE card_id = :id';
 					$query = $connection->prepare($sql);
 
@@ -210,7 +210,8 @@ class CardModel extends AbstractModel {
 	}
 
 	private function buildCardFromArray(array $data): ?Card {
-		switch ($data['type_id']) {
+		$type = CardType::from($data['type_id']);
+		switch ($type) {
 			case CardType::PROXY:
 				return (new ProxyCard())->set_id($data['id']);
 			case CardType::SHUTDOWN:

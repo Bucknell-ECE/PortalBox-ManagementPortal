@@ -6,6 +6,7 @@ namespace Portalbox\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use Portalbox\Enumeration\CardType;
 use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
@@ -20,7 +21,6 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\EquipmentQuery;
-use Portalbox\Type\CardType;
 use Portalbox\Type\Charge;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\LoggedEvent;
@@ -108,7 +108,7 @@ class EquipmentService {
 		}
 
 		$card = $this->cardModel->read($card_id);
-		if ($card === null || $card->type_id() !== CardType::USER) {
+		if ($card === null || $card->type() !== CardType::USER) {
 			throw new AuthorizationException(self::ERROR_REGISTRATION_NOT_AUTHORIZED);
 		}
 
@@ -126,7 +126,7 @@ class EquipmentService {
 
 		$equipmentTypes = $this->equipmentTypeModel->search();
 
-		$locations = $this->locationModel->search('id');
+		$locations = $this->locationModel->search();
 		if (empty($locations)) {
 			throw new InvalidArgumentException(self::ERROR_INCOMPLETE_SETUP_NO_LOCATIONS);
 		}
@@ -172,7 +172,7 @@ class EquipmentService {
 		}
 
 		$card = $this->cardModel->read($card_id);
-		if ($card === null || $card->type_id() !== CardType::USER) {
+		if ($card === null || $card->type() !== CardType::USER) {
 			throw new AuthorizationException(self::ERROR_ACTIVATION_NOT_AUTHORIZED);
 		}
 
@@ -261,7 +261,7 @@ class EquipmentService {
 		}
 
 		$card = $this->cardModel->read($card_id);
-		if ($card === null || $card->type_id() !== CardType::USER) {
+		if ($card === null || $card->type() !== CardType::USER) {
 			throw new AuthorizationException(self::ERROR_DEACTIVATION_NOT_AUTHORIZED);
 		}
 
@@ -410,7 +410,7 @@ class EquipmentService {
 		}
 
 		$card = $this->cardModel->read($card_id);
-		if ($card === null || $card->type_id() !== CardType::SHUTDOWN) {
+		if ($card === null || $card->type() !== CardType::SHUTDOWN) {
 			throw new AuthorizationException(self::ERROR_SHUTDOWN_NOT_AUTHORIZED);
 		}
 

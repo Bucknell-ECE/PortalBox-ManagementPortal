@@ -6,12 +6,12 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\CardType;
 use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Query\CardQuery;
-use Portalbox\Type\CardType;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\ProxyCard;
 use Portalbox\Type\Role;
@@ -101,20 +101,20 @@ final class CardModelTest extends TestCase {
 		);
 
 		self::assertInstanceOf(ProxyCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::PROXY, $card->type_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::PROXY, $card->type());
 
 		$card = $model->read($card_id);
 
 		self::assertInstanceOf(ProxyCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::PROXY, $card->type_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::PROXY, $card->type());
 
 		$card = $model->delete($card_id);
 
 		self::assertInstanceOf(ProxyCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::PROXY, $card->type_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::PROXY, $card->type());
 
 		self::assertNull($model->read($card_id));
 	}
@@ -130,20 +130,20 @@ final class CardModelTest extends TestCase {
 		);
 
 		self::assertInstanceOf(ShutdownCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::SHUTDOWN, $card->type_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::SHUTDOWN, $card->type());
 
 		$card = $model->read($card_id);
 
 		self::assertInstanceOf(ShutdownCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::SHUTDOWN, $card->type_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::SHUTDOWN, $card->type());
 
 		$card = $model->delete($card_id);
 
 		self::assertInstanceOf(ShutdownCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::SHUTDOWN, $card->type_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::SHUTDOWN, $card->type());
 
 		self::assertNull($model->read($card_id));
 	}
@@ -161,23 +161,23 @@ final class CardModelTest extends TestCase {
 		$card = $model->create($card);
 
 		self::assertInstanceOf(TrainingCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::TRAINING, $card->type_id());
-		self::assertEquals($equipment_type_id, $card->equipment_type_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::TRAINING, $card->type());
+		self::assertSame($equipment_type_id, $card->equipment_type_id());
 
 		$card = $model->read($card_id);
 
 		self::assertInstanceOf(TrainingCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::TRAINING, $card->type_id());
-		self::assertEquals($equipment_type_id, $card->equipment_type_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::TRAINING, $card->type());
+		self::assertSame($equipment_type_id, $card->equipment_type_id());
 
 		$card = $model->delete($card_id);
 
 		self::assertInstanceOf(TrainingCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::TRAINING, $card->type_id());
-		self::assertEquals($equipment_type_id, $card->equipment_type_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::TRAINING, $card->type());
+		self::assertSame($equipment_type_id, $card->equipment_type_id());
 
 		self::assertNull($model->read($card_id));
 	}
@@ -195,23 +195,23 @@ final class CardModelTest extends TestCase {
 		);
 
 		self::assertInstanceOf(UserCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::USER, $card->type_id());
-		self::assertEquals($user_id, $card->user_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::USER, $card->type());
+		self::assertSame($user_id, $card->user_id());
 
 		$card = $model->read($card_id);
 
 		self::assertInstanceOf(UserCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::USER, $card->type_id());
-		self::assertEquals($user_id, $card->user_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::USER, $card->type());
+		self::assertSame($user_id, $card->user_id());
 
 		$card = $model->delete($card_id);
 
 		self::assertInstanceOf(UserCard::class, $card);
-		self::assertEquals($card_id, $card->id());
-		self::assertEquals(CardType::USER, $card->type_id());
-		self::assertEquals($user_id, $card->user_id());
+		self::assertSame($card_id, $card->id());
+		self::assertSame(CardType::USER, $card->type());
+		self::assertSame($user_id, $card->user_id());
 
 		self::assertNull($model->read($card_id));
 	}

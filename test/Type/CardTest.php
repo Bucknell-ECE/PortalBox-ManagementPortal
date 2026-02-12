@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Test\Portalbox\Type;
 
 use PHPUnit\Framework\TestCase;
-use Portalbox\Type\CardType;
+use Portalbox\Enumeration\CardType;
 use Portalbox\Type\ProxyCard;
 use Portalbox\Type\ShutdownCard;
 use Portalbox\Type\TrainingCard;
@@ -20,19 +20,19 @@ final class CardTest extends TestCase {
 		$card = (new ShutdownCard())->set_id($id);
 
 		self::assertEquals($id, $card->id());
-		self::assertEquals(CardType::SHUTDOWN, $card->type_id());
+		self::assertEquals(CardType::SHUTDOWN, $card->type());
 
 		$card = (new ProxyCard())->set_id($id);
 
 		self::assertEquals($id, $card->id());
-		self::assertEquals(CardType::PROXY, $card->type_id());
+		self::assertEquals(CardType::PROXY, $card->type());
 
 		$card = (new TrainingCard())
 			->set_id($id)
 			->set_equipment_type_id($equipment_type_id);
 
 		self::assertEquals($id, $card->id());
-		self::assertEquals(CardType::TRAINING, $card->type_id());
+		self::assertEquals(CardType::TRAINING, $card->type());
 		self::assertEquals($equipment_type_id, $card->equipment_type_id());
 
 		$card = (new UserCard())
@@ -40,7 +40,7 @@ final class CardTest extends TestCase {
 			->set_user_id($user_id);
 
 		self::assertEquals($id, $card->id());
-		self::assertEquals(CardType::USER, $card->type_id());
+		self::assertEquals(CardType::USER, $card->type());
 		self::assertEquals($user_id, $card->user_id());
 	}
 }

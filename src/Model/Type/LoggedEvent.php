@@ -3,7 +3,7 @@
 namespace Portalbox\Model\Type;
 
 use Portalbox\Config;
-use Portalbox\Type\CardType;
+use Portalbox\Enumeration\CardType;
 use Portalbox\Type\LoggedEvent as AbstractLoggedEvent;
 
 class LoggedEvent extends AbstractLoggedEvent {
@@ -102,7 +102,7 @@ class LoggedEvent extends AbstractLoggedEvent {
 	 * Get this event's user's name
 	 */
 	public function user_name(): string {
-		if (CardType::TRAINING == $this->card_type_id) {
+		if (CardType::TRAINING->value == $this->card_type_id) {
 			return 'Trainer';
 		}
 
