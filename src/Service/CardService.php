@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Portalbox\Service;
 
 use InvalidArgumentException;
+use Portalbox\Enumeration\CardType;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -15,7 +16,6 @@ use Portalbox\Model\UserModel;
 use Portalbox\Query\CardQuery;
 use Portalbox\Session;
 use Portalbox\Type\Card;
-use Portalbox\Type\CardType;
 use Portalbox\Type\ProxyCard;
 use Portalbox\Type\ShutdownCard;
 use Portalbox\Type\TrainingCard;
@@ -107,11 +107,13 @@ class CardService {
 			throw new InvalidArgumentException(self::ERROR_CARD_ID_IS_REQUIRED);
 		}
 
-		if (!array_key_exists('type_id', $data)) {
+		$type_id = filter_var($data['type_id'] ?? '', FILTER_VALIDATE_INT);
+		if ($type_id === false) {
 			throw new InvalidArgumentException(self::ERROR_CARD_TYPE_IS_REQUIRED);
 		}
 
-		switch ($data['type_id']) {
+		$type = CardType::tryFrom($type_id);
+		switch ($type) {
 			case CardType::USER:
 				$userId = filter_var($data['user_id'] ?? '', FILTER_VALIDATE_INT);
 				if ($userId === false) {

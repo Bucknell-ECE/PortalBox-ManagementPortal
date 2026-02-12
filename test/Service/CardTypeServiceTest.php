@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Test\Portalbox\Service;
 
 use PHPUnit\Framework\TestCase;
+use Portalbox\Enumeration\CardType;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Model\CardTypeModel;
 use Portalbox\Service\CardTypeService;
 use Portalbox\Session;
-use Portalbox\Type\CardType;
 use Portalbox\Type\Role;
 use Portalbox\Type\User;
 
@@ -33,10 +33,6 @@ final class CardTypeServiceTest extends TestCase {
 	}
 
 	public function testReadAllThrowsWhenNotAuthorized() {
-		$cardTypes = [
-			new CardType()
-		];
-
 		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
 			(new User())
@@ -55,12 +51,12 @@ final class CardTypeServiceTest extends TestCase {
 
 		self::expectException(AuthorizationException::class);
 		self::expectExceptionMessage(CardTypeService::ERROR_UNAUTHORIZED_READ);
-		self::assertSame($cardTypes, $service->readAll());
+		$service->readAll();
 	}
 
 	public function testReadAllSuccess() {
 		$cardTypes = [
-			new CardType()
+			CardType::USER
 		];
 
 		$session = $this->createStub(Session::class);

@@ -2,6 +2,8 @@
 
 namespace Portalbox\Type;
 
+use Portalbox\Enumeration\CardType;
+
 /**
  * Users are typically issued just one card but might be permitted to operate
  * more than one piece of equipment at a time. A 3D printer for instance may run
@@ -12,7 +14,7 @@ namespace Portalbox\Type;
  */
 class ProxyCard extends Card {
 	/** Get the type of the card */
-	public function type_id(): int {
+	public function type(): CardType {
 		return CardType::PROXY;
 	}
 }

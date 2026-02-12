@@ -2,6 +2,8 @@
 
 namespace Portalbox\Type;
 
+use Portalbox\Enumeration\CardType;
+
 /**
  * A card which can be used by a user to authenticate to a portalbox
  */
@@ -18,10 +20,8 @@ class UserCard extends Card {
 
 	/**
 	 * Get the type of the card
-	 *
-	 * @return int - type one of the predefined constants exposed by CardType
 	 */
-	public function type_id(): int {
+	public function type(): CardType {
 		return CardType::USER;
 	}
 
