@@ -107,7 +107,7 @@ export class APIKey {
 	/**
 	 * Delete the api key specified by id
 	 *
-	 * @param int id the unique id of the APIKey to modify
+	 * @param int id the unique id of the APIKey to delete
 	 * @throws SessionTimeOutError if the user session has expired
 	 * @throws String if any other error occurs
 	 */

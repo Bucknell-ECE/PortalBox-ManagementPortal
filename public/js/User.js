@@ -129,7 +129,7 @@ export class User {
 		});
 
 		if(response.ok) {
-			return await response.text();
+			return await response.json();
 		}
 
 		if(403 == response.status) {

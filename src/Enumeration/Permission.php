@@ -21,6 +21,24 @@ enum Permission: int {
 	/** Users with this permission can list API keys */
 	case LIST_API_KEYS = 5;
 
+	/** Users with this permission can create badge rules */
+	case CREATE_BADGE_RULE = 51;
+
+	/** Users with this permission can read badge rules */
+	case READ_BADGE_RULE = 52;
+
+	/** Users with this permission can modify badge rules */
+	case MODIFY_BADGE_RULE = 53;
+
+	/** Users with this permission can delete badge rules*/
+	case DELETE_BADGE_RULE = 54;
+
+	/** Users with this permission can list badge rules */
+	case LIST_BADGE_RULES = 55;
+
+	/** Users with this permission can generate badge reports */
+	case REPORT_BADGES = 57;
+
 	/** Users with this permission can create equipment authorizations */
 	case CREATE_EQUIPMENT_AUTHORIZATION = 101;
 

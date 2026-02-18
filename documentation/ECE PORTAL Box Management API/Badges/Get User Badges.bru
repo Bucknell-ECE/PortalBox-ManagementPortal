@@ -1,0 +1,24 @@
+meta {
+  name: Get User Badges
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{HOST}}/api/v2/badges.php?user_id=11
+  body: none
+  auth: none
+}
+
+params:query {
+  user_id: 11
+}
+
+headers {
+  Cookie: PHPSESSID={{SESSION_ID}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

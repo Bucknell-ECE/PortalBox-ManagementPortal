@@ -1,0 +1,28 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li>Badges</li>
+</ul>
+<article>
+	<header>
+		<h1>Badges</h1>
+		<div class="button-group">
+			{{#may_run_report}}<button type="button" title="Download as (*.csv)" onclick="app.save('v2/badges.php')"><i class="material-icons">save_alt</i></button>{{/may_run_report}}
+			<a href="/badges/add" class="default">Add</a>
+		</div>
+	</header>
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#badges}}<tr class="link" onclick="go('/badges/{{id}}', 'Badges');">
+				<td>{{name}}</td>
+				<td>{{#levels}}<img class="badge" src="/images/badges/{{image}}" />{{/levels}}</td>
+			</tr>{{/badges}}
+			{{^badges}}<tr><td>No badges found. <a href="/badges/add">Add one now?</a></td></tr>{{/badges}}
+		</tbody>
+	</table>
+</article>

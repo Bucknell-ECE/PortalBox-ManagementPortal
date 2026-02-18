@@ -1,5 +1,7 @@
 import { SessionTimeOutError } from './SessionTimeOutError.js';
 import { APIKey } from './APIKey.js';
+import { Badge } from './Badge.js';
+import { BadgeRule } from './BadgeRule.js';
 import { Card } from './Card.js';
 import { CardType } from './CardType.js';
 import { Charge } from './Charge.js';
@@ -284,6 +286,7 @@ class Application {
 		}
 		let system_icons = {
 			api_keys: false,
+			badges: false,
 			roles: false
 		}
 		let home_icons = {
@@ -294,7 +297,7 @@ class Application {
 
 		// User needs CREATE_API_KEY Permission to make use of /api-keys/add route
 		if(this.user.has_permission(Permission.CREATE_API_KEY)) {
-			this.route("/api-keys/add", _ => {
+			this.route("/api-keys/add", () => {
 				this.render("#main", "authenticated/api-keys/add", {}, {}, () => {
 					document
 						.getElementById("add-api-key-form")
@@ -307,7 +310,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_API_KEYS)) {
 			if(!home_icons.system) { home_icons.system = system_icons }
 			home_icons.system.api_keys = true;
-			this.route("/api-keys", _ => {
+			this.route("/api-keys", () => {
 				APIKey.list().then(keys => {
 					this.render("#main", "authenticated/api-keys/list", {"keys": keys});
 				}).catch(e => this.handleError(e));
@@ -320,9 +323,77 @@ class Application {
 			this.route("/api-keys/:id", params => this.read_api_key(params.id, this.user.has_permission(Permission.MODIFY_API_KEY), this.user.has_permission(Permission.DELETE_API_KEY)));
 		}
 
+		if(this.user.has_permission(Permission.CREATE_BADGE_RULE)) {
+			this.route("/badges/add", () => {
+				this.#load_custom_element("badge-level-input", "/components/BadgeLevelInput.js");
+
+				Promise.all([
+					EquipmentType.list(),
+					BadgeRule.listBadgeImages()
+				]).then((values) => {
+					const [equipment_types, imageOptions] = values;
+					this.render(
+						"#main",
+						"authenticated/badges/add",
+						{"equipment_types": equipment_types},
+						{},
+						() => {
+							document
+								.getElementById("add-badge-rule-form")
+								.addEventListener("submit", (e) => this.#add_badge_rule(e));
+							document
+								.getElementById("add-level")
+								.addEventListener("click", () => {
+									const field = document.createElement("badge-level-input");
+									field.setAttribute("name", "Badge Name");
+									field.setAttribute("uses", "1");
+									document.getElementById("levels").appendChild(field);
+
+									// have to wait until after the field has been added
+									// to the page so teh controls can be realized
+									// before setting the available image options
+									field.imageOptions = imageOptions;
+								});
+						}
+					);
+				});
+			});
+		}
+
+		// User needs LIST_BADGE_RULES Permission to make use of /badges route
+		if(this.user.has_permission(Permission.LIST_BADGE_RULES)) {
+			if(!home_icons.system) { home_icons.system = system_icons }
+			home_icons.system.badges = true;
+			this.route("/badges", () => {
+				BadgeRule.list().then(badges => {
+					this.render(
+						"#main",
+						"authenticated/badges/list",
+						{
+							"badges": badges,
+							"may_run_report": this.user.has_permission(Permission.REPORT_BADGES)
+						}
+					);
+				}).catch(e => this.handleError(e));
+			});
+		}
+
+		// User needs READ_BADGE_RULE to make use of /badges/id
+		if(this.user.has_permission(Permission.READ_BADGE_RULE)) {
+			// User needs MODIFY_BADGE_RULE to make use of /badges/id for editing
+			this.route(
+				"/badges/:id",
+				(params) => this.#read_badge_rule(
+					params.id,
+					this.user.has_permission(Permission.MODIFY_BADGE_RULE),
+					this.user.has_permission(Permission.DELETE_BADGE_RULE)
+				)
+			);
+		}
+
 		// User needs CREATE_CARD Permission to make use of /cards/add route
 		if(this.user.has_permission(Permission.CREATE_CARD)) {
-			this.route("/cards/add", _ => {
+			this.route("/cards/add", () => {
 				let p1 = CardType.list();
 				let p2 = User.list();
 				let p3 = EquipmentType.list();
@@ -358,7 +429,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_CARDS)) {
 			if(!home_icons.manage_icons) { home_icons.manage_icons = manage_icons }
 			home_icons.manage_icons.cards = true;
-			this.route("/cards", _ => {
+			this.route("/cards", () => {
 				this.list_cards();
 			});
 		}
@@ -373,7 +444,7 @@ class Application {
 
 		// User needs CREATE_EQUIPMENT Permission to make use of /equipment/add route
 		if(this.user.has_permission(Permission.CREATE_EQUIPMENT)) {
-			this.route("/equipment/add", _ => {
+			this.route("/equipment/add", () => {
 				let p1 = EquipmentType.list();
 				let p2 = Location.list();
 
@@ -391,12 +462,12 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_EQUIPMENT)) {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.equipment = true;
-			this.route("/equipment", _ => {
+			this.route("/equipment", () => {
 				this.list_equipment();
 			});
 		}
 
-		// User needs READ_EQUIPMENT to make use of /api-keys/id
+		// User needs READ_EQUIPMENT to make use of /equipment/id
 		if(this.user.has_permission(Permission.READ_EQUIPMENT)) {
 			// User needs MODIFY_EQUIPMENT to make use of /equipment/id for editing
 			this.route("/equipment/:id", params => this.read_equipment(params.id, this.user.has_permission(Permission.MODIFY_EQUIPMENT)));
@@ -404,7 +475,7 @@ class Application {
 
 		// User needs CREATE_EQUIPMENT_TYPE Permission to make use of /equipment-types/add route
 		if(this.user.has_permission(Permission.CREATE_EQUIPMENT_TYPE)) {
-			this.route("/equipment-types/add", _ => {
+			this.route("/equipment-types/add", () => {
 				ChargePolicy.list().then(charge_policies => {
 					this.render("#main", "authenticated/equipment-types/add", {"charge_policies":charge_policies}, {}, () => {
 						document
@@ -419,7 +490,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_EQUIPMENT_TYPES)) {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.equipment_types = true;
-			this.route("/equipment-types", _ => {
+			this.route("/equipment-types", () => {
 				EquipmentType.list().then(types => {
 					this.render("#main", "authenticated/equipment-types/list", {"types": types, "create_equipment_type_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT_TYPE)});
 				}).catch(e => this.handleError(e));
@@ -434,7 +505,7 @@ class Application {
 
 		// User needs CREATE_LOCATION Permission to make use of /locations/add route
 		if(this.user.has_permission(Permission.CREATE_LOCATION)) {
-			this.route("/locations/add", _ => {
+			this.route("/locations/add", () => {
 				this.render("#main", "authenticated/locations/add", {}, {}, () => {
 					document
 						.getElementById("add-location-form")
@@ -447,7 +518,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_LOCATIONS)) {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.locations = true;
-			this.route("/locations", _ => {
+			this.route("/locations", () => {
 				Location.list().then(locations => {
 					this.render("#main", "authenticated/locations/list", {"locations": locations, "create_location_permission": this.user.has_permission(Permission.CREATE_LOCATION)});
 				}).catch(e => this.handleError(e));
@@ -482,7 +553,7 @@ class Application {
 
 		// User needs CREATE_ROLE Permission to make use of /roles/add route
 		if(this.user.has_permission(Permission.CREATE_ROLE)) {
-			this.route("/roles/add", _ => {
+			this.route("/roles/add", () => {
 				Permission.list().then(permissions => {
 					this.render("#main", "authenticated/roles/add", { "possible_permissions":permissions }, {}, () => {
 						document
@@ -497,7 +568,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_ROLES) && this.user.has_permission(Permission.READ_ROLE)) {
 			if(!home_icons.system) { home_icons.system = system_icons }
 			home_icons.system.roles = true;
-			this.route("/roles", _ => {
+			this.route("/roles", () => {
 				Role.list().then(roles => {
 					this.render("#main", "authenticated/roles/list", {"roles":roles});
 				}).catch(e => this.handleError(e));
@@ -512,7 +583,7 @@ class Application {
 
 		// User needs CREATE_USER Permission to make use of /users/add and /users/import routes
 		if(this.user.has_permission(Permission.CREATE_USER)) {
-			this.route("/users/add", _ => {
+			this.route("/users/add", () => {
 				let p0 = EquipmentType.list();
 				let p1 = Role.list();
 
@@ -525,7 +596,7 @@ class Application {
 				}).catch(e => this.handleError(e));
 			});
 
-			this.route("/users/import", _ => {
+			this.route("/users/import", () => {
 				this.render("#main", "authenticated/users/import", {}, {}, () => {
 					document
 						.getElementById("import-user-form")
@@ -538,7 +609,7 @@ class Application {
 		if(this.user.has_permission(Permission.LIST_USERS)) {
 			if(!home_icons.manage) { home_icons.manage = manage_icons }
 			home_icons.manage.users = true;
-			this.route("/users", _ => {
+			this.route("/users", () => {
 				this.list_users();
 			});
 		}
@@ -547,19 +618,26 @@ class Application {
 		if(this.user.has_permission(Permission.READ_USER)) {
 			// User needs MODIFY_USER to make use of /users/id for editing user attributes eg email address
 			// User needs CREATE_EQUIPMENT_AUTHORIZATION or DELETE_EQUIPMENT_AUTHORIZATION to manage authorizations
-			this.route("/users/:id", params => this.read_user(params.id, this.user.has_permission(Permission.MODIFY_USER),
-				this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION),
-				this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.CREATE_PAYMENT)));
+			this.route(
+				"/users/:id",
+				params => this.read_user(
+					params.id,
+					this.user.has_permission(Permission.MODIFY_USER),
+					this.user.has_permission(Permission.CREATE_EQUIPMENT_AUTHORIZATION) | this.user.has_permission(Permission.DELETE_EQUIPMENT_AUTHORIZATION),
+					this.user.has_permission(Permission.MODIFY_ROLE), this.user.has_permission(Permission.CREATE_PAYMENT)
+				)
+			);
 		}
 
 		if(this.user.has_permission(Permission.READ_OWN_USER)) {
-			this.route("/profile", _ => {
-				let p0 = User.read(this.user.id);
-				let p1 = Charge.list("user_id=" + this.user.id);
-				let p2 = Payment.list("user_id=" + this.user.id);
-				let p3 = EquipmentType.list();
+			this.route("/profile", () => {
+				const p0 = User.read(this.user.id);
+				const p1 = Charge.list("user_id=" + this.user.id);
+				const p2 = Payment.list("user_id=" + this.user.id);
+				const p3 = EquipmentType.list();
+				const p4 = Badge.listForUser(this.user.id);
 
-				Promise.all([p0, p1, p2, p3]).then(values => {
+				Promise.all([p0, p1, p2, p3, p4]).then(values => {
 					let user = values[0];
 					let ledger = values[1].concat(values[2]).map(e => {
 						e.ts = new Date(e.time);
@@ -600,6 +678,7 @@ class Application {
 					});
 
 					this.render("#main", "authenticated/profile", {
+						"badges": values[4],
 						"total_balance": total_balance,
 						"equipment_type": authorized_equipment_types,
 						"ledger": ledger,
@@ -617,7 +696,7 @@ class Application {
 				}).catch(e => this.handleError(e));
 			});
 
-			this.route("/profile/set_pin", _ => {
+			this.route("/profile/set_pin", () => {
 				this.render("#main", "authenticated/set_pin", {}, {}, () => {
 					document
 						.getElementById("set-pin-form")
@@ -627,7 +706,7 @@ class Application {
 		}
 
 		// Everyone gets a home route; what it presents them is controlled by home_icons
-		this.route("/", _ => {
+		this.route("/", () => {
 			this.render("#main", "authenticated/top-menu", {"features":home_icons});
 		});
 	}
@@ -679,7 +758,7 @@ class Application {
 	 * @return Object - an object with an attribute for each form input or
 	 *     group of inputs.
 	 */
-	get_form_data(form) {
+	#get_form_data(form) {
 		// should check that form is a form
 
 		let data = {};
@@ -730,6 +809,15 @@ class Application {
 		}).catch(e => this.handleError(e));
 	}
 
+	#load_custom_element (name, source) {
+		if (!customElements.get(name)) {
+			const js = document.createElement("script");
+			js.src = source;
+			js.setAttribute("async", "");
+			document.head.appendChild(js);
+		}
+	}
+
 	/**
 	 * Callback that handles adding an api key to the backend. Bound
 	 * to the form.submit() for the view
@@ -738,10 +826,10 @@ class Application {
 	 */
 	add_api_key(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		APIKey.create(data).then(_ => {
-			this.navigate("/api-keys");
+		APIKey.create(data).then((key) => {
+			this.navigate("/api-keys/" + key.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -754,7 +842,7 @@ class Application {
 	 */
 	delete_api_key(id) {
 		if(window.confirm("Are you sure you want to delete the API key")) {
-			APIKey.delete(id).then(_ => {
+			APIKey.delete(id).then(() => {
 				this.navigate("/api-keys")
 			}).catch(e => this.handleError(e));
 		}
@@ -775,7 +863,7 @@ class Application {
 					.addEventListener("submit", (e) => { this.update_api_key(id, e); });
 				document
 					.getElementById("delete-api-key-button")
-					.addEventListener("click", _ => { this.delete_api_key(id); });
+					.addEventListener("click", () => { this.delete_api_key(id); });
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -789,10 +877,140 @@ class Application {
 	 */
 	update_api_key(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		APIKey.modify(id, data).then(_ => {
-			this.navigate("/api-keys");
+		APIKey.modify(id, data).then((key) => {
+			this.navigate("/api-keys/" + key.id);
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles adding a badge rule to the backend. Bound to the
+	 * form.submit() for the view
+	 *
+	 * @param {Event} event - the form submission event
+	 */
+	#add_badge_rule(event) {
+		event.preventDefault();
+		const data = this.#get_form_data(event.target);
+
+		// custom inputs are not found by #get_form_data and that's okay because
+		// levels are not structured like other inputs so we'll fill in levels
+		// here
+		data.levels = [];
+		const levelElements = event.target.children.levels.children;
+		for (let field of levelElements) {
+			data.levels.push(field.value);
+		}
+
+		BadgeRule.create(data).then((badge) => {
+			this.navigate("/badges/" + badge.id);
+			// notify user of success
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles deleting an api key from the backend. Bound to the
+	 * delete button in the View API Key view [views/admin/api-keys/view.mst]
+	 *
+	 * @param {string} id - the numeric id as a string of the key to delete
+	 */
+	delete_badge_rule(id) {
+		if(window.confirm("Are you sure you want to delete this Badge?")) {
+			BadgeRule.delete(id).then(() => {
+				this.navigate("/badges")
+			}).catch(e => this.handleError(e));
+		}
+	}
+
+	/**
+	 * Helper method to view a badge rule.
+	 *
+	 * @param {Integer} id - the unique id of the api key to view
+	 * @param {bool} editable - whether to show controls for editing the api key.
+	 * @param {bool} deletable - whether to show controls for deleting the api key.
+	 */
+	#read_badge_rule(id, editable, deletable) {
+		this.#load_custom_element("badge-level-input", "/components/BadgeLevelInput.js");
+
+		Promise.all([
+			BadgeRule.read(id),
+			EquipmentType.list(),
+			BadgeRule.listBadgeImages()
+		]).then((values) => {
+			const [badge_rule, available_equipment_types, imageOptions] = values;
+
+			badge_rule.levels.sort((a,b) => a.uses - b.uses);
+			const included_equipment_types = available_equipment_types.filter(
+				(type) => badge_rule.equipment_types.includes(type.id)
+			);
+
+			this.render(
+				"#main",
+				"authenticated/badges/view",
+				{
+					badge_rule,
+					editable,
+					deletable,
+					available_equipment_types,
+					included_equipment_types
+				},
+				{},
+				() => {
+					document
+						.getElementById("edit-badge-form")
+						.addEventListener("submit", (e) => { this.update_badge_rule(id, e); });
+					document
+						.getElementById("delete-badge-button")
+						.addEventListener("click", () => { this.delete_badge_rule(id); });
+					document
+						.getElementById("add-level")
+						.addEventListener("click", () => {
+							const field = document.createElement("badge-level-input");
+							field.setAttribute("name", "Badge Name");
+							field.setAttribute("uses", "1");
+							// field.setAttribute("image", "unknown.svg");
+							document.getElementById("levels").appendChild(field);
+
+							// have to wait until after the field has been added
+							// to the page so teh controls can be realized
+							// before setting the available image options
+							field.imageOptions = imageOptions;
+						});
+					for (const equipment_type_id of badge_rule.equipment_types) {
+						document.getElementById("equipment_types." + equipment_type_id).checked = true;
+					}
+					for (const field of document.getElementsByTagName("badge-level-input")) {
+						field.imageOptions = imageOptions;
+					}
+				}
+			);
+		}).catch(e => this.handleError(e));
+	}
+
+	/**
+	 * Callback that handles updating cards on backend. Bound
+	 * to the form.submit() for the view.
+	 *
+	 * @param {Integer} id - the unique id of the location to modify
+	 * @param {Event} event - the form submission event
+	 */
+	update_badge_rule(id, event) {
+		event.preventDefault();
+		const data = this.#get_form_data(event.target);
+
+		// custom inputs are not found by #get_form_data and that's okay because
+		// levels are not structured like other inputs so we'll fill in levels
+		// here
+		data.levels = [];
+		const levelElements = event.target.children.levels.children;
+		for (let field of levelElements) {
+			data.levels.push(field.value);
+		}
+
+		BadgeRule.modify(id, data).then((badge_rule) => {
+			this.navigate("/badges/" + badge_rule.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -805,10 +1023,10 @@ class Application {
 	 */
 	add_card(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		Card.create(data).then(_data => {
-			this.navigate("/cards");
+		Card.create(data).then((card) => {
+			this.navigate("/cards/" + card.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -840,7 +1058,7 @@ class Application {
 
 	search_cards(search_form) {
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 
 		for(let k of keys) {
@@ -861,7 +1079,7 @@ class Application {
 	 */
 	update_charge(charge, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		fetch("/api/charges.php?id=" + charge.id, {
 			body: JSON.stringify(data),
@@ -892,17 +1110,16 @@ class Application {
 	 */
 	add_equipment(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		Equipment.list().then(equipment_list => {
-
 			let contains = equipment_list.reduce((accumulator, equipment) => ((equipment.mac_address === data.mac_address) || accumulator), false);
 
 			if(contains) {
 				this.handleError(Error('Cannot save equipment. MAC address already exists.'));
 			} else {
-				Equipment.create(data).then(_data => {
-					this.navigate("/equipment");
+				Equipment.create(data).then((equipment) => {
+					this.navigate("/equipment/" + equipment.id);
 					// notify user of success
 				}).catch(e => this.handleError(e));
 			}
@@ -967,7 +1184,7 @@ class Application {
 	 */
 	update_equipment(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 
 		Equipment.list().then(equipment_list => {
@@ -978,8 +1195,8 @@ class Application {
 			if(contains) {
 				this.handleError(Error('Cannot save equipment. MAC address already exists.'));
 			} else {
-				Equipment.modify(id, data).then(_ => {
-					this.navigate("/equipment");
+				Equipment.modify(id, data).then(() => {
+					this.navigate("/equipment/" + id);
 					// notify user of success
 				}).catch(e => this.handleError(e));
 			}
@@ -1013,7 +1230,7 @@ class Application {
 
 	search_equipment(search_form) {
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]))) {
@@ -1032,10 +1249,10 @@ class Application {
 	 */
 	add_equipment_type(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		EquipmentType.create(data).then(_ => {
-			this.navigate("/equipment-types");
+		EquipmentType.create(data).then((equipmentType) => {
+			this.navigate("/equipment-types/" + equipmentType.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1076,10 +1293,10 @@ class Application {
 	 */
 	update_equipment_type(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		EquipmentType.modify(id, data).then(_ => {
-			this.navigate("/equipment-types");
+		EquipmentType.modify(id, data).then(() => {
+			this.navigate("/equipment-types/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1092,10 +1309,10 @@ class Application {
 	 */
 	add_location(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		Location.create(data).then(_ => {
-			this.navigate("/locations");
+		Location.create(data).then((location) => {
+			this.navigate("/locations/" + location.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1144,10 +1361,10 @@ class Application {
 	 */
 	update_location(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		Location.modify(id, data).then(_ => {
-			this.navigate("/locations");
+		Location.modify(id, data).then(() => {
+			this.navigate("/locations/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1238,7 +1455,7 @@ class Application {
 	search_log(search_form) {
 		// look at search params to insure we have a search
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length) {
@@ -1257,7 +1474,7 @@ class Application {
 	 */
 	add_payment(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
 		Payment.create(data).then(data => {
 			this.navigate("/users/" + data.user_id);
@@ -1275,7 +1492,7 @@ class Application {
 	 */
 	confirm_payment(user, event) {
 		event.preventDefault();
-		let payment = this.get_form_data(event.target);
+		let payment = this.#get_form_data(event.target);
 
 		this.render("#main", "authenticated/users/confirm_payment", {"user": user, "payment": payment}, {}, () => {
 			document
@@ -1292,10 +1509,10 @@ class Application {
 	 */
 	add_role(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		Role.create(data).then(_ => {
-			this.navigate("/roles");
+		Role.create(data).then((role) => {
+			this.navigate("/roles/" + role.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1323,9 +1540,6 @@ class Application {
 				document
 					.getElementById("edit-role-form")
 					.addEventListener("submit", (e) => { this.update_role(id, e); });
-				// document
-				// 	.getElementById("delete-role-button")
-				// 	.addEventListener("click", _ => { this._delete_role(id); });
 			});
 		}).catch(e => this.handleError(e));
 	}
@@ -1339,10 +1553,10 @@ class Application {
 	 */
 	update_role(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		Role.modify(id, data).then(_ => {
-			this.navigate("/roles");
+		Role.modify(id, data).then(() => {
+			this.navigate("/roles/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1355,10 +1569,10 @@ class Application {
 	 */
 	add_user(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		User.create(data).then(_ => {
-			this.navigate("/users");
+		User.create(data).then((user) => {
+			this.navigate("/users/" + user.id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
 	}
@@ -1374,7 +1588,7 @@ class Application {
 
 		const inputs = event.target.getElementsByTagName('input');
 
-		User.import(inputs[0].files[0]).then(_ => {
+		User.import(inputs[0].files[0]).then(() => {
 			this.navigate("/users");
 		}).catch(e => this.handleError(e));
 	}
@@ -1388,9 +1602,9 @@ class Application {
 	 */
 	authorize_user(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		User.authorize(id, data).then(_ => {
+		User.authorize(id, data).then(() => {
 			this.navigate("/users/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
@@ -1404,9 +1618,9 @@ class Application {
 	 */
 	set_pin(event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		User.changePIN(this.user.id, data.pin).then(_ => {
+		User.changePIN(this.user.id, data.pin).then(() => {
 			this.navigate("/profile");
 			// notify user of success
 		}).catch(e => this.handleError(e));
@@ -1420,13 +1634,14 @@ class Application {
 	 * @param {bool} authorizable - whether to show controls for authorizing the user.
 	 */
 	read_user(id, editable, authorizable, role_editable, payment_permission) {
-		let p0 = User.read(id);
-		let p1 = EquipmentType.list();
-		let p2 = Role.list();
-		let p3 = Charge.list("user_id=" + id);
-		let p4 = Payment.list("user_id=" + id);
+		const p0 = User.read(id);
+		const p1 = EquipmentType.list();
+		const p2 = Role.list();
+		const p3 = Charge.list("user_id=" + id);
+		const p4 = Payment.list("user_id=" + id);
+		const p5 = Badge.listForUser(id);
 
-		Promise.all([p0,p1,p2,p3,p4]).then(values => {
+		Promise.all([p0, p1, p2, p3, p4, p5]).then(values => {
 			let currency_formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 			let date_formatter = new Intl.DateTimeFormat();
 			let user = values[0];
@@ -1468,6 +1683,7 @@ class Application {
 
 			this.render("#main", "authenticated/users/view", {
 					"user":user,
+					"badges": values[5],
 					"equipment_types":equipment_types,
 					"roles":roles,
 					"authorized_equipment_types":authorized_equipment_types,
@@ -1515,9 +1731,9 @@ class Application {
 	 */
 	update_user(id, event) {
 		event.preventDefault();
-		let data = this.get_form_data(event.target);
+		let data = this.#get_form_data(event.target);
 
-		User.modify(id, data).then(_ => {
+		User.modify(id, data).then(() => {
 			this.navigate("/users/" + id);
 			// notify user of success
 		}).catch(e => this.handleError(e));
@@ -1559,7 +1775,7 @@ class Application {
 	search_users(search_form) {
 		// look at search params to insure we have a search
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]))) {
@@ -1574,7 +1790,7 @@ class Application {
 		let search_form = document.getElementById('user_search_form');
 		// look at search params to insure we have a search
 		let search = {};
-		let searchParams = this.get_form_data(search_form);
+		let searchParams = this.#get_form_data(search_form);
 		let keys = Object.getOwnPropertyNames(searchParams);
 		for(let k of keys) {
 			if(0 < searchParams[k].length || ("boolean" == typeof(searchParams[k]) && searchParams[k])) {

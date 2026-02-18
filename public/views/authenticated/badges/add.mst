@@ -1,0 +1,27 @@
+<ul class="crumbs">
+	<li><a href="/">Home</a></li>
+	<li><a href="/badges">Badges</a></li>
+	<li>Add Badge</li>
+</ul>
+<article>
+	<header>
+		<h1>Add Badge</h1>
+		<div class="button-group">
+			<a href="/badges">Cancel</a>
+			<button form="add-badge-rule-form" type="submit" class="default">Save</a>
+		</div>
+	</header>
+	<form id="add-badge-rule-form">
+		<label for="name">Name:</label>
+		<input type="text" name="name" id="name" required />
+		<label for="equipment-types" style="align-self:baseline">Equipment Types:</label>
+		<fieldset id="equipment-types">
+			{{#equipment_types}}<label><input type="checkbox" name="equipment_types.{{id}}" id="equipment_types.{{id}}" /> {{name}}</label>{{/equipment_types}}
+		</fieldset>
+		<label for="levels" style="align-self:baseline">Levels:</label>
+		<div class="button-group">
+			<button id="add-level" type="button" class="small">Add Level</button>
+		</div>
+		<fieldset id="levels"></fieldset>
+	</form>
+</article>
