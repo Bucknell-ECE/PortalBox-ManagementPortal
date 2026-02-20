@@ -2,6 +2,8 @@
 
 namespace Portalbox\Query;
 
+use Portalbox\Enumeration\LoggedEventType;
+
 /**
  * LoggedEventQuery presents a standard interface for LoggedEvent search queries
  */
@@ -29,7 +31,7 @@ class LoggedEventQuery {
 	/**
 	 * Find log events of a given type
 	 */
-	protected ?int $type_id = null;
+	protected ?LoggedEventType $type = null;
 
 	/**
 	 * Find log events of a given equipment type
@@ -97,17 +99,17 @@ class LoggedEventQuery {
 	}
 
 	/**
-	 * Get the type id
+	 * Get the type
 	 */
-	public function type_id(): ?int {
-		return $this->type_id;
+	public function type(): ?LoggedEventType {
+		return $this->type;
 	}
 
 	/**
-	 * Set the type id
+	 * Set the type
 	 */
-	public function set_type_id(int $type_id): self {
-		$this->type_id = $type_id;
+	public function set_type(LoggedEventType $type): self {
+		$this->type = $type;
 		return $this;
 	}
 

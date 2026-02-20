@@ -11,6 +11,7 @@ use PDO;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Enumeration\ChargePolicy;
+use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -30,7 +31,6 @@ use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
 use Portalbox\Type\LoggedEvent;
-use Portalbox\Type\LoggedEventType;
 use Portalbox\Type\Role;
 use Portalbox\Type\ShutdownCard;
 use Portalbox\Type\User;
@@ -562,7 +562,7 @@ final class EquipmentServiceTest extends TestCase {
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
-					$event->type_id() === LoggedEventType::UNSUCCESSFUL_AUTHENTICATION
+					$event->type() === LoggedEventType::UNSUCCESSFUL_AUTHENTICATION
 					&& $event->card_id() === $card_id
 					&& $event->equipment_id() === $equipment_id
 			)
@@ -635,7 +635,7 @@ final class EquipmentServiceTest extends TestCase {
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
-					$event->type_id() === LoggedEventType::SUCCESSFUL_AUTHENTICATION
+					$event->type() === LoggedEventType::SUCCESSFUL_AUTHENTICATION
 					&& $event->card_id() === $card_id
 					&& $event->equipment_id() === $equipment_id
 			)
@@ -886,7 +886,7 @@ final class EquipmentServiceTest extends TestCase {
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
-					$event->type_id() === LoggedEventType::DEAUTHENTICATION
+					$event->type() === LoggedEventType::DEAUTHENTICATION
 					&& $event->card_id() === $card_id
 					&& $event->equipment_id() === $equipment_id
 			)
@@ -989,7 +989,7 @@ final class EquipmentServiceTest extends TestCase {
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
-					$event->type_id() === LoggedEventType::DEAUTHENTICATION
+					$event->type() === LoggedEventType::DEAUTHENTICATION
 					&& $event->card_id() === $card_id
 					&& $event->equipment_id() === $equipment_id
 			)
@@ -1092,7 +1092,7 @@ final class EquipmentServiceTest extends TestCase {
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
-					$event->type_id() === LoggedEventType::DEAUTHENTICATION
+					$event->type() === LoggedEventType::DEAUTHENTICATION
 					&& $event->card_id() === $card_id
 					&& $event->equipment_id() === $equipment_id
 			)
@@ -1389,7 +1389,7 @@ final class EquipmentServiceTest extends TestCase {
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
-					$event->type_id() === LoggedEventType::PLANNED_SHUTDOWN
+					$event->type() === LoggedEventType::PLANNED_SHUTDOWN
 					&& $event->card_id() === $card_id
 					&& $event->equipment_id() === $equipment_id
 			)
@@ -1515,7 +1515,7 @@ final class EquipmentServiceTest extends TestCase {
 		$loggedEventModel->expects($this->once())->method('create')->with(
 			$this->callback(
 				fn(LoggedEvent $event) =>
-					$event->type_id() === LoggedEventType::STARTUP_COMPLETE
+					$event->type() === LoggedEventType::STARTUP_COMPLETE
 					&& $event->card_id() === null
 					&& $event->equipment_id() === $equipment_id
 			)

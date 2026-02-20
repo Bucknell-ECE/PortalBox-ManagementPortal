@@ -29,9 +29,6 @@ try {
 			if(isset($_GET['location_id']) && !empty($_GET['location_id'])) {
 				$query->set_location_id($_GET['location_id']);
 			}
-			if(isset($_GET['type_id']) && !empty($_GET['type_id'])) {
-				$query->set_type_id($_GET['type_id']);
-			}
 			if(isset($_GET['after']) && !empty($_GET['after'])) {
 				$query->set_on_or_after($_GET['after']);
 			}

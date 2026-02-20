@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace Test\Portalbox\Type;
 
 use PHPUnit\Framework\TestCase;
+use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Type\UserCard;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\Location;
 use Portalbox\Type\LoggedEvent;
-use Portalbox\Type\LoggedEventType;
 use Portalbox\Type\User;
 
 final class LoggedEventTest extends TestCase {
 	public function testAgreement(): void {
 		$id = 981726354;
 		$time = '2020-05-10 09:54:12';
-		$type_id = LoggedEventType::SUCCESSFUL_AUTHENTICATION;
+		$type = LoggedEventType::SUCCESSFUL_AUTHENTICATION;
 		$equipment_id = 42;
 		$equipment_type_id = 3;
 		$equipment_type = 'Arc Welder';
@@ -30,7 +30,7 @@ final class LoggedEventTest extends TestCase {
 		$event
 			->set_id($id)
 			->set_time($time)
-			->set_type_id($type_id)
+			->set_type($type)
 			->set_equipment_id($equipment_id)
 			->set_equipment_type_id($equipment_type_id)
 			->set_equipment_type($equipment_type)
@@ -39,11 +39,7 @@ final class LoggedEventTest extends TestCase {
 
 		self::assertEquals($id, $event->id());
 		self::assertEquals($time, $event->time());
-		self::assertEquals($type_id, $event->type_id());
-		self::assertEquals(
-			LoggedEventType::name_for_type($type_id),
-			$event->type()
-		);
+		self::assertEquals($type, $event->type());
 		self::assertEquals($equipment_id, $event->equipment_id());
 		self::assertEquals('', $event->equipment_name());
 		self::assertNull($event->equipment());

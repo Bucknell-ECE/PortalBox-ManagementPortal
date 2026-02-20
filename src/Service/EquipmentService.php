@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Portalbox\Enumeration\CardType;
 use Portalbox\Enumeration\ChargePolicy;
+use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
@@ -24,7 +25,6 @@ use Portalbox\Query\EquipmentQuery;
 use Portalbox\Type\Charge;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\LoggedEvent;
-use Portalbox\Type\LoggedEventType;
 
 /**
  * Handle requests from Portal Boxes
@@ -194,7 +194,7 @@ class EquipmentService {
 		if (!in_array($equipment->type_id(), $card->user()->authorizations())) {
 			$this->loggedEventModel->create(
 				(new LoggedEvent())
-					->set_type_id(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION)
+					->set_type(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION)
 					->set_card_id($card_id)
 					->set_equipment_id($equipment->id())
 					->set_time(date('Y-m-d H:i:s'))
@@ -212,7 +212,7 @@ class EquipmentService {
 			$this->activationModel->create($equipment->id());
 			$this->loggedEventModel->create(
 				(new LoggedEvent())
-					->set_type_id(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
+					->set_type(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
 					->set_card_id($card_id)
 					->set_equipment_id($equipment->id())
 					->set_time(date('Y-m-d H:i:s'))
@@ -285,7 +285,7 @@ class EquipmentService {
 			$now = new DateTimeImmutable();
 			$this->loggedEventModel->create(
 				(new LoggedEvent())
-					->set_type_id(LoggedEventType::DEAUTHENTICATION)
+					->set_type(LoggedEventType::DEAUTHENTICATION)
 					->set_card_id($card_id)
 					->set_equipment_id($equipment_id)
 					->set_time($now->format('Y-m-d H:i:s'))
@@ -428,7 +428,7 @@ class EquipmentService {
 
 		$this->loggedEventModel->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::PLANNED_SHUTDOWN)
+				->set_type(LoggedEventType::PLANNED_SHUTDOWN)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment->id())
 				->set_time(date('Y-m-d H:i:s'))
@@ -463,7 +463,7 @@ class EquipmentService {
 
 		$this->loggedEventModel->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::STARTUP_COMPLETE)
+				->set_type(LoggedEventType::STARTUP_COMPLETE)
 				->set_equipment_id($equipment->id())
 				->set_time(date('Y-m-d H:i:s'))
 		);

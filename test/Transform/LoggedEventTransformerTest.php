@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Enumeration\ChargePolicy;
+use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
@@ -17,7 +18,6 @@ use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
 use Portalbox\Type\LoggedEvent;
-use Portalbox\Type\LoggedEventType;
 use Portalbox\Type\Role;
 use Portalbox\Type\User;
 
@@ -146,13 +146,13 @@ final class LoggedEventTransformerTest extends TestCase {
 		$id = 42;
 		$time = '2020-05-31 10:46:34';
 		$card_id = 1928376451092837465;
-		$type_id = LoggedEventType::SUCCESSFUL_AUTHENTICATION;
+		$type = LoggedEventType::SUCCESSFUL_AUTHENTICATION;
 
 		$event = (new LoggedEvent())
 			->set_id($id)
 			->set_user(self::$user)
 			->set_equipment(self::$equipment)
-			->set_type_id($type_id)
+			->set_type($type)
 			->set_card_id($card_id)
 			->set_time($time);
 
@@ -160,20 +160,20 @@ final class LoggedEventTransformerTest extends TestCase {
 
 		self::assertNotNull($data);
 		self::assertArrayHasKey('id', $data);
-		self::assertEquals($id, $data['id']);
+		self::assertSame($id, $data['id']);
 		self::assertArrayHasKey('user', $data);
 		self::assertIsArray($data['user']);
 		self::assertArrayHasKey('id', $data['user']);
-		self::assertEquals(self::$user->id(), $data['user']['id']);
+		self::assertSame(self::$user->id(), $data['user']['id']);
 		self::assertArrayHasKey('equipment', $data);
 		self::assertIsArray($data['equipment']);
 		self::assertArrayHasKey('id', $data['equipment']);
-		self::assertEquals(self::$equipment->id(), $data['equipment']['id']);
-		self::assertArrayHasKey('type_id', $data);
-		self::assertEquals($type_id, $data['type_id']);
+		self::assertSame(self::$equipment->id(), $data['equipment']['id']);
+		self::assertArrayHasKey('type', $data);
+		self::assertSame($type->name(), $data['type']);
 		self::assertArrayHasKey('card_id', $data);
-		self::assertEquals($card_id, $data['card_id']);
+		self::assertSame($card_id, $data['card_id']);
 		self::assertArrayHasKey('time', $data);
-		self::assertEquals($time, $data['time']);
+		self::assertSame($time, $data['time']);
 	}
 }

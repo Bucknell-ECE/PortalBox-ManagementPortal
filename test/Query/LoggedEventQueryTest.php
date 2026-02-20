@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Test\Portalbox\Query;
 
 use PHPUnit\Framework\TestCase;
+use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Query\LoggedEventQuery;
 
 final class LoggedEventQueryTest extends TestCase {
@@ -13,7 +14,7 @@ final class LoggedEventQueryTest extends TestCase {
 		$on_or_after = '2020-05-11';
 		$equipment_id = 99;
 		$location_id = 11;
-		$type_id = 2;
+		$type = LoggedEventType::TRAINING;
 
 		$query = new LoggedEventQuery();
 
@@ -21,19 +22,19 @@ final class LoggedEventQueryTest extends TestCase {
 		self::assertNull($query->on_or_after());
 		self::assertNull($query->equipment_id());
 		self::assertNull($query->location_id());
-		self::assertNull($query->type_id());
+		self::assertNull($query->type());
 		
 		
 		$query->set_on_or_before($on_or_before);
 		$query->set_on_or_after($on_or_after);
 		$query->set_equipment_id($equipment_id);
 		$query->set_location_id($location_id);
-		$query->set_type_id($type_id);
+		$query->set_type($type);
 
-		self::assertEquals($on_or_before, $query->on_or_before());
-		self::assertEquals($on_or_after, $query->on_or_after());
-		self::assertEquals($equipment_id, $query->equipment_id());
-		self::assertEquals($location_id, $query->location_id());
-		self::assertEquals($type_id, $query->type_id());
+		self::assertSame($on_or_before, $query->on_or_before());
+		self::assertSame($on_or_after, $query->on_or_after());
+		self::assertSame($equipment_id, $query->equipment_id());
+		self::assertSame($location_id, $query->location_id());
+		self::assertSame($type, $query->type());
 	}
 }

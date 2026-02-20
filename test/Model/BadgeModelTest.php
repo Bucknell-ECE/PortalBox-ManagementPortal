@@ -7,6 +7,7 @@ namespace Test\Portalbox\Model;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Enumeration\ChargePolicy;
+use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Model\BadgeModel;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentModel;
@@ -18,7 +19,6 @@ use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
 use Portalbox\Type\LoggedEvent;
-use Portalbox\Type\LoggedEventType;
 use Portalbox\Type\Role;
 use Portalbox\Type\User;
 use Portalbox\Type\UserCard;
@@ -202,14 +202,14 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId1 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::STARTUP_COMPLETE)
+				->set_type(LoggedEventType::STARTUP_COMPLETE)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-10 13:55:42')
 		)->id();
 
 		$eventId2 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card1_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-11 08:09:10')
@@ -217,7 +217,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId3 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card1_id)
 				->set_equipment_id($equipment2_id)
 				->set_time('2010-09-11 09:10:11')
@@ -225,7 +225,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId4 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card1_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-12 10:11:12')
@@ -233,7 +233,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId5 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card2_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-10-11 08:09:10')
@@ -241,7 +241,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId6 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card2_id)
 				->set_equipment_id($equipment2_id)
 				->set_time('2010-10-11 09:10:11')
@@ -249,7 +249,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId7 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card2_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-10-12 10:11:12')
@@ -289,14 +289,14 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId1 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::STARTUP_COMPLETE)
+				->set_type(LoggedEventType::STARTUP_COMPLETE)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-10 13:55:42')
 		)->id();
 
 		$eventId2 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card1_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-11 08:09:10')
@@ -304,7 +304,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId3 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card2_id)
 				->set_equipment_id($equipment2_id)
 				->set_time('2010-09-11 09:10:11')
@@ -312,7 +312,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId4 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card3_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-10-12 10:11:12')
@@ -320,7 +320,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId5 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card4_id)
 				->set_equipment_id($equipment2_id)
 				->set_time('2010-10-11 08:09:10')
@@ -328,7 +328,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId6 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card2_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-10-11 09:10:11')
@@ -336,7 +336,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId7 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card4_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-11-12 10:11:12')
@@ -344,7 +344,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId8 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card3_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-11-11 08:09:10')
@@ -352,7 +352,7 @@ final class BadgeModelTest extends TestCase {
 
 		$eventId9 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::DEAUTHENTICATION)
+				->set_type(LoggedEventType::DEAUTHENTICATION)
 				->set_card_id($card4_id)
 				->set_equipment_id($equipment2_id)
 				->set_time('2010-11-11 09:10:11')
