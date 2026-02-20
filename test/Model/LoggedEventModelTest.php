@@ -7,6 +7,7 @@ namespace Test\Portalbox\Model;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Enumeration\ChargePolicy;
+use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Model\CardModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
@@ -17,7 +18,6 @@ use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
 use Portalbox\Type\LoggedEvent;
-use Portalbox\Type\LoggedEventType;
 use Portalbox\Type\ShutdownCard;
 
 /**
@@ -144,13 +144,13 @@ final class LoggedEventModelTest extends TestCase {
 	public function testCreateReadEventWithoutCard(): void {
 		$model = new LoggedEventModel(self::$config);
 
-		$event_type_id = LoggedEventType::STARTUP_COMPLETE;
+		$event_type = LoggedEventType::STARTUP_COMPLETE;
 		$equipment1_id = self::$equipment1->id();
 		$time = '2025-02-28 13:55:42';
 
 		$event = $model->create(
 			(new LoggedEvent())
-				->set_type_id($event_type_id)
+				->set_type($event_type)
 				->set_equipment_id($equipment1_id)
 				->set_time($time)
 		);
@@ -158,7 +158,7 @@ final class LoggedEventModelTest extends TestCase {
 		self::assertInstanceOf(LoggedEvent::class, $event);
 		$id = $event->id();
 		self::assertNotNull($id);
-		self::assertSame($event_type_id, $event->type_id());
+		self::assertSame($event_type, $event->type());
 		self::assertNull($event->card_id());
 		self::assertSame($equipment1_id, $event->equipment_id());
 		self::assertSame($time, $event->time());
@@ -166,7 +166,7 @@ final class LoggedEventModelTest extends TestCase {
 		$event = $model->read($id);
 
 		self::assertInstanceOf(LoggedEvent::class, $event);
-		self::assertSame($event_type_id, $event->type_id());
+		self::assertSame($event_type, $event->type());
 		self::assertNull($event->card_id());
 		self::assertSame($equipment1_id, $event->equipment_id());
 		self::assertSame($time, $event->time());
@@ -184,14 +184,14 @@ final class LoggedEventModelTest extends TestCase {
 	public function testCreateReadEventWithCard(): void {
 		$model = new LoggedEventModel(self::$config);
 
-		$event_type_id = LoggedEventType::PLANNED_SHUTDOWN;
+		$event_type = LoggedEventType::PLANNED_SHUTDOWN;
 		$card_id = self::$card->id();
 		$equipment1_id = self::$equipment1->id();
 		$time = '2025-02-28 13:55:42';
 
 		$event = $model->create(
 			(new LoggedEvent())
-				->set_type_id($event_type_id)
+				->set_type($event_type)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment1_id)
 				->set_time($time)
@@ -200,7 +200,7 @@ final class LoggedEventModelTest extends TestCase {
 		self::assertInstanceOf(LoggedEvent::class, $event);
 		$id = $event->id();
 		self::assertNotNull($id);
-		self::assertSame($event_type_id, $event->type_id());
+		self::assertSame($event_type, $event->type());
 		self::assertSame($card_id, $event->card_id());
 		self::assertSame($equipment1_id, $event->equipment_id());
 		self::assertSame($time, $event->time());
@@ -208,7 +208,7 @@ final class LoggedEventModelTest extends TestCase {
 		$event = $model->read($id);
 
 		self::assertInstanceOf(LoggedEvent::class, $event);
-		self::assertSame($event_type_id, $event->type_id());
+		self::assertSame($event_type, $event->type());
 		self::assertSame($card_id, $event->card_id());
 		self::assertSame($equipment1_id, $event->equipment_id());
 		self::assertSame($time, $event->time());
@@ -233,14 +233,14 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId1 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::STARTUP_COMPLETE)
+				->set_type(LoggedEventType::STARTUP_COMPLETE)
 				->set_equipment_id($equipment2_id)
 				->set_time('2025-02-28 13:55:42')
 		)->id();
 
 		$eventId2 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION)
+				->set_type(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION)
 				->set_card_id($bad_card_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2025-09-11 09:10:11')
@@ -248,7 +248,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId3 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION)
+				->set_type(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION)
 				->set_card_id($bad_card_id)
 				->set_equipment_id($equipment2_id)
 				->set_time('2025-09-11 09:10:12')
@@ -256,7 +256,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId4 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION)
+				->set_type(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION)
 				->set_card_id($bad_card_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2025-09-11 09:10:13')
@@ -264,7 +264,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId5 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::PLANNED_SHUTDOWN)
+				->set_type(LoggedEventType::PLANNED_SHUTDOWN)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment2_id)
 				->set_time('2025-09-12 10:15:20')
@@ -287,7 +287,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		// check that we can query by event type
 		$query = (new LoggedEventQuery())
-			->set_type_id(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION);
+			->set_type(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION);
 		$events = array_map(fn($event) => $event->id(), $model->search($query));
 		self::assertNotContains($eventId1, $events);
 		self::assertContains($eventId2, $events);
@@ -326,14 +326,14 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId1 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::STARTUP_COMPLETE)
+				->set_type(LoggedEventType::STARTUP_COMPLETE)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-10 13:55:42')
 		)->id();
 
 		$eventId2 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
+				->set_type(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-11 08:09:10')
@@ -341,7 +341,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId3 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
+				->set_type(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment2_id)
 				->set_time('2010-09-11 09:10:11')
@@ -349,7 +349,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId4 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
+				->set_type(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-12 10:11:12')
@@ -357,7 +357,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId5 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::PLANNED_SHUTDOWN)
+				->set_type(LoggedEventType::PLANNED_SHUTDOWN)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-12 10:15:20')
@@ -365,14 +365,14 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId6 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::STARTUP_COMPLETE)
+				->set_type(LoggedEventType::STARTUP_COMPLETE)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-12 13:55:42')
 		)->id();
 
 		$eventId7 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
+				->set_type(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-13 08:09:10')
@@ -380,7 +380,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId8 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
+				->set_type(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-14 09:10:11')
@@ -388,7 +388,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		$eventId9 = $model->create(
 			(new LoggedEvent())
-				->set_type_id(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
+				->set_type(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
 				->set_card_id($card_id)
 				->set_equipment_id($equipment1_id)
 				->set_time('2010-09-14 10:11:12')

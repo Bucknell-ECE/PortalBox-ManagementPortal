@@ -2,6 +2,8 @@
 
 namespace Portalbox\Type;
 
+use Portalbox\Enumeration\LoggedEventType;
+
 /**
  * LoggedEvent represents one Event in the event log
  */
@@ -12,7 +14,7 @@ class LoggedEvent {
 	protected string $time = '';
 
 	/** The event type */
-	protected int $type_id = -1;
+	protected LoggedEventType $type;
 
 	/** The id of the card which triggered this event */
 	protected ?int $card_id = null;
@@ -50,20 +52,15 @@ class LoggedEvent {
 		return $this;
 	}
 
-	/** Get the type of this event */
-	public function type_id(): int {
-		return $this->type_id;
+	/** Get the event type */
+	public function type(): LoggedEventType {
+		return $this->type;
 	}
 
-	/** Set the type_id of this event */
-	public function set_type_id(int $type_id): self {
-		$this->type_id = $type_id;
+	/** Set the event type */
+	public function set_type(LoggedEventType $type): self {
+		$this->type = $type;
 		return $this;
-	}
-
-	/** Get the event type for this event */
-	public function type(): string {
-		return LoggedEventType::name_for_type($this->type_id);
 	}
 
 	/** Get the id of the equipment which reported this event */

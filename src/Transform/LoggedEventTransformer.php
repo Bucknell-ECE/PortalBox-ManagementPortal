@@ -24,7 +24,7 @@ class LoggedEventTransformer implements OutputTransformer {
 			return [
 				'id' => $data->id(),
 				'time' => $data->time(),
-				'type_id' => $data->type_id(),
+				'type' => $data->type()->name(),
 				'card_id' => $data->card_id(),
 				'user' => $user_transformer->serialize($data->user(), false),
 				'equipment' => $equipment_transformer->serialize($data->equipment(), true),
@@ -33,7 +33,7 @@ class LoggedEventTransformer implements OutputTransformer {
 			return [
 				'id' => $data->id(),
 				'time' => $data->time(),
-				'type' => $data->type(),
+				'type' => $data->type()->name(),
 				'card' => $data->card_id(),
 				'user' => $data->user_name(),
 				'equipment_name' => $data->equipment_name(),

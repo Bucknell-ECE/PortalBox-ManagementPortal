@@ -2,8 +2,8 @@
 
 namespace Portalbox\Model;
 
+use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Exception\DatabaseException;
-use Portalbox\Type\LoggedEventType;
 use PDO;
 
 /**
@@ -33,7 +33,7 @@ class BadgeModel extends AbstractModel {
 		$query = $connection->prepare($sql);
 		$query->bindValue(
 			':event_type',
-			LoggedEventType::DEAUTHENTICATION,
+			LoggedEventType::DEAUTHENTICATION->value,
 			PDO::PARAM_INT
 		);
 		$query->bindValue(':user_id', $user_id, PDO::PARAM_INT);
@@ -82,7 +82,7 @@ class BadgeModel extends AbstractModel {
 		$query = $connection->prepare($sql);
 		$query->bindValue(
 			':event_type',
-			LoggedEventType::DEAUTHENTICATION,
+			LoggedEventType::DEAUTHENTICATION->value,
 			PDO::PARAM_INT
 		);
 
