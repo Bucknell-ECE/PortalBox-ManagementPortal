@@ -2,11 +2,11 @@
 
 namespace Portalbox\Model;
 
+use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Exception\DatabaseException;
 use Portalbox\Model\Type\LoggedEvent as PDOAwareLoggedEvent;
 use Portalbox\Query\LoggedEventQuery;
 use Portalbox\Type\LoggedEvent;
-use Portalbox\Type\LoggedEventType;
 use PDO;
 
 /**
@@ -18,7 +18,7 @@ class LoggedEventModel extends AbstractModel {
 		$sql = 'INSERT INTO log (event_type_id, card_id, time, equipment_id) VALUES (:event_type_id, :card_id, :time, :equipment_id)';
 		$query = $connection->prepare($sql);
 
-		$query->bindValue(':event_type_id', $event->type_id(), PDO::PARAM_INT);
+		$query->bindValue(':event_type_id', $event->type()->value, PDO::PARAM_INT);
 		$query->bindValue(':equipment_id', $event->equipment_id(), PDO::PARAM_INT);
 		$query->bindValue(':time', $event->time());
 
@@ -68,14 +68,15 @@ class LoggedEventModel extends AbstractModel {
 		EOQ;
 		$query = $connection->prepare($sql);
 		$query->bindValue(':id', $id, PDO::PARAM_INT);
-		if ($query->execute()) {
-			if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
-				return $this->buildLoggedEventFromArray($data);
-			} else {
-				return null;
-			}
-		} else {
+
+		if (!$query->execute()) {
 			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		if ($data = $query->fetch(PDO::FETCH_ASSOC)) {
+			return $this->buildLoggedEventFromArray($data);
+		} else {
+			return null;
 		}
 	}
 
@@ -128,9 +129,9 @@ class LoggedEventModel extends AbstractModel {
 				$where_clause_fragments[] = 'e.location_id = :location_id';
 				$parameters[':location_id'] = $query->location_id();
 			}
-			if ($query->type_id()) {
+			if ($query->type()) {
 				$where_clause_fragments[] = 'el.event_type_id = :event_type_id';
-				$parameters[':event_type_id'] = $query->type_id();
+				$parameters[':event_type_id'] = $query->type()->value;
 			}
 			if ($query->on_or_after()) {
 				$where_clause_fragments[] = 'el.time >= :after';
@@ -185,7 +186,7 @@ class LoggedEventModel extends AbstractModel {
 		EOQ;
 
 		$where_clause_fragments = ['el.event_type_id = :event_type'];
-		$parameters = [':event_type' => LoggedEventType::SUCCESSFUL_AUTHENTICATION];
+		$parameters = [':event_type' => LoggedEventType::SUCCESSFUL_AUTHENTICATION->value];
 
 		if ($query) {
 			if ($query->equipment_id()) {
@@ -200,9 +201,9 @@ class LoggedEventModel extends AbstractModel {
 				$where_clause_fragments[] = 'e.location_id = :location_id';
 				$parameters[':location_id'] = $query->location_id();
 			}
-			if ($query->type_id()) {
+			if ($query->type()) {
 				$where_clause_fragments[] = 'el.event_type_id = :event_type_id';
-				$parameters[':event_type_id'] = $query->type_id();
+				$parameters[':event_type_id'] = $query->type()->value;
 			}
 			if ($query->on_or_after()) {
 				$where_clause_fragments[] = 'el.time >= :after';
@@ -238,7 +239,7 @@ class LoggedEventModel extends AbstractModel {
 	private function buildLoggedEventFromArray(array $data): LoggedEvent {
 		return (new PDOAwareLoggedEvent($this->configuration()))
 			->set_id($data['id'])
-			->set_type_id($data['event_type_id'])
+			->set_type(LoggedEventType::from($data['event_type_id']))
 			->set_card_id($data['card_id'])
 			->set_card_type_id($data['card_type_id'])
 			->set_equipment_id($data['equipment_id'])
