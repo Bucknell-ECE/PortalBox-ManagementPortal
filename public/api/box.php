@@ -4,13 +4,13 @@ require '../../src/autoload.php';
 
 use Portalbox\Config;
 use Portalbox\Exception\DatabaseException;
+use Portalbox\Enumeration\CardType;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Query\CardQuery;
 use Portalbox\ResponseHandler;
-use Portalbox\Type\CardType;
 use Portalbox\Session;
 
 $session = new Session();
@@ -53,7 +53,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
 				}
 
 				$card_type = $data[0];
-				if ($card_type !== CardType::USER) {
+				if ($card_type !== CardType::USER->value) {
 					die(json_encode([[
 						'user_auth' => 0,
 						'user_balance' => 0.0,
