@@ -30,7 +30,7 @@ class CardTransformer implements OutputTransformer {
 				$user_transformer = new UserTransformer();
 				return [
 					'id' => $data->id(),
-					'card_type_id' => $card_type_id,
+					'card_type_id' => $type->value,
 					'card_type' => $type->name(),
 					'user' => is_null($data->user()) ? null : $user_transformer->serialize($data->user(), $traverse),
 					'equipment_type' => null
@@ -39,7 +39,7 @@ class CardTransformer implements OutputTransformer {
 				$equipment_type_transformer = new EquipmentTypeTransformer();
 				return [
 					'id' => $data->id(),
-					'card_type_id' => $card_type_id,
+					'card_type_id' => $type->value,
 					'card_type' => $type->name(),
 					'user' => null,
 					'equipment_type' => is_null($data->equipment_type()) ? null : $equipment_type_transformer->serialize($data->equipment_type(), $traverse)
@@ -47,7 +47,7 @@ class CardTransformer implements OutputTransformer {
 			} else if (CardType::PROXY == $type) {
 				return [
 					'id' => $data->id(),
-					'card_type_id' => $card_type_id,
+					'card_type_id' => $type->value,
 					'card_type' => $type->name(),
 					'user' => null,
 					'equipment_type' => null
@@ -55,7 +55,7 @@ class CardTransformer implements OutputTransformer {
 			} else if (CardType::SHUTDOWN == $type) {
 				return [
 					'id' => $data->id(),
-					'card_type_id' => $card_type_id,
+					'card_type_id' => $type->value,
 					'card_type' => $type->name(),
 					'user' => null,
 					'equipment_type' => null
@@ -65,7 +65,7 @@ class CardTransformer implements OutputTransformer {
 			if (CardType::USER == $type) {
 				return [
 					'id' => $data->id(),
-					'card_type_id' => $card_type_id,
+					'card_type_id' => $type->value,
 					'card_type' => $type->name(),
 					'user_id' => $data->user_id(),
 					'user' => is_null($data->user()) ? '' : $data->user()->name(),
@@ -76,7 +76,7 @@ class CardTransformer implements OutputTransformer {
 				$equipment_type = $data->equipment_type();
 				return [
 					'id' => $data->id(),
-					'card_type_id' => $card_type_id,
+					'card_type_id' => $type->value,
 					'card_type' => $type->name(),
 					'user_id' => '',
 					'user' => '',
@@ -86,7 +86,7 @@ class CardTransformer implements OutputTransformer {
 			} else if (CardType::PROXY == $type) {
 				return [
 					'id' => $data->id(),
-					'card_type_id' => $card_type_id,
+					'card_type_id' => $type->value,
 					'card_type' => $type->name(),
 					'user_id' => '',
 					'user' => '',
@@ -96,7 +96,7 @@ class CardTransformer implements OutputTransformer {
 			} else if (CardType::SHUTDOWN == $type) {
 				return [
 					'id' => $data->id(),
-					'card_type_id' => $card_type_id,
+					'card_type_id' => $type->value,
 					'card_type' => $type->name(),
 					'user_id' => '',
 					'user' => '',
