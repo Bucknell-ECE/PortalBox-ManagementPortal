@@ -6,14 +6,14 @@ namespace Test\Portalbox\Transform;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use PortalBox\Config;
+use Portalbox\Config;
 use Portalbox\Enumeration\ChargePolicy;
-use PortalBox\Model\EquipmentTypeModel;
-use PortalBox\Model\LocationModel;
+use Portalbox\Model\EquipmentTypeModel;
+use Portalbox\Model\LocationModel;
 use Portalbox\Transform\EquipmentTransformer;
-use PortalBox\Type\Equipment;
-use PortalBox\Type\EquipmentType;
-use PortalBox\Type\Location;
+use Portalbox\Type\Equipment;
+use Portalbox\Type\EquipmentType;
+use Portalbox\Type\Location;
 
 final class EquipmentTransformerTest extends TestCase {
 	/**

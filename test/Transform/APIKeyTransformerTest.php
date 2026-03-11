@@ -7,7 +7,7 @@ namespace Test\Portalbox\Transform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Transform\APIKeyTransformer;
-use PortalBox\Type\APIKey;
+use Portalbox\Type\APIKey;
 
 final class APIKeyTransformerTest extends TestCase {
 	public function testSerialize(): void {

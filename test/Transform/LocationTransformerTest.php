@@ -7,7 +7,7 @@ namespace Test\Portalbox\Transform;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Transform\LocationTransformer;
-use PortalBox\Type\Location;
+use Portalbox\Type\Location;
 
 final class LocationTransformerTest extends TestCase {
 	public function testDeserialize(): void {
