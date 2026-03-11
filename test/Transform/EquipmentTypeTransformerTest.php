@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Transform\EquipmentTypeTransformer;
-use PortalBox\Type\EquipmentType;
+use Portalbox\Type\EquipmentType;
 
 final class EquipmentTypeTransformerTest extends TestCase {
 	public function testSerialize(): void {

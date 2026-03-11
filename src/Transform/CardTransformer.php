@@ -44,15 +44,8 @@ class CardTransformer implements OutputTransformer {
 					'user' => null,
 					'equipment_type' => is_null($data->equipment_type()) ? null : $equipment_type_transformer->serialize($data->equipment_type(), $traverse)
 				];
-			} else if (CardType::PROXY == $type) {
-				return [
-					'id' => $data->id(),
-					'card_type_id' => $type->value,
-					'card_type' => $type->name(),
-					'user' => null,
-					'equipment_type' => null
-				];
-			} else if (CardType::SHUTDOWN == $type) {
+			} else {
+				// Proxy and Shutdown cards handled the same
 				return [
 					'id' => $data->id(),
 					'card_type_id' => $type->value,
@@ -83,17 +76,8 @@ class CardTransformer implements OutputTransformer {
 					'equipment_type_id' => $data->equipment_type_id(),
 					'equipment_type' => is_null($equipment_type) ? '' : $equipment_type->name()
 				];
-			} else if (CardType::PROXY == $type) {
-				return [
-					'id' => $data->id(),
-					'card_type_id' => $type->value,
-					'card_type' => $type->name(),
-					'user_id' => '',
-					'user' => '',
-					'equipment_type_id' => '',
-					'equipment_type' => ''
-				];
-			} else if (CardType::SHUTDOWN == $type) {
+			} else {
+				// Proxy and Shutdown cards handled the same
 				return [
 					'id' => $data->id(),
 					'card_type_id' => $type->value,
