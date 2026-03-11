@@ -23,7 +23,7 @@
 				<td>{{description}}</td>
 				<td>{{#system_role}}<i class="material-icons">check_circle_outline</i>{{/system_role}}</td>
 			</tr>{{/roles}}
-			{{^roles}}<tr><td colspan="3">Logging in to the Management Website without any roles sholud be impossible. Congradulations on breaking the system. Whould you please <a href="https://github.com/Bucknell-ECE/PortalBox-ManagementPortal/issues">open an issue</a> describing how you did so? </td></tr>{{/roles}}
+			{{^roles}}<tr><td colspan="3">Logging in to the Management Website without any roles should be impossible. Congratulations on breaking the system. Whould you please <a href="https://github.com/Bucknell-ECE/PortalBox-ManagementPortal/issues">open an issue</a> describing how you did so? </td></tr>{{/roles}}
 		</tbody>
 	</table>
 </article>
