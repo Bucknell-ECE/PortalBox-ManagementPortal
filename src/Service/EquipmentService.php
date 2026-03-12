@@ -22,6 +22,7 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\EquipmentQuery;
+use Portalbox\Type\Card;
 use Portalbox\Type\Charge;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\LoggedEvent;
@@ -42,7 +43,8 @@ class EquipmentService {
 	public const ERROR_INCOMPLETE_SETUP_NO_LOCATIONS = 'You must first setup a location.';
 
 	public const ERROR_ACTIVATION_NOT_AUTHORIZED = 'You are not authorized to activate the specified portalbox.';
-	public const ERROR_DEACTIVATION_NOT_AUTHORIZED = 'You are not authorized to deactivate the specified portalbox.';
+	public const ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED = 'You are not authorized to change the activation session of the specified portalbox.';
+	public const ERROR_PROXY_CARD_NOT_PERMITTED = 'Proxy cards are not permitted with this equipment type';
 
 	public const ERROR_INVALID_STATUS_CHANGE_BODY = 'We did not recognize the requested device status change.';
 	public const ERROR_SHUTDOWN_NOT_AUTHORIZED = 'You are not authorized to shutdown portalboxes.';
@@ -230,13 +232,11 @@ class EquipmentService {
 	}
 
 	/**
-	 * End a user session and deactivate a portal box
+	 * Handle a request to change the activation session including deactivation,
+	 * switching to a proxy card or switching to a training session
 	 *
-	 * It may seem strange to require authorization here. The reason we do is to
-	 * mitigate the possibility of a malicious user ending a session independent
-	 * of the portalbox i.e. we don't want a random user firing off deactivation
-	 * requests for every mac address and prematurely ending a user session
-	 *
+	 * @param string $filePath  the path to a file from which to read the
+	 *      request body
 	 * @param string $mac  the mac address of the portal box
 	 * @param array $headers  the request headers
 	 * @throws AuthenticationException  if the request headers do not contain a
@@ -245,7 +245,11 @@ class EquipmentService {
 	 * @throws AuthorizationException  if the card id does not map to a user
 	 *      card
 	 */
-	public function deactivate(string $mac, array $headers): Equipment {
+	public function changeActivationSession(
+		string $filePath,
+		string $mac,
+		array $headers
+	) {
 		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
 			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
 		}
@@ -262,7 +266,7 @@ class EquipmentService {
 
 		$card = $this->cardModel->read($card_id);
 		if ($card === null || $card->type() !== CardType::USER) {
-			throw new AuthorizationException(self::ERROR_DEACTIVATION_NOT_AUTHORIZED);
+			throw new AuthorizationException(self::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		}
 
 		$query = (new EquipmentQuery())
@@ -273,10 +277,102 @@ class EquipmentService {
 			// in order to avoid leaking system details we throw an authorization
 			// exception here where we would typically throw a not found
 			// exception if we had completed authorization
-			throw new AuthorizationException(self::ERROR_DEACTIVATION_NOT_AUTHORIZED);
+			throw new AuthorizationException(self::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		}
 		$equipment = reset($equipment);
+
+		// which change is requested?
+		$data = file_get_contents($filePath);
+		if (empty($data)) {
+			return $this->deactivate($equipment, $card);
+		}
+
+		// body must be a json object
+		$params = json_decode($data, TRUE);
+		if (!is_array($params)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
+		}
+
+		// and it must specify a card
+		if (!array_key_exists('card', $params)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
+		}
+
+		$secondary_card_id = filter_var($params['card'], FILTER_VALIDATE_INT);
+
+		// if it is the same card that started the session then we permit the access
+		if ($card_id === $secondary_card_id) {
+			return $equipment;
+		}
+
+		// otherwise we need to check what type the card is
+		$secondaryCard = $this->cardModel->read($secondary_card_id);
+		if ($secondaryCard === null) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
+		}
+
+		switch ($secondaryCard->type()) {
+			case CardType::PROXY:
+				if ($equipment->type()->allow_proxy()) {
+					return $equipment;
+				}
+
+				throw new AuthorizationException(self::ERROR_PROXY_CARD_NOT_PERMITTED);
+				break;
+			case CardType::USER:
+				return $this->beginTrainingSession($equipment, $card, $secondaryCard);
+				break;
+			default:
+				throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
+		}
+	}
+
+	/**
+	 * Begin a training session
+	 *
+	 * @param Equipment $equipment  the device which is deactivating
+	 * @param Card $trainerCard  the card the trainer(?) used to activate this
+	 *      device
+	 * @param Card $traineeCard  the trainee's card
+	 * @throws AuthorizationException  if the "trainer" is not authorized to
+	 *      train
+	 */
+	private function beginTrainingSession(
+		Equipment $equipment,
+		Card $trainerCard,
+		Card $traineeCard
+	): Equipment {
+		$trainer = $card->user();
+		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_EQUIPMENT_AUTHORIZATION)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_TO_TRAIN);
+		}
+
+		if (!in_array($equipment->type_id(), $trainer->authorizations())) {
+			// How could we reach this as the user had to activate the portalbox?
+			// API requests don't have to come from a portalbox... so this is
+			// probably illicit API usage and maybe we ought to log it
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_TO_TRAIN);
+		}
+
+		// log the training event
+
+		return $equipment;
+	}
+
+	/**
+	 * End a user session and deactivate a portal box
+	 *
+	 * It may seem strange to require authorization here. The reason we do is to
+	 * mitigate the possibility of a malicious user ending a session independent
+	 * of the portalbox i.e. we don't want a random user firing off deactivation
+	 * requests for every mac address and prematurely ending a user session
+	 *
+	 * @param Equipment $equipment  the device which is deactivating
+	 * @param Card $card  the card the user used to activate this device
+	 */
+	private function deactivate(Equipment $equipment, Card $card): Equipment {
 		$equipment_id = $equipment->id();
+		$card_id = $card->id();
 
 		$connection = $this->activationModel->configuration()->writable_db_connection();
 		$connection->beginTransaction();
@@ -347,7 +443,7 @@ class EquipmentService {
 	}
 
 	/**
-	 * Record a device status change
+	 * Record a device status change i.e. startup or shutdown
 	 *
 	 * @param string $filePath  the path to a file from which to read status
 	 *      change data
@@ -365,7 +461,7 @@ class EquipmentService {
 		array $headers
 	): Equipment {
 		$data = file_get_contents($filePath);
-		if ($data === false) {
+		if (empty($data)) {
 			throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
 		}
 

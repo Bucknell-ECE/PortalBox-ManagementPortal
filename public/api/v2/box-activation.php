@@ -25,7 +25,9 @@ try {
 				'user' => $user
 			]);
 			break;
-		case 'POST': // Deactivate Device
+		case 'POST':
+			// Modify Session i.e. deactivate, switch to proxy card, or switch
+			// to training
 			if(!isset($_GET['mac']) || empty($_GET['mac'])) {
 				throw new InvalidArgumentException('MAC address is required');
 			}
