@@ -1403,7 +1403,169 @@ final class EquipmentServiceTest extends TestCase {
 
 	#region test training mode
 
-	// ???
+	public function testChangeActivationSessionThrowsWhenUserNotPermittedToTrain() {
+		$equipment = (new Equipment())
+			->set_type(
+				(new EquipmentType())
+					->set_id(1)
+					->set_allow_proxy(false)
+			);
+
+		$trainer = (new User())
+			->set_id(34)
+			->set_role(
+				(new Role())
+					->set_id(2)
+					->set_permissions([])
+			)
+			->set_authorizations([]);
+
+		$activationModel = $this->createStub(ActivationModel::class);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(
+			(new UserCard())
+				->set_user($trainer),
+			new UserCard()
+		);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->method('search')->willReturn([$equipment]);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_TO_TRAIN);
+		$service->changeActivationSession(
+			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+			'00112233445566',
+			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+		);
+	}
+
+	public function testChangeActivationSessionThrowsWhenUserNotPermittedToUseEquipment() {
+		$equipment = (new Equipment())
+			->set_type(
+				(new EquipmentType())
+					->set_id(1)
+					->set_allow_proxy(false)
+			);
+
+		$trainer = (new User())
+			->set_id(34)
+			->set_role(
+				(new Role())
+					->set_id(2)
+					->set_permissions([Permission::CREATE_EQUIPMENT_AUTHORIZATION])
+			)
+			->set_authorizations([]);
+
+		$activationModel = $this->createStub(ActivationModel::class);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(
+			(new UserCard())
+				->set_user($trainer),
+			new UserCard()
+		);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->method('search')->willReturn([$equipment]);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_TO_TRAIN);
+		$service->changeActivationSession(
+			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+			'00112233445566',
+			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+		);
+	}
+
+	public function testChangeActivationSessionAllowsTraining() {
+		$equipment_type_id = 12;
+
+		$equipment = (new Equipment())
+			->set_type(
+				(new EquipmentType())
+					->set_id($equipment_type_id)
+					->set_allow_proxy(false)
+			);
+
+		$trainer = (new User())
+			->set_id(34)
+			->set_role(
+				(new Role())
+					->set_id(2)
+					->set_permissions([Permission::CREATE_EQUIPMENT_AUTHORIZATION])
+			)
+			->set_authorizations([$equipment_type_id]);
+
+		$activationModel = $this->createStub(ActivationModel::class);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(
+			(new UserCard())
+				->set_user($trainer),
+			new UserCard()
+		);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->method('search')->willReturn([$equipment]);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		$response = $service->changeActivationSession(
+			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+			'00112233445566',
+			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+		);
+
+		self::assertSame($response, $equipment);
+	}
 
 	#endregion test training mode
 

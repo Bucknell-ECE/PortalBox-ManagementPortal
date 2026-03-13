@@ -45,6 +45,7 @@ class EquipmentService {
 	public const ERROR_ACTIVATION_NOT_AUTHORIZED = 'You are not authorized to activate the specified portalbox.';
 	public const ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED = 'You are not authorized to change the activation session of the specified portalbox.';
 	public const ERROR_PROXY_CARD_NOT_PERMITTED = 'Proxy cards are not permitted with this equipment type';
+	public const ERROR_UNAUTHORIZED_TO_TRAIN = 'You are not permitted to train users to use this equipment';
 
 	public const ERROR_INVALID_STATUS_CHANGE_BODY = 'We did not recognize the requested device status change.';
 	public const ERROR_SHUTDOWN_NOT_AUTHORIZED = 'You are not authorized to shutdown portalboxes.';
@@ -342,8 +343,8 @@ class EquipmentService {
 		Card $trainerCard,
 		Card $traineeCard
 	): Equipment {
-		$trainer = $card->user();
-		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_EQUIPMENT_AUTHORIZATION)) {
+		$trainer = $trainerCard->user();
+		if (!$trainer->role()->has_permission(Permission::CREATE_EQUIPMENT_AUTHORIZATION)) {
 			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_TO_TRAIN);
 		}
 
