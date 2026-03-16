@@ -33,7 +33,7 @@ try {
 			}
 
 			$service = $container->get(EquipmentService::class);
-			$equipment = $service->deactivate($_GET['mac'], $_SERVER);
+			$equipment = $service->changeActivationSession('php://input', $_GET['mac'], $_SERVER);
 			ResponseHandler::render($equipment, new EquipmentTransformer());
 			break;
 		default:
