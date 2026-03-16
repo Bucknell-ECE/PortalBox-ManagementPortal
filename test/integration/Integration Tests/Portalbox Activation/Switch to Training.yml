@@ -1,0 +1,30 @@
+info:
+  name: Switch to Training
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{HOST}}/api/v2/box-activation.php?mac={{MAC_ADDRESS}}"
+  params:
+    - name: mac
+      value: "{{MAC_ADDRESS}}"
+      type: query
+  body:
+    type: json
+    data: '{"card":"{{UNAUTHORIZED_USER_CARD_ID}}"}'
+  auth:
+    type: bearer
+    token: "{{AUTHORIZED_USER_CARD_ID}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

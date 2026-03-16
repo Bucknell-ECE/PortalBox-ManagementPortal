@@ -1,0 +1,31 @@
+info:
+  name: Startup
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{HOST}}/api/v2/box.php?mac={{MAC_ADDRESS}}"
+  params:
+    - name: mac
+      value: "{{MAC_ADDRESS}}"
+      type: query
+  body:
+    type: text
+    data: startup
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.mac_address
+      operator: eq
+      value: "{{MAC_ADDRESS}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

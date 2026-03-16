@@ -1,0 +1,30 @@
+info:
+  name: Unauthorized Activation Request
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{HOST}}/api/v2/box-activation.php?mac={{MAC_ADDRESS}}"
+  params:
+    - name: mac
+      value: "{{MAC_ADDRESS}}"
+      type: query
+  auth:
+    type: bearer
+    token: "{{UNAUTHORIZED_USER_CARD_ID}}"
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "403"
+    - expression: res.body
+      operator: eq
+      value: You are not authorized to activate the specified portalbox.
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
