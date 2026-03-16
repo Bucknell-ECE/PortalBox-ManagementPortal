@@ -6,12 +6,12 @@
 >
     <testsuites>
         <testsuite name="all">
-            <directory>test</directory>
+            <directory>test/unit</directory>
         </testsuite>
         <testsuite name="ci">
-            <directory>test</directory>
-            <exclude>test/Model</exclude>
-            <exclude>test/Transform</exclude>
+            <directory>test/unit</directory>
+            <exclude>test/unit/Model</exclude>
+            <exclude>test/unit/Transform</exclude>
         </testsuite>
     </testsuites>
     <logging/>
