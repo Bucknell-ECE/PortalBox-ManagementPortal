@@ -35,7 +35,6 @@ class EquipmentTypeService {
 	public const ERROR_UNAUTHORIZED_MODIFY = 'You are not authorized to modify equipment types';
 	public const ERROR_EQUIPMENT_TYPE_NOT_FOUND = 'We have no record of that equipment type';
 
-
 	protected Session $session;
 	protected EquipmentTypeModel $equipmentTypeModel;
 

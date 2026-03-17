@@ -4,7 +4,7 @@ meta {
   seq: 7
 }
 
-post {
+delete {
   url: {{HOST}}/api/v2/box-activation.php?mac={{MAC_ADDRESS}}
   body: none
   auth: bearer
@@ -20,4 +20,5 @@ auth:bearer {
 
 settings {
   encodeUrl: true
+  timeout: 0
 }

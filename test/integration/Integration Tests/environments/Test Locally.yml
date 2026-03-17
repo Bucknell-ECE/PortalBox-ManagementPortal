@@ -1,0 +1,14 @@
+name: Test Locally
+variables:
+  - name: HOST
+    value: 127.0.0.1:8000
+  - secret: true
+    name: MAC_ADDRESS
+  - secret: true
+    name: SHUTDOWN_CARD_ID
+  - secret: true
+    name: AUTHORIZED_USER_CARD_ID
+  - secret: true
+    name: UNAUTHORIZED_USER_CARD_ID
+  - secret: true
+    name: PROXY_CARD_ID
