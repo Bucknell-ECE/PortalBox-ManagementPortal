@@ -35,7 +35,7 @@ use Portalbox\Type\LoggedEvent;
  * authenticate. Instead methods require a card id that must be assigned to an
  * active user with the requisite permissions
  */
-class EquipmentService {
+class PortalboxService {
 	public const ERROR_NO_AUTHORIZATION_HEADER = 'No Authorization header provided.';
 	public const ERROR_INVALID_AUTHORIZATION_HEADER = 'Improperly formatted Authorization header. Please use "Bearer " + token syntax.';
 	

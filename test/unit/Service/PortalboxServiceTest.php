@@ -26,7 +26,7 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\EquipmentQuery;
-use Portalbox\Service\EquipmentService;
+use Portalbox\Service\PortalboxService;
 use Portalbox\Type\Charge;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
@@ -38,7 +38,7 @@ use Portalbox\Type\ShutdownCard;
 use Portalbox\Type\User;
 use Portalbox\Type\UserCard;
 
-final class EquipmentServiceTest extends TestCase {
+final class PortalboxServiceTest extends TestCase {
 	#region test register()
 
 	public function testRegisterThrowsWhenNoAuthorizationHeader() {
@@ -50,7 +50,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -61,7 +61,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_NO_AUTHORIZATION_HEADER);
 		$service->register('00112233445566', []);
 	}
 
@@ -74,7 +74,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -85,7 +85,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'let me in']);
 	}
 
@@ -98,7 +98,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -109,7 +109,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer let me in']);
 	}
 
@@ -125,7 +125,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -136,7 +136,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_REGISTRATION_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_REGISTRATION_NOT_AUTHORIZED);
 		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
@@ -152,7 +152,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -163,7 +163,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_REGISTRATION_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_REGISTRATION_NOT_AUTHORIZED);
 		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
@@ -188,7 +188,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -199,7 +199,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_REGISTRATION_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_REGISTRATION_NOT_AUTHORIZED);
 		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
@@ -245,7 +245,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -256,7 +256,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_DEVICE_ALREADY_REGISTERED);
+		self::expectExceptionMessage(PortalboxService::ERROR_DEVICE_ALREADY_REGISTERED);
 		$service->register($mac, ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
@@ -288,7 +288,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -299,7 +299,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INCOMPLETE_SETUP_NO_LOCATIONS);
+		self::expectExceptionMessage(PortalboxService::ERROR_INCOMPLETE_SETUP_NO_LOCATIONS);
 		$service->register($mac, ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
@@ -345,7 +345,7 @@ final class EquipmentServiceTest extends TestCase {
 
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -358,7 +358,7 @@ final class EquipmentServiceTest extends TestCase {
 		$equipment = $service->register($mac, ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 
 		self::assertInstanceOf(Equipment::class, $equipment);
-		self::assertSame(EquipmentService::DEFAULT_DEVICE_NAME, $equipment->name());
+		self::assertSame(PortalboxService::DEFAULT_DEVICE_NAME, $equipment->name());
 		self::assertSame($equipment_type_id, $equipment->type_id());
 		self::assertSame($location_id, $equipment->location_id());
 		self::assertSame($mac, $equipment->mac_address());
@@ -382,7 +382,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -393,7 +393,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_NO_AUTHORIZATION_HEADER);
 		$service->activate('00112233445566', []);
 	}
 
@@ -406,7 +406,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -417,7 +417,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'let me in']);
 	}
 
@@ -430,7 +430,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -441,7 +441,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer let me in']);
 	}
 
@@ -457,7 +457,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -468,7 +468,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_NOT_AUTHORIZED);
 		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
@@ -484,7 +484,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -495,7 +495,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_NOT_AUTHORIZED);
 		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
@@ -514,7 +514,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -525,7 +525,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_NOT_AUTHORIZED);
 		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
 	}
 
@@ -571,7 +571,7 @@ final class EquipmentServiceTest extends TestCase {
 		)
 		->willReturnArgument(0);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -582,7 +582,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_NOT_AUTHORIZED);
 		$service->activate($mac, ['HTTP_AUTHORIZATION' => "Bearer $card_id"]);
 	}
 
@@ -644,7 +644,7 @@ final class EquipmentServiceTest extends TestCase {
 		)
 		->willReturnArgument(0);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -676,7 +676,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -687,7 +687,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_NO_AUTHORIZATION_HEADER);
 		$service->changeActivationSession(
 			'not a file path',
 			'00112233445566',
@@ -704,7 +704,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -715,7 +715,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->changeActivationSession(
 			'not a file path',
 			'00112233445566',
@@ -732,7 +732,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -743,7 +743,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->changeActivationSession(
 			'not a file path',
 			'00112233445566',
@@ -763,7 +763,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -774,7 +774,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		$service->changeActivationSession(
 			'not a file path',
 			'00112233445566',
@@ -794,7 +794,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -805,7 +805,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		$service->changeActivationSession(
 			'not a file path',
 			'00112233445566',
@@ -827,7 +827,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -838,7 +838,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		$service->changeActivationSession(
 			'not a file path',
 			'00112233445566',
@@ -863,7 +863,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -874,9 +874,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_STATUS_CHANGE_BODY);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/InvalidStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/InvalidStatusChange.txt'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -899,7 +899,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -912,7 +912,7 @@ final class EquipmentServiceTest extends TestCase {
 		self::assertSame(
 			ActivationMode::AUTHORIZED_USER,
 			$service->changeActivationSession(
-				realpath(__DIR__ . '/EquipmentServiceTestData/ActivatingCardReturned.json'),
+				realpath(__DIR__ . '/PortalboxServiceTestData/ActivatingCardReturned.json'),
 				'00112233445566',
 				['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 			)
@@ -939,7 +939,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -950,9 +950,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_STATUS_CHANGE_BODY);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/SecondaryCardPresented.json'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -978,7 +978,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -989,9 +989,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_STATUS_CHANGE_BODY);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/SecondaryCardPresented.json'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -1024,7 +1024,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1035,9 +1035,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_PROXY_CARD_NOT_PERMITTED);
+		self::expectExceptionMessage(PortalboxService::ERROR_PROXY_CARD_NOT_PERMITTED);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/SecondaryCardPresented.json'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -1068,7 +1068,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1081,7 +1081,7 @@ final class EquipmentServiceTest extends TestCase {
 		self::assertSame(
 			ActivationMode::PROXY,
 				$response = $service->changeActivationSession(
-				realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+				realpath(__DIR__ . '/PortalboxServiceTestData/SecondaryCardPresented.json'),
 				'00112233445566',
 				['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 			)
@@ -1127,7 +1127,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1138,9 +1138,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_TO_TRAIN);
+		self::expectExceptionMessage(PortalboxService::ERROR_UNAUTHORIZED_TO_TRAIN);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/SecondaryCardPresented.json'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -1181,7 +1181,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1192,9 +1192,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_TO_TRAIN);
+		self::expectExceptionMessage(PortalboxService::ERROR_UNAUTHORIZED_TO_TRAIN);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/SecondaryCardPresented.json'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -1237,7 +1237,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1250,7 +1250,7 @@ final class EquipmentServiceTest extends TestCase {
 		self::assertSame(
 			ActivationMode::TRAINING,
 			$service->changeActivationSession(
-				realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+				realpath(__DIR__ . '/PortalboxServiceTestData/SecondaryCardPresented.json'),
 				'00112233445566',
 				['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 			)
@@ -1272,7 +1272,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1283,7 +1283,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_NO_AUTHORIZATION_HEADER);
 		$service->deactivate(
 			'00112233445566',
 			[]
@@ -1299,7 +1299,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1310,7 +1310,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->deactivate(
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'let me in']
@@ -1326,7 +1326,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1337,7 +1337,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->deactivate(
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer let me in']
@@ -1356,7 +1356,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1367,7 +1367,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		$service->deactivate(
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
@@ -1386,7 +1386,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1397,7 +1397,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		$service->deactivate(
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
@@ -1418,7 +1418,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1429,7 +1429,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		$service->deactivate(
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
@@ -1510,7 +1510,7 @@ final class EquipmentServiceTest extends TestCase {
 		)
 		->willReturnArgument(0);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1614,7 +1614,7 @@ final class EquipmentServiceTest extends TestCase {
 		)
 		->willReturnArgument(0);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1718,7 +1718,7 @@ final class EquipmentServiceTest extends TestCase {
 		)
 		->willReturnArgument(0);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1747,7 +1747,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1758,7 +1758,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_STATUS_CHANGE_BODY);
 		// PHP warning is intentionally suppressed in next line for testing
 		@$service->changeStatus(
 			'file_does_not_exist.txt',
@@ -1776,7 +1776,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1787,9 +1787,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_STATUS_CHANGE_BODY);
 		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/InvalidStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/InvalidStatusChange.txt'),
 			'00112233445566',
 			[]
 		);
@@ -1806,7 +1806,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1817,9 +1817,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_NO_AUTHORIZATION_HEADER);
 		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/ShutdownStatusChange.txt'),
 			'00112233445566',
 			[]
 		);
@@ -1834,7 +1834,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1845,9 +1845,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/ShutdownStatusChange.txt'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'let me in']
 		);
@@ -1862,7 +1862,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1873,9 +1873,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		self::expectExceptionMessage(PortalboxService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/ShutdownStatusChange.txt'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer let me in']
 		);
@@ -1893,7 +1893,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1904,9 +1904,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_SHUTDOWN_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_SHUTDOWN_NOT_AUTHORIZED);
 		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/ShutdownStatusChange.txt'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -1924,7 +1924,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1935,9 +1935,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_SHUTDOWN_NOT_AUTHORIZED);
+		self::expectExceptionMessage(PortalboxService::ERROR_SHUTDOWN_NOT_AUTHORIZED);
 		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/ShutdownStatusChange.txt'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -1957,7 +1957,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -1968,9 +1968,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(NotFoundException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_NOT_FOUND);
+		self::expectExceptionMessage(PortalboxService::ERROR_EQUIPMENT_NOT_FOUND);
 		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/ShutdownStatusChange.txt'),
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -2013,7 +2013,7 @@ final class EquipmentServiceTest extends TestCase {
 		)
 		->willReturnArgument(0);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -2024,7 +2024,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::assertSame($equipment, $service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/ShutdownStatusChange.txt'),
 			$mac,
 			['HTTP_AUTHORIZATION' => "Bearer $card_id"]
 		));
@@ -2046,7 +2046,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -2057,9 +2057,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(NotFoundException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_NOT_FOUND);
+		self::expectExceptionMessage(PortalboxService::ERROR_EQUIPMENT_NOT_FOUND);
 		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/StartupStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/StartupStatusChange.txt'),
 			'00112233445566',
 			[]
 		);
@@ -2086,7 +2086,7 @@ final class EquipmentServiceTest extends TestCase {
 		$locationModel = $this->createStub(LocationModel::class);
 		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -2097,9 +2097,9 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::expectException(OutOfServiceDeviceException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_OUT_OF_SERVICE);
+		self::expectExceptionMessage(PortalboxService::ERROR_EQUIPMENT_OUT_OF_SERVICE);
 		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/StartupStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/StartupStatusChange.txt'),
 			'00112233445566',
 			[]
 		);
@@ -2139,7 +2139,7 @@ final class EquipmentServiceTest extends TestCase {
 		)
 		->willReturnArgument(0);
 
-		$service = new EquipmentService(
+		$service = new PortalboxService(
 			$activationModel,
 			$cardModel,
 			$chargeModel,
@@ -2150,7 +2150,7 @@ final class EquipmentServiceTest extends TestCase {
 		);
 
 		self::assertSame($equipment, $service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/StartupStatusChange.txt'),
+			realpath(__DIR__ . '/PortalboxServiceTestData/StartupStatusChange.txt'),
 			$mac,
 			[]
 		));

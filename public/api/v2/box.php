@@ -4,7 +4,7 @@ require '../../../src/bootstrap.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Service\EquipmentService;
+use Portalbox\Service\PortalboxService;
 use Portalbox\Transform\EquipmentTransformer;
 
 try {
@@ -14,7 +14,7 @@ try {
 				throw new InvalidArgumentException('MAC address is required');
 			}
 
-			$service = $container->get(EquipmentService::class);
+			$service = $container->get(PortalboxService::class);
 			$equipment = $service->register($_GET['mac'], $_SERVER);
 			ResponseHandler::render($equipment, new EquipmentTransformer());
 			break;
@@ -23,7 +23,7 @@ try {
 				throw new InvalidArgumentException('MAC address is required');
 			}
 
-			$service = $container->get(EquipmentService::class);
+			$service = $container->get(PortalboxService::class);
 			$equipment = $service->changeStatus('php://input', $_GET['mac'], $_SERVER);
 			ResponseHandler::render($equipment, new EquipmentTransformer());
 			break;
