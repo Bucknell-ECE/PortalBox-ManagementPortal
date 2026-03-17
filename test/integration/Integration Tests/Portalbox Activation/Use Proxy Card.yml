@@ -22,6 +22,9 @@ runtime:
     - expression: res.status
       operator: eq
       value: "200"
+    - expression: res.body
+      operator: eq
+      value: proxy
 
 settings:
   encodeUrl: true

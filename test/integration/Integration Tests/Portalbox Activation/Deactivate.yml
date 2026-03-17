@@ -4,7 +4,7 @@ info:
   seq: 8
 
 http:
-  method: POST
+  method: DELETE
   url: "{{HOST}}/api/v2/box-activation.php?mac={{MAC_ADDRESS}}"
   params:
     - name: mac

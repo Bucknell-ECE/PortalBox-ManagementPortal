@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\ActivationMode;
 use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Enumeration\Permission;
@@ -688,7 +689,7 @@ final class EquipmentServiceTest extends TestCase {
 		self::expectException(AuthenticationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/Deactivate.txt'),
+			'not a file path',
 			'00112233445566',
 			[]
 		);
@@ -716,7 +717,7 @@ final class EquipmentServiceTest extends TestCase {
 		self::expectException(AuthenticationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/Deactivate.txt'),
+			'not a file path',
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'let me in']
 		);
@@ -744,7 +745,7 @@ final class EquipmentServiceTest extends TestCase {
 		self::expectException(AuthenticationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/Deactivate.txt'),
+			'not a file path',
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer let me in']
 		);
@@ -775,7 +776,7 @@ final class EquipmentServiceTest extends TestCase {
 		self::expectException(AuthorizationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/Deactivate.txt'),
+			'not a file path',
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -806,7 +807,7 @@ final class EquipmentServiceTest extends TestCase {
 		self::expectException(AuthorizationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/Deactivate.txt'),
+			'not a file path',
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
@@ -839,325 +840,11 @@ final class EquipmentServiceTest extends TestCase {
 		self::expectException(AuthorizationException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
 		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/Deactivate.txt'),
+			'not a file path',
 			'00112233445566',
 			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
 		);
 	}
-
-	#region test deactivate()
-
-	public function testDeactivateSuccessWithNoCharge() {
-		$mac = '00112233445566';
-		$equipment_type_id = 12;
-		$card_id = 123456789;
-		$equipment_id = 23;
-		$service_minutes = 123;
-		$duration = 2;
-
-		$authorized_user = (new User())
-			->set_id(1)
-			->set_authorizations([$equipment_type_id]);
-
-		$equipment = (new Equipment())
-			->set_id($equipment_id)
-			->set_service_minutes($service_minutes)
-			->set_type(
-				(new EquipmentType())
-					->set_id($equipment_type_id)
-					->set_charge_policy(ChargePolicy::NO_CHARGE)
-			);
-
-		$connection = $this->createMock(PDO::class);
-		$connection->expects($this->once())->method('beginTransaction');
-		$connection->expects($this->once())->method('commit');
-
-		$config = $this->createStub(Config::class);
-		$config->method('writable_db_connection')->willReturn($connection);
-
-		$activationModel = $this->createMock(ActivationModel::class);
-		$activationModel->method('configuration')->willReturn($config);
-		$activationModel->expects($this->once())->method('delete')->with(
-			$this->equalTo($equipment_id )
-		)->willReturn(
-			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'M'))
-		);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_id($card_id)
-				->set_user($authorized_user)
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel->expects($this->once())->method('search')->with(
-			$this->callback(
-				fn(EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
-			)
-		)->willReturn([$equipment]);
-		$equipmentModel->expects($this->once())->method('update')->with(
-			$this->callback(
-				fn (Equipment $equipment) =>
-					$equipment->service_minutes() === $service_minutes + $duration
-			)
-		);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::DEAUTHENTICATION
-					&& $event->card_id() === $card_id
-					&& $event->equipment_id() === $equipment_id
-			)
-		)
-		->willReturnArgument(0);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::assertSame(
-			$equipment,
-			$service->changeActivationSession(
-				realpath(__DIR__ . '/EquipmentServiceTestData/Deactivate.txt'),
-				$mac,
-				['HTTP_AUTHORIZATION' => "Bearer $card_id"]
-			)
-		);
-	}
-
-	public function testDeactivateSuccessWithChargePerUse() {
-		$mac = '00112233445566';
-		$equipment_type_id = 12;
-		$card_id = 123456789;
-		$equipment_id = 23;
-		$service_minutes = 123;
-		$duration = 1;
-		$rate = '1.75';
-		$user_id = 12;
-
-		$authorized_user = (new User())
-			->set_id($user_id)
-			->set_authorizations([$equipment_type_id]);
-
-		$equipment = (new Equipment())
-			->set_id($equipment_id)
-			->set_service_minutes($service_minutes)
-			->set_type(
-				(new EquipmentType())
-					->set_id($equipment_type_id)
-					->set_charge_policy(ChargePolicy::PER_USE)
-					->set_charge_rate($rate)
-			);
-
-		$connection = $this->createMock(PDO::class);
-		$connection->expects($this->once())->method('beginTransaction');
-		$connection->expects($this->once())->method('commit');
-
-		$config = $this->createStub(Config::class);
-		$config->method('writable_db_connection')->willReturn($connection);
-
-		$activationModel = $this->createMock(ActivationModel::class);
-		$activationModel->method('configuration')->willReturn($config);
-		$activationModel->expects($this->once())->method('delete')->with(
-			$this->equalTo($equipment_id )
-		)->willReturn(
-			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'S'))
-		);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_id($card_id)
-				->set_user($authorized_user)
-		);
-
-		$chargeModel = $this->createMock(ChargeModel::class);
-		$chargeModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn (Charge $charge) =>
-					$charge->equipment_id() === $equipment_id
-					&& $charge->user_id() === $user_id
-					&& $charge->amount() === $rate
-					&& $charge->charge_policy() === ChargePolicy::PER_USE
-					&& $charge->charge_rate() === $rate
-					&& $charge->charged_time() === $duration
-			)
-		);
-
-		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel->expects($this->once())->method('search')->with(
-			$this->callback(
-				fn (EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
-			)
-		)->willReturn([$equipment]);
-		$equipmentModel->expects($this->once())->method('update')->with(
-			$this->callback(
-				fn (Equipment $equipment) =>
-					$equipment->service_minutes() === $service_minutes + $duration
-			)
-		);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::DEAUTHENTICATION
-					&& $event->card_id() === $card_id
-					&& $event->equipment_id() === $equipment_id
-			)
-		)
-		->willReturnArgument(0);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::assertSame(
-			$equipment,
-			$service->changeActivationSession(
-				realpath(__DIR__ . '/EquipmentServiceTestData/Deactivate.txt'),
-				$mac,
-				['HTTP_AUTHORIZATION' => "Bearer $card_id"]
-			)
-		);
-	}
-
-	public function testDeactivateSuccessWithChargePerMinute() {
-		$mac = '00112233445566';
-		$equipment_type_id = 12;
-		$card_id = 123456789;
-		$equipment_id = 23;
-		$service_minutes = 123;
-		$duration = 1;
-		$rate = '1.75';
-		$user_id = 12;
-
-		$authorized_user = (new User())
-			->set_id($user_id)
-			->set_authorizations([$equipment_type_id]);
-
-		$equipment = (new Equipment())
-			->set_id($equipment_id)
-			->set_service_minutes($service_minutes)
-			->set_type(
-				(new EquipmentType())
-					->set_id($equipment_type_id)
-					->set_charge_policy(ChargePolicy::PER_MINUTE)
-					->set_charge_rate($rate)
-			);
-
-		$connection = $this->createMock(PDO::class);
-		$connection->expects($this->once())->method('beginTransaction');
-		$connection->expects($this->once())->method('commit');
-
-		$config = $this->createStub(Config::class);
-		$config->method('writable_db_connection')->willReturn($connection);
-
-		$activationModel = $this->createMock(ActivationModel::class);
-		$activationModel->method('configuration')->willReturn($config);
-		$activationModel->expects($this->once())->method('delete')->with(
-			$this->equalTo($equipment_id )
-		)->willReturn(
-			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'S'))
-		);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_id($card_id)
-				->set_user($authorized_user)
-		);
-
-		$chargeModel = $this->createMock(ChargeModel::class);
-		$chargeModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn (Charge $charge) =>
-					$charge->equipment_id() === $equipment_id
-					&& $charge->user_id() === $user_id
-					&& $charge->amount() === $rate
-					&& $charge->charge_policy() === ChargePolicy::PER_MINUTE
-					&& $charge->charge_rate() === $rate
-					&& $charge->charged_time() === $duration
-			)
-		);
-
-		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel->expects($this->once())->method('search')->with(
-			$this->callback(
-				fn (EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
-			)
-		)->willReturn([$equipment]);
-		$equipmentModel->expects($this->once())->method('update')->with(
-			$this->callback(
-				fn (Equipment $equipment) =>
-					$equipment->service_minutes() === $service_minutes + $duration
-			)
-		);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::DEAUTHENTICATION
-					&& $event->card_id() === $card_id
-					&& $event->equipment_id() === $equipment_id
-			)
-		)
-		->willReturnArgument(0);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::assertSame(
-			$equipment,
-			$service->changeActivationSession(
-				realpath(__DIR__ . '/EquipmentServiceTestData/Deactivate.txt'),
-				$mac,
-				['HTTP_AUTHORIZATION' => "Bearer $card_id"]
-			)
-		);
-	}
-
-	#endregion test deactivate()
 
 	public function testChangeActivationSessionThrowsWhenRequestBodyNotJSONObject() {
 		$equipment = new Equipment();
@@ -1196,8 +883,6 @@ final class EquipmentServiceTest extends TestCase {
 	}
 
 	public function testChangeActivationSessionAllowsReturnOfActivatingCard() {
-		$equipment = new Equipment();
-
 		$activationModel = $this->createStub(ActivationModel::class);
 
 		$cardModel = $this->createStub(CardModel::class);
@@ -1206,7 +891,9 @@ final class EquipmentServiceTest extends TestCase {
 		$chargeModel = $this->createStub(ChargeModel::class);
 
 		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([$equipment]);
+		$equipmentModel->method('search')->willReturn([
+			new Equipment()
+		]);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -1222,13 +909,14 @@ final class EquipmentServiceTest extends TestCase {
 			$loggedEventModel
 		);
 
-		$response = $service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ActivatingCardReturned.json'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+		self::assertSame(
+			ActivationMode::AUTHORIZED_USER,
+			$service->changeActivationSession(
+				realpath(__DIR__ . '/EquipmentServiceTestData/ActivatingCardReturned.json'),
+				'00112233445566',
+				['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+			)
 		);
-
-		self::assertSame($equipment, $response);
 	}
 
 	public function testChangeActivationSessionThrowsWhenSecondaryCardNotFound() {
@@ -1356,13 +1044,6 @@ final class EquipmentServiceTest extends TestCase {
 	}
 
 	public function testChangeActivationSessionAllowsProxyCardTransition() {
-		$equipment = (new Equipment())
-			->set_type(
-				(new EquipmentType())
-					->set_id(1)
-					->set_allow_proxy(true)
-			);
-
 		$activationModel = $this->createStub(ActivationModel::class);
 
 		$cardModel = $this->createStub(CardModel::class);
@@ -1374,7 +1055,14 @@ final class EquipmentServiceTest extends TestCase {
 		$chargeModel = $this->createStub(ChargeModel::class);
 
 		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([$equipment]);
+		$equipmentModel->method('search')->willReturn([
+			(new Equipment())
+				->set_type(
+					(new EquipmentType())
+						->set_id(1)
+						->set_allow_proxy(true)
+				)
+		]);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -1390,13 +1078,14 @@ final class EquipmentServiceTest extends TestCase {
 			$loggedEventModel
 		);
 
-		$response = $service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+		self::assertSame(
+			ActivationMode::PROXY,
+				$response = $service->changeActivationSession(
+				realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+				'00112233445566',
+				['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+			)
 		);
-
-		self::assertSame($equipment, $response);
 	}
 
 	#endregion test proxy card
@@ -1514,13 +1203,6 @@ final class EquipmentServiceTest extends TestCase {
 	public function testChangeActivationSessionAllowsTraining() {
 		$equipment_type_id = 12;
 
-		$equipment = (new Equipment())
-			->set_type(
-				(new EquipmentType())
-					->set_id($equipment_type_id)
-					->set_allow_proxy(false)
-			);
-
 		$trainer = (new User())
 			->set_id(34)
 			->set_role(
@@ -1542,7 +1224,14 @@ final class EquipmentServiceTest extends TestCase {
 		$chargeModel = $this->createStub(ChargeModel::class);
 
 		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([$equipment]);
+		$equipmentModel->method('search')->willReturn([
+			(new Equipment())
+				->set_type(
+					(new EquipmentType())
+						->set_id($equipment_type_id)
+						->set_allow_proxy(false)
+				)
+		]);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
@@ -1558,18 +1247,494 @@ final class EquipmentServiceTest extends TestCase {
 			$loggedEventModel
 		);
 
-		$response = $service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+		self::assertSame(
+			ActivationMode::TRAINING,
+			$service->changeActivationSession(
+				realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
+				'00112233445566',
+				['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+			)
 		);
-
-		self::assertSame($response, $equipment);
 	}
 
 	#endregion test training mode
 
 	#endregion test changeActivationSession()
+
+	#region test deactivate()
+
+	public function testDeactivateThrowsWhenNoAuthorizationHeader() {
+		$activationModel = $this->createStub(ActivationModel::class);
+		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
+		$service->deactivate(
+			'00112233445566',
+			[]
+		);
+	}
+
+	public function testDeactivateThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
+		$activationModel = $this->createStub(ActivationModel::class);
+		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		$service->deactivate(
+			'00112233445566',
+			['HTTP_AUTHORIZATION' => 'let me in']
+		);
+	}
+
+	public function testDeactivateThrowsWhenBearerTokenIsInvalid() {
+		$activationModel = $this->createStub(ActivationModel::class);
+		$cardModel = $this->createStub(CardModel::class);
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
+		$service->deactivate(
+			'00112233445566',
+			['HTTP_AUTHORIZATION' => 'Bearer let me in']
+		);
+	}
+
+	public function testDeactivateThrowsWhenCardDoesNotExist() {
+		$activationModel = $this->createStub(ActivationModel::class);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(null);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
+		$service->deactivate(
+			'00112233445566',
+			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+		);
+	}
+
+	public function testDeactivateThrowsWhenCardIsNotUserCard() {
+		$activationModel = $this->createStub(ActivationModel::class);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(new ShutdownCard());
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
+		$service->deactivate(
+			'00112233445566',
+			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+		);
+	}
+
+	public function testDeactivateThrowsWhenEquipmentIsNotFound() {
+		$activationModel = $this->createStub(ActivationModel::class);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(new UserCard());
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentModel->method('search')->willReturn([]);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
+		$service->deactivate(
+			'00112233445566',
+			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
+		);
+	}
+
+	public function testDeactivateSuccessWithNoCharge() {
+		$mac = '00112233445566';
+		$equipment_type_id = 12;
+		$card_id = 123456789;
+		$equipment_id = 23;
+		$service_minutes = 123;
+		$duration = 2;
+
+		$authorized_user = (new User())
+			->set_id(1)
+			->set_authorizations([$equipment_type_id]);
+
+		$equipment = (new Equipment())
+			->set_id($equipment_id)
+			->set_service_minutes($service_minutes)
+			->set_type(
+				(new EquipmentType())
+					->set_id($equipment_type_id)
+					->set_charge_policy(ChargePolicy::NO_CHARGE)
+			);
+
+		$connection = $this->createMock(PDO::class);
+		$connection->expects($this->once())->method('beginTransaction');
+		$connection->expects($this->once())->method('commit');
+
+		$config = $this->createStub(Config::class);
+		$config->method('writable_db_connection')->willReturn($connection);
+
+		$activationModel = $this->createMock(ActivationModel::class);
+		$activationModel->method('configuration')->willReturn($config);
+		$activationModel->expects($this->once())->method('delete')->with(
+			$this->equalTo($equipment_id )
+		)->willReturn(
+			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'M'))
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(
+			(new UserCard())
+				->set_id($card_id)
+				->set_user($authorized_user)
+		);
+
+		$chargeModel = $this->createStub(ChargeModel::class);
+
+		$equipmentModel = $this->createMock(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('search')->with(
+			$this->callback(
+				fn(EquipmentQuery $query) =>
+					$query->exclude_out_of_service() === true
+					&& $query->mac_address() === $mac
+			)
+		)->willReturn([$equipment]);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn (Equipment $equipment) =>
+					$equipment->service_minutes() === $service_minutes + $duration
+			)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
+		$loggedEventModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(LoggedEvent $event) =>
+					$event->type() === LoggedEventType::DEAUTHENTICATION
+					&& $event->card_id() === $card_id
+					&& $event->equipment_id() === $equipment_id
+			)
+		)
+		->willReturnArgument(0);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		$service->deactivate(
+			$mac,
+			['HTTP_AUTHORIZATION' => "Bearer $card_id"]
+		);
+	}
+
+	public function testDeactivateSuccessWithChargePerUse() {
+		$mac = '00112233445566';
+		$equipment_type_id = 12;
+		$card_id = 123456789;
+		$equipment_id = 23;
+		$service_minutes = 123;
+		$duration = 1;
+		$rate = '1.75';
+		$user_id = 12;
+
+		$authorized_user = (new User())
+			->set_id($user_id)
+			->set_authorizations([$equipment_type_id]);
+
+		$equipment = (new Equipment())
+			->set_id($equipment_id)
+			->set_service_minutes($service_minutes)
+			->set_type(
+				(new EquipmentType())
+					->set_id($equipment_type_id)
+					->set_charge_policy(ChargePolicy::PER_USE)
+					->set_charge_rate($rate)
+			);
+
+		$connection = $this->createMock(PDO::class);
+		$connection->expects($this->once())->method('beginTransaction');
+		$connection->expects($this->once())->method('commit');
+
+		$config = $this->createStub(Config::class);
+		$config->method('writable_db_connection')->willReturn($connection);
+
+		$activationModel = $this->createMock(ActivationModel::class);
+		$activationModel->method('configuration')->willReturn($config);
+		$activationModel->expects($this->once())->method('delete')->with(
+			$this->equalTo($equipment_id )
+		)->willReturn(
+			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'S'))
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(
+			(new UserCard())
+				->set_id($card_id)
+				->set_user($authorized_user)
+		);
+
+		$chargeModel = $this->createMock(ChargeModel::class);
+		$chargeModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn (Charge $charge) =>
+					$charge->equipment_id() === $equipment_id
+					&& $charge->user_id() === $user_id
+					&& $charge->amount() === $rate
+					&& $charge->charge_policy() === ChargePolicy::PER_USE
+					&& $charge->charge_rate() === $rate
+					&& $charge->charged_time() === $duration
+			)
+		);
+
+		$equipmentModel = $this->createMock(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('search')->with(
+			$this->callback(
+				fn (EquipmentQuery $query) =>
+					$query->exclude_out_of_service() === true
+					&& $query->mac_address() === $mac
+			)
+		)->willReturn([$equipment]);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn (Equipment $equipment) =>
+					$equipment->service_minutes() === $service_minutes + $duration
+			)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
+		$loggedEventModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(LoggedEvent $event) =>
+					$event->type() === LoggedEventType::DEAUTHENTICATION
+					&& $event->card_id() === $card_id
+					&& $event->equipment_id() === $equipment_id
+			)
+		)
+		->willReturnArgument(0);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		$service->deactivate(
+			$mac,
+			['HTTP_AUTHORIZATION' => "Bearer $card_id"]
+		);
+	}
+
+	public function testDeactivateSuccessWithChargePerMinute() {
+		$mac = '00112233445566';
+		$equipment_type_id = 12;
+		$card_id = 123456789;
+		$equipment_id = 23;
+		$service_minutes = 123;
+		$duration = 1;
+		$rate = '1.75';
+		$user_id = 12;
+
+		$authorized_user = (new User())
+			->set_id($user_id)
+			->set_authorizations([$equipment_type_id]);
+
+		$equipment = (new Equipment())
+			->set_id($equipment_id)
+			->set_service_minutes($service_minutes)
+			->set_type(
+				(new EquipmentType())
+					->set_id($equipment_type_id)
+					->set_charge_policy(ChargePolicy::PER_MINUTE)
+					->set_charge_rate($rate)
+			);
+
+		$connection = $this->createMock(PDO::class);
+		$connection->expects($this->once())->method('beginTransaction');
+		$connection->expects($this->once())->method('commit');
+
+		$config = $this->createStub(Config::class);
+		$config->method('writable_db_connection')->willReturn($connection);
+
+		$activationModel = $this->createMock(ActivationModel::class);
+		$activationModel->method('configuration')->willReturn($config);
+		$activationModel->expects($this->once())->method('delete')->with(
+			$this->equalTo($equipment_id )
+		)->willReturn(
+			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'S'))
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$cardModel->method('read')->willReturn(
+			(new UserCard())
+				->set_id($card_id)
+				->set_user($authorized_user)
+		);
+
+		$chargeModel = $this->createMock(ChargeModel::class);
+		$chargeModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn (Charge $charge) =>
+					$charge->equipment_id() === $equipment_id
+					&& $charge->user_id() === $user_id
+					&& $charge->amount() === $rate
+					&& $charge->charge_policy() === ChargePolicy::PER_MINUTE
+					&& $charge->charge_rate() === $rate
+					&& $charge->charged_time() === $duration
+			)
+		);
+
+		$equipmentModel = $this->createMock(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('search')->with(
+			$this->callback(
+				fn (EquipmentQuery $query) =>
+					$query->exclude_out_of_service() === true
+					&& $query->mac_address() === $mac
+			)
+		)->willReturn([$equipment]);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn (Equipment $equipment) =>
+					$equipment->service_minutes() === $service_minutes + $duration
+			)
+		);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$loggedEventModel = $this->createMock(LoggedEventModel::class);
+		$loggedEventModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn(LoggedEvent $event) =>
+					$event->type() === LoggedEventType::DEAUTHENTICATION
+					&& $event->card_id() === $card_id
+					&& $event->equipment_id() === $equipment_id
+			)
+		)
+		->willReturnArgument(0);
+
+		$service = new EquipmentService(
+			$activationModel,
+			$cardModel,
+			$chargeModel,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel,
+			$loggedEventModel
+		);
+
+		$service->deactivate(
+			$mac,
+			['HTTP_AUTHORIZATION' => "Bearer $card_id"]
+		);
+	}
+
+	#endregion test deactivate()
 
 	#region test changeStatus()
 

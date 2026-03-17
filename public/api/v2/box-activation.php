@@ -25,16 +25,23 @@ try {
 				'user' => $user
 			]);
 			break;
-		case 'POST':
-			// Modify Session i.e. deactivate, switch to proxy card, or switch
-			// to training
+		case 'POST': // Modify Session i.e. switch to proxy card, or switch to training
 			if(!isset($_GET['mac']) || empty($_GET['mac'])) {
 				throw new InvalidArgumentException('MAC address is required');
 			}
 
 			$service = $container->get(EquipmentService::class);
-			$equipment = $service->changeActivationSession('php://input', $_GET['mac'], $_SERVER);
-			ResponseHandler::render($equipment, new EquipmentTransformer());
+			$mode = $service->changeActivationSession('php://input', $_GET['mac'], $_SERVER);
+			echo $mode->value;
+			break;
+		case 'DELETE': // Deactivate Device
+			if(!isset($_GET['mac']) || empty($_GET['mac'])) {
+				throw new InvalidArgumentException('MAC address is required');
+			}
+
+			$service = $container->get(EquipmentService::class);
+			$service->deactivate($_GET['mac'], $_SERVER);
+			// empty response body, the status code is sufficient
 			break;
 		default:
 			http_response_code(405);
