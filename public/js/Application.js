@@ -1215,14 +1215,26 @@ class Application {
 			search.customized = true;
 		}
 
-		Equipment.list(queryString).then(equipment => {
+		let p0 = Equipment.list(queryString);
+		let p1 = Location.list();
+
+		Promise.all([p0, p1]).then(values => {
+			const [equipment, locations] = values;
 			this.render(
 				"#main",
 				"authenticated/equipment/list",
 				{
 					"equipment": equipment,
+					"locations": locations,
 					"search": search,
 					"create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)
+				},
+				{},
+				() => {
+					// fix up select
+					if(Object.hasOwn(search, "location_id")) {
+						document.getElementById("location_id").value = search.location_id;
+					}
 				}
 			);
 		}).catch(e => this.handleError(e));
@@ -1403,14 +1415,14 @@ class Application {
 			}
 
 			this.render("#main", "authenticated/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "equipment-type": values[3], "queryString":queryString}, {}, () => {
-				//fix up selects
-				if(search.hasOwnProperty("equipment_id")) {
+				// fix up selects
+				if(Object.hasOwn(search, "equipment_id")) {
 					document.getElementById("equipment_id").value = search.equipment_id;
 				}
-				if(search.hasOwnProperty("location_id")) {
+				if(Object.hasOwn(search, "location_id")) {
 					document.getElementById("location_id").value = search.location_id;
 				}
-				if(search.hasOwnProperty("equipment_type_id")) {
+				if(Object.hasOwn(search, "equipment_type_id")) {
 					document.getElementById("equipment_type_id").value = search.equipment_type_id;
 				}
 			});
@@ -1764,9 +1776,9 @@ class Application {
 				"roles": roles,
 				"create_user_permission": this.user.has_permission(Permission.CREATE_USER)
 			}, {}, () => {
-				if (Object.hasOwn(search, "role_id")) {
-					let element = document.getElementById("role_id");
-					this.set_dropdown_selector(element, search.role_id);
+				// fix up select
+				if(Object.hasOwn(search, "role_id")) {
+					document.getElementById("role_id").value = search.role_id;
 				}
 			});
 		}).catch(e => this.handleError(e));
@@ -1880,14 +1892,6 @@ class Application {
 				user_id_input.style.display = "none";
 				user_selector.disabled = true;
 				user_selector.required = false;
-		}
-	}
-
-	set_dropdown_selector(element, id) {
-		for(let i = 0; i < element.length; i++) {
-			if(element[i].value == id) {
-				element[i].selected = true;
-			}
 		}
 	}
 }

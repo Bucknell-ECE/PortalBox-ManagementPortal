@@ -5,15 +5,14 @@ meta {
 }
 
 get {
-  url: {{HOST}}/api/equipment.php?location_id=1
+  url: {{HOST}}/api/v2/equipment.php
   body: none
   auth: none
 }
 
 params:query {
-  location_id: 1
-  ~location: Test%20Lab
-  ~type: Freeze Ray
+  ~location_id: 1
+  ~include_out_of_service: 1
 }
 
 headers {

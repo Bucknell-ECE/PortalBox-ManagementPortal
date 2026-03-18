@@ -4,2159 +4,1760 @@ declare(strict_types=1);
 
 namespace Test\Portalbox\Service;
 
-use DateInterval;
-use DateTimeImmutable;
 use InvalidArgumentException;
-use PDO;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Config;
-use Portalbox\Enumeration\ActivationMode;
-use Portalbox\Enumeration\ChargePolicy;
-use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
-use Portalbox\Exception\OutOfServiceDeviceException;
-use Portalbox\Model\ActivationModel;
-use Portalbox\Model\CardModel;
-use Portalbox\Model\ChargeModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
-use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\EquipmentQuery;
 use Portalbox\Service\EquipmentService;
-use Portalbox\Type\Charge;
+use Portalbox\Session;
 use Portalbox\Type\Equipment;
 use Portalbox\Type\EquipmentType;
 use Portalbox\Type\Location;
-use Portalbox\Type\LoggedEvent;
-use Portalbox\Type\ProxyCard;
 use Portalbox\Type\Role;
-use Portalbox\Type\ShutdownCard;
 use Portalbox\Type\User;
-use Portalbox\Type\UserCard;
 
 final class EquipmentServiceTest extends TestCase {
-	#region test register()
+	#region test create()
 
-	public function testRegisterThrowsWhenNoAuthorizationHeader() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
+	public function testCreateThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
-		$service->register('00112233445566', []);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHENTICATED_CREATE);
+		$service->create('not a file path');
 	}
 
-	public function testRegisterThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+	public function testCreateThrowsWhenNotAuthorized() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
 		);
 
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'let me in']);
-	}
-
-	public function testRegisterThrowsWhenBearerTokenIsInvalid() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer let me in']);
-	}
-
-	public function testRegisterThrowsWhenCardDoesNotExist() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(null);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_REGISTRATION_NOT_AUTHORIZED);
-		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_CREATE);
+		$service->create('not a file path');
 	}
 
-	public function testRegisterThrowsWhenCardIsNotUserCard() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new ShutdownCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_REGISTRATION_NOT_AUTHORIZED);
-		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
-	}
-
-	public function testRegisterThrowsWhenUserIsNotAuthorized() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_user(
-					(new User())
-						->set_id(144)
-						->set_role(
-							(new Role())->set_id(2)
-						)
+	public function testCreateThrowsWhenFileIsNotReadable() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
 				)
 		);
 
-		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_REGISTRATION_NOT_AUTHORIZED);
-		$service->register('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_EQUIPMENT_DATA);
+		// PHP warning is intentionally suppressed in next line for testing
+		@$service->create('file_does_not_exist.json');
 	}
 
-	public function testRegisterThrowsWhenDeviceAlreadyRegistered() {
-		$mac = '001122ffeedd';
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_user(
-					(new User())
-						->set_id(144)
-						->set_role(
-							(new Role())
-								->set_id(2)
-								->set_permissions([Permission::CREATE_EQUIPMENT])
-						)
+	public function testCreateThrowsWhenDataIsNotArray() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
 				)
 		);
 
-		$chargeModel = $this->createStub(ChargeModel::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_EQUIPMENT_DATA);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/DataIsNotArray.json'));
+	}
+
+	public function testCreateThrowsWhenNameIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_NAME_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/NameIsMissing.json'));
+	}
+
+	public function testCreateThrowsWhenNameIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_NAME_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/NameIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenTypeIdIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TYPE_ID_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/TypeIdIsMissing.json'));
+	}
+
+	public function testCreateThrowsWhenTypeIdIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TYPE_ID_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/TypeIdIsNotInt.json'));
+	}
+
+	public function testCreateThrowsWhenTypeIdIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(NULL);
+
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_TYPE_ID);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
+	}
+
+	public function testCreateThrowsWhenLocationIdIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_LOCATION_ID_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/LocationIdIsMissing.json'));
+	}
+
+	public function testCreateThrowsWhenLocationIdIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_LOCATION_ID_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/LocationIdIsNotInt.json'));
+	}
+
+	public function testCreateThrowsWhenLocationIdIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(NULL);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_LOCATION_ID);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
+	}
+
+	public function testCreateThrowsWhenMACAddressIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_MAC_ADDRESS_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/MACAddressIsMissing.json'));
+	}
+
+	public function testCreateThrowsWhenMACAddressIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_MAC_ADDRESS_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/MACAddressIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenTimeoutIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TIMEOUT_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/TimeoutIsMissing.json'));
+	}
+
+	public function testCreateThrowsWhenTimeoutIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TIMEOUT_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/TimeoutIsNotInt.json'));
+	}
+
+	public function testCreateThrowsWhenTimeoutIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TIMEOUT_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/TimeoutIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenInServiceIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_IN_SERVICE_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/InServiceIsMissing.json'));
+	}
+
+	public function testCreateThrowsWhenInServiceIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_IN_SERVICE_IS_REQUIRED);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/InServiceIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenServiceMinutesIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_SERVICE_MINUTES_IS_INVALID);
+		$service->create(realpath(__DIR__ . '/EquipmentServiceTestData/ServiceMinutesIsInvalid.json'));
+	}
+
+	public function testCreateSuccessWithServiceMinutes() {
+		// values matching input file
+		$in_service = true;
+		$location_id = 3;
+		$mac_address = 'aa00bb11cc22'; // normalized by Portalbox\Type\Equipment
+		$name = 'Kibble Launcher';
+		$service_minutes = 137;
+		$timeout = 60;
+		$type_id = 2;
+
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
+		);
 
 		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel
-			->expects($this->once())
-			->method('search')
-			->with(
-				$this->callback(
-				fn($query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
-					&& $query->type() === null
-					&& $query->location() === null
-					&& $query->location_id() === null
-					&& $query->ip_address() === null
-				)
+		$equipmentModel->expects($this->once())->method('create')->with(
+			$this->callback(
+				fn($equipment) =>
+					$equipment->id() === null
+					&& $equipment->name() === $name
+					&& $equipment->type()->id() === $type_id
+					&& $equipment->location()->id() === $location_id
+					&& $equipment->mac_address() === $mac_address
+					&& $equipment->timeout() === $timeout
+					&& $equipment->is_in_service() === $in_service
+					&& $equipment->service_minutes() === $service_minutes
 			)
-			->willReturn([new Equipment()]);
+		)
+		->willReturnArgument(0);
 
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
+		$equipmentTypeModel->expects($this->once())->method('read')
+			->with($type_id)
+			->willReturn(
+				(new EquipmentType())->set_id($type_id)
+			);
 
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_DEVICE_ALREADY_REGISTERED);
-		$service->register($mac, ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
-	}
-
-	public function testRegisterThrowsWhenNoLocationsSetup() {
-		$mac = '001122ffeedd';
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_user(
-					(new User())
-						->set_id(144)
-						->set_role(
-							(new Role())
-								->set_id(2)
-								->set_permissions([Permission::CREATE_EQUIPMENT])
-						)
-				)
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-
-		$locationModel = $this->createStub(LocationModel::class);
-		$locationModel->method('search')->willReturn([]);
-
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$locationModel = $this->createMock(LocationModel::class);
+		$locationModel->expects($this->once())->method('read')
+			->with($location_id)
+			->willReturn(
+				(new Location())->set_id($location_id)
+			);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INCOMPLETE_SETUP_NO_LOCATIONS);
-		$service->register($mac, ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
-	}
-
-	public function testRegisterSuccess() {
-		$mac = '001122ffeedd';
-		$location_id = 12;
-		$equipment_type_id = 1;
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_user(
-					(new User())
-						->set_id(144)
-						->set_role(
-							(new Role())
-								->set_id(2)
-								->set_permissions([Permission::CREATE_EQUIPMENT])
-						)
-				)
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel
-			->expects($this->once())
-			->method('create')
-			->willReturnArgument(0);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$equipmentTypeModel->method('search')->willReturn([
-			(new EquipmentType())->set_id($equipment_type_id),
-		]);
-
-		$locationModel = $this->createStub(LocationModel::class);
-		$locationModel->method('search')->willReturn([
-			(new Location())->set_id($location_id),
-			(new Location())->set_id($location_id + 1)
-		]);
-
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		$equipment = $service->register($mac, ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
+		$equipment = $service->create(realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipmentWithServiceMinutes.json'));
 
 		self::assertInstanceOf(Equipment::class, $equipment);
-		self::assertSame(EquipmentService::DEFAULT_DEVICE_NAME, $equipment->name());
-		self::assertSame($equipment_type_id, $equipment->type_id());
-		self::assertSame($location_id, $equipment->location_id());
-		self::assertSame($mac, $equipment->mac_address());
-		self::assertSame(0, $equipment->timeout());
-		self::assertSame(false, $equipment->is_in_service());
-		self::assertSame(0, $equipment->service_minutes());
-		self::assertSame(null, $equipment->ip_address());
-
+		self::assertSame($name, $equipment->name());
+		self::assertInstanceOf(EquipmentType::class, $equipment->type());
+		self::assertSame($type_id, $equipment->type()->id());
+		self::assertInstanceOf(Location::class, $equipment->location());
+		self::assertSame($location_id, $equipment->location()->id());
+		self::assertSame($mac_address, $equipment->mac_address());
+		self::assertSame($timeout, $equipment->timeout());
+		self::assertSame($in_service, $equipment->is_in_service());
+		self::assertSame($service_minutes, $equipment->service_minutes());
 	}
 
-	#endregion test register()
+	public function testCreateSuccess() {
+		// values matching input file
+		$in_service = true;
+		$location_id = 3;
+		$mac_address = 'aa00bb11cc22'; // normalized by Portalbox\Type\Equipment
+		$name = 'Kibble Launcher';
+		$service_minutes = 0;
+		$timeout = 60;
+		$type_id = 2;
 
-	#region test activate()
-
-	public function testActivateThrowsWhenNoAuthorizationHeader() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_EQUIPMENT])
+				)
 		);
-
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
-		$service->activate('00112233445566', []);
-	}
-
-	public function testActivateThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'let me in']);
-	}
-
-	public function testActivateThrowsWhenBearerTokenIsInvalid() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer let me in']);
-	}
-
-	public function testActivateThrowsWhenCardDoesNotExist() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(null);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_NOT_AUTHORIZED);
-		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
-	}
-
-	public function testActivateThrowsWhenCardIsNotUserCard() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new ShutdownCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_NOT_AUTHORIZED);
-		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
-	}
-
-	public function testActivateThrowsWhenEquipmentIsNotFound() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new UserCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_NOT_AUTHORIZED);
-		$service->activate('00112233445566', ['HTTP_AUTHORIZATION' => 'Bearer 123456789']);
-	}
-
-	public function testActivateThrowsWhenUserNotAuthorized() {
-		$mac = '00112233445566';
-		$equipment_type_id = 12;
-		$card_id = 123456789;
-		$equipment_id = 23;
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())->set_user((new User())->set_id(1))
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
 
 		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel->expects($this->once())->method('search')->with(
+		$equipmentModel->expects($this->once())->method('create')->with(
 			$this->callback(
-				fn(EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
-			)
-		)->willReturn([
-			(new Equipment())
-				->set_id($equipment_id)
-				->set_type_id($equipment_type_id)
-		]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::UNSUCCESSFUL_AUTHENTICATION
-					&& $event->card_id() === $card_id
-					&& $event->equipment_id() === $equipment_id
+				fn($equipment) =>
+					$equipment->id() === null
+					&& $equipment->name() === $name
+					&& $equipment->type()->id() === $type_id
+					&& $equipment->location()->id() === $location_id
+					&& $equipment->mac_address() === $mac_address
+					&& $equipment->timeout() === $timeout
+					&& $equipment->is_in_service() === $in_service
+					&& $equipment->service_minutes() === $service_minutes
 			)
 		)
 		->willReturnArgument(0);
 
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
+		$equipmentTypeModel->expects($this->once())->method('read')
+			->with($type_id)
+			->willReturn(
+				(new EquipmentType())->set_id($type_id)
+			);
 
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_NOT_AUTHORIZED);
-		$service->activate($mac, ['HTTP_AUTHORIZATION' => "Bearer $card_id"]);
-	}
-
-	public function testActivateSucceedsWhenUserIsAuthorized() {
-		$mac = '00112233445566';
-		$equipment_type_id = 12;
-		$card_id = 123456789;
-		$equipment_id = 23;
-
-		$authorized_user = (new User())
-			->set_id(1)
-			->set_authorizations([$equipment_type_id]);
-
-		$equipment = (new Equipment())
-			->set_id($equipment_id)
-			->set_type_id($equipment_type_id);
-
-		$connection = $this->createMock(PDO::class);
-		$connection->expects($this->once())->method('beginTransaction');
-		$connection->expects($this->once())->method('commit');
-
-		$config = $this->createStub(Config::class);
-		$config->method('writable_db_connection')->willReturn($connection);
-
-		$activationModel = $this->createMock(ActivationModel::class);
-		$activationModel->method('configuration')->willReturn($config);
-		$activationModel->expects($this->once())->method('create')->with(
-			$this->equalTo($equipment_id )
-		);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_user($authorized_user)
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel->expects($this->once())->method('search')->with(
-			$this->callback(
-				fn(EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
-			)
-		)->willReturn([$equipment]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::SUCCESSFUL_AUTHENTICATION
-					&& $event->card_id() === $card_id
-					&& $event->equipment_id() === $equipment_id
-			)
-		)
-		->willReturnArgument(0);
+		$locationModel = $this->createMock(LocationModel::class);
+		$locationModel->expects($this->once())->method('read')
+			->with($location_id)
+			->willReturn(
+				(new Location())->set_id($location_id)
+			);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		$result = $service->activate($mac, ['HTTP_AUTHORIZATION' => "Bearer $card_id"]);
-		
-		self::assertIsArray($result);
-		self::assertArrayHasKey('equipment', $result);
-		self::assertSame($equipment, $result['equipment']);
-		self::assertArrayHasKey('user', $result);
-		self::assertSame($authorized_user, $result['user']);
+		$equipment = $service->create(realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
+
+		self::assertInstanceOf(Equipment::class, $equipment);
+		self::assertSame($name, $equipment->name());
+		self::assertInstanceOf(EquipmentType::class, $equipment->type());
+		self::assertSame($type_id, $equipment->type()->id());
+		self::assertInstanceOf(Location::class, $equipment->location());
+		self::assertSame($location_id, $equipment->location()->id());
+		self::assertSame($mac_address, $equipment->mac_address());
+		self::assertSame($timeout, $equipment->timeout());
+		self::assertSame($in_service, $equipment->is_in_service());
+		self::assertSame($service_minutes, $equipment->service_minutes());
 	}
 
-	#endregion test activate()
+	#endregion test create()
 
-	#region test changeActivationSession()
+	#region test read()
 
-	public function testChangeActivationSessionThrowsWhenNoAuthorizationHeader() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
+	public function testReadThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
 		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
-		$service->changeActivationSession(
-			'not a file path',
-			'00112233445566',
-			[]
-		);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHENTICATED_READ);
+		$service->read(123456789);
 	}
 
-	public function testChangeActivationSessionThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
+	public function testReadThrowsWhenNotAuthorized() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->changeActivationSession(
-			'not a file path',
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'let me in']
-		);
-	}
-
-	public function testChangeActivationSessionThrowsWhenBearerTokenIsInvalid() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->changeActivationSession(
-			'not a file path',
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer let me in']
-		);
-	}
-
-	public function testChangeActivationSessionThrowsWhenCardDoesNotExist() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(null);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
 		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		$service->changeActivationSession(
-			'not a file path',
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_READ);
+		$service->read(123456789);
 	}
 
-	public function testChangeActivationSessionThrowsWhenCardIsNotUserCard() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new ShutdownCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+	public function testReadThrowsWhenEquipmentDoesNotExist() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_EQUIPMENT])
+				)
 		);
 
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		$service->changeActivationSession(
-			'not a file path',
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
-	}
-
-	public function testChangeActivationSessionThrowsWhenEquipmentIsNotFound() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new UserCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([]);
+		$equipmentModel->method('read')->willReturn(null);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		$service->changeActivationSession(
-			'not a file path',
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
+		self::expectException(NotFoundException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_NOT_FOUND);
+		$service->read(123456789);
 	}
 
-	public function testChangeActivationSessionThrowsWhenRequestBodyNotJSONObject() {
+	public function testReadSuccess() {
 		$equipment = new Equipment();
 
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new UserCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::READ_EQUIPMENT])
+				)
+		);
 
 		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([$equipment]);
+		$equipmentModel->method('read')->willReturn($equipment);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
+		);
+
+		self::assertSame($equipment, $service->read(123456789));
+	}
+
+	#endregion test read()
+
+	#region test readAll()
+
+	public function testReadAllThrowsWhenLocationFilterIsNotInteger() {
+		$session = $this->createStub(Session::class);
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
-		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/InvalidStatusChange.txt'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
+		self::expectExceptionMessage(EquipmentService::ERROR_LOCATION_FILTER_MUST_BE_INT);
+		$service->readAll(['location_id' => 'meh']);
 	}
 
-	public function testChangeActivationSessionAllowsReturnOfActivatingCard() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new UserCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([
+	public function testReadAllSuccessWithNoFilters() {
+		$equipment = [
 			new Equipment()
-		]);
+		];
 
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::assertSame(
-			ActivationMode::AUTHORIZED_USER,
-			$service->changeActivationSession(
-				realpath(__DIR__ . '/EquipmentServiceTestData/ActivatingCardReturned.json'),
-				'00112233445566',
-				['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-			)
-		);
-	}
-
-	public function testChangeActivationSessionThrowsWhenSecondaryCardNotFound() {
-		$equipment = new Equipment();
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			new UserCard(),
-			null
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([$equipment]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
-		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
-	}
-
-	public function testChangeActivationSessionThrowsWhenSecondaryCardTypeNotSupported() {
-		$equipment = new Equipment();
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			new UserCard(),
-			new ShutdownCard()
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([$equipment]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
-		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
-	}
-
-	#region test proxy card
-
-	public function testChangeActivationSessionThrowsWhenProxyCardNotPermitted() {
-		$equipment = (new Equipment())
-			->set_type(
-				(new EquipmentType())
-					->set_id(1)
-					->set_allow_proxy(false)
-			);
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			new UserCard(),
-			new ProxyCard()
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([$equipment]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_PROXY_CARD_NOT_PERMITTED);
-		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
-	}
-
-	public function testChangeActivationSessionAllowsProxyCardTransition() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			new UserCard(),
-			new ProxyCard()
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([
-			(new Equipment())
-				->set_type(
-					(new EquipmentType())
-						->set_id(1)
-						->set_allow_proxy(true)
-				)
-		]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::assertSame(
-			ActivationMode::PROXY,
-				$response = $service->changeActivationSession(
-				realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
-				'00112233445566',
-				['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-			)
-		);
-	}
-
-	#endregion test proxy card
-
-	#region test training mode
-
-	public function testChangeActivationSessionThrowsWhenUserNotPermittedToTrain() {
-		$equipment = (new Equipment())
-			->set_type(
-				(new EquipmentType())
-					->set_id(1)
-					->set_allow_proxy(false)
-			);
-
-		$trainer = (new User())
-			->set_id(34)
-			->set_role(
-				(new Role())
-					->set_id(2)
-					->set_permissions([])
-			)
-			->set_authorizations([]);
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_user($trainer),
-			new UserCard()
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([$equipment]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_TO_TRAIN);
-		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
-	}
-
-	public function testChangeActivationSessionThrowsWhenUserNotPermittedToUseEquipment() {
-		$equipment = (new Equipment())
-			->set_type(
-				(new EquipmentType())
-					->set_id(1)
-					->set_allow_proxy(false)
-			);
-
-		$trainer = (new User())
-			->set_id(34)
-			->set_role(
-				(new Role())
-					->set_id(2)
-					->set_permissions([Permission::CREATE_EQUIPMENT_AUTHORIZATION])
-			)
-			->set_authorizations([]);
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_user($trainer),
-			new UserCard()
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([$equipment]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_TO_TRAIN);
-		$service->changeActivationSession(
-			realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
-	}
-
-	public function testChangeActivationSessionAllowsTraining() {
-		$equipment_type_id = 12;
-
-		$trainer = (new User())
-			->set_id(34)
-			->set_role(
-				(new Role())
-					->set_id(2)
-					->set_permissions([Permission::CREATE_EQUIPMENT_AUTHORIZATION])
-			)
-			->set_authorizations([$equipment_type_id]);
-
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_user($trainer),
-			new UserCard()
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([
-			(new Equipment())
-				->set_type(
-					(new EquipmentType())
-						->set_id($equipment_type_id)
-						->set_allow_proxy(false)
-				)
-		]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::assertSame(
-			ActivationMode::TRAINING,
-			$service->changeActivationSession(
-				realpath(__DIR__ . '/EquipmentServiceTestData/SecondaryCardPresented.json'),
-				'00112233445566',
-				['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-			)
-		);
-	}
-
-	#endregion test training mode
-
-	#endregion test changeActivationSession()
-
-	#region test deactivate()
-
-	public function testDeactivateThrowsWhenNoAuthorizationHeader() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
-		$service->deactivate(
-			'00112233445566',
-			[]
-		);
-	}
-
-	public function testDeactivateThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->deactivate(
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'let me in']
-		);
-	}
-
-	public function testDeactivateThrowsWhenBearerTokenIsInvalid() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->deactivate(
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer let me in']
-		);
-	}
-
-	public function testDeactivateThrowsWhenCardDoesNotExist() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(null);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		$service->deactivate(
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
-	}
-
-	public function testDeactivateThrowsWhenCardIsNotUserCard() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new ShutdownCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		$service->deactivate(
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
-	}
-
-	public function testDeactivateThrowsWhenEquipmentIsNotFound() {
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new UserCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		$service->deactivate(
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
-	}
-
-	public function testDeactivateSuccessWithNoCharge() {
-		$mac = '00112233445566';
-		$equipment_type_id = 12;
-		$card_id = 123456789;
-		$equipment_id = 23;
-		$service_minutes = 123;
-		$duration = 2;
-
-		$authorized_user = (new User())
-			->set_id(1)
-			->set_authorizations([$equipment_type_id]);
-
-		$equipment = (new Equipment())
-			->set_id($equipment_id)
-			->set_service_minutes($service_minutes)
-			->set_type(
-				(new EquipmentType())
-					->set_id($equipment_type_id)
-					->set_charge_policy(ChargePolicy::NO_CHARGE)
-			);
-
-		$connection = $this->createMock(PDO::class);
-		$connection->expects($this->once())->method('beginTransaction');
-		$connection->expects($this->once())->method('commit');
-
-		$config = $this->createStub(Config::class);
-		$config->method('writable_db_connection')->willReturn($connection);
-
-		$activationModel = $this->createMock(ActivationModel::class);
-		$activationModel->method('configuration')->willReturn($config);
-		$activationModel->expects($this->once())->method('delete')->with(
-			$this->equalTo($equipment_id )
-		)->willReturn(
-			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'M'))
-		);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_id($card_id)
-				->set_user($authorized_user)
-		);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
+		$session = $this->createStub(Session::class);
 
 		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
 				fn(EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
+					$query->location_id() === null
+					&& $query->exclude_out_of_service()
 			)
-		)->willReturn([$equipment]);
-		$equipmentModel->expects($this->once())->method('update')->with(
-			$this->callback(
-				fn (Equipment $equipment) =>
-					$equipment->service_minutes() === $service_minutes + $duration
-			)
-		);
+		)
+		->willReturn($equipment);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::DEAUTHENTICATION
-					&& $event->card_id() === $card_id
-					&& $event->equipment_id() === $equipment_id
-			)
-		)
-		->willReturnArgument(0);
-
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		$service->deactivate(
-			$mac,
-			['HTTP_AUTHORIZATION' => "Bearer $card_id"]
+		self::assertSame(
+			$equipment,
+			$service->readAll([])
 		);
 	}
 
-	public function testDeactivateSuccessWithChargePerUse() {
-		$mac = '00112233445566';
-		$equipment_type_id = 12;
-		$card_id = 123456789;
-		$equipment_id = 23;
-		$service_minutes = 123;
-		$duration = 1;
-		$rate = '1.75';
-		$user_id = 12;
+	public function testReadAllSuccessForSelectLocation() {
+		$location_id = 2;
 
-		$authorized_user = (new User())
-			->set_id($user_id)
-			->set_authorizations([$equipment_type_id]);
+		$equipment = [
+			new Equipment()
+		];
 
-		$equipment = (new Equipment())
-			->set_id($equipment_id)
-			->set_service_minutes($service_minutes)
-			->set_type(
-				(new EquipmentType())
-					->set_id($equipment_type_id)
-					->set_charge_policy(ChargePolicy::PER_USE)
-					->set_charge_rate($rate)
-			);
-
-		$connection = $this->createMock(PDO::class);
-		$connection->expects($this->once())->method('beginTransaction');
-		$connection->expects($this->once())->method('commit');
-
-		$config = $this->createStub(Config::class);
-		$config->method('writable_db_connection')->willReturn($connection);
-
-		$activationModel = $this->createMock(ActivationModel::class);
-		$activationModel->method('configuration')->willReturn($config);
-		$activationModel->expects($this->once())->method('delete')->with(
-			$this->equalTo($equipment_id )
-		)->willReturn(
-			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'S'))
-		);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_id($card_id)
-				->set_user($authorized_user)
-		);
-
-		$chargeModel = $this->createMock(ChargeModel::class);
-		$chargeModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn (Charge $charge) =>
-					$charge->equipment_id() === $equipment_id
-					&& $charge->user_id() === $user_id
-					&& $charge->amount() === $rate
-					&& $charge->charge_policy() === ChargePolicy::PER_USE
-					&& $charge->charge_rate() === $rate
-					&& $charge->charged_time() === $duration
-			)
-		);
+		$session = $this->createStub(Session::class);
 
 		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
-				fn (EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
+				fn(EquipmentQuery $query) =>
+					$query->location_id() === $location_id
+					&& $query->exclude_out_of_service()
 			)
-		)->willReturn([$equipment]);
-		$equipmentModel->expects($this->once())->method('update')->with(
-			$this->callback(
-				fn (Equipment $equipment) =>
-					$equipment->service_minutes() === $service_minutes + $duration
-			)
-		);
+		)
+		->willReturn($equipment);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::DEAUTHENTICATION
-					&& $event->card_id() === $card_id
-					&& $event->equipment_id() === $equipment_id
-			)
-		)
-		->willReturnArgument(0);
-
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		$service->deactivate(
-			$mac,
-			['HTTP_AUTHORIZATION' => "Bearer $card_id"]
+		self::assertSame(
+			$equipment,
+			$service->readAll(['location_id' => "$location_id"])
 		);
 	}
 
-	public function testDeactivateSuccessWithChargePerMinute() {
-		$mac = '00112233445566';
-		$equipment_type_id = 12;
-		$card_id = 123456789;
-		$equipment_id = 23;
-		$service_minutes = 123;
-		$duration = 1;
-		$rate = '1.75';
-		$user_id = 12;
+	public function testReadAllSuccessIncludingOutOfService() {
+		$equipment = [
+			new Equipment()
+		];
 
-		$authorized_user = (new User())
-			->set_id($user_id)
-			->set_authorizations([$equipment_type_id]);
-
-		$equipment = (new Equipment())
-			->set_id($equipment_id)
-			->set_service_minutes($service_minutes)
-			->set_type(
-				(new EquipmentType())
-					->set_id($equipment_type_id)
-					->set_charge_policy(ChargePolicy::PER_MINUTE)
-					->set_charge_rate($rate)
-			);
-
-		$connection = $this->createMock(PDO::class);
-		$connection->expects($this->once())->method('beginTransaction');
-		$connection->expects($this->once())->method('commit');
-
-		$config = $this->createStub(Config::class);
-		$config->method('writable_db_connection')->willReturn($connection);
-
-		$activationModel = $this->createMock(ActivationModel::class);
-		$activationModel->method('configuration')->willReturn($config);
-		$activationModel->expects($this->once())->method('delete')->with(
-			$this->equalTo($equipment_id )
-		)->willReturn(
-			(new DateTimeImmutable())->sub(new DateInterval('PT' . $duration . 'S'))
-		);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(
-			(new UserCard())
-				->set_id($card_id)
-				->set_user($authorized_user)
-		);
-
-		$chargeModel = $this->createMock(ChargeModel::class);
-		$chargeModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn (Charge $charge) =>
-					$charge->equipment_id() === $equipment_id
-					&& $charge->user_id() === $user_id
-					&& $charge->amount() === $rate
-					&& $charge->charge_policy() === ChargePolicy::PER_MINUTE
-					&& $charge->charge_rate() === $rate
-					&& $charge->charged_time() === $duration
-			)
-		);
+		$session = $this->createStub(Session::class);
 
 		$equipmentModel = $this->createMock(EquipmentModel::class);
 		$equipmentModel->expects($this->once())->method('search')->with(
 			$this->callback(
-				fn (EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
+				fn(EquipmentQuery $query) =>
+					$query->location_id() === null
+					&& !$query->exclude_out_of_service()
 			)
-		)->willReturn([$equipment]);
-		$equipmentModel->expects($this->once())->method('update')->with(
-			$this->callback(
-				fn (Equipment $equipment) =>
-					$equipment->service_minutes() === $service_minutes + $duration
-			)
-		);
+		)
+		->willReturn($equipment);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
 
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::DEAUTHENTICATION
-					&& $event->card_id() === $card_id
-					&& $event->equipment_id() === $equipment_id
-			)
-		)
-		->willReturnArgument(0);
-
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		$service->deactivate(
-			$mac,
-			['HTTP_AUTHORIZATION' => "Bearer $card_id"]
+		self::assertSame(
+			$equipment,
+			$service->readAll(['include_out_of_service' => 'true'])
 		);
 	}
 
-	#endregion test deactivate()
+	#endregion test readAll()
 
-	#region test changeStatus()
+	#region test update()
 
-	public function testChangeStatusThrowsWhenFileIsNotReadable() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
+	public function testUpdateThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHENTICATED_UPDATE);
+		$service->update(1, 'not a file path');
+	}
+
+	public function testUpdateThrowsWhenNotAuthorized() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_MODIFY);
+		$service->update(1, 'not a file path');
+	}
+
+	public function testUpdateThrowsWhenFileIsNotReadable() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_EQUIPMENT_DATA);
 		// PHP warning is intentionally suppressed in next line for testing
-		@$service->changeStatus(
-			'file_does_not_exist.txt',
-			'00112233445566',
-			[]
-		);
+		@$service->update(1, 'file_does_not_exist.json');
 	}
 
-	public function testChangeStatusThrowsWhenFileDataIsNotARecognizedStatusChange() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
+	public function testUpdateThrowsWhenDataIsNotArray() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
 		self::expectException(InvalidArgumentException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_STATUS_CHANGE_BODY);
-		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/InvalidStatusChange.txt'),
-			'00112233445566',
-			[]
-		);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_EQUIPMENT_DATA);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/DataIsNotArray.json'));
 	}
 
-	#region test changeStatus(shutdown)
+	public function testUpdateThrowsWhenNameIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
 
-	public function testShutdownThrowsWhenNoAuthorizationHeader() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_NO_AUTHORIZATION_HEADER);
-		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
-			'00112233445566',
-			[]
-		);
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_NAME_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/NameIsMissing.json'));
 	}
 
-	public function testShutdownThrowsWhenAuthorizationHeaderDoesNotStartWithBearer() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
+	public function testUpdateThrowsWhenNameIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'let me in']
-		);
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_NAME_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/NameIsInvalid.json'));
 	}
 
-	public function testShutdownThrowsWhenBearerTokenIsInvalid() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
+	public function testUpdateThrowsWhenTypeIdIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::expectException(AuthenticationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_AUTHORIZATION_HEADER);
-		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer let me in']
-		);
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TYPE_ID_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TypeIdIsMissing.json'));
 	}
 
-	public function testShutdownThrowsWhenCardDoesNotExist() {
-		$activationModel = $this->createStub(ActivationModel::class);
+	public function testUpdateThrowsWhenTypeIdIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
 
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(null);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_SHUTDOWN_NOT_AUTHORIZED);
-		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TYPE_ID_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TypeIdIsNotInt.json'));
 	}
 
-	public function testShutdownThrowsWhenCardIsNotShutdownCard() {
-		$activationModel = $this->createStub(ActivationModel::class);
+	public function testUpdateThrowsWhenTypeIdIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
 
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new UserCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
+
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(NULL);
+
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::expectException(AuthorizationException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_SHUTDOWN_NOT_AUTHORIZED);
-		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_TYPE_ID);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
 	}
 
-	public function testShutdownThrowsWhenEquipmentIsNotFound() {
-		$activationModel = $this->createStub(ActivationModel::class);
+	public function testUpdateThrowsWhenLocationIdIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
 
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new ShutdownCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
 		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([]);
 
 		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
 		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_LOCATION_ID_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/LocationIdIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenLocationIdIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_LOCATION_ID_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/LocationIdIsNotInt.json'));
+	}
+
+	public function testUpdateThrowsWhenLocationIdIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(NULL);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_LOCATION_ID);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
+	}
+
+	public function testUpdateThrowsWhenMACAddressIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_MAC_ADDRESS_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/MACAddressIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenMACAddressIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_MAC_ADDRESS_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/MACAddressIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenTimeoutIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TIMEOUT_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TimeoutIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenTimeoutIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TIMEOUT_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TimeoutIsNotInt.json'));
+	}
+
+	public function testUpdateThrowsWhenTimeoutIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TIMEOUT_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TimeoutIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenInServiceIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_IN_SERVICE_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/InServiceIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenInServiceIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_IN_SERVICE_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/InServiceIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenServiceMinutesIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_SERVICE_MINUTES_IS_INVALID);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/ServiceMinutesIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenEquipmentDoesNotExist() {
+		$id = 23;
+
+		// values matching input file
+		$in_service = true;
+		$location_id = 3;
+		$mac_address = 'aa00bb11cc22'; // normalized by Portalbox\Type\Equipment
+		$name = 'Kibble Launcher';
+		$service_minutes = 0;
+		$timeout = 60;
+		$type_id = 2;
+
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createMock(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn($equipment) =>
+					$equipment->id() === $id
+					&& $equipment->name() === $name
+					&& $equipment->type()->id() === $type_id
+					&& $equipment->location()->id() === $location_id
+					&& $equipment->mac_address() === $mac_address
+					&& $equipment->timeout() === $timeout
+					&& $equipment->is_in_service() === $in_service
+					&& $equipment->service_minutes() === $service_minutes
+			)
+		)
+		->willReturn(NULL);
+
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
+		$equipmentTypeModel->expects($this->once())->method('read')
+			->with($type_id)
+			->willReturn(
+				(new EquipmentType())->set_id($type_id)
+			);
+
+		$locationModel = $this->createMock(LocationModel::class);
+		$locationModel->expects($this->once())->method('read')
+			->with($location_id)
+			->willReturn(
+				(new Location())->set_id($location_id)
+			);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
 		);
 
 		self::expectException(NotFoundException::class);
 		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_NOT_FOUND);
-		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
-			'00112233445566',
-			['HTTP_AUTHORIZATION' => 'Bearer 123456789']
-		);
+		$service->update($id, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
 	}
 
-	public function testShutdownSuccess() {
-		$mac = '00112233445566';
-		$card_id = 123456789;
-		$equipment_id = 23;
+	public function testUpdateSuccessWithServiceMinutes() {
+		$id = 23;
 
-		$equipment = (new Equipment())->set_id($equipment_id);
+		// values matching input file
+		$in_service = true;
+		$location_id = 3;
+		$mac_address = 'aa00bb11cc22'; // normalized by Portalbox\Type\Equipment
+		$name = 'Kibble Launcher';
+		$service_minutes = 137;
+		$timeout = 60;
+		$type_id = 2;
 
-		$activationModel = $this->createStub(ActivationModel::class);
-
-		$cardModel = $this->createStub(CardModel::class);
-		$cardModel->method('read')->willReturn(new ShutdownCard());
-
-		$chargeModel = $this->createStub(ChargeModel::class);
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
 
 		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel->expects($this->once())->method('search')->with(
+		$equipmentModel->expects($this->once())->method('update')->with(
 			$this->callback(
-				fn(EquipmentQuery $query) =>
-					$query->exclude_out_of_service() === true
-					&& $query->mac_address() === $mac
-			)
-		)->willReturn([$equipment]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::PLANNED_SHUTDOWN
-					&& $event->card_id() === $card_id
-					&& $event->equipment_id() === $equipment_id
+				fn($equipment) =>
+					$equipment->id() === $id
+					&& $equipment->name() === $name
+					&& $equipment->type()->id() === $type_id
+					&& $equipment->location()->id() === $location_id
+					&& $equipment->mac_address() === $mac_address
+					&& $equipment->timeout() === $timeout
+					&& $equipment->is_in_service() === $in_service
+					&& $equipment->service_minutes() === $service_minutes
 			)
 		)
 		->willReturnArgument(0);
 
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
+		$equipmentTypeModel->expects($this->once())->method('read')
+			->with($type_id)
+			->willReturn(
+				(new EquipmentType())->set_id($type_id)
+			);
 
-		self::assertSame($equipment, $service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/ShutdownStatusChange.txt'),
-			$mac,
-			['HTTP_AUTHORIZATION' => "Bearer $card_id"]
-		));
-	}
-
-	#endregion test changeStatus(shutdown)
-
-	#region test changeStatus(startup)
-
-	public function testStartupThrowsWhenEquipmentIsNotFound() {
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createStub(EquipmentModel::class);
-		$equipmentModel->method('search')->willReturn([]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
+		$locationModel = $this->createMock(LocationModel::class);
+		$locationModel->expects($this->once())->method('read')
+			->with($location_id)
+			->willReturn(
+				(new Location())->set_id($location_id)
+			);
 
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::expectException(NotFoundException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_NOT_FOUND);
-		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/StartupStatusChange.txt'),
-			'00112233445566',
-			[]
-		);
+		$equipment = $service->update($id, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipmentWithServiceMinutes.json'));
+
+		self::assertInstanceOf(Equipment::class, $equipment);
+		self::assertSame($name, $equipment->name());
+		self::assertInstanceOf(EquipmentType::class, $equipment->type());
+		self::assertSame($type_id, $equipment->type()->id());
+		self::assertInstanceOf(Location::class, $equipment->location());
+		self::assertSame($location_id, $equipment->location()->id());
+		self::assertSame($mac_address, $equipment->mac_address());
+		self::assertSame($timeout, $equipment->timeout());
+		self::assertSame($in_service, $equipment->is_in_service());
+		self::assertSame($service_minutes, $equipment->service_minutes());
 	}
 
-	public function testStartupThrowsWhenEquipmentIsOutOfService() {
-		$mac = '00112233445566';
+	public function testUpdateSuccess() {
+		$id = 23;
 
-		$equipment = (new Equipment())
-			->set_is_in_service(false);
+		// values matching input file
+		$in_service = true;
+		$location_id = 3;
+		$mac_address = 'aa00bb11cc22'; // normalized by Portalbox\Type\Equipment
+		$name = 'Kibble Launcher';
+		$service_minutes = 0;
+		$timeout = 60;
+		$type_id = 2;
 
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-		$chargeModel = $this->createStub(ChargeModel::class);
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
 
 		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel->expects($this->once())->method('search')->with(
+		$equipmentModel->expects($this->once())->method('update')->with(
 			$this->callback(
-				fn(EquipmentQuery $query) => $query->mac_address() === $mac
-			)
-		)->willReturn([$equipment]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-		$loggedEventModel = $this->createStub(LoggedEventModel::class);
-
-		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
-			$equipmentModel,
-			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
-		);
-
-		self::expectException(OutOfServiceDeviceException::class);
-		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_OUT_OF_SERVICE);
-		$service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/StartupStatusChange.txt'),
-			'00112233445566',
-			[]
-		);
-	}
-
-	public function testStartupSuccess() {
-		$mac = '00112233445566';
-		$equipment_id = 23;
-
-		$equipment = (new Equipment())
-			->set_id($equipment_id)
-			->set_is_in_service(true);
-
-		$activationModel = $this->createStub(ActivationModel::class);
-		$cardModel = $this->createStub(CardModel::class);
-
-		$chargeModel = $this->createStub(ChargeModel::class);
-
-		$equipmentModel = $this->createMock(EquipmentModel::class);
-		$equipmentModel->expects($this->once())->method('search')->with(
-			$this->callback(
-				fn(EquipmentQuery $query) => $query->mac_address() === $mac
-			)
-		)->willReturn([$equipment]);
-
-		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
-		$locationModel = $this->createStub(LocationModel::class);
-
-		$loggedEventModel = $this->createMock(LoggedEventModel::class);
-		$loggedEventModel->expects($this->once())->method('create')->with(
-			$this->callback(
-				fn(LoggedEvent $event) =>
-					$event->type() === LoggedEventType::STARTUP_COMPLETE
-					&& $event->card_id() === null
-					&& $event->equipment_id() === $equipment_id
+				fn($equipment) =>
+					$equipment->id() === $id
+					&& $equipment->name() === $name
+					&& $equipment->type()->id() === $type_id
+					&& $equipment->location()->id() === $location_id
+					&& $equipment->mac_address() === $mac_address
+					&& $equipment->timeout() === $timeout
+					&& $equipment->is_in_service() === $in_service
+					&& $equipment->service_minutes() === $service_minutes
 			)
 		)
 		->willReturnArgument(0);
 
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
+		$equipmentTypeModel->expects($this->once())->method('read')
+			->with($type_id)
+			->willReturn(
+				(new EquipmentType())->set_id($type_id)
+			);
+
+		$locationModel = $this->createMock(LocationModel::class);
+		$locationModel->expects($this->once())->method('read')
+			->with($location_id)
+			->willReturn(
+				(new Location())->set_id($location_id)
+			);
+
 		$service = new EquipmentService(
-			$activationModel,
-			$cardModel,
-			$chargeModel,
+			$session,
 			$equipmentModel,
 			$equipmentTypeModel,
-			$locationModel,
-			$loggedEventModel
+			$locationModel
 		);
 
-		self::assertSame($equipment, $service->changeStatus(
-			realpath(__DIR__ . '/EquipmentServiceTestData/StartupStatusChange.txt'),
-			$mac,
-			[]
-		));
+		$equipment = $service->update($id, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
+
+		self::assertInstanceOf(Equipment::class, $equipment);
+		self::assertSame($name, $equipment->name());
+		self::assertInstanceOf(EquipmentType::class, $equipment->type());
+		self::assertSame($type_id, $equipment->type()->id());
+		self::assertInstanceOf(Location::class, $equipment->location());
+		self::assertSame($location_id, $equipment->location()->id());
+		self::assertSame($mac_address, $equipment->mac_address());
+		self::assertSame($timeout, $equipment->timeout());
+		self::assertSame($in_service, $equipment->is_in_service());
+		self::assertSame($service_minutes, $equipment->service_minutes());
 	}
 
-	#endregion test changeStatus(startup)
-
-	#endregion test changeStatus()
+	#endregion test update()
 }

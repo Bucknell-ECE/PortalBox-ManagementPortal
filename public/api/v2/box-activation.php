@@ -4,7 +4,7 @@ require '../../../src/bootstrap.php';
 
 use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Service\EquipmentService;
+use Portalbox\Service\PortalboxService;
 use Portalbox\Transform\EquipmentTransformer;
 use Portalbox\Transform\UserTransformer;
 
@@ -15,7 +15,7 @@ try {
 				throw new InvalidArgumentException('MAC address is required');
 			}
 
-			$service = $container->get(EquipmentService::class);
+			$service = $container->get(PortalboxService::class);
 			$data = $service->activate($_GET['mac'], $_SERVER);
 			$equipment = (new EquipmentTransformer())->serialize($data['equipment']);
 			$user = (new UserTransformer())->serialize($data['user']);
@@ -30,7 +30,7 @@ try {
 				throw new InvalidArgumentException('MAC address is required');
 			}
 
-			$service = $container->get(EquipmentService::class);
+			$service = $container->get(PortalboxService::class);
 			$mode = $service->changeActivationSession('php://input', $_GET['mac'], $_SERVER);
 			echo $mode->value;
 			break;
@@ -39,7 +39,7 @@ try {
 				throw new InvalidArgumentException('MAC address is required');
 			}
 
-			$service = $container->get(EquipmentService::class);
+			$service = $container->get(PortalboxService::class);
 			$service->deactivate($_GET['mac'], $_SERVER);
 			// empty response body, the status code is sufficient
 			break;

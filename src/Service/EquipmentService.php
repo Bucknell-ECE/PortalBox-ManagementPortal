@@ -4,596 +4,277 @@ declare(strict_types=1);
 
 namespace Portalbox\Service;
 
-use DateTimeImmutable;
 use InvalidArgumentException;
-use Portalbox\Enumeration\ActivationMode;
-use Portalbox\Enumeration\CardType;
-use Portalbox\Enumeration\ChargePolicy;
-use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Exception\AuthenticationException;
 use Portalbox\Exception\AuthorizationException;
 use Portalbox\Exception\NotFoundException;
-use Portalbox\Exception\OutOfServiceDeviceException;
-use Portalbox\Model\ActivationModel;
-use Portalbox\Model\CardModel;
-use Portalbox\Model\ChargeModel;
 use Portalbox\Model\EquipmentModel;
 use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\LocationModel;
-use Portalbox\Model\LoggedEventModel;
 use Portalbox\Query\EquipmentQuery;
-use Portalbox\Type\Card;
-use Portalbox\Type\Charge;
+use Portalbox\Session;
 use Portalbox\Type\Equipment;
-use Portalbox\Type\LoggedEvent;
 
 /**
- * Handle requests from Portal Boxes
- *
- * Unlike other services, this service does not use Cookie or API Keys to
- * authenticate. Instead methods require a card id that must be assigned to an
- * active user with the requisite permissions
+ * Manage Equipment
  */
 class EquipmentService {
-	public const ERROR_NO_AUTHORIZATION_HEADER = 'No Authorization header provided.';
-	public const ERROR_INVALID_AUTHORIZATION_HEADER = 'Improperly formatted Authorization header. Please use "Bearer " + token syntax.';
-	
-	public const ERROR_REGISTRATION_NOT_AUTHORIZED = 'You are not authorized to register a portalbox.';
-	public const ERROR_DEVICE_ALREADY_REGISTERED = 'A device with the given MAC address already exists.';
-	public const ERROR_INCOMPLETE_SETUP_NO_LOCATIONS = 'You must first setup a location.';
+	public const ERROR_UNAUTHENTICATED_CREATE = 'You must be authenticated to create equipment';
+	public const ERROR_UNAUTHORIZED_CREATE = 'You are not authorized to create equipment';
+	public const ERROR_INVALID_EQUIPMENT_DATA = 'We can not create equipment from the provided data';
+	public const ERROR_NAME_IS_REQUIRED = '\'name\' is a required field';
+	public const ERROR_TYPE_ID_IS_REQUIRED = '\'type_id\' is a required field';
+	public const ERROR_INVALID_TYPE_ID = '\'type_id\' must correspond to a valid equipment type';
+	public const ERROR_LOCATION_ID_IS_REQUIRED = '\'location_id\' is a required field';
+	public const ERROR_INVALID_LOCATION_ID = '\'location_id\' must correspond to a valid location';
+	public const ERROR_MAC_ADDRESS_IS_REQUIRED = '\'mac_address\' is a required field';
+	public const ERROR_TIMEOUT_IS_REQUIRED = '\'timeout\' is a required field';
+	public const ERROR_IN_SERVICE_IS_REQUIRED = '\'in_service\' is a required field';
+	public const ERROR_SERVICE_MINUTES_IS_INVALID = '\'service_minutes\' if provided must be a positive integer';
 
-	public const ERROR_ACTIVATION_NOT_AUTHORIZED = 'You are not authorized to activate the specified portalbox.';
-	public const ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED = 'You are not authorized to change the activation session of the specified portalbox.';
-	public const ERROR_PROXY_CARD_NOT_PERMITTED = 'Proxy cards are not permitted with this equipment type';
-	public const ERROR_UNAUTHORIZED_TO_TRAIN = 'You are not permitted to train users to use this equipment';
+	public const ERROR_UNAUTHENTICATED_READ = 'You must be authenticated to read equipment';
+	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read the specified equipment';
+	public const ERROR_EQUIPMENT_NOT_FOUND = 'We have no record of that equipment';
 
-	public const ERROR_INVALID_STATUS_CHANGE_BODY = 'We did not recognize the requested device status change.';
-	public const ERROR_SHUTDOWN_NOT_AUTHORIZED = 'You are not authorized to shutdown portalboxes.';
-	public const ERROR_EQUIPMENT_NOT_FOUND = 'We have no record of that portalbox.';
-	public const ERROR_EQUIPMENT_OUT_OF_SERVICE = 'Portalbox is marked out of service';
+	public const ERROR_LOCATION_FILTER_MUST_BE_INT = 'The value of the location must be the integer id of the location';
 
-	public const DEFAULT_DEVICE_NAME = 'Unassigned Portalbox';
+	public const ERROR_UNAUTHENTICATED_UPDATE = 'You must be authenticated to modify equipment';
+	public const ERROR_UNAUTHORIZED_MODIFY = 'You are not permitted to modify equipment';
 
-	protected ActivationModel $activationModel;
-	protected CardModel $cardModel;
-	protected ChargeModel $chargeModel;
+	protected Session $session;
 	protected EquipmentModel $equipmentModel;
 	protected EquipmentTypeModel $equipmentTypeModel;
 	protected LocationModel $locationModel;
-	protected LoggedEventModel $loggedEventModel;
 
 	public function __construct(
-		ActivationModel $activationModel,
-		CardModel $cardModel,
-		ChargeModel $chargeModel,
+		Session $session,
 		EquipmentModel $equipmentModel,
 		EquipmentTypeModel $equipmentTypeModel,
-		LocationModel $locationModel,
-		LoggedEventModel $loggedEventModel
+		LocationModel $locationModel
 	) {
-		$this->activationModel = $activationModel;
-		$this->cardModel = $cardModel;
-		$this->chargeModel = $chargeModel;
+		$this->session = $session;
 		$this->equipmentModel = $equipmentModel;
 		$this->equipmentTypeModel = $equipmentTypeModel;
 		$this->locationModel = $locationModel;
-		$this->loggedEventModel = $loggedEventModel;
 	}
 
 	/**
-	 * Register a new portal box
+	 * Deserialize an Equipment object from a dictionary
 	 *
-	 * @param string $mac  the mac address of the portal box
-	 * @param array $headers  the request headers
-	 * @return Equipment  the portal box as registered with the system
-	 * @throws AuthenticationException  if the request headers do not contain a
-	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
-	 *      when the token is the id of a user card
-	 * @throws AuthorizationException  if the card id does not map to a user
-	 *      card or the user mapped to be the card id does not have the
-	 *      CREATE_EQUIPMENT permission
-	 * @throws InvalidArgumentException  if the mac is already present in the
-	 *      system
+	 * @param array data  a dictionary representing a Equipment
+	 * @return Equipment  an object based on the data specified
+	 * @throws InvalidArgumentException if a required field is not specified
 	 */
-	public function register(string $mac, array $headers): Equipment {
-		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
-			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
-		}
-		$header = $headers['HTTP_AUTHORIZATION'];
-
-		if(strlen($header) < 8 || strcmp('Bearer ', substr($header, 0 , 7)) != 0) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+	private function deserialize(array $data): Equipment {
+		$name = strip_tags($data['name'] ?? '');
+		if (empty($name)) {
+			throw new InvalidArgumentException(self::ERROR_NAME_IS_REQUIRED);
 		}
 
-		$card_id = filter_var(substr($header, 7), FILTER_VALIDATE_INT);
-		if($card_id === false) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+		$type_id = filter_var($data['type_id'] ?? '', FILTER_VALIDATE_INT);
+		if ($type_id === false) {
+			throw new InvalidArgumentException(self::ERROR_TYPE_ID_IS_REQUIRED);
+		}
+		$type = $this->equipmentTypeModel->read($type_id);
+		if ($type === null) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_TYPE_ID);
 		}
 
-		$card = $this->cardModel->read($card_id);
-		if ($card === null || $card->type() !== CardType::USER) {
-			throw new AuthorizationException(self::ERROR_REGISTRATION_NOT_AUTHORIZED);
+		$location_id = filter_var($data['location_id'] ?? '', FILTER_VALIDATE_INT);
+		if ($location_id === false) {
+			throw new InvalidArgumentException(self::ERROR_LOCATION_ID_IS_REQUIRED);
+		}
+		$location = $this->locationModel->read($location_id);
+		if ($location === null) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_LOCATION_ID);
 		}
 
-		$authenticatedUser = $card->user();
-		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_EQUIPMENT)) {
-			throw new AuthorizationException(self::ERROR_REGISTRATION_NOT_AUTHORIZED);
-		}
-
-		$query = (new EquipmentQuery())
-			->set_exclude_out_of_service(true)
-			->set_mac_address($mac);
-		if (!empty($this->equipmentModel->search($query))) {
-			throw new InvalidArgumentException(self::ERROR_DEVICE_ALREADY_REGISTERED);
-		}
-
-		$equipmentTypes = $this->equipmentTypeModel->search();
-
-		$locations = $this->locationModel->search();
-		if (empty($locations)) {
-			throw new InvalidArgumentException(self::ERROR_INCOMPLETE_SETUP_NO_LOCATIONS);
-		}
-
-		return $this->equipmentModel->create(
-			(new Equipment())
-				->set_name(self::DEFAULT_DEVICE_NAME)
-				->set_type($equipmentTypes[0])
-				->set_location($locations[0])
-				->set_mac_address($mac)
+		// we use a regex because FILTER_VALIDATE_MAC requires byte separators
+		// which we don't want to require
+		$mac_address = filter_var(
+			$data['mac_address'] ?? '',
+			FILTER_VALIDATE_REGEXP,
+			['options' => ['regexp' => '/^([0-9A-Fa-f]{2}[:-]?){5}([0-9A-Fa-f]{2})$/']]
 		);
-	}
-
-	/**
-	 * Begin a user session and activate a portal box
-	 *
-	 * @param string $mac  the mac address of the portal box
-	 * @param array $headers  the request headers
-	 * @return array  a dictionary with two keys 'equipment' and 'user'. The
-	 *      value equipment is the portal box which is to activate while the
-	 *      value of user is the user that activated the equipment
-	 * @throws AuthenticationException  if the request headers do not contain a
-	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
-	 *      when the token is the id of a user card
-	 * @throws AuthorizationException  if no equipment is setup for the specified
-	 *      mac address if the card id does not map to a user card or the user
-	 *      mapped to be the card id does not have permission to activate
-	 *      equipment of the type assigned to the portal box
-	 */
-	public function activate(string $mac, array $headers): array {
-		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
-			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
-		}
-		$header = $headers['HTTP_AUTHORIZATION'];
-
-		if(strlen($header) < 8 || strcmp('Bearer ', substr($header, 0 , 7)) != 0) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+		if ($mac_address === false) {
+			throw new InvalidArgumentException(self::ERROR_MAC_ADDRESS_IS_REQUIRED);
 		}
 
-		$card_id = filter_var(substr($header, 7), FILTER_VALIDATE_INT);
-		if($card_id === false) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+		$timeout = filter_var(
+			$data['timeout'] ?? '',
+			FILTER_VALIDATE_INT,
+			['options' => ['min_range' => 0]]
+		);
+		if ($timeout === false) {
+			throw new InvalidArgumentException(self::ERROR_TIMEOUT_IS_REQUIRED);
 		}
 
-		$card = $this->cardModel->read($card_id);
-		if ($card === null || $card->type() !== CardType::USER) {
-			throw new AuthorizationException(self::ERROR_ACTIVATION_NOT_AUTHORIZED);
+		$in_service = filter_var(
+			$data['in_service'] ?? 'fail',
+			FILTER_VALIDATE_BOOLEAN,
+			FILTER_NULL_ON_FAILURE
+		);
+		if ($in_service === NULL) {
+			throw new InvalidArgumentException(self::ERROR_IN_SERVICE_IS_REQUIRED);
 		}
 
-		$query = (new EquipmentQuery())
-			->set_exclude_out_of_service(true)
-			->set_mac_address($mac);
-		$equipment = $this->equipmentModel->search($query);
-		if (empty($equipment)) {
-			// in order to avoid leaking system details we throw an authorization
-			// exception here where we would typically throw a not found
-			// exception if we had completed authorization
-			throw new AuthorizationException(self::ERROR_ACTIVATION_NOT_AUTHORIZED);
-		}
-
-		// get the first item in the list... in theory there should only be one
-		// item in the list, but we can afford to be defensive
-		$equipment = reset($equipment);
-
-		if (!in_array($equipment->type_id(), $card->user()->authorizations())) {
-			$this->loggedEventModel->create(
-				(new LoggedEvent())
-					->set_type(LoggedEventType::UNSUCCESSFUL_AUTHENTICATION)
-					->set_card_id($card_id)
-					->set_equipment_id($equipment->id())
-					->set_time(date('Y-m-d H:i:s'))
+		// service minutes is optional and should default to 0
+		$service_minutes = 0;
+		if (array_key_exists('service_minutes', $data)) {
+			$service_minutes = filter_var(
+				$data['service_minutes'],
+				FILTER_VALIDATE_INT,
+				['options' => ['min_range' => 0]]
 			);
-			throw new AuthorizationException(self::ERROR_ACTIVATION_NOT_AUTHORIZED);
-		}
-
-		// do we need to check if the equipment is in service?
-		// do we need to check charge policy and account balance?
-
-		$connection = $this->activationModel->configuration()->writable_db_connection();
-		$connection->beginTransaction();
-
-		try {
-			$this->activationModel->create($equipment->id());
-			$this->loggedEventModel->create(
-				(new LoggedEvent())
-					->set_type(LoggedEventType::SUCCESSFUL_AUTHENTICATION)
-					->set_card_id($card_id)
-					->set_equipment_id($equipment->id())
-					->set_time(date('Y-m-d H:i:s'))
-			);
-			$connection->commit();
-		} catch (\Throwable $t) {
-			$connection->rollBack();
-			throw $t;
-		}
-
-		return [
-			'equipment' => $equipment,
-			'user' => $card->user()
-		];
-	}
-
-	/**
-	 * Handle a request to change the activation session including switching to
-	 * a proxy card or switching to a training session
-	 *
-	 * @param string $filePath  the path to a file from which to read the
-	 *      request body
-	 * @param string $mac  the mac address of the portal box
-	 * @param array $headers  the request headers
-	 * @throws AuthenticationException  if the request headers do not contain a
-	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
-	 *      when the token is the id of a user card
-	 * @throws AuthorizationException  if the card id does not map to a user
-	 *      card
-	 */
-	public function changeActivationSession(
-		string $filePath,
-		string $mac,
-		array $headers
-	): ActivationMode {
-		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
-			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
-		}
-		$header = $headers['HTTP_AUTHORIZATION'];
-
-		if(strlen($header) < 8 || strcmp('Bearer ', substr($header, 0 , 7)) != 0) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
-		}
-
-		$card_id = filter_var(substr($header, 7), FILTER_VALIDATE_INT);
-		if($card_id === false) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
-		}
-
-		$card = $this->cardModel->read($card_id);
-		if ($card === null || $card->type() !== CardType::USER) {
-			throw new AuthorizationException(self::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		}
-
-		$query = (new EquipmentQuery())
-			->set_exclude_out_of_service(true)
-			->set_mac_address($mac);
-		$equipment = $this->equipmentModel->search($query);
-		if (empty($equipment)) {
-			// in order to avoid leaking system details we throw an authorization
-			// exception here where we would typically throw a not found
-			// exception if we had completed authorization
-			throw new AuthorizationException(self::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		}
-		$equipment = reset($equipment);
-
-		// which change is requested?
-		$data = file_get_contents($filePath);
-
-		// body must be a json object
-		$params = json_decode($data, TRUE);
-		if (!is_array($params)) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
-		}
-
-		// and it must specify a card
-		if (!array_key_exists('card', $params)) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
-		}
-
-		$secondary_card_id = filter_var($params['card'], FILTER_VALIDATE_INT);
-
-		// if it is the same card that started the session then we permit the access
-		if ($card_id === $secondary_card_id) {
-			return ActivationMode::AUTHORIZED_USER;
-		}
-
-		// otherwise we need to check what type the card is
-		$secondaryCard = $this->cardModel->read($secondary_card_id);
-		if ($secondaryCard === null) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
-		}
-
-		switch ($secondaryCard->type()) {
-			case CardType::PROXY:
-				if ($equipment->type()->allow_proxy()) {
-					return ActivationMode::PROXY;
-				}
-
-				throw new AuthorizationException(self::ERROR_PROXY_CARD_NOT_PERMITTED);
-				break;
-			case CardType::USER:
-				return $this->beginTrainingSession($equipment, $card, $secondaryCard);
-				break;
-			default:
-				throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
-		}
-	}
-
-	/**
-	 * Begin a training session
-	 *
-	 * @param Equipment $equipment  the device which is deactivating
-	 * @param Card $trainerCard  the card the trainer(?) used to activate this
-	 *      device
-	 * @param Card $traineeCard  the trainee's card
-	 * @throws AuthorizationException  if the "trainer" is not authorized to
-	 *      train
-	 */
-	private function beginTrainingSession(
-		Equipment $equipment,
-		Card $trainerCard,
-		Card $traineeCard
-	): ActivationMode {
-		$trainer = $trainerCard->user();
-		if (!$trainer->role()->has_permission(Permission::CREATE_EQUIPMENT_AUTHORIZATION)) {
-			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_TO_TRAIN);
-		}
-
-		if (!in_array($equipment->type_id(), $trainer->authorizations())) {
-			// How could we reach this as the user had to activate the portalbox?
-			// API requests don't have to come from a portalbox... so this is
-			// probably illicit API usage and maybe we ought to log it
-			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_TO_TRAIN);
-		}
-
-		// log the training event
-
-		return ActivationMode::TRAINING;
-	}
-
-	/**
-	 * End a user session and deactivate a portal box
-	 *
-	 * It may seem strange to require authorization here. The reason we do is to
-	 * mitigate the possibility of a malicious user ending a session independent
-	 * of the portalbox i.e. we don't want a random user firing off deactivation
-	 * requests for every mac address and prematurely ending a user session
-	 *
-	 * @param string $mac  the mac address of the portal box
-	 * @param array $headers  the request headers
-	 * @throws AuthenticationException  if the request headers do not contain a
-	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
-	 *      when the token is the id of a user card
-	 * @throws AuthorizationException  if the card id does not map to a user
-	 *      card
-	 */
-	public function deactivate(string $mac, array $headers): void {
-		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
-			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
-		}
-		$header = $headers['HTTP_AUTHORIZATION'];
-
-		if(strlen($header) < 8 || strcmp('Bearer ', substr($header, 0 , 7)) != 0) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
-		}
-
-		$card_id = filter_var(substr($header, 7), FILTER_VALIDATE_INT);
-		if($card_id === false) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
-		}
-
-		$card = $this->cardModel->read($card_id);
-		if ($card === null || $card->type() !== CardType::USER) {
-			throw new AuthorizationException(self::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		}
-
-		$query = (new EquipmentQuery())
-			->set_exclude_out_of_service(true)
-			->set_mac_address($mac);
-		$equipment = $this->equipmentModel->search($query);
-		if (empty($equipment)) {
-			// in order to avoid leaking system details we throw an authorization
-			// exception here where we would typically throw a not found
-			// exception if we had completed authorization
-			throw new AuthorizationException(self::ERROR_ACTIVATION_CHANGE_NOT_AUTHORIZED);
-		}
-		$equipment = reset($equipment);
-		$equipment_id = $equipment->id();
-
-		$connection = $this->activationModel->configuration()->writable_db_connection();
-		$connection->beginTransaction();
-
-		try {
-			$now = new DateTimeImmutable();
-			$this->loggedEventModel->create(
-				(new LoggedEvent())
-					->set_type(LoggedEventType::DEAUTHENTICATION)
-					->set_card_id($card->id())
-					->set_equipment_id($equipment_id)
-					->set_time($now->format('Y-m-d H:i:s'))
-			);
-
-			$start_time = $this->activationModel->delete($equipment_id);
-
-			// how long was equipment in use?
-			$duration = (int)round(
-				($now->getTimestamp() - $start_time->getTimestamp()) / 60
-			);
-
-			// we set a minimum of 1 min per use
-			if ($duration < 1) {
-				$duration = 1;
+			if ($service_minutes === false) {
+				throw new InvalidArgumentException(self::ERROR_SERVICE_MINUTES_IS_INVALID);
 			}
-
-			// update equipment with new usage minutes
-			$this->equipmentModel->update($equipment->set_service_minutes(
-				$equipment->service_minutes() + $duration
-			));
-
-			// charge the user as applicable
-			$type = $equipment->type();
-			switch ($type->charge_policy()) {
-				case ChargePolicy::PER_USE:
-					$this->chargeModel->create(
-						(new Charge())
-							->set_equipment_id($equipment_id)
-							->set_user_id($card->user_id())
-							->set_amount($type->charge_rate())
-							->set_time($now->format('Y-m-d H:i:s'))
-							->set_charge_policy(ChargePolicy::PER_USE)
-							->set_charge_rate($type->charge_rate())
-							->set_charged_time($duration)
-					);
-					break;
-				case ChargePolicy::PER_MINUTE:
-					$this->chargeModel->create(
-						(new Charge())
-							->set_equipment_id($equipment_id)
-							->set_user_id($card->user_id())
-							->set_amount((string)($type->charge_rate() * $duration))
-							->set_time($now->format('Y-m-d H:i:s'))
-							->set_charge_policy(ChargePolicy::PER_MINUTE)
-							->set_charge_rate($type->charge_rate())
-							->set_charged_time($duration)
-					);
-					break;
-			}
-
-			$connection->commit();
-		} catch (\Throwable $t) {
-			$connection->rollBack();
-			throw $t;
 		}
+
+		return (new Equipment())
+			->set_name($name)
+			->set_type($type)
+			->set_location($location)
+			->set_mac_address($mac_address)
+			->set_timeout($timeout)
+			->set_is_in_service($in_service)
+			->set_service_minutes($service_minutes);
 	}
 
 	/**
-	 * Record a device status change i.e. startup or shutdown
+	 * Create equipment from the specified data stream
 	 *
-	 * @param string $filePath  the path to a file from which to read status
-	 *      change data
-	 * @param string $mac  the mac address of the portal box
-	 * @param array $headers  the request headers
-	 * @return Equipment  the portal box
-	 * @throws AuthenticationException  depending on the status change, mac, and
-	 *      headers
-	 * @throws AuthorizationException  depending on the status change, mac, and
-	 *      headers
+	 * @param string $filePath  the path to a file from which to read json data
+	 * @return Equipment  The equipment which was added
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not create
+	 *      equipment
+	 * @throws InvalidArgumentException  if the file can not be read or does not
+	 *      contain JSON encoded data
 	 */
-	public function changeStatus(
-		string $filePath,
-		string $mac,
-		array $headers
-	): Equipment {
+	public function create(string $filePath): Equipment {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_CREATE);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_EQUIPMENT)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_CREATE);
+		}
+
 		$data = file_get_contents($filePath);
-		if (empty($data)) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
 		}
 
-		if ($data === 'shutdown') {
-			return $this->shutdown($mac, $headers);
+		$equipment = json_decode($data, TRUE);
+		if (!is_array($equipment)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
 		}
 
-		if ($data === 'startup') {
-			return $this->startup($mac);
-		}
-
-		throw new InvalidArgumentException(self::ERROR_INVALID_STATUS_CHANGE_BODY);
+		return $this->equipmentModel->create($this->deserialize($equipment));
 	}
 
 	/**
-	 * Shutdown a portal box
+	 * Read equipment by id
 	 *
-	 * @param string $mac  the mac address of the portal box
-	 * @param array $headers  the request headers
-	 * @return Equipment  the portal box
-	 * @throws AuthenticationException  if the request headers do not contain a
-	 *      HTTP_AUTHORIZATION header which is a properly formatted Bearer token
-	 *      when the token is the id of a user card
-	 * @throws AuthorizationException  if the card id does not map to a shutdown
-	 *      card.
-	 * @throws NotFoundException  if the mac address does not match a registered
-	 *      portalbox
+	 * @param int $id  the unique id of the equipment to read
+	 * @return Equipment  the equipment
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not read
+	 *      the equipment
+	 * @throws NotFoundException  if the equipment is not found
 	 */
-	private function shutdown(string $mac, array $headers): Equipment {
-		if(!array_key_exists('HTTP_AUTHORIZATION', $headers)) {
-			throw new AuthenticationException(self::ERROR_NO_AUTHORIZATION_HEADER);
-		}
-		$header = $headers['HTTP_AUTHORIZATION'];
-
-		if(strlen($header) < 8 || strcmp('Bearer ', substr($header, 0 , 7)) != 0) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+	public function read(int $id): Equipment {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_READ);
 		}
 
-		$card_id = filter_var(substr($header, 7), FILTER_VALIDATE_INT);
-		if($card_id === false) {
-			throw new AuthenticationException(self::ERROR_INVALID_AUTHORIZATION_HEADER);
+		$role = $authenticatedUser->role();
+		if (!$role->has_permission(Permission::READ_EQUIPMENT)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_READ);
 		}
 
-		$card = $this->cardModel->read($card_id);
-		if ($card === null || $card->type() !== CardType::SHUTDOWN) {
-			throw new AuthorizationException(self::ERROR_SHUTDOWN_NOT_AUTHORIZED);
-		}
-
-		$query = (new EquipmentQuery())
-			->set_exclude_out_of_service(true)
-			->set_mac_address($mac);
-		$equipment = $this->equipmentModel->search($query);
-		if (empty($equipment)) {
+		$equipment = $this->equipmentModel->read($id);
+		if ($equipment === null) {
 			throw new NotFoundException(self::ERROR_EQUIPMENT_NOT_FOUND);
 		}
-
-		// get the first item in the list... in theory there should only be one
-		// item in the list, but we can afford to be defensive
-		$equipment = reset($equipment);
-
-		$this->loggedEventModel->create(
-			(new LoggedEvent())
-				->set_type(LoggedEventType::PLANNED_SHUTDOWN)
-				->set_card_id($card_id)
-				->set_equipment_id($equipment->id())
-				->set_time(date('Y-m-d H:i:s'))
-		);
 
 		return $equipment;
 	}
 
 	/**
-	 * Startup a portal box
+	 * Read all equipment matching the filters
 	 *
-	 * @param string $mac  the mac address of the portal box
-	 * @return Equipment  the portal box
-	 * @throws NotFoundException  if the mac address does not match a registered
-	 *      portalbox
+	 * @param array<string, string>  filters that all equipment in the result set
+	 *      must match
+	 * @return Equipment[]  the equipment
+	 * @throws InvalidArgumentException  if the filter specifies an equipment
+	 *      type id or user id that is not an integer
 	 */
-	private function startup(string $mac): Equipment {
-		$query = (new EquipmentQuery())
-			->set_mac_address($mac);
-		$equipment = $this->equipmentModel->search($query);
-		if (empty($equipment)) {
+	public function readAll(array $filters): array {
+		$query = new EquipmentQuery();
+
+		if (isset($filters['location_id']) && !empty($filters['location_id'])) {
+			$id = filter_var($filters['location_id'], FILTER_VALIDATE_INT);
+			if ($id === false) {
+				throw new InvalidArgumentException(self::ERROR_LOCATION_FILTER_MUST_BE_INT);
+			}
+
+			$query->set_location_id($id);
+		}
+
+		// by default do not include out of service equipment
+		if (
+			!isset($filters['include_out_of_service'])
+			|| empty($filters['include_out_of_service'])
+		) {
+			$query->set_exclude_out_of_service(true);
+		}
+
+		return $this->equipmentModel->search($query);
+	}
+
+	/**
+	 * Modify equipment using data read from the specified data stream
+	 *
+	 * @param int $id  the unique id of the equipment to modify
+	 * @param string $filePath  the path to a file from which to read json data
+	 * @return Equipment  the equipment as modified
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not update
+	 *      equipment
+	 * @throws InvalidArgumentException  if the file can not be read or does not
+	 *      contain JSON encoded data
+	 */
+	public function update(int $id, string $filePath): Equipment {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_UPDATE);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::MODIFY_EQUIPMENT)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_MODIFY);
+		}
+
+		$data = file_get_contents($filePath);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
+		}
+
+		$equipment = json_decode($data, TRUE);
+		if (!is_array($equipment)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
+		}
+
+		$equipment = $this->equipmentModel->update(
+			$this->deserialize($equipment)->set_id($id)
+		);
+		if ($equipment === null) {
 			throw new NotFoundException(self::ERROR_EQUIPMENT_NOT_FOUND);
 		}
-
-		// get the first item in the list... in theory there should only be one
-		// item in the list, but we can afford to be defensive
-		$equipment = reset($equipment);
-
-		if (!$equipment->is_in_service()) {
-			throw new OutOfServiceDeviceException(self::ERROR_EQUIPMENT_OUT_OF_SERVICE);
-		}
-
-		$this->loggedEventModel->create(
-			(new LoggedEvent())
-				->set_type(LoggedEventType::STARTUP_COMPLETE)
-				->set_equipment_id($equipment->id())
-				->set_time(date('Y-m-d H:i:s'))
-		);
 
 		return $equipment;
 	}

@@ -12,59 +12,7 @@ use Portalbox\Type\Equipment;
  * EquipmentTransformer is our bridge between dictionary representations and
  * Equipment instances.
  */
-class EquipmentTransformer implements InputTransformer, OutputTransformer {
-	/**
-	 * Deserialize a Equipment object from a dictionary
-	 *
-	 * @param array data - a dictionary representing a Equipment
-	 * @return Equipment - an object based on the data specified
-	 * @throws InvalidArgumentException if a require field is not specified
-	 */
-	public function deserialize(array $data): Equipment {
-		if (!array_key_exists('name', $data)) {
-			throw new InvalidArgumentException('\'name\' is a required field');
-		}
-		if (!array_key_exists('type_id', $data)) {
-			throw new InvalidArgumentException('\'type_id\' is a required field');
-		}
-		if (!array_key_exists('location_id', $data)) {
-			throw new InvalidArgumentException('\'location_id\' is a required field');
-		}
-		if (!array_key_exists('mac_address', $data)) {
-			throw new InvalidArgumentException('\'mac_address\' is a required field');
-		}
-		if (!array_key_exists('timeout', $data)) {
-			throw new InvalidArgumentException('\'timeout\' is a required field');
-		}
-		if (!array_key_exists('in_service', $data)) {
-			throw new InvalidArgumentException('\'in_service\' is a required field');
-		}
-
-		// service minutes is optional and should default to 0
-		$service_minutes = 0;
-		if (array_key_exists('service_minutes', $data)) {
-			$service_minutes = intval($data["service_minutes"]);
-		}
-
-		$type = (new EquipmentTypeModel(Config::config()))->read($data['type_id']);
-		if (null === $type) {
-			throw new InvalidArgumentException('\'type_id\' must correspond to a valid equipment type');
-		}
-		$location = (new LocationModel(Config::config()))->read($data['location_id']);
-		if (null === $location) {
-			throw new InvalidArgumentException('\'location_id\' must correspond to a valid location');
-		}
-
-		return (new Equipment())
-			->set_name(strip_tags($data['name']))
-			->set_type($type)
-			->set_location($location)
-			->set_mac_address($data['mac_address'])
-			->set_timeout($data['timeout'])
-			->set_is_in_service($data['in_service'])
-			->set_service_minutes($service_minutes);
-	}
-
+class EquipmentTransformer implements OutputTransformer {
 	/**
 	 * Called to serialize Equipment instance to a dictionary
 	 *

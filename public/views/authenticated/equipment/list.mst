@@ -15,12 +15,12 @@
 	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
 	<form>
 		<label for="include_out_of_service">Include &quot;Out of Service&quot;:</label>
-		<input
-			onchange="app.search_equipment(this.form);"
-			type="checkbox"
-			name="include_out_of_service"
-			id="include_out_of_service"
-			{{#include_out_of_service}}checked{{/include_out_of_service}} />
+		<input onchange="app.search_equipment(this.form);" type="checkbox" name="include_out_of_service" id="include_out_of_service" {{#include_out_of_service}}checked{{/include_out_of_service}} />
+		<label for="location_id">Location:</label>
+		<select name="location_id" id="location_id" onchange="app.search_equipment(this.form);">
+			<option></option>
+			{{#locations}}<option value={{id}}>{{name}}</option>{{/locations}}
+		</select>
 	</form>
 	{{/search}}
 	<table>

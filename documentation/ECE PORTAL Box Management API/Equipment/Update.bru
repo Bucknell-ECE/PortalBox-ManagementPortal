@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: {{HOST}}/api/v2/users.php?id=2
+  url: {{HOST}}/api/v2/equipment.php?id=953
   body: json
   auth: none
 }
 
 params:query {
-  id: 2
+  id: 953
 }
 
 headers {
@@ -20,5 +20,13 @@ headers {
 }
 
 body:json {
-  {"id":"ignored", "name":"Emma Peel", "email":"emma.peel@avengers.tv"}
+  {
+      "name": "DANA 105 GlowForge",
+      "type_id": 54,
+      "mac_address": "01-23-45-67-89-AB",
+      "location_id": 74,
+      "timeout": 0,
+      "service_minutes": 60,
+      "in_service": true
+  }
 }
