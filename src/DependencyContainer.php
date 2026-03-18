@@ -127,6 +127,7 @@ class DependencyContainer {
 					$this->get(Session::class),
 					$this->get(EquipmentModel::class),
 					$this->get(EquipmentTypeModel::class),
+					$this->get(LocationModel::class)
 				);
 			case LocationService::class:
 				return new LocationService(
