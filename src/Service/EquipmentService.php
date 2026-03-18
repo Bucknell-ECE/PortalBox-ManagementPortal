@@ -39,6 +39,9 @@ class EquipmentService {
 
 	public const ERROR_LOCATION_FILTER_MUST_BE_INT = 'The value of the location must be the integer id of the location';
 
+	public const ERROR_UNAUTHENTICATED_UPDATE = 'You must be authenticated to modify equipment';
+	public const ERROR_UNAUTHORIZED_MODIFY = 'You are not permitted to modify equipment';
+
 	protected Session $session;
 	protected EquipmentModel $equipmentModel;
 	protected EquipmentTypeModel $equipmentTypeModel;
@@ -54,40 +57,6 @@ class EquipmentService {
 		$this->equipmentModel = $equipmentModel;
 		$this->equipmentTypeModel = $equipmentTypeModel;
 		$this->locationModel = $locationModel;
-	}
-
-	/**
-	 * Create equipment from the specified data stream
-	 *
-	 * @param string $filePath  the path to a file from which to read json data
-	 * @return Equipment  The equipment which was added
-	 * @throws AuthenticationException  if no user is authenticated
-	 * @throws AuthorizationException  if the authenticated user may not create
-	 *      equipment
-	 * @throws InvalidArgumentException  if the file can not be read or does not
-	 *      contain JSON encoded data
-	 */
-	public function create(string $filePath): Equipment {
-		$authenticatedUser = $this->session->get_authenticated_user();
-		if ($authenticatedUser === null) {
-			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_CREATE);
-		}
-
-		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_EQUIPMENT)) {
-			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_CREATE);
-		}
-
-		$data = file_get_contents($filePath);
-		if ($data === false) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
-		}
-
-		$equipment = json_decode($data, TRUE);
-		if (!is_array($equipment)) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
-		}
-
-		return $this->equipmentModel->create($this->deserialize($equipment));
 	}
 
 	/**
@@ -174,6 +143,40 @@ class EquipmentService {
 	}
 
 	/**
+	 * Create equipment from the specified data stream
+	 *
+	 * @param string $filePath  the path to a file from which to read json data
+	 * @return Equipment  The equipment which was added
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not create
+	 *      equipment
+	 * @throws InvalidArgumentException  if the file can not be read or does not
+	 *      contain JSON encoded data
+	 */
+	public function create(string $filePath): Equipment {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_CREATE);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_EQUIPMENT)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_CREATE);
+		}
+
+		$data = file_get_contents($filePath);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
+		}
+
+		$equipment = json_decode($data, TRUE);
+		if (!is_array($equipment)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
+		}
+
+		return $this->equipmentModel->create($this->deserialize($equipment));
+	}
+
+	/**
 	 * Read equipment by id
 	 *
 	 * @param int $id  the unique id of the equipment to read
@@ -232,5 +235,47 @@ class EquipmentService {
 		}
 
 		return $this->equipmentModel->search($query);
+	}
+
+	/**
+	 * Modify equipment using data read from the specified data stream
+	 *
+	 * @param int $id  the unique id of the equipment to modify
+	 * @param string $filePath  the path to a file from which to read json data
+	 * @return Equipment  the equipment as modified
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not update
+	 *      equipment
+	 * @throws InvalidArgumentException  if the file can not be read or does not
+	 *      contain JSON encoded data
+	 */
+	public function update(int $id, string $filePath): Equipment {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_UPDATE);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::MODIFY_EQUIPMENT)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_MODIFY);
+		}
+
+		$data = file_get_contents($filePath);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
+		}
+
+		$equipment = json_decode($data, TRUE);
+		if (!is_array($equipment)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_EQUIPMENT_DATA);
+		}
+
+		$equipment = $this->equipmentModel->update(
+			$this->deserialize($equipment)->set_id($id)
+		);
+		if ($equipment === null) {
+			throw new NotFoundException(self::ERROR_EQUIPMENT_NOT_FOUND);
+		}
+
+		return $equipment;
 	}
 }

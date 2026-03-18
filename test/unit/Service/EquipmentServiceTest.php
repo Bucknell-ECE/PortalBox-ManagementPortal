@@ -971,4 +971,793 @@ final class EquipmentServiceTest extends TestCase {
 	}
 
 	#endregion test readAll()
+
+	#region test update()
+
+	public function testUpdateThrowsWhenNotAuthenticated() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(null);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(AuthenticationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHENTICATED_UPDATE);
+		$service->update(1, 'not a file path');
+	}
+
+	public function testUpdateThrowsWhenNotAuthorized() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(AuthorizationException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_UNAUTHORIZED_MODIFY);
+		$service->update(1, 'not a file path');
+	}
+
+	public function testUpdateThrowsWhenFileIsNotReadable() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_EQUIPMENT_DATA);
+		// PHP warning is intentionally suppressed in next line for testing
+		@$service->update(1, 'file_does_not_exist.json');
+	}
+
+	public function testUpdateThrowsWhenDataIsNotArray() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_EQUIPMENT_DATA);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/DataIsNotArray.json'));
+	}
+
+	public function testUpdateThrowsWhenNameIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_NAME_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/NameIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenNameIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_NAME_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/NameIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenTypeIdIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TYPE_ID_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TypeIdIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenTypeIdIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TYPE_ID_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TypeIdIsNotInt.json'));
+	}
+
+	public function testUpdateThrowsWhenTypeIdIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(NULL);
+
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_TYPE_ID);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
+	}
+
+	public function testUpdateThrowsWhenLocationIdIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_LOCATION_ID_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/LocationIdIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenLocationIdIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_LOCATION_ID_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/LocationIdIsNotInt.json'));
+	}
+
+	public function testUpdateThrowsWhenLocationIdIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(NULL);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_INVALID_LOCATION_ID);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
+	}
+
+	public function testUpdateThrowsWhenMACAddressIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_MAC_ADDRESS_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/MACAddressIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenMACAddressIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_MAC_ADDRESS_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/MACAddressIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenTimeoutIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TIMEOUT_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TimeoutIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenTimeoutIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TIMEOUT_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TimeoutIsNotInt.json'));
+	}
+
+	public function testUpdateThrowsWhenTimeoutIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_TIMEOUT_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/TimeoutIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenInServiceIsMissing() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_IN_SERVICE_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/InServiceIsMissing.json'));
+	}
+
+	public function testUpdateThrowsWhenInServiceIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_IN_SERVICE_IS_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/InServiceIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenServiceMinutesIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createStub(EquipmentModel::class);
+
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$equipmentTypeModel->method('read')->willReturn(new EquipmentType());
+
+		$locationModel = $this->createStub(LocationModel::class);
+		$locationModel->method('read')->willReturn(new Location());
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_SERVICE_MINUTES_IS_INVALID);
+		$service->update(1, realpath(__DIR__ . '/EquipmentServiceTestData/ServiceMinutesIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenEquipmentDoesNotExist() {
+		$id = 23;
+
+		// values matching input file
+		$in_service = true;
+		$location_id = 3;
+		$mac_address = 'aa00bb11cc22'; // normalized by Portalbox\Type\Equipment
+		$name = 'Kibble Launcher';
+		$service_minutes = 0;
+		$timeout = 60;
+		$type_id = 2;
+
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createMock(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn($equipment) =>
+					$equipment->id() === $id
+					&& $equipment->name() === $name
+					&& $equipment->type()->id() === $type_id
+					&& $equipment->location()->id() === $location_id
+					&& $equipment->mac_address() === $mac_address
+					&& $equipment->timeout() === $timeout
+					&& $equipment->is_in_service() === $in_service
+					&& $equipment->service_minutes() === $service_minutes
+			)
+		)
+		->willReturn(NULL);
+
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
+		$equipmentTypeModel->expects($this->once())->method('read')
+			->with($type_id)
+			->willReturn(
+				(new EquipmentType())->set_id($type_id)
+			);
+
+		$locationModel = $this->createMock(LocationModel::class);
+		$locationModel->expects($this->once())->method('read')
+			->with($location_id)
+			->willReturn(
+				(new Location())->set_id($location_id)
+			);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		self::expectException(NotFoundException::class);
+		self::expectExceptionMessage(EquipmentService::ERROR_EQUIPMENT_NOT_FOUND);
+		$service->update($id, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
+	}
+
+	public function testUpdateSuccessWithServiceMinutes() {
+		$id = 23;
+
+		// values matching input file
+		$in_service = true;
+		$location_id = 3;
+		$mac_address = 'aa00bb11cc22'; // normalized by Portalbox\Type\Equipment
+		$name = 'Kibble Launcher';
+		$service_minutes = 137;
+		$timeout = 60;
+		$type_id = 2;
+
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createMock(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn($equipment) =>
+					$equipment->id() === $id
+					&& $equipment->name() === $name
+					&& $equipment->type()->id() === $type_id
+					&& $equipment->location()->id() === $location_id
+					&& $equipment->mac_address() === $mac_address
+					&& $equipment->timeout() === $timeout
+					&& $equipment->is_in_service() === $in_service
+					&& $equipment->service_minutes() === $service_minutes
+			)
+		)
+		->willReturnArgument(0);
+
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
+		$equipmentTypeModel->expects($this->once())->method('read')
+			->with($type_id)
+			->willReturn(
+				(new EquipmentType())->set_id($type_id)
+			);
+
+		$locationModel = $this->createMock(LocationModel::class);
+		$locationModel->expects($this->once())->method('read')
+			->with($location_id)
+			->willReturn(
+				(new Location())->set_id($location_id)
+			);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		$equipment = $service->update($id, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipmentWithServiceMinutes.json'));
+
+		self::assertInstanceOf(Equipment::class, $equipment);
+		self::assertSame($name, $equipment->name());
+		self::assertInstanceOf(EquipmentType::class, $equipment->type());
+		self::assertSame($type_id, $equipment->type()->id());
+		self::assertInstanceOf(Location::class, $equipment->location());
+		self::assertSame($location_id, $equipment->location()->id());
+		self::assertSame($mac_address, $equipment->mac_address());
+		self::assertSame($timeout, $equipment->timeout());
+		self::assertSame($in_service, $equipment->is_in_service());
+		self::assertSame($service_minutes, $equipment->service_minutes());
+	}
+
+	public function testUpdateSuccess() {
+		$id = 23;
+
+		// values matching input file
+		$in_service = true;
+		$location_id = 3;
+		$mac_address = 'aa00bb11cc22'; // normalized by Portalbox\Type\Equipment
+		$name = 'Kibble Launcher';
+		$service_minutes = 0;
+		$timeout = 60;
+		$type_id = 2;
+
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_EQUIPMENT])
+				)
+		);
+
+		$equipmentModel = $this->createMock(EquipmentModel::class);
+		$equipmentModel->expects($this->once())->method('update')->with(
+			$this->callback(
+				fn($equipment) =>
+					$equipment->id() === $id
+					&& $equipment->name() === $name
+					&& $equipment->type()->id() === $type_id
+					&& $equipment->location()->id() === $location_id
+					&& $equipment->mac_address() === $mac_address
+					&& $equipment->timeout() === $timeout
+					&& $equipment->is_in_service() === $in_service
+					&& $equipment->service_minutes() === $service_minutes
+			)
+		)
+		->willReturnArgument(0);
+
+		$equipmentTypeModel = $this->createMock(EquipmentTypeModel::class);
+		$equipmentTypeModel->expects($this->once())->method('read')
+			->with($type_id)
+			->willReturn(
+				(new EquipmentType())->set_id($type_id)
+			);
+
+		$locationModel = $this->createMock(LocationModel::class);
+		$locationModel->expects($this->once())->method('read')
+			->with($location_id)
+			->willReturn(
+				(new Location())->set_id($location_id)
+			);
+
+		$service = new EquipmentService(
+			$session,
+			$equipmentModel,
+			$equipmentTypeModel,
+			$locationModel
+		);
+
+		$equipment = $service->update($id, realpath(__DIR__ . '/EquipmentServiceTestData/ValidEquipment.json'));
+
+		self::assertInstanceOf(Equipment::class, $equipment);
+		self::assertSame($name, $equipment->name());
+		self::assertInstanceOf(EquipmentType::class, $equipment->type());
+		self::assertSame($type_id, $equipment->type()->id());
+		self::assertInstanceOf(Location::class, $equipment->location());
+		self::assertSame($location_id, $equipment->location()->id());
+		self::assertSame($mac_address, $equipment->mac_address());
+		self::assertSame($timeout, $equipment->timeout());
+		self::assertSame($in_service, $equipment->is_in_service());
+		self::assertSame($service_minutes, $equipment->service_minutes());
+	}
+
+	#endregion test update()
 }

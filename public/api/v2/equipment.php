@@ -24,6 +24,23 @@ try {
 				ResponseHandler::render($equipment, new EquipmentTransformer());
 			}
 			break;
+		case 'POST':	// Update
+			$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+			if ($id === false) {
+				throw new InvalidArgumentException('You must specify the equipment to modify via the id param');
+			}
+
+			$service = $container->get(EquipmentService::class);
+			$equipment = $service->update($id, 'php://input');
+			ResponseHandler::render($equipment, new EquipmentTransformer());
+			break;
+		case 'PUT':		// Create
+			$service = $container->get(EquipmentService::class);
+			$equipment = $service->create('php://input');
+			ResponseHandler::render($equipment, new EquipmentTransformer());
+			break;
+		case 'DELETE':	// Delete
+			// intentional fall through, deletion not allowed
 		default:
 			http_response_code(405);
 			die('We were unable to understand your request.');

@@ -5,7 +5,7 @@ meta {
 }
 
 put {
-  url: {{HOST}}/api/equipment.php
+  url: {{HOST}}/api/v2/equipment.php
   body: json
   auth: none
 }
@@ -17,11 +17,11 @@ headers {
 
 body:json {
   {
-      "id": "ignored",
       "name": "DANA 105 GlowForge",
-      "type_id": 1,
+      "type_id": 54,
       "mac_address": "01-23-45-67-89-AB",
-      "location_id": 3,
-      "timeout": ""
+      "location_id": 74,
+      "timeout": 0,
+      "in_service": true
   }
 }
