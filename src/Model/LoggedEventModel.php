@@ -135,11 +135,11 @@ class LoggedEventModel extends AbstractModel {
 			}
 			if ($query->on_or_after()) {
 				$where_clause_fragments[] = 'el.time >= :after';
-				$parameters[':after'] = $query->on_or_after();
+				$parameters[':after'] = $query->on_or_after()->format('Y-m-d H:i:s');
 			}
 			if ($query->on_or_before()) {
 				$where_clause_fragments[] = 'el.time <= :before';
-				$parameters[':before'] = $query->on_or_before();
+				$parameters[':before'] = $query->on_or_before()->format('Y-m-d H:i:s');
 			}
 		}
 
@@ -207,14 +207,14 @@ class LoggedEventModel extends AbstractModel {
 			}
 			if ($query->on_or_after()) {
 				$where_clause_fragments[] = 'el.time >= :after';
-				$parameters[':after'] = $query->on_or_after();
+				$parameters[':after'] = $query->on_or_after()->format('Y-m-d H:i:s');
 			}
 			if ($query->on_or_before()) {
 				$where_clause_fragments[] = 'el.time <= :before';
-				$parameters[':before'] = $query->on_or_before();
+				$parameters[':before'] = $query->on_or_before()->format('Y-m-d H:i:s');
 			}
 		}
-		
+
 		$sql .= "\n\t";
 		$sql .= implode(' AND ', $where_clause_fragments);
 		$sql .= ' GROUP BY DATE(el.time)';

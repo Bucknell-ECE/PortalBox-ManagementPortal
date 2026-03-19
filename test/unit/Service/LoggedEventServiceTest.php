@@ -413,8 +413,8 @@ final class LoggedEventServiceTest extends TestCase {
 					$query->equipment_id() === $equipment_id
 					&& $query->equipment_type_id() === $equipment_type_id
 					&& $query->location_id() === $location_id
-					&& $query->on_or_after() === $after
-					&& $query->on_or_before() === $before
+					&& $query->on_or_after()->format('Y-m-d') === $after
+					&& $query->on_or_before()->format('Y-m-d') === $before
 			)
 		)->willReturn($log);
 

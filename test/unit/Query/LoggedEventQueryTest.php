@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Test\Portalbox\Query;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Enumeration\LoggedEventType;
 use Portalbox\Query\LoggedEventQuery;
 
 final class LoggedEventQueryTest extends TestCase {
 	public function testAgreement(): void {
-		$on_or_before = '2020-05-12';
-		$on_or_after = '2020-05-11';
+		$on_or_before = new DateTimeImmutable('2020-05-12');
+		$on_or_after = new DateTimeImmutable('2020-05-11');
 		$equipment_id = 99;
 		$location_id = 11;
 		$type = LoggedEventType::TRAINING;

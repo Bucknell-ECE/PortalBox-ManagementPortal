@@ -71,9 +71,7 @@ class LoggedEventService {
 
 		$counts = $this->loggedEventModel->count(
 			(new LoggedEventQuery())
-				->set_on_or_after(
-					$start->format('Y-m-d')
-				)
+				->set_on_or_after($start)
 				->set_equipment_id($equipment_id)
 		);
 
@@ -115,9 +113,7 @@ class LoggedEventService {
 	public function getUsageStatsForLocation(?int $location_id = null): array {
 		$now = new DateTimeImmutable();
 		$start = $now->sub(new DateInterval('P30D'))->setTime(0, 0);
-		$query = (new LoggedEventQuery())->set_on_or_after(
-			$start->format('Y-m-d')
-		);
+		$query = (new LoggedEventQuery())->set_on_or_after($start);
 
 		if ($location_id !== null) {
 			$authenticatedUser = $this->session->get_authenticated_user();
@@ -206,12 +202,12 @@ class LoggedEventService {
 
 		if(isset($filters['after']) && !empty($filters['after'])) {
 			$after = new DateTimeImmutable($filters['after']);
-			$query->set_on_or_after($after->format('Y-m-d'));
+			$query->set_on_or_after($after);
 		}
 
 		if(isset($filters['before']) && !empty($filters['before'])) {
 			$before = new DateTimeImmutable($filters['before']);
-			$query->set_on_or_before($before->format('Y-m-d'));
+			$query->set_on_or_before($before);
 		}
 
 		return $this->loggedEventModel->search($query);
