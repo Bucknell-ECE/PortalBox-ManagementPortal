@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Portalbox\Query;
 
+use DateTimeInterface;
 use Portalbox\Enumeration\LoggedEventType;
 
 /**
@@ -11,12 +14,12 @@ class LoggedEventQuery {
 	/**
 	 * Find log events on or before this date
 	 */
-	protected ?string $on_or_before = null;
+	protected ?DateTimeInterface $on_or_before = null;
 
 	/**
 	 * Find log events on or before this date
 	 */
-	protected ?string $on_or_after = null;
+	protected ?DateTimeInterface $on_or_after = null;
 
 	/**
 	 * Find log events for this equipment
@@ -41,14 +44,14 @@ class LoggedEventQuery {
 	/**
 	 * Get the on or before date
 	 */
-	public function on_or_before(): ?string {
+	public function on_or_before(): ?DateTimeInterface {
 		return $this->on_or_before;
 	}
 
 	/**
 	 * Set the on or before date
 	 */
-	public function set_on_or_before(string $on_or_before): self {
+	public function set_on_or_before(?DateTimeInterface $on_or_before): self {
 		$this->on_or_before = $on_or_before;
 		return $this;
 	}
@@ -56,14 +59,14 @@ class LoggedEventQuery {
 	/**
 	 * Get the on or after date
 	 */
-	public function on_or_after(): ?string {
+	public function on_or_after(): ?DateTimeInterface {
 		return $this->on_or_after;
 	}
 
 	/**
 	 * Set the on or after date
 	 */
-	public function set_on_or_after(string $on_or_after): self {
+	public function set_on_or_after(?DateTimeInterface $on_or_after): self {
 		$this->on_or_after = $on_or_after;
 		return $this;
 	}

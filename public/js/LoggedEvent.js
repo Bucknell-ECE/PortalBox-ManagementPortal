@@ -13,7 +13,7 @@ export class LoggedEvent {
 	 * @throws {String} - if any other error occurs
 	 */
 	static async list(query = '') {
-		const response = await fetch("/api/logs.php?" + query, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/logs.php?" + query, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();

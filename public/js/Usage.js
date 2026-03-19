@@ -19,7 +19,7 @@ export class Usage {
 				throw new SessionTimeOutError();
 			}
 
-			throw "API was unable to find location: " + id + " usage";
+			throw "API was unable to assemble usage statistics";
 		}
 
 		const data = await response.json();

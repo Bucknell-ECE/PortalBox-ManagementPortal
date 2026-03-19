@@ -5,16 +5,17 @@ meta {
 }
 
 get {
-  url: {{HOST}}/api/logs.php?location_id=3
+  url: {{HOST}}/api/v2/logs.php
   body: none
   auth: none
 }
 
 params:query {
-  location_id: 3
-  ~before: 2017-01-01
-  ~after: 2016-11-01
-  ~equipment_id: 4
+  ~location_id: 1
+  ~before: 2026-03-01
+  ~after: 2026-01-01
+  ~equipment_id: 3
+  ~equipment_type_id: 2
 }
 
 headers {

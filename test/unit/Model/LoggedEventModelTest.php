@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Test\Portalbox\Model;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Enumeration\ChargePolicy;
@@ -305,6 +306,26 @@ final class LoggedEventModelTest extends TestCase {
 		self::assertNotContains($eventId4, $events);
 		self::assertContains($eventId5, $events);
 
+		// check that we can filter out events before a date
+		$query = (new LoggedEventQuery())
+			->set_on_or_after(new DateTimeImmutable('2025-09-11'));
+		$events = array_map(fn($event) => $event->id(), $model->search($query));
+		self::assertNotContains($eventId1, $events);
+		self::assertContains($eventId2, $events);
+		self::assertContains($eventId3, $events);
+		self::assertContains($eventId4, $events);
+		self::assertContains($eventId5, $events);
+
+		// check that we can filter out events after a date
+		$query = (new LoggedEventQuery())
+			->set_on_or_before(new DateTimeImmutable('2025-09-11 23:59:59'));
+		$events = array_map(fn($event) => $event->id(), $model->search($query));
+		self::assertContains($eventId1, $events);
+		self::assertContains($eventId2, $events);
+		self::assertContains($eventId3, $events);
+		self::assertContains($eventId4, $events);
+		self::assertNotContains($eventId5, $events);
+
 		// drop to SQL to cleanup
 		$statement = $model
 			->configuration()
@@ -419,7 +440,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		// check that we can query before a date
 		$query = (new LoggedEventQuery())
-			->set_on_or_before('2010-09-12 23:59:59');
+			->set_on_or_before(new DateTimeImmutable('2010-09-12 23:59:59'));
 		$counts = $model->count($query);
 		self::assertArrayHasKey('2010-09-11', $counts);
 		self::assertSame(2, $counts['2010-09-11']);
@@ -430,7 +451,7 @@ final class LoggedEventModelTest extends TestCase {
 
 		// check that we can query after a date
 		$query = (new LoggedEventQuery())
-			->set_on_or_after('2010-09-13');
+			->set_on_or_after(new DateTimeImmutable('2010-09-13'));
 		$counts = $model->count($query);
 		self::assertArrayNotHasKey('2010-09-11', $counts);
 		self::assertArrayNotHasKey('2010-09-12', $counts);
