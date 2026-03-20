@@ -12,6 +12,11 @@
 	</header>
 	{{#search}}<input type="checkbox" id="search-form-toggle" class="checkbox-hack" {{#customized}}checked {{/customized}}/>
 	<form onsubmit="return false;">
+		<label for="type">Card Type:</label>
+		<select name="type" id="type" onchange="app.search_cards(this.form);">
+			<option></option>
+			{{#types}}<option value="{{id}}">{{name}}</option>{{/types}}
+		</select>
 		<label for="card">Card ID:</label>
 		<input name="card" id="card" onchange="app.search_cards(this.form);" value="{{card}}" autocomplete="off" />
 	</form>
@@ -24,11 +29,16 @@
 			</tr>
 		</thead>
 		<tbody>
+			{{#show-default}}
+			<tr><td colspan="2">Which cards would you like to search for?</td></tr>
+			{{/show-default}}
+			{{^show-default}}
 			{{#cards}}<tr class="link" onclick="go('/cards/{{id}}', 'Cards');">
 				<td>{{id}}</td>
 				<td>{{card_type}}</td>
 			</tr>{{/cards}}
 			{{^cards}}<tr><td colspan="2">We did not find any cards</td></tr>{{/cards}}
+			{{/show-default}}
 		</tbody>
 	</table>
 </article>

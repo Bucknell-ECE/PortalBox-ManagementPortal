@@ -177,17 +177,26 @@ class CardModel extends AbstractModel {
 
 		$where_clause_fragments = [];
 		$parameters = [];
-		if (null !== $query && null !== $query->equipment_type_id()) {
+
+		if (null === $query) {
+			$query = new CardQuery();
+		}
+
+		if (null !== $query->equipment_type_id()) {
 			$where_clause_fragments[] = 'etxc.equipment_type_id = :equipment_type_id';
 			$parameters[':equipment_type_id'] = $query->equipment_type_id();
 		}
-		if (null !== $query && null !== $query->user_id()) {
+		if (null !== $query->user_id()) {
 			$where_clause_fragments[] = 'uxc.user_id = :user_id';
 			$parameters[':user_id'] = $query->user_id();
 		}
-		if (null !== $query && null !== $query->id()) {
+		if (null !== $query->id()) {
 			$where_clause_fragments[] = 'c.id LIKE :id';
 			$parameters[':id'] = '%' . $query->id() . '%';
+		}
+		if (null !== $query->type()) {
+			$where_clause_fragments[] = 'c.type_id = :type_id';
+			$parameters[':type_id'] = $query->type()->value;
 		}
 		if (0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';

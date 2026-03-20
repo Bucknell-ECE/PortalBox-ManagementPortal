@@ -1,18 +1,10 @@
 <?php
 
-require '../../src/autoload.php';
+require '../../../src/bootstrap.php';
 
-use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Exception\NotFoundException;
-use Portalbox\Model\CardModel;
-use Portalbox\Model\EquipmentTypeModel;
-use Portalbox\Model\UserModel;
 use Portalbox\Service\CardService;
-use Portalbox\Session;
 use Portalbox\Transform\CardTransformer;
-
-$session = new Session();
 
 try {
 	switch($_SERVER['REQUEST_METHOD']) {
@@ -23,37 +15,19 @@ try {
 					throw new InvalidArgumentException('The card must be specified as an integer');
 				}
 
-				$service = new CardService(
-					$session,
-					new CardModel(Config::config()),
-					new EquipmentTypeModel(Config::config()),
-					new UserModel(Config::config())
-				);
+				$service = $container->get(CardService::class);
 				$card = $service->read($cardId);
-				$transformer = new CardTransformer();
-				ResponseHandler::render($card, $transformer);
+				ResponseHandler::render($card, new CardTransformer());
 			} else { // Lists
-				$service = new CardService(
-					$session,
-					new CardModel(Config::config()),
-					new EquipmentTypeModel(Config::config()),
-					new UserModel(Config::config())
-				);
+				$service = $container->get(CardService::class);
 				$cards = $service->readAll($_GET);
-				$transformer = new CardTransformer();
-				ResponseHandler::render($cards, $transformer);
+				ResponseHandler::render($cards, new CardTransformer());
 			}
 			break;
 		case 'PUT':		// Create
-			$service = new CardService(
-				$session,
-				new CardModel(Config::config()),
-				new EquipmentTypeModel(Config::config()),
-				new UserModel(Config::config())
-			);
+			$service = $container->get(CardService::class);
 			$card = $service->create('php://input');
-			$transformer = new CardTransformer();
-			ResponseHandler::render($card, $transformer);
+			ResponseHandler::render($card, new CardTransformer());
 			break;
 		case 'DELETE':	// Delete
 			// intentional fall through, deletion not allowed

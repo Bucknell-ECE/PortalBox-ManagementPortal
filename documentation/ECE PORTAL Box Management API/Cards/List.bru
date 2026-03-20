@@ -5,9 +5,15 @@ meta {
 }
 
 get {
-  url: {{HOST}}/api/cards.php
+  url: {{HOST}}/api/v2/cards.php
   body: none
   auth: none
+}
+
+params:query {
+  ~type: 1
+  ~user_id: 71
+  ~id: 1000000000
 }
 
 headers {
