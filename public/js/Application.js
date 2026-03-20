@@ -1430,13 +1430,12 @@ class Application {
 	}
 
 	/**
-	 * Retrieves log as currently filtered in csv format and allows user
-	 * to save as a CSV file
+	 * Retrieves data in csv format and allows user to save it locally
+	 *
+	 * @param {string} url  the url from which to download the data
+	 * @param {string} suggestedFileName  the file name to suggest to the user
 	 */
-	save(search) {
-		// let url = '/api/logs.php?' + search;
-		let url = '/api/' + search;
-
+	save(url, suggestedFileName) {
 		fetch(url, {
 			credentials: "include",
 			headers: {
@@ -1449,10 +1448,10 @@ class Application {
 				throw new SessionTimeOutError();
 			}
 
-			throw "API was unable to create report from log";
+			throw "We were unable to download the requested data from the API";
 		}).then(data => {
 			let blob = new Blob([data], {type: "text/csv;charset=utf-8"});
-			saveAs(blob, "log.csv");    // provided by Eli Grey's FileSaver.js
+			saveAs(blob, suggestedFileName); // provided by Eli Grey's FileSaver.js
 		}).catch(e => this.handleError(e));
 	}
 

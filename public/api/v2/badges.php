@@ -21,7 +21,36 @@ try {
 			} else {
 				$service = $container->get(BadgeService::class);
 				$report = $service->getBadgesForActiveUsers();
-				ResponseHandler::render($report, new BadgeReportTransformer());
+				$transformer = new BadgeReportTransformer();
+				// ResponseHandler can't handle an array in a csv field so we'll
+				// customize csv rendering via re-implementation here
+				switch ($_SERVER['HTTP_ACCEPT']) {
+					case 'text/csv':
+						header('Content-Type: text/csv');
+						$out = fopen('php://output', 'w');
+						fputcsv($out, $transformer->get_column_headers());
+						foreach ($report as $list_item) {
+							$row = $transformer->serialize($list_item);
+							$row['badges'] = implode(',', $row['badges']);
+							fputcsv($out, array_values($row));
+						}
+						fclose($out);
+						break;
+					case 'application/json': // intentional fallthrough; JSON is our default format
+					default:
+						$transformed = [];
+						foreach ($report as $list_item) {
+							$transformed[] = $transformer->serialize($list_item);
+						}
+						$encoded = json_encode($transformed);
+
+						if (false === $encoded) {
+							throw new Exception(json_last_error_msg());
+						}
+
+						header('Content-Type: application/json');
+						echo $encoded;
+				}
 			}
 			break;
 		default:
