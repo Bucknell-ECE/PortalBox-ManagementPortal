@@ -6,7 +6,7 @@
 	<header>
 		<h1>Access Logs{{#search}}{{^customized}} for the Past Week{{/customized}}{{/search}}</h1>
 		<div class="button-group">
-			<button type="button" title="Download as (*.csv)" onclick="app.save('logs.php?' + '{{queryString}}')"><i class="material-icons">save_alt</i></button>
+			<button type="button" title="Download as (*.csv)" onclick="app.save('/api/v2/logs.php?' + '{{queryString}}', 'log.csv')"><i class="material-icons">save_alt</i></button>
 			<label for="search-form-toggle" title="Search"><i class="material-icons">search</i></label>
 		</div>
 	</header>

@@ -12,9 +12,8 @@ class BadgeReportTransformer implements OutputTransformer {
 	/**
 	 * Called to serialize a report row
 	 *
-	 * @param bool $traverse - traverse the object graph if true, otherwise
-	 *      may substitute flattened representations where appropriate.
-	 * @return array -  a dictionary whose values are null, string, int, float
+	 * @param bool $traverse  present for API compatibility but otherwise ignored
+	 * @return array  a dictionary whose values are null, string, int, float
 	 *      dictionaries, or arrays with the compound types having the same
 	 *      restrictions when $traverse is true or a dictionary whose values
 	 *      are null, string, int, and float otherwise
@@ -23,10 +22,10 @@ class BadgeReportTransformer implements OutputTransformer {
 		return [
 			'name' => $data[0],
 			'email' => $data[1],
-			'badges' => implode(', ', array_map(
-				fn ($badge_level) => $badge_level->name(),
+			'badges' => array_map(
+				fn (BadgeLevel $badge_level) => $badge_level->name(),
 				$data[2]
-			))
+			)
 		];
 	}
 
