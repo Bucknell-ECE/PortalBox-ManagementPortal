@@ -2,6 +2,8 @@
 
 namespace Portalbox\Query;
 
+use Portalbox\Enumeration\CardType;
+
 /**
  * CardQuery presents a standard interface for Card search queries
  */
@@ -20,6 +22,11 @@ class CardQuery {
 	 * Find cards for this id
 	 */
 	protected ?int $id = null;
+
+	/**
+	 * Find cards of this type
+	 */
+	protected ?CardType $type = null;
 
 	/**
 	 * Get the equipment type id
@@ -63,6 +70,21 @@ class CardQuery {
 	 */
 	public function set_id(int $id): self {
 		$this->id = $id;
+		return $this;
+	}
+
+	/**
+	 * Get the card type
+	 */
+	public function type(): ?CardType {
+		return $this->type;
+	}
+
+	/**
+	 * Set the card type
+	 */
+	public function set_type(?CardType $type): self {
+		$this->type = $type;
 		return $this;
 	}
 }

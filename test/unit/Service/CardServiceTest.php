@@ -797,6 +797,52 @@ final class CardServiceTest extends TestCase {
 		$service->readAll(['user_id' => 'meh']);
 	}
 
+	public function testReadAllThrowsWhenTypeFilterIsNotInteger() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new CardService(
+			$session,
+			$cardModel,
+			$equipmentTypeModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(CardService::ERROR_TYPE_FILTER_MUST_BE_INT);
+		$service->readAll(['type' => 'meh']);
+	}
+
+	public function testReadAllThrowsWhenTypeFilterIsNotCardType() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role((new Role())->set_id(2))
+		);
+
+		$cardModel = $this->createStub(CardModel::class);
+		$equipmentTypeModel = $this->createStub(EquipmentTypeModel::class);
+		$userModel = $this->createStub(UserModel::class);
+
+		$service = new CardService(
+			$session,
+			$cardModel,
+			$equipmentTypeModel,
+			$userModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(CardService::ERROR_TYPE_FILTER_MUST_BE_INT);
+		$service->readAll(['type' => '6502']);
+	}
+
 	public function testReadAllThrowsWhenNotAuthorized() {
 		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
@@ -896,7 +942,8 @@ final class CardServiceTest extends TestCase {
 		$filters,
 		$user_id,
 		$equipment_type_id,
-		$id
+		$id,
+		$type
 	) {
 		$cards = [
 			new UserCard()
@@ -919,6 +966,7 @@ final class CardServiceTest extends TestCase {
 					$query->user_id() === $user_id
 					&& $query->equipment_type_id() === $equipment_type_id
 					&& $query->id() === $id
+					&& $query->type() === $type
 			)
 		)
 		->willReturn($cards);
@@ -944,12 +992,14 @@ final class CardServiceTest extends TestCase {
 			[],
 			NULL,
 			NULL,
+			NULL,
 			NULL
 		];
 
 		yield [
 			['user_id' => '123'],
 			123,
+			NULL,
 			NULL,
 			NULL
 		];
@@ -958,6 +1008,7 @@ final class CardServiceTest extends TestCase {
 			['equipment_type_id' => '12'],
 			NULL,
 			12,
+			NULL,
 			NULL
 		];
 
@@ -965,7 +1016,16 @@ final class CardServiceTest extends TestCase {
 			['card' => '12'],
 			NULL,
 			NULL,
-			12
+			12,
+			NULL
+		];
+
+		yield [
+			['type' => CardType::USER->value],
+			NULL,
+			NULL,
+			NULL,
+			CardType::USER
 		];
 	}
 
