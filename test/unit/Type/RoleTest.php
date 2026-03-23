@@ -19,7 +19,6 @@ final class RoleTest extends TestCase {
 			Permission::READ_API_KEY,
 			Permission::READ_CARD
 		];
-		$permissions_count = 2;
 
 		$role = (new Role())
 			->set_id($id)
@@ -32,10 +31,7 @@ final class RoleTest extends TestCase {
 		self::assertEquals($name, $role->name());
 		self::assertEquals($is_system_role, $role->is_system_role());
 		self::assertEquals($description, $role->description());
-		self::assertIsIterable($role->permissions());
-		self::assertCount($permissions_count, $role->permissions());
-		self::assertContains(Permission::READ_API_KEY, $role->permissions());
-		self::assertContains(Permission::READ_CARD, $role->permissions());
+		self::assertEqualsCanonicalizing($permissions, $role->permissions());
 	}
 
 	public function testSetInvalidPermissionListTriggersException(): void {

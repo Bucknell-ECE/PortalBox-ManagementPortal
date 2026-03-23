@@ -3,6 +3,7 @@
 namespace Portalbox\Type;
 
 use InvalidArgumentException;
+use Portalbox\Enumeration\Permission;
 
 /**
  * APIKey represents a token that can be used to authenticate to the REST API
@@ -10,6 +11,8 @@ use InvalidArgumentException;
  */
 class APIKey {
 	use \Portalbox\Trait\HasIdProperty;
+
+	public const ERROR_INVALID_PERMISSION = 'permission must be one of the enumerated permissions';
 
 	/** The name of this API key */
 	protected string $name = '';
@@ -19,6 +22,13 @@ class APIKey {
 	 * absence of a User Session
 	 */
 	protected ?string $token = null;
+
+	/**
+	 * A list of permissions assigned to this API key
+	 *
+	 * @var Permission[]
+	 */
+	protected array $permissions = [];
 
 	/**
 	 * Get the name of this API key
@@ -68,5 +78,32 @@ class APIKey {
 		} else {
 			return sprintf('%04X%04X%04X%04X%04X%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
 		}
+	}
+
+	/**
+	 * Get the permissions for this role
+	 *
+	 * @return int[]  the list of the role's permissions
+	 */
+	public function permissions(): array {
+		return $this->permissions;
+	}
+
+	/**
+	 * Set the permissions for this role
+	 *
+	 * @param int[] $permissions  the permissions for this role
+	 * @throws InvalidArgumentException if any of the  specified permission are
+	 *             not not one of the public constants from Permission
+	 */
+	public function set_permissions(array $permissions): self {
+		foreach ($permissions as $permission) {
+			if (!($permission instanceof Permission)) {
+				throw new InvalidArgumentException(self::ERROR_INVALID_PERMISSION);
+			}
+		}
+
+		$this->permissions = $permissions;
+		return $this;
 	}
 }

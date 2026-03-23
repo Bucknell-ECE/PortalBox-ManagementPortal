@@ -23,6 +23,8 @@ class APIKeyService {
 	public const ERROR_INVALID_API_KEY_DATA = 'We can not construct an API key from the provided data';
 	public const ERROR_NAME_IS_REQUIRED = '\'name\' is a required field';
 	public const ERROR_NAME_IS_INVALID = '\'name\' must not be an empty string';
+	public const ERROR_PERMISSIONS_ARE_REQUIRED = '\'permissions\' is a required field';
+	public const ERROR_PERMISSIONS_ARE_INVALID = '\'permissions\' must be an array';
 
 	public const ERROR_UNAUTHENTICATED_READ = 'You must be authenticated to read API keys';
 	public const ERROR_UNAUTHORIZED_READ = 'You are not authorized to read the specified API key(s)';
@@ -62,8 +64,33 @@ class APIKeyService {
 			throw new InvalidArgumentException(self::ERROR_NAME_IS_INVALID);
 		}
 
+		if (!array_key_exists('permissions', $data)) {
+			throw new InvalidArgumentException(self::ERROR_PERMISSIONS_ARE_REQUIRED);
+		}
+
+		$permissions = $data['permissions'];
+		if (!is_array($permissions)) {
+			throw new InvalidArgumentException(self::ERROR_PERMISSIONS_ARE_INVALID);
+		}
+
+		$validatedPermissions = [];
+		foreach ($permissions as $permission) {
+			$id = filter_var($permission, FILTER_VALIDATE_INT);
+			if ($id === false) {
+				throw new InvalidArgumentException(self::ERROR_PERMISSIONS_ARE_INVALID);
+			}
+
+			$permission = Permission::tryFrom($id);
+			if ($permission === null) {
+				throw new InvalidArgumentException(self::ERROR_PERMISSIONS_ARE_INVALID);
+			}
+
+			$validatedPermissions[] = $permission;
+		}
+
 		return (new APIKey())
-			->set_name($name);
+			->set_name($name)
+			->set_permissions($validatedPermissions);
 	}
 
 	/**

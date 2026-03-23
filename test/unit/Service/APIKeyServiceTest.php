@@ -100,7 +100,7 @@ final class APIKeyServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(APIKeyService::ERROR_INVALID_API_KEY_DATA);
-		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/CreateThrowsWhenDataIsNotArray.json'));
+		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/DataIsNotArray.json'));
 	}
 
 	public function testCreateThrowsWhenNameIsNotSpecified() {
@@ -123,7 +123,7 @@ final class APIKeyServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(APIKeyService::ERROR_NAME_IS_REQUIRED);
-		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/CreateThrowsWhenNameIsNotSpecified.json'));
+		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/NameIsNotSpecified.json'));
 	}
 
 	public function testCreateThrowsWhenNameIsInvalid() {
@@ -146,12 +146,108 @@ final class APIKeyServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(APIKeyService::ERROR_NAME_IS_INVALID);
-		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/CreateThrowsWhenNameIsInvalid.json'));
+		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/NameIsInvalid.json'));
+	}
+
+	public function testCreateThrowsWhenPermissionsAreNotSpecified() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_API_KEY])
+				)
+		);
+
+		$apiKeyModel = $this->createStub(APIKeyModel::class);
+
+		$service = new APIKeyService(
+			$session,
+			$apiKeyModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(APIKeyService::ERROR_PERMISSIONS_ARE_REQUIRED);
+		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/PermissionsAreNotSpecified.json'));
+	}
+
+	public function testCreateThrowsWhenPermissionsAreNotList() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_API_KEY])
+				)
+		);
+
+		$apiKeyModel = $this->createStub(APIKeyModel::class);
+
+		$service = new APIKeyService(
+			$session,
+			$apiKeyModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(APIKeyService::ERROR_PERMISSIONS_ARE_INVALID);
+		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/PermissionsAreNotList.json'));
+	}
+
+	public function testCreateThrowsWhenPermissionIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_API_KEY])
+				)
+		);
+
+		$apiKeyModel = $this->createStub(APIKeyModel::class);
+
+		$service = new APIKeyService(
+			$session,
+			$apiKeyModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(APIKeyService::ERROR_PERMISSIONS_ARE_INVALID);
+		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/PermissionIsNotInt.json'));
+	}
+
+	public function testCreateThrowsWhenPermissionIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::CREATE_API_KEY])
+				)
+		);
+
+		$apiKeyModel = $this->createStub(APIKeyModel::class);
+
+		$service = new APIKeyService(
+			$session,
+			$apiKeyModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(APIKeyService::ERROR_PERMISSIONS_ARE_INVALID);
+		$service->create(realpath(__DIR__ . '/APIKeyServiceTestData/PermissionIsInvalid.json'));
 	}
 
 	public function testCreateSuccess() {
 		$name = 'Portalbox Auth Token'; // the sanitized name from the input file
 		$token = '1234567890'; // the token in the file which we ignore
+		$permissions = [
+			Permission::REPORT_BADGES,
+			Permission::LIST_USERS
+		];
 
 		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
@@ -168,6 +264,7 @@ final class APIKeyServiceTest extends TestCase {
 			$this->callback(
 				fn(APIKey $key) =>
 					$key->name() === $name
+					&& $key->permissions() === $permissions
 					&& $key->token() !== $token
 			)
 		)
@@ -178,12 +275,13 @@ final class APIKeyServiceTest extends TestCase {
 			$apiKeyModel
 		);
 
-		$key = $service->create(realpath(__DIR__ . '/APIKeyServiceTestData/CreateSuccess.json'));
+		$key = $service->create(realpath(__DIR__ . '/APIKeyServiceTestData/ValidAPIKey.json'));
 
 		self::assertInstanceOf(APIKey::class, $key);
 		self::assertSame($name, $key->name());
 		// not testing for token here because it is randomly generated by the Type.
 		// @todo move random token generation into service
+		self::assertEqualsCanonicalizing($permissions, $key->permissions());
 	}
 
 	#endregion test create()
@@ -457,7 +555,7 @@ final class APIKeyServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(APIKeyService::ERROR_INVALID_API_KEY_DATA);
-		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/UpdateThrowsWhenDataIsNotArray.json'));
+		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/DataIsNotArray.json'));
 	}
 
 	public function testUpdateThrowsWhenNameIsNotSpecified() {
@@ -480,7 +578,7 @@ final class APIKeyServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(APIKeyService::ERROR_NAME_IS_REQUIRED);
-		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/UpdateThrowsWhenNameIsNotSpecified.json'));
+		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/NameIsNotSpecified.json'));
 	}
 
 	public function testUpdateThrowsWhenNameIsInvalid() {
@@ -503,7 +601,99 @@ final class APIKeyServiceTest extends TestCase {
 
 		self::expectException(InvalidArgumentException::class);
 		self::expectExceptionMessage(APIKeyService::ERROR_NAME_IS_INVALID);
-		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/UpdateThrowsWhenNameIsInvalid.json'));
+		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/NameIsInvalid.json'));
+	}
+
+	public function testUpdateThrowsWhenPermissionsAreNotSpecified() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_API_KEY])
+				)
+		);
+
+		$apiKeyModel = $this->createStub(APIKeyModel::class);
+
+		$service = new APIKeyService(
+			$session,
+			$apiKeyModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(APIKeyService::ERROR_PERMISSIONS_ARE_REQUIRED);
+		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/PermissionsAreNotSpecified.json'));
+	}
+
+	public function testUpdateThrowsWhenPermissionsAreNotList() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_API_KEY])
+				)
+		);
+
+		$apiKeyModel = $this->createStub(APIKeyModel::class);
+
+		$service = new APIKeyService(
+			$session,
+			$apiKeyModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(APIKeyService::ERROR_PERMISSIONS_ARE_INVALID);
+		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/PermissionsAreNotList.json'));
+	}
+
+	public function testUpdateThrowsWhenPermissionIsNotInt() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_API_KEY])
+				)
+		);
+
+		$apiKeyModel = $this->createStub(APIKeyModel::class);
+
+		$service = new APIKeyService(
+			$session,
+			$apiKeyModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(APIKeyService::ERROR_PERMISSIONS_ARE_INVALID);
+		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/PermissionIsNotInt.json'));
+	}
+
+	public function testUpdateThrowsWhenPermissionIsInvalid() {
+		$session = $this->createStub(Session::class);
+		$session->method('get_authenticated_user')->willReturn(
+			(new User())
+				->set_role(
+					(new Role())
+						->set_id(2)
+						->set_permissions([Permission::MODIFY_API_KEY])
+				)
+		);
+
+		$apiKeyModel = $this->createStub(APIKeyModel::class);
+
+		$service = new APIKeyService(
+			$session,
+			$apiKeyModel
+		);
+
+		self::expectException(InvalidArgumentException::class);
+		self::expectExceptionMessage(APIKeyService::ERROR_PERMISSIONS_ARE_INVALID);
+		$service->update(1, realpath(__DIR__ . '/APIKeyServiceTestData/PermissionIsInvalid.json'));
 	}
 
 	public function testUpdateThrowsWhenNotFound() {
@@ -539,7 +729,7 @@ final class APIKeyServiceTest extends TestCase {
 
 		self::expectException(NotFoundException::class);
 		self::expectExceptionMessage(APIKeyService::ERROR_API_KEY_NOT_FOUND);
-		$service->update($id, realpath(__DIR__ . '/APIKeyServiceTestData/UpdateSuccess.json'));
+		$service->update($id, realpath(__DIR__ . '/APIKeyServiceTestData/ValidAPIKey.json'));
 	}
 
 	public function testUpdateSuccess() {
@@ -547,6 +737,10 @@ final class APIKeyServiceTest extends TestCase {
 		$name = 'Portalbox Auth Token'; // the sanitized name from the input file
 		$token = '1234567890'; // the token in the file which we ignore
 		$validToken = 'abcdef1234567890';
+		$permissions = [
+			Permission::REPORT_BADGES,
+			Permission::LIST_USERS
+		];
 
 		$session = $this->createStub(Session::class);
 		$session->method('get_authenticated_user')->willReturn(
@@ -564,6 +758,7 @@ final class APIKeyServiceTest extends TestCase {
 				fn(APIKey $key) =>
 					$key->id() === $id
 					&& $key->name() === $name
+					&& $key->permissions() === $permissions
 					&& $key->token() !== $token
 			)
 		)
@@ -571,6 +766,7 @@ final class APIKeyServiceTest extends TestCase {
 			(new APIKey())
 				->set_id($id)
 				->set_name($name)
+				->set_permissions($permissions)
 				->set_token($validToken) // model fills this in
 		);
 
@@ -579,12 +775,13 @@ final class APIKeyServiceTest extends TestCase {
 			$apiKeyModel
 		);
 
-		$key = $service->update($id, realpath(__DIR__ . '/APIKeyServiceTestData/UpdateSuccess.json'));
+		$key = $service->update($id, realpath(__DIR__ . '/APIKeyServiceTestData/ValidAPIKey.json'));
 
 		self::assertInstanceOf(APIKey::class, $key);
 		self::assertSame($id, $key->id());
 		self::assertSame($name, $key->name());
 		self::assertSame($validToken, $key->token());
+		self::assertEqualsCanonicalizing($permissions, $key->permissions());
 	}
 
 	#endregion test update()

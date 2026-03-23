@@ -14,7 +14,7 @@ use Portalbox\Enumeration\Permission;
 class Role {
 	use \Portalbox\Trait\HasIdProperty;
 
-	public const ERROR_INVALID_PERMISSION = 'permission must be one of the public constants from Permission';
+	public const ERROR_INVALID_PERMISSION = 'permission must be one of the enumerated permissions';
 
 	/** The name of this role */
 	protected string $name = '';
@@ -28,9 +28,9 @@ class Role {
 	/**
 	 * A list of permissions assigned to this role
 	 *
-	 * @var Permission[]|null
+	 * @var Permission[]
 	 */
-	protected ?array $permissions = null;
+	protected array $permissions = [];
 
 	/** Get the name of this role */
 	public function name(): string {
@@ -71,9 +71,6 @@ class Role {
 	 * @return int[]  the list of the role's permissions
 	 */
 	public function permissions(): array {
-		if (null === $this->permissions) {
-			return [];
-		}
 		return $this->permissions;
 	}
 
