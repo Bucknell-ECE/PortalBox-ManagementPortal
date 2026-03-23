@@ -37,7 +37,7 @@
 			<header>
 				<h1>Authorized Users</h1>
 				<div class="button-group">
-					<button type="button" title="Download as (*.csv)" onclick="app.save('users.php?equipment_id=' + '{{type_id}}')"><i class="material-icons">save_alt</i></button>
+					<button type="button" title="Download as (*.csv)" onclick="app.save('/api/v2/users.php?equipment_id=' + '{{type_id}}', 'users.csv')"><i class="material-icons">save_alt</i></button>
 				</div>
 			</header>
 			<table style="min-width:100%">
