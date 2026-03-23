@@ -298,11 +298,21 @@ class Application {
 		// User needs CREATE_API_KEY Permission to make use of /api-keys/add route
 		if(this.user.has_permission(Permission.CREATE_API_KEY)) {
 			this.route("/api-keys/add", () => {
-				this.render("#main", "authenticated/api-keys/add", {}, {}, () => {
-					document
-						.getElementById("add-api-key-form")
-						.addEventListener("submit", (e) => this.add_api_key(e));
-				});
+				Permission.list().then(permissions => {
+					this.render(
+						"#main",
+						"authenticated/api-keys/add",
+						{
+							"possible_permissions":permissions
+						},
+						{},
+						() => {
+							document
+								.getElementById("add-api-key-form")
+								.addEventListener("submit", (e) => this.add_api_key(e));
+						}
+					);
+				}).catch(e => this.handleError(e));
 			});
 		}
 
@@ -555,11 +565,19 @@ class Application {
 		if(this.user.has_permission(Permission.CREATE_ROLE)) {
 			this.route("/roles/add", () => {
 				Permission.list().then(permissions => {
-					this.render("#main", "authenticated/roles/add", { "possible_permissions":permissions }, {}, () => {
-						document
-							.getElementById("add-role-form")
-							.addEventListener("submit", (e) => this.add_role(e));
-					});
+					this.render(
+						"#main",
+						"authenticated/roles/add",
+						{
+							"possible_permissions":permissions
+						},
+						{},
+						() => {
+							document
+								.getElementById("add-role-form")
+								.addEventListener("submit", (e) => this.add_role(e));
+						}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -856,15 +874,36 @@ class Application {
 	 * @param {bool} deletable - whether to show controls for deleting the api key.
 	 */
 	read_api_key(id, editable, deletable) {
-		APIKey.read(id).then(key => {
-			this.render("#main", "authenticated/api-keys/view", {"key":key, "editable":editable, "deletable":deletable}, {}, () => {
-				document
-					.getElementById("edit-api-key-form")
-					.addEventListener("submit", (e) => { this.update_api_key(id, e); });
-				document
-					.getElementById("delete-api-key-button")
-					.addEventListener("click", () => { this.delete_api_key(id); });
-			});
+		const p0 = APIKey.read(id);
+		const p1 = Permission.list();
+
+		Promise.all([p0, p1]).then(values => {
+			const key = values[0];
+			const permissions = key.permissions;
+			key.permissions = permissions.sort((a, b) => a - b).map(p => Permission.name_for_permission(p));
+
+			this.render(
+				"#main",
+				"authenticated/api-keys/view",
+				{
+					"key":key,
+					"possible_permissions":values[1],
+					"editable":editable,
+					"deletable":deletable
+				},
+				{},
+				() => {
+					for(const permission of permissions) {
+						document.getElementById("permissions." + permission).checked = true;
+					}
+					document
+						.getElementById("edit-api-key-form")
+						.addEventListener("submit", (e) => { this.update_api_key(id, e); });
+					document
+						.getElementById("delete-api-key-button")
+						.addEventListener("click", () => { this.delete_api_key(id); });
+				}
+			);
 		}).catch(e => this.handleError(e));
 	}
 
@@ -1572,22 +1611,33 @@ class Application {
 	 * @param {bool} deletable - whether to show controls for deleting the role.
 	 */
 	read_role(id, editable, deletable) {
-		let p0 = Role.read(id);
-		let p1 = Permission.list();
+		const p0 = Role.read(id);
+		const p1 = Permission.list();
 
 		Promise.all([p0, p1]).then(values => {
-			let role = values[0];
-			let permissions = role.permissions;
+			const role = values[0];
+			const permissions = role.permissions;
 			role.permissions = permissions.sort((a, b) => a - b).map(p => Permission.name_for_permission(p));
 
-			this.render("#main", "authenticated/roles/view", {"role":role, "possible_permissions":values[1], "editable":editable, "deletable":deletable}, {}, () => {
-				for(const permission of permissions) {
-					document.getElementById("permissions." + permission).checked = true;
+			this.render(
+				"#main",
+				"authenticated/roles/view",
+				{
+					"role":role,
+					"possible_permissions":values[1],
+					"editable":editable,
+					"deletable":deletable
+				},
+				{},
+				() => {
+					for(const permission of permissions) {
+						document.getElementById("permissions." + permission).checked = true;
+					}
+					document
+						.getElementById("edit-role-form")
+						.addEventListener("submit", (e) => { this.update_role(id, e); });
 				}
-				document
-					.getElementById("edit-role-form")
-					.addEventListener("submit", (e) => { this.update_role(id, e); });
-			});
+			);
 		}).catch(e => this.handleError(e));
 	}
 

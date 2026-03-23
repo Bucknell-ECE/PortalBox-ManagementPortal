@@ -25,6 +25,10 @@ class APIKeyTransformer implements OutputTransformer {
 			return [
 				'id' => $data->id(),
 				'name' => $data->name(),
+				'permissions' => array_map(
+					fn ($p) => $p->value,
+					$data->permissions()
+				),
 				'token' => $data->token()
 			];
 		} else {

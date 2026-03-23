@@ -18,6 +18,15 @@
 		<dd>{{name}}</dd>
 		<dt>Token:</dt>
 		<dd>{{token}}</dd>
+		<dt>Permissions</dt>
+		<dd>
+			{{#permissions}}
+			<ul>
+				<li>{{.}}</li>
+			</ul>
+			{{/permissions}}
+			{{^permissions}}Role currently has no permissions{{/permissions}}
+		</dd>
 	</dl>
 </article>
 {{#editable}}
@@ -33,6 +42,10 @@
 	<form id="edit-api-key-form">
 		<label for="name">Name:</label>
 		<input type="text" name="name" id="name" value="{{name}}" required />
+		<label for="permissions" style="align-self:baseline">Permissions:</label>
+		<fieldset id="permissions">
+			{{#possible_permissions}}<label><input type="checkbox" name="permissions.{{id}}" id="permissions.{{id}}" /> {{name}}</label>{{/possible_permissions}}
+		</fieldset>
 	</form>
 </article>
 {{/editable}}
