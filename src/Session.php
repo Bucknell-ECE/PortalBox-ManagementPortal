@@ -7,8 +7,8 @@ use Portalbox\Config;
 use Portalbox\Enumeration\Permission;
 use Portalbox\Model\APIKeyModel;
 use Portalbox\Model\UserModel;
-use Portalbox\Model\Type\User as PDOAwareUser;
 use Portalbox\Query\APIKeyQuery;
+use Portalbox\Type\Role;
 use Portalbox\Type\User;
 
 /**
@@ -23,6 +23,8 @@ use Portalbox\Type\User;
  * that can be set as a property of "Services" allowing "Services" to make
  * authentication and authorization decisions in a manner that lends itself to
  * automated testing.
+ *
+ * @todo use DependencyContainer to set the APIKeyModel and UserModel
  */
 class Session {
 	public const ERROR_NOT_AUTHENTICATED = 'Your session is invalid. Perhaps you need to reauthenticate.';
@@ -51,22 +53,26 @@ class Session {
 			) {
 				$token = substr($_SERVER['HTTP_AUTHORIZATION'], 7);
 
-
 				$model = new APIKeyModel($config);
 
-				$query = (new APIKeyQuery())->set_token($token);
-
-				$keys = $model->search($query);
+				$keys = $model->search(
+					(new APIKeyQuery())->set_token($token)
+				);
 
 				if ($keys && 0 < count($keys)) {
-					// get key 0 and construct a fake user for it.
-					$this->authenticated_user = (new PDOAwareUser($config))
-						->set_name($keys[0]->name())
-						->set_is_active(true)
-						->set_role_id(3);	// API key act as admins...
-											// in future should add a role_id field
-											// to keys and restrict them accordingly
+					$key = reset($keys);
+					$key = $model->read($key->id());
 
+					// create a "virtual" user with the permissions of the API key
+					$this->authenticated_user = (new User())
+						->set_name($key->name())
+						->set_is_active(true)
+						->set_role(
+							(new Role())
+								->set_id(-1)
+								->set_name('API Key')
+								->set_permissions($key->permissions())
+						);
 					return $this->authenticated_user;
 				}
 			}
