@@ -12,7 +12,7 @@ export class Card {
 	 * @throws String if any other error occurs
 	 */
 	static async list(query = '') {
-		const response = await fetch("/api/cards.php?" + query, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/cards.php?" + query, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -34,7 +34,7 @@ export class Card {
 	 * @throws String if any other error occurs
 	 */
 	static async read(id) {
-		const response = await fetch("/api/cards.php?id=" + id, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/cards.php?id=" + id, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -55,7 +55,7 @@ export class Card {
 	 * @throws String if any other error occurs
 	 */
 	static async create(data) {
-		const response = await fetch("/api/cards.php", {
+		const response = await fetch("/api/v2/cards.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {

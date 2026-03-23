@@ -430,7 +430,7 @@ class Application {
 			if(!home_icons.manage_icons) { home_icons.manage_icons = manage_icons }
 			home_icons.manage_icons.cards = true;
 			this.route("/cards", () => {
-				this.list_cards();
+				this.#list_cards();
 			});
 		}
 
@@ -1037,23 +1037,59 @@ class Application {
 		}).catch(e => this.handleError(e));
 	}
 
-	list_cards(search = {}) {
-		let queryString = "";
-		if(0 < Object.keys(search).length) {
-			queryString = (new URLSearchParams(search)).toString();
-			search.customized = true;
-		}
+	/**
+	 * List the cards registered with the system
+	 *
+	 * We deviate from the typical setup here because the full list of cards is
+	 * time consuming to present and fairly useless by default so we insist that
+	 * the user search for cards hence the lack of default for the parameter and
+	 * alternate behavior when a parameter is not passed
+	 *
+	 * @param {Object} search  the filters all cards presented must meet
+	 */
+	#list_cards(search) {
+		const p1 = CardType.list();
 
-		Card.list(queryString).then(cards => {
-			this.render(
-				'#main',
-				"authenticated/cards/list",
-				{
-					"cards": cards,
-					"search": search
-				}
-			);
-		}).catch(e => this.handleError(e));
+		if (search) {
+			let queryString = "";
+			if(0 < Object.keys(search).length) {
+				queryString = (new URLSearchParams(search)).toString();
+				search.customized = true;
+			}
+
+			const p0 = Card.list(queryString);
+			Promise.all([p0, p1]).then(values => {
+				const [cards, types] = values;
+				this.render(
+					'#main',
+					"authenticated/cards/list",
+					{
+						cards,
+						search,
+						types
+					},
+					{},
+					() => {
+						// fix up select
+						if(Object.hasOwn(search, "card_type")) {
+							document.getElementById("card_type").value = search.card_type;
+						}
+					}
+				);
+			}).catch(e => this.handleError(e));
+		} else {
+			p1.then(types => {
+				this.render(
+					'#main',
+					"authenticated/cards/list",
+					{
+						"show-default": true,
+						"search": {"customized":true},
+						types
+					}
+				);
+			});
+		}
 	}
 
 	search_cards(search_form) {
@@ -1070,7 +1106,7 @@ class Application {
 			}
 		}
 
-		this.list_cards(search);
+		this.#list_cards(search);
 	}
 
 	/**

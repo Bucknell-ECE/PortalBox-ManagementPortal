@@ -41,6 +41,7 @@ class CardService {
 	public const ERROR_CARD_NOT_FOUND = 'We have no record of that card';
 	public const ERROR_EQUIPMENT_TYPE_FILTER_MUST_BE_INT = 'The value of equipment_type_id must be an integer';
 	public const ERROR_ID_FILTER_MUST_BE_INT = 'The value of search must be an integer';
+	public const ERROR_TYPE_FILTER_MUST_BE_INT = 'The value of the type filter must be the integer id of a card type';
 	public const ERROR_USER_FILTER_MUST_BE_INT = 'The value of user_id must be an integer';
 
 	protected Session $session;
@@ -58,40 +59,6 @@ class CardService {
 		$this->cardModel = $cardModel;
 		$this->equipmentTypeModel = $equipmentTypeModel;
 		$this->userModel = $userModel;
-	}
-
-	/**
-	 * Create a card from the specified data stream
-	 *
-	 * @param string $filePath  the path to a file from which to read json data
-	 * @return Card  The card which was added
-	 * @throws AuthenticationException  if no user is authenticated
-	 * @throws AuthorizationException  if the authenticated user may not create
-	 *      cards
-	 * @throws InvalidArgumentException  if the file can not be read or does not
-	 *      contain JSON encoded data
-	 */
-	public function create(string $filePath): Card {
-		$authenticatedUser = $this->session->get_authenticated_user();
-		if ($authenticatedUser === null) {
-			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_CREATE);
-		}
-
-		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_CARD)) {
-			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_CREATE);
-		}
-
-		$data = file_get_contents($filePath);
-		if ($data === false) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_CARD_DATA);
-		}
-
-		$card = json_decode($data, TRUE);
-		if (!is_array($card)) {
-			throw new InvalidArgumentException(self::ERROR_INVALID_CARD_DATA);
-		}
-
-		return $this->cardModel->create($this->deserialize($card));
 	}
 
 	/**
@@ -147,6 +114,40 @@ class CardService {
 			default:
 				throw new InvalidArgumentException(self::ERROR_CARD_TYPE_IS_INVALID);
 		}
+	}
+
+	/**
+	 * Create a card from the specified data stream
+	 *
+	 * @param string $filePath  the path to a file from which to read json data
+	 * @return Card  The card which was added
+	 * @throws AuthenticationException  if no user is authenticated
+	 * @throws AuthorizationException  if the authenticated user may not create
+	 *      cards
+	 * @throws InvalidArgumentException  if the file can not be read or does not
+	 *      contain JSON encoded data
+	 */
+	public function create(string $filePath): Card {
+		$authenticatedUser = $this->session->get_authenticated_user();
+		if ($authenticatedUser === null) {
+			throw new AuthenticationException(self::ERROR_UNAUTHENTICATED_CREATE);
+		}
+
+		if (!$authenticatedUser->role()->has_permission(Permission::CREATE_CARD)) {
+			throw new AuthorizationException(self::ERROR_UNAUTHORIZED_CREATE);
+		}
+
+		$data = file_get_contents($filePath);
+		if ($data === false) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_CARD_DATA);
+		}
+
+		$card = json_decode($data, TRUE);
+		if (!is_array($card)) {
+			throw new InvalidArgumentException(self::ERROR_INVALID_CARD_DATA);
+		}
+
+		return $this->cardModel->create($this->deserialize($card));
 	}
 
 	/**
@@ -214,6 +215,20 @@ class CardService {
 			}
 
 			$query->set_id($id);
+		}
+
+		if(isset($filters['type'])) {
+			$type_id = filter_var($filters['type'] ?? '', FILTER_VALIDATE_INT);
+			if ($type_id === false) {
+				throw new InvalidArgumentException(self::ERROR_TYPE_FILTER_MUST_BE_INT);
+			}
+
+			$type = CardType::tryFrom($type_id);
+			if ($type === null) {
+				throw new InvalidArgumentException(self::ERROR_TYPE_FILTER_MUST_BE_INT);
+			}
+
+			$query->set_type($type);
 		}
 
 		if(isset($filters['user_id']) && !empty($filters['user_id'])) {

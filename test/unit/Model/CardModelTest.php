@@ -276,6 +276,22 @@ final class CardModelTest extends TestCase {
 		self::assertContains($trainingCardId, $cards);
 		self::assertNotContains($shutdownCardId, $cards);
 
+		$query = (new CardQuery())
+			->set_id($userCard2Id);
+		$cards = array_map(fn($card) => $card->id(), $model->search($query));
+		self::assertNotContains($userCard1Id, $cards);
+		self::assertContains($userCard2Id, $cards);
+		self::assertNotContains($trainingCardId, $cards);
+		self::assertNotContains($shutdownCardId, $cards);
+
+		$query = (new CardQuery())
+			->set_type(CardType::SHUTDOWN);
+		$cards = array_map(fn($card) => $card->id(), $model->search($query));
+		self::assertNotContains($userCard1Id, $cards);
+		self::assertNotContains($userCard2Id, $cards);
+		self::assertNotContains($trainingCardId, $cards);
+		self::assertContains($shutdownCardId, $cards);
+
 		$model->delete($userCard1Id);
 		$model->delete($userCard2Id);
 		$model->delete($trainingCardId);
