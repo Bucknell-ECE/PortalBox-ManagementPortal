@@ -341,10 +341,6 @@ let permissions = {
 	// 304:{id:DELETE_CARD, name:"Delete cards"}, // Not currently possible to preserve log integrity
 	305:{id:LIST_CARDS, name:"List cards"},
 	306:{id:LIST_OWN_CARDS, name:"List user's own cards"},
-	// 401:{id:CREATE_CHARGE_POLICY, name:"Add charge policy to system"},
-	// 402:{id:READ_CHARGE_POLICY, name:"View charge policy details"},
-	// 403:{id:MODIFY_CHARGE_POLICY, name:"Modify charge policies"},
-	// 404:{id:DELETE_CHARGE_POLICY, name:"Delete charge policies"},
 	405:{id:LIST_CHARGE_POLICIES, name:"List charge policies"},
 	501:{id:CREATE_CHARGE, name:"Add charge to system"},
 	502:{id:READ_CHARGE, name:"View charge details"},

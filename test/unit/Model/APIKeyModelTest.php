@@ -6,63 +6,112 @@ namespace Test\Portalbox\Model;
 
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
+use Portalbox\Enumeration\Permission;
 use Portalbox\Model\APIKeyModel;
 use Portalbox\Query\APIKeyQuery;
 use Portalbox\Type\APIKey;
 
 final class APIKeyModelTest extends TestCase {
-	public function testModel(): void {
+	public function testCreateReadUpdateDelete(): void {
 		$model = new APIKeyModel(Config::config());
 
 		$name = 'Google App Suite Integration';
 		$token = 'ABCDEF01234567890123456789ABCDEF';
 
-		$key = (new APIKey())
-			->set_name($name)
-			->set_token($token);
+		$permissions = [
+			Permission::READ_USER,
+			Permission::LIST_PAYMENTS
+		];
 
-		$key_as_created = $model->create($key);
+		$key = $model->create(
+			(new APIKey())
+				->set_name($name)
+				->set_token($token)
+				->set_permissions($permissions)
+		);
 
-		$key_id = $key_as_created->id();
-		self::assertIsInt($key_id);
-		self::assertEquals($name, $key_as_created->name());
-		self::assertEquals($token, $key_as_created->token());
+		$id = $key->id();
+		self::assertIsInt($id);
+		self::assertSame($name, $key->name());
+		self::assertSame($token, $key->token());
+		self::assertEqualsCanonicalizing($permissions, $key->permissions());
 
-		$key_as_found = $model->read($key_id);
+		$key = $model->read($id);
 
-		self::assertNotNull($key_as_found);
-		self::assertEquals($key_id, $key_as_found->id());
-		self::assertEquals($name, $key_as_found->name());
-		self::assertEquals($token, $key_as_found->token());
+		self::assertInstanceOf(APIKey::class, $key);
+		self::assertSame($id, $key->id());
+		self::assertSame($name, $key->name());
+		self::assertSame($token, $key->token());
+		self::assertEqualsCanonicalizing($permissions, $key->permissions());
 
 		$name = 'Wordpress Integration';
-		$key_as_found->set_name($name);
+		$permissions = [
+			Permission::READ_USER,
+			Permission::LIST_CHARGES
+		];
 
-		$key_as_modified = $model->update($key_as_found);
+		$key = $model->update(
+			$key
+				->set_name($name)
+				->set_token('11556654433221554433255443321155')
+				->set_permissions($permissions)
+		);
 
-		self::assertNotNull($key_as_modified);
-		self::assertEquals($key_id, $key_as_modified->id());
-		self::assertEquals($name, $key_as_modified->name());
-		self::assertEquals($token, $key_as_modified->token());
+		self::assertInstanceOf(APIKey::class, $key);
+		self::assertSame($id, $key->id());
+		self::assertSame($name, $key->name());
+		self::assertSame($token, $key->token());
+		self::assertEqualsCanonicalizing($permissions, $key->permissions());
 
-		$query = (new APIKeyQuery())->set_token($token);
-		$keys_as_found = $model->search($query);
-		self::assertNotNull($keys_as_found);
-		self::assertIsIterable($keys_as_found);
-		self::assertCount(1, $keys_as_found);
-		self::assertEquals($key_id, $keys_as_found[0]->id());
-		self::assertEquals($name, $keys_as_found[0]->name());
-		self::assertEquals($token, $keys_as_found[0]->token());
+		$key = $model->delete($id);
 
-		$key_as_deleted = $model->delete($key_id);
+		self::assertInstanceOf(APIKey::class, $key);
+		self::assertSame($id, $key->id());
+		self::assertSame($name, $key->name());
+		self::assertSame($token, $key->token());
+		self::assertEqualsCanonicalizing($permissions, $key->permissions());
 
-		self::assertNotNull($key_as_deleted);
-		self::assertEquals($key_id, $key_as_deleted->id());
-		self::assertEquals($name, $key_as_deleted->name());
-		self::assertEquals($token, $key_as_deleted->token());
+		self::assertNull($model->read($id));
+	}
 
-		$key_as_not_found = $model->read($key_id);
+	public function testSearch(): void {
+		$model = new APIKeyModel(Config::config());
 
-		self::assertNull($key_as_not_found);
+		$name1 = 'Google App Suite Integration';
+		$name2 = 'Wordpress Integration';
+		$token1 = 'ABCDEF01234567890123456789ABCDEF';
+		$token2 = '11556654433221554433255443321155';
+
+		$keyId1 = $model->create(
+			(new APIKey())
+				->set_name($name1)
+				->set_token($token1)
+		)->id();
+
+		$keyId2 = $model->create(
+			(new APIKey())
+				->set_name($name2)
+				->set_token($token2)
+		)->id();
+
+		$query = new APIKeyQuery();
+		$keyIds = array_map(
+			fn (APIKey $key) => $key->id(),
+			$model->search($query)
+		);
+		self::assertContains($keyId1, $keyIds);
+		self::assertContains($keyId2, $keyIds);
+
+		$query = (new APIKeyQuery())->set_token($token2);
+		$keyIds = array_map(
+			fn (APIKey $key) => $key->id(),
+			$model->search($query)
+		);
+		self::assertNotContains($keyId1, $keyIds);
+		self::assertContains($keyId2, $keyIds);
+
+		// cleanup
+		$model->delete($keyId1);
+		$model->delete($keyId2);
 	}
 }

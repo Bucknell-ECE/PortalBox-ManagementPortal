@@ -27,38 +27,38 @@ class RoleModel extends AbstractModel {
 		$statement->bindValue(':is_system_role', $role->is_system_role(), PDO::PARAM_BOOL);
 		$statement->bindValue(':description', $role->description());
 
-		if ($connection->beginTransaction()) {
-			if ($statement->execute()) {
-				// Add in permissions
-				$role_id = $connection->lastInsertId('roles_id_seq');
-
-				$permissions = $role->permissions();
-
-				$sql = 'INSERT INTO roles_x_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)';
-				$statement = $connection->prepare($sql);
-
-				foreach ($permissions as $permission) {
-					$statement->bindValue(':role_id', $role_id, PDO::PARAM_INT);
-					$statement->bindValue(':permission_id', $permission->value, PDO::PARAM_INT);
-					if (!$statement->execute()) {
-						// cancel transaction
-						$connection->rollBack();
-						return null;
-					}
-				}
-
-				// all good :. commit
-				$connection->commit();
-				return $role->set_id($role_id);
-			} else {
-				$connection->rollBack();	// This is unlikely to succeed but
-											// in case it does the transaction
-											// lock is released which is a good thing
-				throw new DatabaseException($statement->errorInfo()[2]);
-			}
-		} else {
+		if (!$connection->beginTransaction()) {
 			throw new DatabaseException($connection->errorInfo()[2]);
 		}
+
+		if (!$statement->execute()) {
+			$connection->rollBack();	// This is unlikely to succeed but
+										// in case it does the transaction
+										// lock is released which is a good thing
+			throw new DatabaseException($connection->errorInfo()[2]);
+		}
+
+		// Add in permissions
+		$role_id = $connection->lastInsertId('roles_id_seq');
+
+		$permissions = $role->permissions();
+
+		$sql = 'INSERT INTO roles_x_permissions (role_id, permission_id) VALUES (:role_id, :permission_id)';
+		$statement = $connection->prepare($sql);
+
+		foreach ($permissions as $permission) {
+			$statement->bindValue(':role_id', $role_id, PDO::PARAM_INT);
+			$statement->bindValue(':permission_id', $permission->value, PDO::PARAM_INT);
+			if (!$statement->execute()) {
+				// cancel transaction
+				$connection->rollBack();
+				return null;
+			}
+		}
+
+		// all good :. commit
+		$connection->commit();
+		return $role->set_id($role_id);
 	}
 
 	/**

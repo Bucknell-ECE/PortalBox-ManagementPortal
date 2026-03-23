@@ -20,7 +20,7 @@
 		<dd>{{description}}</dd>
 		<dt>System Role:</dt>
 		<dd>{{#system_role}}Yes{{/system_role}}{{^system_role}}No{{/system_role}}</dd>
-		<dt>Permisions</dt>
+		<dt>Permissions</dt>
 		<dd>
 			{{#permissions}}
 			<ul>
