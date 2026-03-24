@@ -76,7 +76,7 @@ class ResponseHandler {
 	 */
 	private static function render_list_response(OutputTransformer $transformer, $data): void {
 		// check request for desired encoding
-		switch ($_SERVER['HTTP_ACCEPT']) {
+		switch ($_SERVER['HTTP_ACCEPT'] ?? 'application/json') {
 			case 'text/csv':
 				header('Content-Type: text/csv');
 				$out = fopen('php://output', 'w');
