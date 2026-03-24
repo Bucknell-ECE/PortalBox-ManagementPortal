@@ -178,15 +178,10 @@ class Application {
 	 *      to use as a template
 	 * @param {?object} params - additional parameters for the Mustache template
 	 *      renderer
-	 * @param {?object} options - a dictionary of options. supported keys:
-	 *      {array<string>} tags - a list of delimiters for Mustache to use
-	 *      {bool} append - if true then new content to the element's contents
-	 *            otherwise replace the contents of element with the render
-	 *            output. Default: false
 	 * @param {?function} callback - a callback function to invoke once the
 	 *      template has been rendered into place
 	 */
-	render(element, view, params, options, callback) {
+	render(element, view, params, callback) {
 		let destination = null;
 		if (element instanceof HTMLElement) {
 			destination = element;
@@ -196,36 +191,20 @@ class Application {
 		if (!params) {
 			params = {};
 		}
-		if (!options) {
-			options = {};
-		}
-		if (typeof options.tags === "undefined") {
-			Mustache.tags = ["{{", "}}"];
-		} else {
-			Mustache.tags = options.tags;
-		}
-		if (typeof options.append === "undefined") {
-			options.append = false;
-		}
 
-		let url = this.viewLocation + "/" + view.replace(".mst", "") + ".mst";
-		fetch(url)
-			.then((response) => {
-				return response.text();
-			})
-			.then((template) => {
-				if (options.append === true) {
-					destination.innerHTML += Mustache.render(template, params);
-				} else {
-					while (destination.firstChild) {
-						destination.removeChild(destination.firstChild);
-					}
-					destination.innerHTML = Mustache.render(template, params);
-				}
-				if (callback instanceof Function) {
-					callback();
-				}
-			});
+		const url = this.viewLocation + "/" + view.replace(".mst", "") + ".mst";
+		fetch(url).then((response) => {
+			return response.text();
+		}).then((template) => {
+			while (destination.firstChild) {
+				destination.removeChild(destination.firstChild);
+			}
+			destination.innerHTML = Mustache.render(template, params);
+
+			if (callback instanceof Function) {
+				callback();
+			}
+		});
 	}
 
 	/**
@@ -243,15 +222,16 @@ class Application {
 	}
 
 	/**
-	 * clear all routes currently configured useful if transitioning between
-	 * authenticated and unauthenticated states
+	 * Clear all routes currently configured
+	 *
+	 * Useful if transitioning between authenticated and unauthenticated states
 	 */
 	flush() {
 		this.routes = [];
 	}
 
 	/**
-	 * handleError takes action based on the error reported.
+	 * Take action based on the error reported.
 	 *
 	 * @param {*} error - the error being reported typically from the fetch API
 	 *        but could also be a {string} message to report to the user
@@ -266,8 +246,8 @@ class Application {
 	}
 
 	/**
-	 * Private utility method for setting up routes when application is
-	 * configured with an authenticated user
+	 * Utility method for setting up routes when application is configured with
+	 * an authenticated user
 	 *
 	 * @private
 	 */
@@ -305,7 +285,6 @@ class Application {
 						{
 							"possible_permissions":permissions
 						},
-						{},
 						() => {
 							document
 								.getElementById("add-api-key-form")
@@ -322,7 +301,11 @@ class Application {
 			home_icons.system.api_keys = true;
 			this.route("/api-keys", () => {
 				APIKey.list().then(keys => {
-					this.render("#main", "authenticated/api-keys/list", {"keys": keys});
+					this.render(
+						"#main",
+						"authenticated/api-keys/list",
+						{keys}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -345,8 +328,7 @@ class Application {
 					this.render(
 						"#main",
 						"authenticated/badges/add",
-						{"equipment_types": equipment_types},
-						{},
+						{equipment_types},
 						() => {
 							document
 								.getElementById("add-badge-rule-form")
@@ -404,33 +386,38 @@ class Application {
 		// User needs CREATE_CARD Permission to make use of /cards/add route
 		if(this.user.has_permission(Permission.CREATE_CARD)) {
 			this.route("/cards/add", () => {
-				let p1 = CardType.list();
-				let p2 = User.list();
-				let p3 = EquipmentType.list();
+				const p1 = CardType.list();
+				const p2 = User.list();
+				const p3 = EquipmentType.list();
 
 				Promise.all([p1, p2, p3]).then(values => {
-					this.render('#main', "authenticated/cards/add", {"types": values[0], "users": values[1], "equipment_types": values[2]}, {}, () => {
-						let form = document.getElementById("add-card-form");
-						form.addEventListener("submit", (e) => { app.add_card(e); });
-						let equipment_type_selector_label = document.getElementById("equipment_type_id_label");
-						let equipment_type_selector = document.getElementById("equipment_type_id");
-						let user_selector_label = document.getElementById("user_id_label");
-						let user_selector = document.getElementById("user_id");
-						let user_id_input = document.getElementById("user_id_input");
-						equipment_type_selector_label.style.display = "none";
-						equipment_type_selector.style.display = "none";
-						equipment_type_selector.disabled = true;
-						equipment_type_selector.required = false;
-						user_selector_label.style.display = "none";
-						user_selector.style.display = "none";
-						user_id_input.style.display = "none";
-						user_selector.disabled = true;
-						user_selector.required = false;
-						let type_id_selector = document.getElementById("type_id");
-						type_id_selector.addEventListener('change', (event) => {
-							this.card_options_selector(event.target.value);
-						});
-					});
+					this.render(
+						'#main',
+						"authenticated/cards/add",
+						{"types": values[0], "users": values[1], "equipment_types": values[2]},
+						() => {
+							let form = document.getElementById("add-card-form");
+							form.addEventListener("submit", (e) => { app.add_card(e); });
+							let equipment_type_selector_label = document.getElementById("equipment_type_id_label");
+							let equipment_type_selector = document.getElementById("equipment_type_id");
+							let user_selector_label = document.getElementById("user_id_label");
+							let user_selector = document.getElementById("user_id");
+							let user_id_input = document.getElementById("user_id_input");
+							equipment_type_selector_label.style.display = "none";
+							equipment_type_selector.style.display = "none";
+							equipment_type_selector.disabled = true;
+							equipment_type_selector.required = false;
+							user_selector_label.style.display = "none";
+							user_selector.style.display = "none";
+							user_id_input.style.display = "none";
+							user_selector.disabled = true;
+							user_selector.required = false;
+							let type_id_selector = document.getElementById("type_id");
+							type_id_selector.addEventListener('change', (event) => {
+								this.card_options_selector(event.target.value);
+							});
+						}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -455,15 +442,20 @@ class Application {
 		// User needs CREATE_EQUIPMENT Permission to make use of /equipment/add route
 		if(this.user.has_permission(Permission.CREATE_EQUIPMENT)) {
 			this.route("/equipment/add", () => {
-				let p1 = EquipmentType.list();
-				let p2 = Location.list();
+				const p1 = EquipmentType.list();
+				const p2 = Location.list();
 
 				Promise.all([p1, p2]).then(values => {
-					this.render("#main", "authenticated/equipment/add", {"types": values[0], "locations": values[1]}, {}, () => {
-						document
-							.getElementById("add-equipment-form")
-							.addEventListener("submit", (e) => { this.add_equipment(e); });
-					});
+					this.render(
+						"#main",
+						"authenticated/equipment/add",
+						{"types": values[0], "locations": values[1]},
+						() => {
+							document
+								.getElementById("add-equipment-form")
+								.addEventListener("submit", (e) => { this.add_equipment(e); });
+						}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -487,11 +479,16 @@ class Application {
 		if(this.user.has_permission(Permission.CREATE_EQUIPMENT_TYPE)) {
 			this.route("/equipment-types/add", () => {
 				ChargePolicy.list().then(charge_policies => {
-					this.render("#main", "authenticated/equipment-types/add", {"charge_policies":charge_policies}, {}, () => {
-						document
-							.getElementById("add-equipment-type-form")
-							.addEventListener("submit", (e) => this.add_equipment_type(e));
-					});
+					this.render(
+						"#main",
+						"authenticated/equipment-types/add",
+						{charge_policies},
+						() => {
+							document
+								.getElementById("add-equipment-type-form")
+								.addEventListener("submit", (e) => this.add_equipment_type(e));
+						}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -502,7 +499,11 @@ class Application {
 			home_icons.manage.equipment_types = true;
 			this.route("/equipment-types", () => {
 				EquipmentType.list().then(types => {
-					this.render("#main", "authenticated/equipment-types/list", {"types": types, "create_equipment_type_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT_TYPE)});
+					this.render(
+						"#main",
+						"authenticated/equipment-types/list",
+						{"types": types, "create_equipment_type_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT_TYPE)}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -516,11 +517,16 @@ class Application {
 		// User needs CREATE_LOCATION Permission to make use of /locations/add route
 		if(this.user.has_permission(Permission.CREATE_LOCATION)) {
 			this.route("/locations/add", () => {
-				this.render("#main", "authenticated/locations/add", {}, {}, () => {
-					document
-						.getElementById("add-location-form")
-						.addEventListener("submit", (e) => this.add_location(e));
-				});
+				this.render(
+					"#main",
+					"authenticated/locations/add",
+					{},
+					() => {
+						document
+							.getElementById("add-location-form")
+							.addEventListener("submit", (e) => this.add_location(e));
+					}
+				);
 			});
 		}
 
@@ -530,7 +536,11 @@ class Application {
 			home_icons.manage.locations = true;
 			this.route("/locations", () => {
 				Location.list().then(locations => {
-					this.render("#main", "authenticated/locations/list", {"locations": locations, "create_location_permission": this.user.has_permission(Permission.CREATE_LOCATION)});
+					this.render(
+						"#main",
+						"authenticated/locations/list",
+						{"locations": locations, "create_location_permission": this.user.has_permission(Permission.CREATE_LOCATION)}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -552,11 +562,16 @@ class Application {
 		if(this.user.has_permission(Permission.CREATE_PAYMENT)) {
 			this.route("/users/:id/add_payment", params => {
 				User.read(params.id).then(user => {
-					this.render("#main", "authenticated/users/add_payment", {"user":user}, {}, () => {
-						document
-							.getElementById("add-payment-form")
-							.addEventListener("submit", (e) => this.confirm_payment(user, e));
-					});
+					this.render(
+						"#main",
+						"authenticated/users/add_payment",
+						{user},
+						() => {
+							document
+								.getElementById("add-payment-form")
+								.addEventListener("submit", (e) => this.confirm_payment(user, e));
+						}
+					);
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -571,7 +586,6 @@ class Application {
 						{
 							"possible_permissions":permissions
 						},
-						{},
 						() => {
 							document
 								.getElementById("add-role-form")
@@ -588,7 +602,7 @@ class Application {
 			home_icons.system.roles = true;
 			this.route("/roles", () => {
 				Role.list().then(roles => {
-					this.render("#main", "authenticated/roles/list", {"roles":roles});
+					this.render("#main", "authenticated/roles/list", {roles});
 				}).catch(e => this.handleError(e));
 			});
 		}
@@ -606,20 +620,30 @@ class Application {
 				let p1 = Role.list();
 
 				Promise.all([p0,p1]).then(values => {
-					this.render("#main", "authenticated/users/add", {"equipment_types":values[0], "roles":values[1]}, {}, () => {
-						document
-							.getElementById("add-user-form")
-							.addEventListener("submit", (e) => this.add_user(e));
-					});
+					this.render(
+						"#main",
+						"authenticated/users/add",
+						{"equipment_types":values[0], "roles":values[1]},
+						() => {
+							document
+								.getElementById("add-user-form")
+								.addEventListener("submit", (e) => this.add_user(e));
+						}
+					);
 				}).catch(e => this.handleError(e));
 			});
 
 			this.route("/users/import", () => {
-				this.render("#main", "authenticated/users/import", {}, {}, () => {
-					document
-						.getElementById("import-user-form")
-						.addEventListener("submit", (e) => this.import_users(e));
-				});
+				this.render(
+					"#main",
+					"authenticated/users/import",
+					{},
+					() => {
+						document
+							.getElementById("import-user-form")
+							.addEventListener("submit", (e) => this.import_users(e));
+					}
+				);
 			});
 		}
 
@@ -695,31 +719,41 @@ class Application {
 						return transaction;
 					});
 
-					this.render("#main", "authenticated/profile", {
-						"badges": values[4],
-						"total_balance": total_balance,
-						"equipment_type": authorized_equipment_types,
-						"ledger": ledger,
-						"user": user
-					}, {}, () => {
-						let transaction_button = null;
-						transaction_button = document.getElementById("transaction-button");
-						if(transaction_button) {
-							transaction_button.addEventListener("click", (e) => {this.toggle_transactions();});
+					this.render(
+						"#main",
+						"authenticated/profile",
+						{
+							"badges": values[4],
+							"total_balance": total_balance,
+							"equipment_type": authorized_equipment_types,
+							"ledger": ledger,
+							"user": user
+						},
+						() => {
+							let transaction_button = null;
+							transaction_button = document.getElementById("transaction-button");
+							if(transaction_button) {
+								transaction_button.addEventListener("click", (e) => {this.toggle_transactions();});
+							}
+							if(values[1].length + values[2].length > 20) {
+								this.toggle_transactions();
+							}
 						}
-						if(values[1].length + values[2].length > 20) {
-							this.toggle_transactions();
-						}
-					});
+					);
 				}).catch(e => this.handleError(e));
 			});
 
 			this.route("/profile/set_pin", () => {
-				this.render("#main", "authenticated/set_pin", {}, {}, () => {
-					document
-						.getElementById("set-pin-form")
-						.addEventListener("submit", (e) => this.set_pin(e));
-				});
+				this.render(
+					"#main",
+					"authenticated/set_pin",
+					{},
+					() => {
+						document
+							.getElementById("set-pin-form")
+							.addEventListener("submit", (e) => this.set_pin(e));
+					}
+				);
 			});
 		}
 
@@ -730,8 +764,8 @@ class Application {
 	}
 
 	/**
-	 * Private utility method for setting up routes when application is
-	 * configured without an authenticated user
+	 * Utility method for setting up routes when application is configured
+	 * without an authenticated user
 	 *
 	 * @private
 	 */
@@ -745,7 +779,8 @@ class Application {
 	/**
 	 * Set the current user
 	 *
-	 * @param User|null user - the authenticated user or null if no authenticated user
+	 * @param {User|null} user  the authenticated user or null if no
+	 *      authenticated user
 	 */
 	set_user(user) {
 		if(user) {
@@ -769,11 +804,11 @@ class Application {
 	 * which has key value pairs corresponding to the name and value
 	 * of the fields with a name attribute.
 	 *
-	 * If name is of the form
-	 * "foo.bar" then the value will be nested as ret["foo"]["bar"]
+	 * If a field name is of the form "foo.bar" then the value will be nested as
+	 * ret["foo"]["bar"]
 	 *
-	 * @param HTMLFormElement form - the form from which to retrieve data
-	 * @return Object - an object with an attribute for each form input or
+	 * @param {HTMLFormElement} form  the form from which to retrieve data
+	 * @return {Object}  an object with an attribute for each form input or
 	 *     group of inputs.
 	 */
 	#get_form_data(form) {
@@ -891,7 +926,6 @@ class Application {
 					"editable":editable,
 					"deletable":deletable
 				},
-				{},
 				() => {
 					for(const permission of permissions) {
 						document.getElementById("permissions." + permission).checked = true;
@@ -995,7 +1029,6 @@ class Application {
 					available_equipment_types,
 					included_equipment_types
 				},
-				{},
 				() => {
 					document
 						.getElementById("edit-badge-form")
@@ -1072,7 +1105,7 @@ class Application {
 
 	read_card(id) {
 		Card.read(id).then(card => {
-			this.render("#main", "authenticated/cards/view", {"card": card});
+			this.render("#main", "authenticated/cards/view", {card});
 		}).catch(e => this.handleError(e));
 	}
 
@@ -1107,7 +1140,6 @@ class Application {
 						search,
 						types
 					},
-					{},
 					() => {
 						// fix up select
 						if(Object.hasOwn(search, "card_type")) {
@@ -1232,7 +1264,6 @@ class Application {
 
 						"editable":editable
 					},
-					{},
 					() => {
 						// Commented out since they were preventing a default value from being shown
 						// document.getElementById("type_id").value = values[0].type_id;
@@ -1304,7 +1335,6 @@ class Application {
 					"search": search,
 					"create_equipment_permission": this.user.has_permission(Permission.CREATE_EQUIPMENT)
 				},
-				{},
 				() => {
 					// fix up select
 					if(Object.hasOwn(search, "location_id")) {
@@ -1357,17 +1387,22 @@ class Application {
 
 		Promise.all([p0,p1,p2]).then(values => {
 			let type = values[0];
-			this.render("#main", "authenticated/equipment-types/view", {
+			this.render(
+				"#main",
+				"authenticated/equipment-types/view",
+				{
 					"type":type,
 					"charge_policies":values[1],
 					"editable": editable,
 					"users": values[2]
-				}, {}, () => {
-				document.getElementById("charge_policy").value = type.charge_policy;
-				document
-					.getElementById("edit-equipment-type-form")
-					.addEventListener("submit", (e) => { this.update_equipment_type(id, e); });
-			});
+				},
+				() => {
+					document.getElementById("charge_policy").value = type.charge_policy;
+					document
+						.getElementById("edit-equipment-type-form")
+						.addEventListener("submit", (e) => { this.update_equipment_type(id, e); });
+				}
+			);
 		}).catch(e => this.handleError(e));
 	}
 
@@ -1427,7 +1462,6 @@ class Application {
 					"equipment": values[1],
 					"editable": editable
 				},
-				{},
 				() => {
 					document
 						.getElementById("edit-location-form")
@@ -1489,18 +1523,30 @@ class Application {
 				values[1] = values[1].filter(e => e.type == equipment_type.name);
 			}
 
-			this.render("#main", "authenticated/logs/list", {"search":search, "log_messages":values[0], "equipment":values[1], "locations":values[2], "equipment-type": values[3], "queryString":queryString}, {}, () => {
-				// fix up selects
-				if(Object.hasOwn(search, "equipment_id")) {
-					document.getElementById("equipment_id").value = search.equipment_id;
+			this.render(
+				"#main",
+				"authenticated/logs/list",
+				{
+					"search":search,
+					"log_messages":values[0],
+					"equipment":values[1],
+					"locations":values[2],
+					"equipment-type": values[3],
+					"queryString":queryString
+				},
+				() => {
+					// fix up selects
+					if(Object.hasOwn(search, "equipment_id")) {
+						document.getElementById("equipment_id").value = search.equipment_id;
+					}
+					if(Object.hasOwn(search, "location_id")) {
+						document.getElementById("location_id").value = search.location_id;
+					}
+					if(Object.hasOwn(search, "equipment_type_id")) {
+						document.getElementById("equipment_type_id").value = search.equipment_type_id;
+					}
 				}
-				if(Object.hasOwn(search, "location_id")) {
-					document.getElementById("location_id").value = search.location_id;
-				}
-				if(Object.hasOwn(search, "equipment_type_id")) {
-					document.getElementById("equipment_type_id").value = search.equipment_type_id;
-				}
-			});
+			);
 		}).catch(e => this.handleError(e));
 	}
 
@@ -1580,11 +1626,19 @@ class Application {
 		event.preventDefault();
 		let payment = this.#get_form_data(event.target);
 
-		this.render("#main", "authenticated/users/confirm_payment", {"user": user, "payment": payment}, {}, () => {
-			document
-				.getElementById("confirm-payment-form")
-				.addEventListener("submit", (e) => { this.add_payment(e); });
-		});
+		this.render(
+			"#main",
+			"authenticated/users/confirm_payment",
+			{
+				user,
+				payment
+			},
+			() => {
+				document
+					.getElementById("confirm-payment-form")
+					.addEventListener("submit", (e) => { this.add_payment(e); });
+			}
+		);
 	}
 
 	/**
@@ -1628,7 +1682,6 @@ class Application {
 					"editable":editable,
 					"deletable":deletable
 				},
-				{},
 				() => {
 					for(const permission of permissions) {
 						document.getElementById("permissions." + permission).checked = true;
@@ -1778,7 +1831,10 @@ class Application {
 				return transaction;
 			});
 
-			this.render("#main", "authenticated/users/view", {
+			this.render(
+				"#main",
+				"authenticated/users/view",
+				{
 					"user":user,
 					"badges": values[5],
 					"equipment_types":equipment_types,
@@ -1790,32 +1846,34 @@ class Application {
 					"authorizable":authorizable,
 					"role_editable": role_editable,
 					"create_payment_permission": payment_permission
-			}, {}, () => {
-				let selector = document.getElementById("role_id");
-				if(selector) {
-					selector.value = user.role.id;
+				},
+				() => {
+					let selector = document.getElementById("role_id");
+					if(selector) {
+						selector.value = user.role.id;
+					}
+					for(const authorization of user.authorizations) {
+						document.getElementById("authorizations." + authorization).checked = true;
+					}
+					let form = null;
+					form = document.getElementById("edit-user-form");
+					if(form) {
+						form.addEventListener("submit", (e) => { this.update_user(id, e); });
+					}
+					form = document.getElementById("authorize-user-form");
+					if(form) {
+						form.addEventListener("submit", (e) => { this.authorize_user(id, e); });
+					}
+					let transaction_button = null;
+					transaction_button = document.getElementById("transaction-button");
+					if(transaction_button) {
+						transaction_button.addEventListener("click", (e) => {this.toggle_transactions();});
+					}
+					if(values[3].length + values[4].length > 20) {
+						this.toggle_transactions();
+					}
 				}
-				for(const authorization of user.authorizations) {
-					document.getElementById("authorizations." + authorization).checked = true;
-				}
-				let form = null;
-				form = document.getElementById("edit-user-form");
-				if(form) {
-					form.addEventListener("submit", (e) => { this.update_user(id, e); });
-				}
-				form = document.getElementById("authorize-user-form");
-				if(form) {
-					form.addEventListener("submit", (e) => { this.authorize_user(id, e); });
-				}
-				let transaction_button = null;
-				transaction_button = document.getElementById("transaction-button");
-				if(transaction_button) {
-					transaction_button.addEventListener("click", (e) => {this.toggle_transactions();});
-				}
-				if(values[3].length + values[4].length > 20) {
-					this.toggle_transactions();
-				}
-			});
+			);
 		}).catch(e => this.handleError(e));
 	}
 
@@ -1855,17 +1913,22 @@ class Application {
 			let users = values[0];
 			let roles = values[1];
 
-			this.render("#main", "authenticated/users/list", {
-				"users": users,
-				"search": search,
-				"roles": roles,
-				"create_user_permission": this.user.has_permission(Permission.CREATE_USER)
-			}, {}, () => {
-				// fix up select
-				if(Object.hasOwn(search, "role_id")) {
-					document.getElementById("role_id").value = search.role_id;
+			this.render(
+				"#main",
+				"authenticated/users/list",
+				{
+					"users": users,
+					"search": search,
+					"roles": roles,
+					"create_user_permission": this.user.has_permission(Permission.CREATE_USER)
+				},
+				() => {
+					// fix up select
+					if(Object.hasOwn(search, "role_id")) {
+						document.getElementById("role_id").value = search.role_id;
+					}
 				}
-			});
+			);
 		}).catch(e => this.handleError(e));
 	}
 
