@@ -23,6 +23,7 @@ use Portalbox\Service\BadgeService;
 use Portalbox\Service\CardService;
 use Portalbox\Service\CardTypeService;
 use Portalbox\Service\EquipmentService;
+use Portalbox\Service\EquipmentTypeService;
 use Portalbox\Service\LocationService;
 use Portalbox\Service\LoggedEventService;
 use Portalbox\Service\PortalboxService;
@@ -136,6 +137,11 @@ class DependencyContainer {
 					$this->get(EquipmentModel::class),
 					$this->get(EquipmentTypeModel::class),
 					$this->get(LocationModel::class)
+				);
+			case EquipmentTypeService::class:
+				return new EquipmentTypeService(
+					$this->get(Session::class),
+					$this->get(EquipmentTypeModel::class)
 				);
 			case LocationService::class:
 				return new LocationService(
