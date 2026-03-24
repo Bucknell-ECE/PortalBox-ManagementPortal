@@ -1,0 +1,32 @@
+meta {
+  name: Create
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{HOST}}/api/v2/roles.php
+  body: json
+  auth: inherit
+}
+
+headers {
+  Cookie: PHPSESSID={{SESSION_ID}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Auditor",
+    "description": "For users who only need to access logs",
+    "permissions": [
+      "902",
+      "905"
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

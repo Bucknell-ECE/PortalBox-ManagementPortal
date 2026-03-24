@@ -1,0 +1,19 @@
+meta {
+  name: Read
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{HOST}}/api/v2/badge-rules.php?id=10
+  body: none
+  auth: none
+}
+
+params:query {
+  id: 10
+}
+
+headers {
+  Cookie: PHPSESSID={{SESSION_ID}}
+}
