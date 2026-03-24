@@ -43,6 +43,28 @@ final class EquipmentTransformerTest extends TestCase {
 			->set_is_in_service($in_service)
 			->set_is_in_use($in_use);
 
+		$data = $transformer->serialize($equipment);
+
+		self::assertNotNull($data);
+		self::assertArrayHasKey('id', $data);
+		self::assertEquals($id, $data['id']);
+		self::assertArrayHasKey('name', $data);
+		self::assertEquals($name, $data['name']);
+		self::assertArrayNotHasKey('type_id', $data);
+		self::assertArrayHasKey('type', $data);
+		self::assertEquals($type_name, $data['type']);
+		self::assertArrayNotHasKey('location_id', $data);
+		self::assertArrayHasKey('location', $data);
+		self::assertEquals($location_name, $data['location']);
+		self::assertArrayHasKey('mac_address', $data);
+		self::assertEquals($mac_address, $data['mac_address']);
+		self::assertArrayHasKey('timeout', $data);
+		self::assertEquals($timeout, $data['timeout']);
+		self::assertArrayHasKey('in_service', $data);
+		self::assertEquals($in_service, $data['in_service']);
+		self::assertArrayHasKey('in_use', $data);
+		self::assertEquals($in_use, $data['in_use']);
+
 		$data = $transformer->serialize($equipment, true);
 
 		self::assertNotNull($data);
