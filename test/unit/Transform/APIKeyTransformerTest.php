@@ -25,6 +25,7 @@ final class APIKeyTransformerTest extends TestCase {
 		$key = (new APIKey())
 			->set_id($id)
 			->set_name($name)
+			->set_permissions($permissions)
 			->set_token($token);
 
 		$data = $transformer->serialize($key);
