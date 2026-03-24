@@ -192,9 +192,6 @@ class Application {
 			params = {};
 		}
 
-
-		Mustache.tags = ["{{", "}}"];
-
 		const url = this.viewLocation + "/" + view.replace(".mst", "") + ".mst";
 		fetch(url).then((response) => {
 			return response.text();
@@ -225,15 +222,16 @@ class Application {
 	}
 
 	/**
-	 * clear all routes currently configured useful if transitioning between
-	 * authenticated and unauthenticated states
+	 * Clear all routes currently configured
+	 *
+	 * Useful if transitioning between authenticated and unauthenticated states
 	 */
 	flush() {
 		this.routes = [];
 	}
 
 	/**
-	 * handleError takes action based on the error reported.
+	 * Take action based on the error reported.
 	 *
 	 * @param {*} error - the error being reported typically from the fetch API
 	 *        but could also be a {string} message to report to the user
@@ -248,8 +246,8 @@ class Application {
 	}
 
 	/**
-	 * Private utility method for setting up routes when application is
-	 * configured with an authenticated user
+	 * Utility method for setting up routes when application is configured with
+	 * an authenticated user
 	 *
 	 * @private
 	 */
@@ -766,8 +764,8 @@ class Application {
 	}
 
 	/**
-	 * Private utility method for setting up routes when application is
-	 * configured without an authenticated user
+	 * Utility method for setting up routes when application is configured
+	 * without an authenticated user
 	 *
 	 * @private
 	 */
@@ -781,7 +779,8 @@ class Application {
 	/**
 	 * Set the current user
 	 *
-	 * @param User|null user - the authenticated user or null if no authenticated user
+	 * @param {User|null} user  the authenticated user or null if no
+	 *      authenticated user
 	 */
 	set_user(user) {
 		if(user) {
@@ -805,11 +804,11 @@ class Application {
 	 * which has key value pairs corresponding to the name and value
 	 * of the fields with a name attribute.
 	 *
-	 * If name is of the form
-	 * "foo.bar" then the value will be nested as ret["foo"]["bar"]
+	 * If a field name is of the form "foo.bar" then the value will be nested as
+	 * ret["foo"]["bar"]
 	 *
-	 * @param HTMLFormElement form - the form from which to retrieve data
-	 * @return Object - an object with an attribute for each form input or
+	 * @param {HTMLFormElement} form  the form from which to retrieve data
+	 * @return {Object}  an object with an attribute for each form input or
 	 *     group of inputs.
 	 */
 	#get_form_data(form) {
