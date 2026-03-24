@@ -1,0 +1,27 @@
+info:
+  name: Read Location errors when id is not int
+  type: http
+  seq: 11
+
+http:
+  method: GET
+  url: "{{HOST}}/api/v2/locations.php?id=Laboratory"
+  params:
+    - name: id
+      value: Laboratory
+      type: query
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body
+      operator: eq
+      value: The location id must be specified as an integer
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

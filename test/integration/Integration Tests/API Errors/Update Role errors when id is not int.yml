@@ -1,0 +1,28 @@
+info:
+  name: Update Role errors when id is not int
+  type: http
+  seq: 16
+
+http:
+  method: POST
+  url: "{{HOST}}/api/v2/roles.php?id=Admin"
+  params:
+    - name: id
+      value: Admin
+      type: query
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body
+      operator: eq
+      value: You must specify the role to modify via the id param
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

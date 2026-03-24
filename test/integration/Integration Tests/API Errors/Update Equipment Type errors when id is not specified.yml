@@ -1,0 +1,30 @@
+info:
+  name: Update Equipment Type errors when id is not specified
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{HOST}}/api/v2/equipment-types.php?id=Flashlight"
+  params:
+    - name: id
+      value: Flashlight
+      type: query
+  body:
+    type: json
+    data: '{"id":"ignored", "name":"Glowforge 3D", "requires_training":false, "charge_policy":2}'
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body
+      operator: eq
+      value: The equipment type id must be specified as an integer
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

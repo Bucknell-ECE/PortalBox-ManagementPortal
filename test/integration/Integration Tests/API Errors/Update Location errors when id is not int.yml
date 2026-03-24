@@ -1,0 +1,26 @@
+info:
+  name: Update Location errors when id is not int
+  type: http
+  seq: 13
+
+http:
+  method: POST
+  url: "{{HOST}}/api/v2/locations.php"
+  body:
+    type: json
+    data: '{"id":"ignored", "name":"Maker Space"}'
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body
+      operator: eq
+      value: You must specify the location to modify via the id param
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

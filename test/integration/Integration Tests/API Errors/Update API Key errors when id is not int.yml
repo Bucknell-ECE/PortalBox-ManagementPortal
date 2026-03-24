@@ -1,0 +1,30 @@
+info:
+  name: Update API Key errors when id is not int
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{HOST}}/api/v2/api-keys.php?id=Reservations Integration"
+  params:
+    - name: id
+      value: Reservations Integration
+      type: query
+  body:
+    type: json
+    data: '{"id":-1, "name":"Reservations Integration"}'
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body
+      operator: eq
+      value: You must specify the API key to modify via the id param
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
