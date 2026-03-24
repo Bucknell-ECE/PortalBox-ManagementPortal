@@ -1,0 +1,28 @@
+info:
+  name: Update User errors when id is not int
+  type: http
+  seq: 19
+
+http:
+  method: POST
+  url: "{{HOST}}/api/v2/users.php?id=Admin"
+  params:
+    - name: id
+      value: Admin
+      type: query
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body
+      operator: eq
+      value: You must specify the user to modify via the id param
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

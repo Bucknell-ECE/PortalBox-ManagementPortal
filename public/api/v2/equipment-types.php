@@ -1,42 +1,27 @@
 <?php
 
-require '../../src/autoload.php';
+require '../../../src/bootstrap.php';
 
-use Portalbox\Config;
 use Portalbox\ResponseHandler;
-use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Service\EquipmentTypeService;
-use Portalbox\Session;
 use Portalbox\Transform\EquipmentTypeTransformer;
-
-$session = new Session();
 
 try {
 	switch($_SERVER['REQUEST_METHOD']) {
 		case 'GET':		// List/Read
 			if(isset($_GET['id']) && !empty($_GET['id'])) {	// Read
-				$service = new EquipmentTypeService(
-					$session,
-					new EquipmentTypeModel(Config::config())
-				);
-
 				$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
 				if ($id === false) {
 					throw new InvalidArgumentException('The equipment type id must be specified as an integer');
 				}
 
+				$service = $container->get(EquipmentTypeService::class);
 				$equipmentType = $service->read($id);
-				$transformer = new EquipmentTypeTransformer();
-				ResponseHandler::render($equipmentType , $transformer);
+				ResponseHandler::render($equipmentType , new EquipmentTypeTransformer());
 			} else { // List
-				$service = new EquipmentTypeService(
-					$session,
-					new EquipmentTypeModel(Config::config())
-				);
-
+				$service = $container->get(EquipmentTypeService::class);
 				$equipmentTypes = $service->readAll();
-				$transformer = new EquipmentTypeTransformer();
-				ResponseHandler::render($equipmentTypes, $transformer);
+				ResponseHandler::render($equipmentTypes, new EquipmentTypeTransformer());
 			}
 			break;
 		case 'POST':	// Update
@@ -49,24 +34,14 @@ try {
 				throw new InvalidArgumentException('The equipment type id must be specified as an integer');
 			}
 
-			$service = new EquipmentTypeService(
-				$session,
-				new EquipmentTypeModel(Config::config())
-			);
-
+			$service = $container->get(EquipmentTypeService::class);
 			$equipmentType = $service->update($id, 'php://input');
-			$transformer = new EquipmentTypeTransformer();
-			ResponseHandler::render($equipmentType, $transformer);
+			ResponseHandler::render($equipmentType, new EquipmentTypeTransformer());
 			break;
 		case 'PUT':	// Create
-			$service = new EquipmentTypeService(
-				$session,
-				new EquipmentTypeModel(Config::config())
-			);
-
+			$service = $container->get(EquipmentTypeService::class);
 			$equipmentType = $service->create('php://input');
-			$transformer = new EquipmentTypeTransformer();
-			ResponseHandler::render($equipmentType, $transformer);
+			ResponseHandler::render($equipmentType, new EquipmentTypeTransformer());
 			break;
 		case 'DELETE':	// Delete
 			// intentional fall through, deletion not allowed

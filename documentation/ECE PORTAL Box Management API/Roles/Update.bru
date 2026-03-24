@@ -1,0 +1,36 @@
+meta {
+  name: Update
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{HOST}}/api/v2/roles.php?id=16
+  body: json
+  auth: inherit
+}
+
+params:query {
+  id: 16
+}
+
+headers {
+  Cookie: PHPSESSID={{SESSION_ID}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Auditor",
+    "description": "For users who only need to access logs",
+    "permissions": [
+      "902",
+      "905"
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

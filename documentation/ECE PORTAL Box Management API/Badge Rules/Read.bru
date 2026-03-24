@@ -1,13 +1,17 @@
 meta {
-  name: List
+  name: Read
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: {{HOST}}/api/v2/equipment-types.php
+  url: {{HOST}}/api/v2/badge-rules.php?id=10
   body: none
   auth: none
+}
+
+params:query {
+  id: 10
 }
 
 headers {

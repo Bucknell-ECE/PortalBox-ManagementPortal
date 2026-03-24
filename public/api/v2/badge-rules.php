@@ -25,6 +25,10 @@ try {
 			}
 			break;
 		case 'POST':	// Update
+			if(!isset($_GET['id']) || empty($_GET['id'])) {
+				throw new InvalidArgumentException('You must specify the badge rule to modify via the id param');
+			}
+
 			$id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
 			if ($id === false) {
 				throw new InvalidArgumentException('You must specify the badge rule to modify via the id param');

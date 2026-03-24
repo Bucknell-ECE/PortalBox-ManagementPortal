@@ -37,7 +37,7 @@ export class EquipmentType {
 	 * @throws String if any other error occurs
 	 */
 	static async list(query = '') {
-		const response = await fetch("/api/equipment-types.php?" + query, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/equipment-types.php?" + query, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			const data = await response.json();
@@ -69,7 +69,7 @@ export class EquipmentType {
 	 * @throws String if any other error occurs
 	 */
 	static async read(id) {
-		const response = await fetch("/api/equipment-types.php?id=" + id, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/equipment-types.php?id=" + id, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			const data = await response.json();
@@ -98,7 +98,7 @@ export class EquipmentType {
 	 * @throws String if any other error occurs
 	 */
 	static async create(data) {
-		const response = await fetch("/api/equipment-types.php", {
+		const response = await fetch("/api/v2/equipment-types.php", {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {
@@ -135,7 +135,7 @@ export class EquipmentType {
 	 * @throws String if any other error occurs
 	 */
 	static async modify(id, data) {
-		const response = await fetch("/api/equipment-types.php?id=" + id, {
+		const response = await fetch("/api/v2/equipment-types.php?id=" + id, {
 			body: JSON.stringify(data),
 			credentials: "include",
 			headers: {

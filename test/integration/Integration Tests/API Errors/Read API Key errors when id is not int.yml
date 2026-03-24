@@ -1,0 +1,27 @@
+info:
+  name: Read API Key errors when id is not int
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{HOST}}/api/v2/api-keys.php?id=Reservations Integration"
+  params:
+    - name: id
+      value: Reservations Integration
+      type: query
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body
+      operator: eq
+      value: The API key id must be specified as an integer
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
