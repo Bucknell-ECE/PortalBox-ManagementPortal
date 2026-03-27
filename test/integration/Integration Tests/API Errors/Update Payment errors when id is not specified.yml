@@ -1,14 +1,14 @@
 info:
-  name: Update Location errors when id is not specified
+  name: Update Payment errors when id is not specified
   type: http
-  seq: 12
+  seq: 15
 
 http:
   method: POST
-  url: "{{HOST}}/api/v2/locations.php"
+  url: "{{HOST}}/api/v2/payments.php"
   body:
     type: json
-    data: '{"id":"ignored", "name":"Maker Space"}'
+    data: '{"user_id":2,"time":"2026-03-25 10:10:23","amount":"23.56"}'
 
 runtime:
   assertions:
@@ -17,7 +17,7 @@ runtime:
       value: "400"
     - expression: res.body
       operator: eq
-      value: You must specify the location to modify via the id param
+      value: You must specify the payment to modify via the id param
 
 settings:
   encodeUrl: true

@@ -15,6 +15,7 @@ use Portalbox\Model\EquipmentTypeModel;
 use Portalbox\Model\ImageModel;
 use Portalbox\Model\LocationModel;
 use Portalbox\Model\LoggedEventModel;
+use Portalbox\Model\PaymentModel;
 use Portalbox\Model\RoleModel;
 use Portalbox\Model\UserModel;
 use Portalbox\Service\APIKeyService;
@@ -26,6 +27,7 @@ use Portalbox\Service\EquipmentService;
 use Portalbox\Service\EquipmentTypeService;
 use Portalbox\Service\LocationService;
 use Portalbox\Service\LoggedEventService;
+use Portalbox\Service\PaymentService;
 use Portalbox\Service\PortalboxService;
 use Portalbox\Service\RoleService;
 use Portalbox\Service\UserService;
@@ -97,6 +99,8 @@ class DependencyContainer {
 				return new LocationModel($this->get(Config::class));
 			case LoggedEventModel::class:
 				return new LoggedEventModel($this->get(Config::class));
+			case PaymentModel::class:
+				return new PaymentModel($this->get(Config::class));
 			case RoleModel::class:
 				return new RoleModel($this->get(Config::class));
 			case UserModel::class:
@@ -152,6 +156,12 @@ class DependencyContainer {
 				return new LoggedEventService(
 					$this->get(Session::class),
 					$this->get(LoggedEventModel::class)
+				);
+			case PaymentService::class:
+				return new PaymentService(
+					$this->get(Session::class),
+					$this->get(PaymentModel::class),
+					$this->get(UserModel::class)
 				);
 			case PortalboxService::class:
 				return new PortalboxService(

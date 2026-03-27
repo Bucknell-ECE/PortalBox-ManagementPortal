@@ -7,7 +7,11 @@ auth {
 }
 
 docs {
-  This API implements a RESTful interface for interacting with the Portalbox System. It is consumed by our management website and the Portalboxes themselves.
+  # ECE PORTAL Box Management API
   
-  Users are authenticated by presenting an OAuth2 token to `api/login.php` and are issued a session cookie to authenticate subsequent requests.
+  This collection documents the API endpoints exposed by the website's backend which is consumed by our SPA management website and the Portalboxes themselves. In general we have followed a RESTful APi pattern so `HTTP PUT` creates things, `HTTP GET` with an `id` parameter reads a record and without an `id` parameter lists records, `HTTP POST` modifies records, and `HTTP DELETE` deletes records.
+  
+  ## Authentication
+  
+  We offer two authentication methods: OAuth and API key. Users of the SPA Management website are issued a session cookie upon completing an OAuth challenge. Portalboxes and third party systems using our API can authenticate each request using an API key presented as a [Bearer token](https://blog.postman.com/what-is-a-bearer-token/).
 }

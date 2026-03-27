@@ -11,36 +11,7 @@ use Portalbox\Type\Payment;
  * PaymentTransformer is our bridge between dictionary representations and
  * Payment instances.
  */
-class PaymentTransformer implements InputTransformer, OutputTransformer {
-	/**
-	 * Deserialize a Payment object from a dictionary
-	 *
-	 * @param array data - a dictionary representing a Payment
-	 * @return Payment - an object based on the data specified
-	 * @throws InvalidArgumentException if a require field is not specified
-	 */
-	public function deserialize(array $data): Payment {
-		if (!array_key_exists('user_id', $data)) {
-			throw new InvalidArgumentException('\'user_id\' is a required field');
-		}
-		if (!array_key_exists('amount', $data)) {
-			throw new InvalidArgumentException('\'amount\' is a required field');
-		}
-		if (!array_key_exists('time', $data)) {
-			throw new InvalidArgumentException('\'time\' is a required field');
-		}
-
-		$user = (new UserModel(Config::config()))->read($data['user_id']);
-		if (null === $user) {
-			throw new InvalidArgumentException('\'user_id\' must correspond to a valid user');
-		}
-
-		return (new Payment())
-			->set_user($user)
-			->set_amount($data['amount'])
-			->set_time($data['time']);
-	}
-
+class PaymentTransformer implements OutputTransformer {
 	/**
 	 * Called to serialize a Payment instance to a dictionary
 	 *
