@@ -2,6 +2,39 @@ opencollection: 1.0.0
 
 info:
   name: Integration Tests
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+docs:
+  content: |
+    # Integration Tests
+
+    This collection can be run to validate some of the workings of the API separate from the front end.
+
+    ## Setup
+
+    In order to use this collection for testing you must first provision:
+
+    - An equipment type which allows proxy card use
+    - An item of equipment of the type that allows proxy card usage
+    - A user authorized to use the equipment
+    - A user not authorized to use the equipment
+    - A shutdown card
+    - A proxy card
+    - A user card for the user authorized to use the equipment
+    - A user card for the user not authorized to use the equipment
+
+    Then you need to edit the `Test Locally` Environment setting the host name for the website e.g. `127.0.0.1:8000` if you are using `php -S 127.0.0.1:8000` to host a test instance, the mac address of teh equipment and the card ids of the cards you provisioned.
+  type: text/markdown
 bundled: false
 extensions:
   bruno:

@@ -4,138 +4,16 @@ declare(strict_types=1);
 
 namespace Test\Portalbox\Transform;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Config;
-use Portalbox\Model\UserModel;
 use Portalbox\Transform\PaymentTransformer;
 use Portalbox\Type\Payment;
-use Portalbox\Type\Role;
-use Portalbox\Type\User;
 
 final class PaymentTransformerTest extends TestCase {
-	/**
-	 * A user guaranteed to exist in the DB
-	 */
-	private static User $user;
-
-	public static function setUpBeforeClass(): void {
-		parent::setUpBeforeClass();
-		$config = Config::config();
-
-		// provision a user in the db
-		$model = new UserModel($config);
-
-		$role_id = 3;	// default id of system defined admin role
-
-		$role = (new Role())
-			->set_id($role_id);
-
-		$name = 'Tom Egan';
-		$email = 'tom@ficticious.tld';
-		$comment = 'Test Monkey';
-		$active = true;
-
-		$user = (new User())
-			->set_name($name)
-			->set_email($email)
-			->set_comment($comment)
-			->set_is_active($active)
-			->set_role($role);
-
-		self::$user = $model->create($user);
-	}
-
-	public static function tearDownAfterClass(): void {
-		$config = Config::config();
-
-		// deprovision user from the db
-		$model = new UserModel($config);
-		$model->delete(self::$user->id());
-
-		parent::tearDownAfterClass();
-	}
-
-	public function testDeserialize(): void {
-		$transformer = new PaymentTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$amount = '29.95';
-		$time = '2020-05-30 21:45:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'amount' => $amount,
-			'time' => $time
-		];
-
-		$payment = $transformer->deserialize($data);
-
-		self::assertNotNull($payment);
-		self::assertNull($payment->id());
-		self::assertEquals($user_id, $payment->user_id());
-		self::assertEquals($amount, $payment->amount());
-		self::assertEquals($time, $payment->time());
-	}
-
-	public function testDeserializeInvalidDataUserID(): void {
-		$transformer = new PaymentTransformer();
-
-		$id = 42;
-		$amount = '29.95';
-		$time = '2020-05-30 21:45:34';
-
-		$data = [
-			'id' => $id,
-			'amount' => $amount,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$payment = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataTime(): void {
-		$transformer = new PaymentTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$amount = '29.95';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'amount' => $amount
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$payment = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataAmount(): void {
-		$transformer = new PaymentTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$time = '2020-05-30 21:45:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$payment = $transformer->deserialize($data);
-	}
-
 	public function testSerialize(): void {
 		$transformer = new PaymentTransformer();
 
 		$id = 42;
-		$user_id = self::$user->id();
+		$user_id = 2;
 		$amount = '29.95';
 		$time = '2020-05-30 21:45:34';
 

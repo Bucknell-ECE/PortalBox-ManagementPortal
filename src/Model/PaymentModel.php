@@ -111,12 +111,7 @@ class PaymentModel extends AbstractModel {
 	 * @throws DatabaseException - when the database can not be queried
 	 * @return Payment[]|null - a list of payments which match the search query
 	 */
-	public function search(PaymentQuery $query): ?array {
-		if (null === $query) {
-			// no query... bail
-			return null;
-		}
-
+	public function search(PaymentQuery $query): array {
 		$connection = $this->configuration()->readonly_db_connection();
 		$sql = 'SELECT id, user_id, amount, time FROM payments';
 		$where_clause_fragments = [];
@@ -127,11 +122,11 @@ class PaymentModel extends AbstractModel {
 		}
 		if ($query->on_or_after()) {
 			$where_clause_elements[] = 'time >= :after';
-			$parameters[':after'] = $query->on_or_after();
+			$parameters[':after'] = $query->on_or_after()->format('Y-m-d H:i:s');
 		}
 		if ($query->on_or_before()) {
 			$where_clause_elements[] = 'time <= :before';
-			$parameters[':before'] = $query->on_or_before();
+			$parameters[':before'] = $query->on_or_before()->format('Y-m-d H:i:s');
 		}
 		if (0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
@@ -145,33 +140,21 @@ class PaymentModel extends AbstractModel {
 			$statement->bindValue($k, $v);
 		}
 
-		if ($statement->execute()) {
-			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if (false !== $data) {
-				return $this->buildPaymentsFromArrays($data);
-			} else {
-				return null;
-			}
-		} else {
-			throw new DatabaseException($connection->errorInfo()[2]);
+		if (!$statement->execute()) {
+			throw new DatabaseException($statement->errorInfo()[2]);
 		}
+
+		return array_map(
+			fn (array $data) => $this->buildPaymentFromArray($data),
+			$statement->fetchAll(PDO::FETCH_ASSOC)
+		);
 	}
 
 	private function buildPaymentFromArray(array $data): Payment {
 		return (new Payment())
-				->set_id($data['id'])
-				->set_user_id($data['user_id'])
-				->set_amount($data['amount'])
-				->set_time($data['time']);
-	}
-
-	private function buildPaymentsFromArrays(array $data): array {
-		$payments = [];
-
-		foreach ($data as $datum) {
-			$payments[] = $this->buildPaymentFromArray($datum);
-		}
-
-		return $payments;
+			->set_id($data['id'])
+			->set_user_id($data['user_id'])
+			->set_amount($data['amount'])
+			->set_time($data['time']);
 	}
 }

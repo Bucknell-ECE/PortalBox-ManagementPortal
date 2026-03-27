@@ -1,7 +1,7 @@
 info:
   name: Read User errors when id is not int
   type: http
-  seq: 17
+  seq: 20
 
 http:
   method: GET
