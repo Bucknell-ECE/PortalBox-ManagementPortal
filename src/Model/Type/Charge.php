@@ -52,25 +52,6 @@ class Charge extends AbstractCharge {
 	}
 
 	/**
-	 * Get the name of the equipment the user used to incur the Charge
-	 *
-	 * @return string - the name of the equipment the user used to incur the Charge
-	 */
-	public function equipment_name(): ?string {
-		return $this->equipment_name;
-	}
-
-	/**
-	 * Set the name of the equipment the user used to incur the Charge
-	 *
-	 * @param string name - the name of the equipment the user used to incur the Charge
-	 */
-	public function set_equipment_name(string $equipment_name): Charge {
-		$this->equipment_name = $equipment_name;
-		return $this;
-	}
-
-	/**
 	 * Get the equipment the user used to incur the Charge
 	 *
 	 * @return Equipment|null - the equipment the user used to incur the Charge
@@ -81,25 +62,6 @@ class Charge extends AbstractCharge {
 		}
 
 		return $this->equipment;
-	}
-
-	/**
-	 * Get the charged user's name
-	 *
-	 * @return string - the charged user's name
-	 */
-	public function user_name(): ?string {
-		return $this->user_name;
-	}
-
-	/**
-	 * Set the charged user's name
-	 *
-	 * @param string name - the charged user's name
-	 */
-	public function set_user_name(?string $user_name): Charge {
-		$this->user_name = $user_name;
-		return $this;
 	}
 
 	/**

@@ -1,7 +1,7 @@
 info:
   name: Read Equipment errors when id in not int
   type: http
-  seq: 5
+  seq: 6
 
 http:
   method: GET

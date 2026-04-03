@@ -125,11 +125,6 @@ class ChargeModel extends AbstractModel {
 	 * @return Charge[]|null - a list of charges which match the search query
 	 */
 	public function search(ChargeQuery $query): ?array {
-		if (null === $query) {
-			// no query... bail
-			return null;
-		}
-
 		$connection = $this->configuration()->readonly_db_connection();
 
 		$sql = <<<EOQ
@@ -154,11 +149,11 @@ class ChargeModel extends AbstractModel {
 
 		if (null !== $query->on_or_after()) {
 			$where_clause_fragments[] = 'c.time >= :after';
-			$parameters[':after'] = $query->on_or_after();
+			$parameters[':after'] = $query->on_or_after()->format('Y-m-d H:i:s');
 		}
 		if (null !== $query->on_or_before()) {
 			$where_clause_fragments[] = 'c.time <= :before';
-			$parameters[':before'] = $query->on_or_before();
+			$parameters[':before'] = $query->on_or_before()->format('Y-m-d H:i:s');
 		}
 		if (0 < count($where_clause_fragments)) {
 			$sql .= ' WHERE ';
@@ -172,71 +167,25 @@ class ChargeModel extends AbstractModel {
 			$statement->bindValue($k, $v);
 		}
 
-
-		if ($statement->execute()) {
-			$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-			if (false !== $data) {
-				return $this->buildChargesFromArrays($data);
-			} else {
-				return null;
-			}
-		} else {
-			throw new DatabaseException($connection->errorInfo()[2]);
+		if (!$statement->execute()) {
+			throw new DatabaseException($statement->errorInfo()[2]);
 		}
+
+		return array_map(
+			fn (array $data) => $this->buildChargeFromArray($data),
+			$statement->fetchAll(PDO::FETCH_ASSOC)
+		);
 	}
 
 	private function buildChargeFromArray(array $data): Charge {
-		return (new Charge())
-					->set_id($data['id'])
-					->set_user_id($data['user_id'])
-					->set_equipment_id($data['equipment_id'])
-					->set_time($data['time'])
-					->set_amount($data['amount'])
-					->set_charge_policy(ChargePolicy::from($data['charge_policy_id']))
-					->set_charge_rate($data['charge_rate'])
-					->set_charged_time($data['charged_time']);
-	}
-
-	private function buildChargesFromArrays(array $data): array {
-		$charges = [];
-		$machines = [];
-		$users = [];
-
-		$e_model = new EquipmentModel($this->Configuration());
-		$u_model = new UserModel($this->Configuration());
-
-		$e_query = new EquipmentQuery();
-		$u_query = (new UserQuery())
-			->set_include_inactive(true);
-
-		$machines = $e_model->search($e_query);
-		$users = $u_model->search($u_query);
-
-		foreach ($data as $datum) {
-			$charges[] = $this->buildChargeFromArray($datum);
-		}
-
-		foreach ($charges as $charge) {
-			$e_id = $charge->equipment_id();
-
-			$machine = array_filter(
-				$machines,
-				fn($e) => $e->id() == $e_id
-			);
-
-			$charge->set_equipment(array_pop($machine));
-
-			$u_id = $charge->user_id();
-
-			$user = array_filter(
-				$users,
-				fn($e) => $e->id() == $u_id
-			);
-
-			$charge->set_user(array_pop($user));
-		}
-
-		return $charges;
+		return (new \Portalbox\Model\Type\Charge($this->configuration()))
+			->set_id($data['id'])
+			->set_user_id($data['user_id'])
+			->set_equipment_id($data['equipment_id'])
+			->set_time($data['time'])
+			->set_amount($data['amount'])
+			->set_charge_policy(ChargePolicy::from($data['charge_policy_id']))
+			->set_charge_rate($data['charge_rate'])
+			->set_charged_time($data['charged_time']);
 	}
 }

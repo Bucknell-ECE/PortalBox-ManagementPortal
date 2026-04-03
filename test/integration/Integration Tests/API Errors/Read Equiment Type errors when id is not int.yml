@@ -1,7 +1,7 @@
 info:
   name: Read Equiment Type errors when id is not int
   type: http
-  seq: 8
+  seq: 9
 
 http:
   method: GET

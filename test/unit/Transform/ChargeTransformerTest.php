@@ -4,408 +4,28 @@ declare(strict_types=1);
 
 namespace Test\Portalbox\Transform;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use Portalbox\Config;
 use Portalbox\Enumeration\ChargePolicy;
-use Portalbox\Model\EquipmentModel;
-use Portalbox\Model\EquipmentTypeModel;
-use Portalbox\Model\LocationModel;
-use Portalbox\Model\UserModel;
 use Portalbox\Transform\ChargeTransformer;
 use Portalbox\Type\Charge;
 use Portalbox\Type\Equipment;
-use Portalbox\Type\EquipmentType;
-use Portalbox\Type\Location;
-use Portalbox\Type\Role;
 use Portalbox\Type\User;
 
 final class ChargeTransformerTest extends TestCase {
-	/**
-	 * A user guaranteed to exist in the DB
-	 */
-	private static User $user;
-
-	/**
-	 * A location that exists in the db
-	 */
-	private static $location;
-
-	/**
-	 * An equipment type which exists in the db
-	 */
-	private static $type;
-
-	/**
-	 * An equipment which exists in the db
-	 */
-	private static $equipment;
-
-	public static function setUpBeforeClass(): void {
-		parent::setUpBeforeClass();
-		$config = Config::config();
-
-		// provision a user in the db
-		$model = new UserModel($config);
-
-		$role_id = 3;	// default id of system defined admin role
-
-		$role = (new Role())
-			->set_id($role_id)
-			->set_name('administrator')
-			->set_description('Administrators')
-			->set_is_system_role(false);
-
-		$name = 'Tom Egan';
-		$email = 'tom@ficticious.tld';
-		$comment = 'Test Monkey';
-		$active = true;
+	public function testSerialize(): void {
+		$user_id = 501;
+		$user_name = 'Tom Egan';
 
 		$user = (new User())
-			->set_name($name)
-			->set_email($email)
-			->set_comment($comment)
-			->set_is_active($active)
-			->set_role($role);
+			->set_id($user_id)
+			->set_name($user_name);
 
-		self::$user = $model->create($user);
-
-		// provision a location in the db
-		$model = new LocationModel($config);
-
-		$name = 'Robotics Shop';
-
-		$location = (new Location())
-			->set_name($name);
-
-		self::$location = $model->create($location);
-
-		// provision an equipment type in the db
-		$model = new EquipmentTypeModel($config);
-
-		$name = 'Floodlight';
-		$requires_training = false;
-		$charge_policy = ChargePolicy::PER_USE;
-
-		$type = (new EquipmentType())
-			->set_name($name)
-			->set_requires_training($requires_training)
-			->set_charge_policy($charge_policy)
-			->set_charge_rate('2.00')
-			->set_allow_proxy(false);
-
-		self::$type = $model->create($type);
-
-		// provision an equipment in the db
-		$model = new EquipmentModel($config);
-
-		$name = '1000W Floodlight';
-		$mac_address = '0123456789AB';
-		$timeout = 0;
-		$is_in_service = true;
-		$service_minutes = 500;
+		$equipment_id = 12;
+		$equipment_name = '1000W Floodlight';
 
 		$equipment = (new Equipment())
-			->set_name($name)
-			->set_type(self::$type)
-			->set_location(self::$location)
-			->set_mac_address($mac_address)
-			->set_timeout($timeout)
-			->set_is_in_service($is_in_service)
-			->set_service_minutes($service_minutes);
-
-		self::$equipment = $model->create($equipment);
-	}
-
-	public static function tearDownAfterClass(): void {
-		$config = Config::config();
-
-		// deprovision user from the db
-		$model = new UserModel($config);
-		$model->delete(self::$user->id());
-
-		// deprovision an equipment in the db
-		$model = new EquipmentModel($config);
-		$model->delete(self::$equipment->id());
-
-		// deprovision a location in the db
-		$model = new LocationModel($config);
-		$model->delete(self::$location->id());
-
-		// deprovision an equipment type in the db
-		$model = new EquipmentTypeModel($config);
-		$model->delete(self::$type->id());
-
-		parent::tearDownAfterClass();
-	}
-
-	public function testDeserialize(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$equipment_id = self::$equipment->id();
-		$amount = '2.00';
-		$charge_policy = ChargePolicy::PER_USE;
-		$charge_rate = '2.00';
-		$charged_time = 25;
-		$time = '2020-05-31 10:46:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'equipment_id' => $equipment_id,
-			'amount' => $amount,
-			'charge_policy' => $charge_policy->value,
-			'charge_rate' => $charge_rate,
-			'charged_time' => $charged_time,
-			'time' => $time
-		];
-
-		$charge = $transformer->deserialize($data);
-
-		self::assertNotNull($charge);
-		self::assertNull($charge->id());
-		self::assertEquals($user_id, $charge->user_id());
-		self::assertEquals($equipment_id, $charge->equipment_id());
-		self::assertEquals($amount, $charge->amount());
-		self::assertEquals($charge_policy, $charge->charge_policy());
-		self::assertEquals($charge_rate, $charge->charge_rate());
-		self::assertEquals($charged_time, $charge->charged_time());
-		self::assertEquals($time, $charge->time());
-	}
-
-	public function testDeserializeInvalidDataUserIdMissing(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$equipment_id = self::$equipment->id();
-		$amount = '2.00';
-		$charge_policy = ChargePolicy::PER_USE;
-		$charge_rate = '2.00';
-		$charged_time = 25;
-		$time = '2020-05-31 10:46:34';
-
-		$data = [
-			'id' => $id,
-			'equipment_id' => $equipment_id,
-			'amount' => $amount,
-			'charge_policy' => $charge_policy->value,
-			'charge_rate' => $charge_rate,
-			'charged_time' => $charged_time,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$charge = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataUserID(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id() + 100;
-		$equipment_id = self::$equipment->id();
-		$amount = '2.00';
-		$charge_policy = ChargePolicy::PER_USE;
-		$charge_rate = '2.00';
-		$charged_time = 25;
-		$time = '2020-05-31 10:46:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'equipment_id' => $equipment_id,
-			'amount' => $amount,
-			'charge_policy' => $charge_policy->value,
-			'charge_rate' => $charge_rate,
-			'charged_time' => $charged_time,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$charge = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataEquipmentIDMissing(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$amount = '2.00';
-		$charge_policy = ChargePolicy::PER_USE;
-		$charge_rate = '2.00';
-		$charged_time = 25;
-		$time = '2020-05-31 10:46:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'amount' => $amount,
-			'charge_policy' => $charge_policy->value,
-			'charge_rate' => $charge_rate,
-			'charged_time' => $charged_time,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$charge = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataEquipmentId(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$equipment_id = self::$equipment->id() + 100;
-		$amount = '2.00';
-		$charge_policy = ChargePolicy::PER_USE;
-		$charge_rate = '2.00';
-		$charged_time = 25;
-		$time = '2020-05-31 10:46:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'equipment_id' => $equipment_id,
-			'amount' => $amount,
-			'charge_policy' => $charge_policy->value,
-			'charge_rate' => $charge_rate,
-			'charged_time' => $charged_time,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$charge = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataAmount(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$equipment_id = self::$equipment->id();
-		$charge_policy = ChargePolicy::PER_USE;
-		$charge_rate = '2.00';
-		$charged_time = 25;
-		$time = '2020-05-31 10:46:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'equipment_id' => $equipment_id,
-			'charge_policy' => $charge_policy->value,
-			'charge_rate' => $charge_rate,
-			'charged_time' => $charged_time,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$charge = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataChargePolicy(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$equipment_id = self::$equipment->id();
-		$amount = '2.00';
-		$charge_rate = '2.00';
-		$charged_time = 25;
-		$time = '2020-05-31 10:46:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'equipment_id' => $equipment_id,
-			'amount' => $amount,
-			'charge_rate' => $charge_rate,
-			'charged_time' => $charged_time,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$charge = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataChargeRate(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$equipment_id = self::$equipment->id();
-		$amount = '2.00';
-		$charge_policy = ChargePolicy::PER_USE;
-		$charged_time = 25;
-		$time = '2020-05-31 10:46:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'equipment_id' => $equipment_id,
-			'amount' => $amount,
-			'charge_policy' => $charge_policy->value,
-			'charged_time' => $charged_time,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$charge = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataChargedTime(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$equipment_id = self::$equipment->id();
-		$amount = '2.00';
-		$charge_policy = ChargePolicy::PER_USE;
-		$charge_rate = '2.00';
-		$time = '2020-05-31 10:46:34';
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'equipment_id' => $equipment_id,
-			'amount' => $amount,
-			'charge_policy' => $charge_policy->value,
-			'charge_rate' => $charge_rate,
-			'time' => $time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$charge = $transformer->deserialize($data);
-	}
-
-	public function testDeserializeInvalidDataTime(): void {
-		$transformer = new ChargeTransformer();
-
-		$id = 42;
-		$user_id = self::$user->id();
-		$equipment_id = self::$equipment->id();
-		$amount = '2.00';
-		$charge_policy = ChargePolicy::PER_USE;
-		$charge_rate = '2.00';
-		$charged_time = 25;
-
-		$data = [
-			'id' => $id,
-			'user_id' => $user_id,
-			'equipment_id' => $equipment_id,
-			'amount' => $amount,
-			'charge_policy' => $charge_policy->value,
-			'charge_rate' => $charge_rate,
-			'charged_time' => $charged_time
-		];
-
-		$this->expectException(InvalidArgumentException::class);
-		$charge = $transformer->deserialize($data);
-	}
-
-	public function testSerialize(): void {
-		$transformer = new ChargeTransformer();
+			->set_id($equipment_id)
+			->set_name($equipment_name);
 
 		$id = 42;
 		$amount = '2.00';
@@ -416,27 +36,29 @@ final class ChargeTransformerTest extends TestCase {
 
 		$charge = (new Charge())
 			->set_id($id)
-			->set_user(self::$user)
-			->set_equipment(self::$equipment)
+			->set_user($user)
+			->set_equipment($equipment)
 			->set_amount($amount)
 			->set_charge_policy($charge_policy)
 			->set_charge_rate($charge_rate)
 			->set_charged_time($charged_time)
 			->set_time($time);
 
-		$data = $transformer->serialize($charge, true);
+		$transformer = new ChargeTransformer();
+
+		$data = $transformer->serialize($charge);
 
 		self::assertNotNull($data);
 		self::assertArrayHasKey('id', $data);
 		self::assertEquals($id, $data['id']);
-		self::assertArrayHasKey('user', $data);
-		self::assertIsArray($data['user']);
-		self::assertArrayHasKey('id', $data['user']);
-		self::assertEquals(self::$user->id(), $data['user']['id']);
+		self::assertArrayHasKey('equipment_id', $data);
+		self::assertEquals($equipment_id, $data['equipment_id']);
 		self::assertArrayHasKey('equipment', $data);
-		self::assertIsArray($data['equipment']);
-		self::assertArrayHasKey('id', $data['equipment']);
-		self::assertEquals(self::$equipment->id(), $data['equipment']['id']);
+		self::assertEquals($equipment_name, $data['equipment']);
+		self::assertArrayHasKey('user_id', $data);
+		self::assertEquals($user_id, $data['user_id']);
+		self::assertArrayHasKey('user', $data);
+		self::assertEquals($user_name, $data['user']);
 		self::assertArrayHasKey('amount', $data);
 		self::assertEquals($amount, $data['amount']);
 		self::assertArrayHasKey('charge_policy', $data);

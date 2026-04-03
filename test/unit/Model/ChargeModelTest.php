@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Test\Portalbox\Model;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Portalbox\Config;
 use Portalbox\Enumeration\ChargePolicy;
@@ -138,7 +139,7 @@ final class ChargeModelTest extends TestCase {
 		parent::tearDownAfterClass();
 	}
 
-	public function testModel(): void {
+	public function testCreateReadUpdateDelete(): void {
 		$model = new ChargeModel(self::$config);
 
 		$equipment_id = self::$equipment->id();
@@ -149,38 +150,47 @@ final class ChargeModelTest extends TestCase {
 		$charge_rate = '0.05';
 		$charged_time = 40;
 
-		$charge = (new Charge())
-			->set_equipment_id($equipment_id)
-			->set_user_id($user_id)
-			->set_amount($amount)
-			->set_time($time)
-			->set_charge_policy($charge_policy)
-			->set_charge_rate($charge_rate)
-			->set_charged_time($charged_time);
+		$charge = $model->create(
+			(new Charge())
+				->set_equipment_id($equipment_id)
+				->set_user_id($user_id)
+				->set_amount($amount)
+				->set_time($time)
+				->set_charge_policy($charge_policy)
+				->set_charge_rate($charge_rate)
+				->set_charged_time($charged_time)
+		);
 
-		$charge_as_created = $model->create($charge);
+		self::assertInstanceOf(Charge::class, $charge);
+		$id = $charge->id();
+		self::assertIsInt($id);
+		self::assertSame($equipment_id, $charge->equipment_id());
+		self::assertSame($user_id, $charge->user_id());
+		self::assertSame($amount, $charge->amount());
+		self::assertSame($time, $charge->time());
+		self::assertSame($charge_policy, $charge->charge_policy());
+		self::assertSame($charge_rate, $charge->charge_rate());
+		self::assertSame($charged_time, $charge->charged_time());
 
-		$charge_id = $charge_as_created->id();
-		self::assertIsInt($charge_id);
-		self::assertEquals($equipment_id, $charge_as_created->equipment_id());
-		self::assertEquals($user_id, $charge_as_created->user_id());
-		self::assertEquals($amount, $charge_as_created->amount());
-		self::assertEquals($time, $charge_as_created->time());
-		self::assertEquals($charge_policy, $charge_as_created->charge_policy());
-		self::assertEquals($charge_rate, $charge_as_created->charge_rate());
-		self::assertEquals($charged_time, $charge_as_created->charged_time());
+		$charge = $model->read($id);
 
-		$charge_as_found = $model->read($charge_id);
+		self::assertInstanceOf(Charge::class, $charge);
+		self::assertSame($id, $charge->id());
+		self::assertSame($equipment_id, $charge->equipment_id());
+		self::assertSame($user_id, $charge->user_id());
+		self::assertSame($amount, $charge->amount());
+		self::assertSame($time, $charge->time());
+		self::assertSame($charge_policy, $charge->charge_policy());
+		self::assertSame($charge_rate, $charge->charge_rate());
+		self::assertSame($charged_time, $charge->charged_time());
 
-		self::assertNotNull($charge_as_found);
-		self::assertEquals($charge_id, $charge_as_found->id());
-		self::assertEquals($equipment_id, $charge_as_found->equipment_id());
-		self::assertEquals($user_id, $charge_as_found->user_id());
-		self::assertEquals($amount, $charge_as_found->amount());
-		self::assertEquals($time, $charge_as_found->time());
-		self::assertEquals($charge_policy, $charge_as_found->charge_policy());
-		self::assertEquals($charge_rate, $charge_as_found->charge_rate());
-		self::assertEquals($charged_time, $charge_as_found->charged_time());
+		self::assertInstanceOf(Equipment::class, $charge->equipment());
+		self::assertSame($charge->equipment()->id(), $equipment_id);
+		self::assertSame(self::$equipment->name(), $charge->equipment_name());
+
+		self::assertInstanceOf(User::class, $charge->user());
+		self::assertSame($charge->user()->id(), $user_id);
+		self::assertSame(self::$user->name(), $charge->user_name());
 
 		$amount = '3.00';
 		$time = '2020-04-21 08:09:10';
@@ -188,40 +198,61 @@ final class ChargeModelTest extends TestCase {
 		$charge_rate = '0.10';
 		$charged_time = 30;
 
-		$charge_as_found
-			->set_amount($amount)
-			->set_time($time)
-			->set_charge_policy($charge_policy)
-			->set_charge_rate($charge_rate)
-			->set_charged_time($charged_time);
+		$charge = $model->update(
+			(new Charge())
+				->set_id($id)
+				->set_equipment_id($equipment_id)
+				->set_user_id($user_id)
+				->set_amount($amount)
+				->set_time($time)
+				->set_charge_policy($charge_policy)
+				->set_charge_rate($charge_rate)
+				->set_charged_time($charged_time)
+		);
 
-		$charge_as_modified = $model->update($charge_as_found);
+		self::assertInstanceOf(Charge::class, $charge);
+		self::assertEquals($id, $charge->id());
+		self::assertEquals($equipment_id, $charge->equipment_id());
+		self::assertEquals($user_id, $charge->user_id());
+		self::assertEquals($amount, $charge->amount());
+		self::assertEquals($time, $charge->time());
+		self::assertEquals($charge_policy, $charge->charge_policy());
+		self::assertEquals($charge_rate, $charge->charge_rate());
+		self::assertEquals($charged_time, $charge->charged_time());
 
-		self::assertNotNull($charge_as_modified);
-		self::assertEquals($charge_id, $charge_as_modified->id());
-		self::assertEquals($equipment_id, $charge_as_modified->equipment_id());
-		self::assertEquals($user_id, $charge_as_modified->user_id());
-		self::assertEquals($amount, $charge_as_modified->amount());
-		self::assertEquals($time, $charge_as_modified->time());
-		self::assertEquals($charge_policy, $charge_as_modified->charge_policy());
-		self::assertEquals($charge_rate, $charge_as_modified->charge_rate());
-		self::assertEquals($charged_time, $charge_as_modified->charged_time());
+		$charge = $model->read($id);
 
-		$charge_as_deleted = $model->delete($charge_id);
+		self::assertInstanceOf(Charge::class, $charge);
+		self::assertSame($id, $charge->id());
+		self::assertSame($equipment_id, $charge->equipment_id());
+		self::assertSame($user_id, $charge->user_id());
+		self::assertSame($amount, $charge->amount());
+		self::assertSame($time, $charge->time());
+		self::assertSame($charge_policy, $charge->charge_policy());
+		self::assertSame($charge_rate, $charge->charge_rate());
+		self::assertSame($charged_time, $charge->charged_time());
 
-		self::assertNotNull($charge_as_deleted);
-		self::assertEquals($charge_id, $charge_as_deleted->id());
-		self::assertEquals($equipment_id, $charge_as_deleted->equipment_id());
-		self::assertEquals($user_id, $charge_as_deleted->user_id());
-		self::assertEquals($amount, $charge_as_deleted->amount());
-		self::assertEquals($time, $charge_as_deleted->time());
-		self::assertEquals($charge_policy, $charge_as_deleted->charge_policy());
-		self::assertEquals($charge_rate, $charge_as_deleted->charge_rate());
-		self::assertEquals($charged_time, $charge_as_deleted->charged_time());
+		self::assertInstanceOf(Equipment::class, $charge->equipment());
+		self::assertSame($charge->equipment()->id(), $equipment_id);
+		self::assertSame(self::$equipment->name(), $charge->equipment_name());
 
-		$charge_as_not_found = $model->read($charge_id);
+		self::assertInstanceOf(User::class, $charge->user());
+		self::assertSame($charge->user()->id(), $user_id);
+		self::assertSame(self::$user->name(), $charge->user_name());
 
-		self::assertNull($charge_as_not_found);
+		$charge = $model->delete($id);
+
+		self::assertNotNull($charge);
+		self::assertEquals($id, $charge->id());
+		self::assertEquals($equipment_id, $charge->equipment_id());
+		self::assertEquals($user_id, $charge->user_id());
+		self::assertEquals($amount, $charge->amount());
+		self::assertEquals($time, $charge->time());
+		self::assertEquals($charge_policy, $charge->charge_policy());
+		self::assertEquals($charge_rate, $charge->charge_rate());
+		self::assertEquals($charged_time, $charge->charged_time());
+
+		self::assertNull($model->read($id));
 	}
 
 	public function testSearch(): void {
@@ -230,59 +261,105 @@ final class ChargeModelTest extends TestCase {
 		$equipment_id = self::$equipment->id();
 		$user_id = self::$user->id();
 		$amount = '2.00';
-		$time = '2020-04-22 21:44:55';
+		$time1 = '2020-04-22 21:44:55';
+		$time2 = '2021-04-22 21:44:55';
+		$time3 = '2022-04-22 21:44:55';
 		$charge_policy = ChargePolicy::PER_USE;
 		$charge_rate = '0.05';
 		$charged_time = 40;
 
-		$charge = (new Charge())
-			->set_equipment_id($equipment_id)
-			->set_user_id($user_id)
-			->set_amount($amount)
-			->set_time($time)
-			->set_charge_policy($charge_policy)
-			->set_charge_rate($charge_rate)
-			->set_charged_time($charged_time);
+		$charge1Id = $model->create(
+			(new Charge())
+				->set_equipment_id($equipment_id)
+				->set_user_id($user_id)
+				->set_amount($amount)
+				->set_time($time1)
+				->set_charge_policy($charge_policy)
+				->set_charge_rate($charge_rate)
+				->set_charged_time($charged_time)
+		)->id();
 
-		$charge_as_created = $model->create($charge);
+		$charge2Id = $model->create(
+			(new Charge())
+				->set_equipment_id($equipment_id)
+				->set_user_id($user_id)
+				->set_amount($amount)
+				->set_time($time2)
+				->set_charge_policy($charge_policy)
+				->set_charge_rate($charge_rate)
+				->set_charged_time($charged_time)
+		)->id();
 
-		$charge_id = $charge_as_created->id();
+		$charge3Id = $model->create(
+			(new Charge())
+				->set_equipment_id($equipment_id)
+				->set_user_id($user_id)
+				->set_amount($amount)
+				->set_time($time3)
+				->set_charge_policy($charge_policy)
+				->set_charge_rate($charge_rate)
+				->set_charged_time($charged_time)
+		)->id();
 
 		$query = new ChargeQuery();	// get all charges
-		$all_charges = $model->search($query);
+		$chargeIds = array_map(
+			fn (Charge $charge) => $charge->id(),
+			$model->search($query)
+		);
 
-		self::assertIsArray($all_charges);
-		self::assertNotEmpty($all_charges);
-		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges);
+		self::assertContains($charge1Id, $chargeIds);
+		self::assertContains($charge2Id, $chargeIds);
+		self::assertContains($charge3Id, $chargeIds);
 
-		$query = (new ChargeQuery())->set_user_id($user_id);	// get all charges for user
-		$all_charges_for_user = $model->search($query);
+		// Check that we can query charges by user id
+		$query = (new ChargeQuery())->set_user_id($user_id);
+		$chargeIds = array_map(
+			fn (Charge $charge) => $charge->id(),
+			$model->search($query)
+		);
 
-		self::assertIsArray($all_charges_for_user);
-		self::assertNotEmpty($all_charges_for_user);
-		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges_for_user);
+		self::assertContains($charge1Id, $chargeIds);
+		self::assertContains($charge2Id, $chargeIds);
+		self::assertContains($charge3Id, $chargeIds);
 
-		$query = (new ChargeQuery())->set_equipment_id($equipment_id);	// get all charges for equipment
-		$all_charges_for_equipment = $model->search($query);
+		// check that we can query charges by equipment id
+		$query = (new ChargeQuery())->set_equipment_id($equipment_id);
+		$chargeIds = array_map(
+			fn (Charge $charge) => $charge->id(),
+			$model->search($query)
+		);
 
-		self::assertIsArray($all_charges_for_equipment);
-		self::assertNotEmpty($all_charges_for_equipment);
-		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges_for_equipment);
+		self::assertContains($charge1Id, $chargeIds);
+		self::assertContains($charge2Id, $chargeIds);
+		self::assertContains($charge3Id, $chargeIds);
 
-		$query = (new ChargeQuery())->set_on_or_before('2020-04-23 00:00:00');	// get all charges before 2020-04-23
-		$all_charges_before_date = $model->search($query);
+		// check that we can query charges before a timestamp
+		$query = (new ChargeQuery())
+			->set_on_or_before(new DateTimeImmutable($time2));
+		$chargeIds = array_map(
+			fn (Charge $charge) => $charge->id(),
+			$model->search($query)
+		);
 
-		self::assertIsArray($all_charges_before_date);
-		self::assertNotEmpty($all_charges_before_date);
-		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges_before_date);
+		self::assertContains($charge1Id, $chargeIds);
+		self::assertContains($charge2Id, $chargeIds);
+		self::assertNotContains($charge3Id, $chargeIds);
 
-		$query = (new ChargeQuery())->set_on_or_after('2020-04-22 00:00:00');	// get all charges on or after 2020-04-22
-		$all_charges_after_date = $model->search($query);
+		// check that we can query charges after a timestamp
+		$query = (new ChargeQuery())
+			->set_on_or_after(new DateTimeImmutable($time2));
+		$chargeIds = array_map(
+			fn (Charge $charge) => $charge->id(),
+			$model->search($query)
+		);
 
-		self::assertIsArray($all_charges_after_date);
-		self::assertNotEmpty($all_charges_after_date);
-		self::assertContainsOnlyInstancesOf(Charge::class, $all_charges_after_date);
+		self::assertNotContains($charge1Id, $chargeIds);
+		self::assertContains($charge2Id, $chargeIds);
+		self::assertContains($charge3Id, $chargeIds);
 
-		$model->delete($charge_id);
+		// cleanup
+		$model->delete($charge1Id);
+		$model->delete($charge2Id);
+		$model->delete($charge3Id);
 	}
 }

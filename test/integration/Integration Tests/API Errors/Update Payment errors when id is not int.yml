@@ -1,7 +1,7 @@
 info:
   name: Update Payment errors when id is not int
   type: http
-  seq: 16
+  seq: 17
 
 http:
   method: POST

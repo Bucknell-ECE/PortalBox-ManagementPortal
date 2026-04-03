@@ -1181,35 +1181,6 @@ class Application {
 	}
 
 	/**
-	 * Callback that handles updating charges on backend. Bound
-	 * to the form.submit() for the view.
-	 */
-	update_charge(charge, event) {
-		event.preventDefault();
-		let data = this.#get_form_data(event.target);
-
-		fetch("/api/charges.php?id=" + charge.id, {
-			body: JSON.stringify(data),
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			method: "POST"
-		}).then(response => {
-			if(response.ok) {
-				return response.json();
-			} else if(403 == response.status) {
-				throw new SessionTimeOutError();
-			}
-
-			throw "API was unable to save charge";
-		}).then(_data => {
-			this.navigate("/charges");
-			// notify user of success
-		}).catch(e => this.handleError(e));
-	}
-
-	/**
 	 * Callback that handles adding equipment to the backend. Bound
 	 * to the form.submit() for the view
 	 *

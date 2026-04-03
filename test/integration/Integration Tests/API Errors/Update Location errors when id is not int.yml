@@ -1,7 +1,7 @@
 info:
   name: Update Location errors when id is not int
   type: http
-  seq: 13
+  seq: 14
 
 http:
   method: POST
