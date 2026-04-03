@@ -2,6 +2,8 @@
 
 namespace Portalbox\Query;
 
+use DateTimeInterface;
+
 /**
  * ChargeQuery presents a standard interface for Charge search queries
  */
@@ -9,12 +11,12 @@ class ChargeQuery {
 	/**
 	 * Find charges on or before this date
 	 */
-	protected ?string $on_or_before = null;
+	protected ?DateTimeInterface $on_or_before = null;
 
 	/**
 	 * Find charges on or before this date
 	 */
-	protected ?string $on_or_after = null;
+	protected ?DateTimeInterface $on_or_after = null;
 
 	/**
 	 * Find charges for this equipment
@@ -30,14 +32,14 @@ class ChargeQuery {
 	/**
 	 * Get the on or before date
 	 */
-	public function on_or_before(): ?string {
+	public function on_or_before(): ?DateTimeInterface {
 		return $this->on_or_before;
 	}
 
 	/**
 	 * Set the on or before date
 	 */
-	public function set_on_or_before(string $on_or_before): self {
+	public function set_on_or_before(?DateTimeInterface $on_or_before): self {
 		$this->on_or_before = $on_or_before;
 		return $this;
 	}
@@ -45,14 +47,14 @@ class ChargeQuery {
 	/**
 	 * Get the on or after date
 	 */
-	public function on_or_after(): ?string {
+	public function on_or_after(): ?DateTimeInterface {
 		return $this->on_or_after;
 	}
 
 	/**
 	 * Set the on or after date
 	 */
-	public function set_on_or_after(string $on_or_after): self {
+	public function set_on_or_after(?DateTimeInterface $on_or_after): self {
 		$this->on_or_after = $on_or_after;
 		return $this;
 	}

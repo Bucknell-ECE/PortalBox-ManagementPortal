@@ -1,7 +1,7 @@
 info:
   name: Update Equipment Type errors when id is not specified
   type: http
-  seq: 9
+  seq: 10
 
 http:
   method: POST

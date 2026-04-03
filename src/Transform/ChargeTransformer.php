@@ -2,72 +2,13 @@
 
 namespace Portalbox\Transform;
 
-use InvalidArgumentException;
-use Portalbox\Config;
-use Portalbox\Enumeration\ChargePolicy;
 use Portalbox\Type\Charge;
-// violation of SOLID design... should use these via interfaces and dependency injection
-use Portalbox\Model\EquipmentModel;
-use Portalbox\Model\UserModel;
 
 /**
  * ChargeTransformer is our bridge between dictionary representations and
  * Charge instances.
  */
-class ChargeTransformer implements InputTransformer, OutputTransformer {
-	/**
-	 * Deserialize a Charge  object from a dictionary
-	 *
-	 * @param array data - a dictionary representing a Charge
-	 * @return Charge - an object based on the data specified
-	 * @throws InvalidArgumentException if a require field is not specified
-	 */
-	public function deserialize(array $data): Charge {
-		if (!array_key_exists('equipment_id', $data)) {
-			throw new InvalidArgumentException('\'equipment_id\' is a required field');
-		}
-		if (!array_key_exists('user_id', $data)) {
-			throw new InvalidArgumentException('\'user_id\' is a required field');
-		}
-		if (!array_key_exists('amount', $data)) {
-			throw new InvalidArgumentException('\'amount\' is a required field');
-		}
-		if (!array_key_exists('time', $data)) {
-			throw new InvalidArgumentException('\'time\' is a required field');
-		}
-		if (!array_key_exists('charge_policy', $data)) {
-			throw new InvalidArgumentException('\'charge_policy\' is a required field');
-		}
-		$charge_policy = ChargePolicy::tryFrom($data['charge_policy']);
-		if (!$charge_policy) {
-			throw new InvalidArgumentException('\'charge_policy\' must be a valid charge policy');
-		}
-		if (!array_key_exists('charge_rate', $data)) {
-			throw new InvalidArgumentException('\'charge_rate\' is a required field');
-		}
-		if (!array_key_exists('charged_time', $data)) {
-			throw new InvalidArgumentException('\'charged_time\' is a required field');
-		}
-
-		$equipment = (new EquipmentModel(Config::config()))->read($data['equipment_id']);
-		if (null === $equipment) {
-			throw new InvalidArgumentException('\'equipment_id\' must correspond to a valid equipment');
-		}
-		$user = (new UserModel(Config::config()))->read($data['user_id']);
-		if (null === $user) {
-			throw new InvalidArgumentException('\'user_id\' must correspond to a valid user');
-		}
-
-		return (new Charge())
-			->set_equipment($equipment)
-			->set_user($user)
-			->set_amount($data['amount'])
-			->set_time($data['time'])
-			->set_charge_policy($charge_policy)
-			->set_charge_rate($data['charge_rate'])
-			->set_charged_time($data['charged_time']);
-	}
-
+class ChargeTransformer implements OutputTransformer {
 	/**
 	 * Called to serialize Charge instance to a dictionary
 	 *
@@ -79,34 +20,18 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 	 *      are null, string, int, and float otherwise
 	 */
 	public function serialize($data, bool $traverse = false): array {
-		if ($traverse) {
-			$equipment_transformer = new EquipmentTransformer();
-			$user_transformer = new UserTransformer();
-
-			return [
-				'id' => $data->id(),
-				'equipment' => $equipment_transformer->serialize($data->equipment(), $traverse),
-				'user' => $user_transformer->serialize($data->user(), $traverse),
-				'amount' => $data->amount(),
-				'time' => $data->time(),
-				'charge_policy' => $data->charge_policy()->value,
-				'charge_rate' => $data->charge_rate(),
-				'charged_time' => $data->charged_time()
-			];
-		} else {
-			return [
-				'id' => $data->id(),
-				'equipment_id' => $data->equipment_id(),
-				'equipment' => $data->equipment_name(),
-				'user_id' => $data->user_id(),
-				'user' => $data->user_name(),
-				'amount' => $data->amount(),
-				'time' => $data->time(),
-				'charge_policy' => $data->charge_policy()->value,
-				'charge_rate' => $data->charge_rate(),
-				'charged_time' => $data->charged_time()
-			];
-		}
+		return [
+			'id' => $data->id(),
+			'equipment_id' => $data->equipment_id(),
+			'equipment' => $data->equipment_name(),
+			'user_id' => $data->user_id(),
+			'user' => $data->user_name(),
+			'amount' => $data->amount(),
+			'time' => $data->time(),
+			'charge_policy' => $data->charge_policy()->value,
+			'charge_rate' => $data->charge_rate(),
+			'charged_time' => $data->charged_time()
+		];
 	}
 
 	/**
@@ -117,6 +42,6 @@ class ChargeTransformer implements InputTransformer, OutputTransformer {
 	 * @return array - a list of strings that can be column headers
 	 */
 	public function get_column_headers(): array {
-		return ['id', 'Equipment ID', 'Equipment', 'User ID', 'User', 'Amount', 'Time', 'Charge Policy ID', 'Charge Policy', 'Charge Rate', 'Charged Time'];
+		return ['id', 'Equipment ID', 'Equipment', 'User ID', 'User', 'Amount', 'Time', 'Charge Policy ID', 'Charge Rate', 'Charged Time'];
 	}
 }

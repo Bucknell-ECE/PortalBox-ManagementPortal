@@ -9,22 +9,7 @@ use Portalbox\Type\Location;
  * LocationTransformer is our bridge between dictionary representations and
  * Location instances.
  */
-class LocationTransformer implements InputTransformer, OutputTransformer {
-	/**
-	 * Deserialize a Location from a dictionary
-	 *
-	 * @param array data - a dictionary representing a Location
-	 * @return Location - an object based on the data specified
-	 * @throws InvalidArgumentException if a require field is not specified
-	 */
-	public function deserialize(array $data): Location {
-		if (!array_key_exists('name', $data)) {
-			throw new InvalidArgumentException('\'name\' is a required field');
-		}
-
-		return (new Location())->set_name(strip_tags($data['name']));
-	}
-
+class LocationTransformer implements OutputTransformer {
 	/**
 	 * Called to serialize a Location instance to a dictionary
 	 *

@@ -1,7 +1,7 @@
 info:
   name: Update User errors when id is not int
   type: http
-  seq: 22
+  seq: 23
 
 http:
   method: POST

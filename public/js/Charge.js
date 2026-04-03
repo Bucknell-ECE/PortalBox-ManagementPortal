@@ -13,7 +13,7 @@ export class Charge {
 	 * @throws String if any other error occurs
 	 */
 	static async list(query = '') {
-		const response = await fetch("/api/charges.php?" + query, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/charges.php?" + query, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();
@@ -35,7 +35,7 @@ export class Charge {
 	 * @throws String if any other error occurs
 	 */
 	static async read(id) {
-		const response = await fetch("/api/charges.php?id=" + id, { "credentials": "same-origin" });
+		const response = await fetch("/api/v2/charges.php?id=" + id, { "credentials": "same-origin" });
 
 		if(response.ok) {
 			return await response.json();

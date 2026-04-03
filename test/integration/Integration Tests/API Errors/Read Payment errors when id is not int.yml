@@ -1,7 +1,7 @@
 info:
   name: Read Payment errors when id is not int
   type: http
-  seq: 14
+  seq: 15
 
 http:
   method: GET

@@ -27,28 +27,6 @@ export class Payment {
 	}
 
 	/**
-	 * Get a payment by id
-	 *
-	 * @param int id the unique id of the Payment to retrieve
-	 * @return Payment specified by the id
-	 * @throws SessionTimeOutError if the user session has expired
-	 * @throws String if any other error occurs
-	 */
-	static async read(id) {
-		const response = await fetch("/api/v2/payments.php?id=" + id, { "credentials": "same-origin" });
-
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to find payment: " + id;
-	}
-
-	/**
 	 * Add payment to those tracked by API
 	 *
 	 * @return Payment as tracked by API
@@ -74,34 +52,5 @@ export class Payment {
 		}
 
 		throw "API was unable to save new payment";
-	}
-
-	/**
-	 * Modify the payment specified by id
-	 *
-	 * @param int id the unique id of the Payment to modify
-	 * @return Payment specified by the id
-	 * @throws SessionTimeOutError if the user session has expired
-	 * @throws String if any other error occurs
-	 */
-	static async modify(id, data) {
-		const response = await fetch("/api/v2/payments.php?id=" + id, {
-			body: JSON.stringify(data),
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			method: "POST"
-		});
-
-		if(response.ok) {
-			return await response.json();
-		}
-
-		if(403 == response.status) {
-			throw new SessionTimeOutError();
-		}
-
-		throw "API was unable to save payment";
 	}
 }
