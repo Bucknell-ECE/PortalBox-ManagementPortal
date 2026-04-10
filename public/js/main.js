@@ -23,7 +23,7 @@ window.go = function(destination_url, current_page_title) {
 
 /**** Setup Authentication using hello.js ****/
 hello.on("auth.login", auth => {
-	// check if auth suceessful???
+	// check if auth successful???
 	if(auth && auth.authResponse && auth.authResponse.id_token) {
 		User.authenticate(auth.authResponse.id_token).then(user => {
 			hello(auth.network).api("me").then(profile => {

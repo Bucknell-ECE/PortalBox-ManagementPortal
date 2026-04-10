@@ -1,13 +1,10 @@
 {
-    "name": "maker-portal",
-    "version": "2.0.0",
-    "main": "index.html",
-    "author": "T.K.Egan",
-    "license": "MIT",
-    "dependencies": {
-        "bar-chart-web-component": "^1.1.0",
-        "file-saver": "^2.0.2",
-        "hellojs": "^1.18.8",
-        "mustache": "^4.2.0"
-    }
+  "private": true,
+  "devDependencies": {
+    "eslint": "^10.2.0",
+    "globals": "^17.4.0"
+  },
+  "scripts": {
+    "install-all": "yarn install && yarn --cwd public install"
+  }
 }

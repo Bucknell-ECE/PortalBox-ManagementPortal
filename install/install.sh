@@ -76,7 +76,7 @@ mariadb $db_name -e "INSERT INTO users (name, email, role_id, is_active) VALUES 
 
 
 cd $root/makerportal
-yarn install
+yarn install-all
 
 reboot now
 
