@@ -53,7 +53,7 @@ Assuming you have setup the database shared by the PortalBox Ecosystem already:
 
 	```sh
 	cd ${PROJECT_DIRECTORY}
-	yarn install
+	yarn install-all
 	```
 3) Copy `config/example-config.ini` to `config/config.ini` and edit the config.ini file filling in your database connection settings and Google OAuth Client ID.
 4) Copy `public/styles/example-palette.css` to `public/styles/palette.css`; [Optional] Customize the site by editing palette.css
