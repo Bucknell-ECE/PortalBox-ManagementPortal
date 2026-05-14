@@ -1,7 +1,7 @@
 opencollection: 1.0.0
 
 info:
-  name: Integration Tests
+  name: Portalbox Management Website API Tests
 config:
   proxy:
     inherit: true

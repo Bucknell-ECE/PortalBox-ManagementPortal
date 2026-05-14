@@ -10,11 +10,11 @@ In some shell commands you may need to provide values left up to you. These valu
 
 ## License
 
-This project is licensed under the Apache 2.0 License - see the LICENSE file for details
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) for details
 
 ## Supported Server Environments
 
-Makerportal requires PHP version 7.4+ and is known to work with:
+Makerportal requires PHP version 8.2+ and is known to work with:
 
  - Apache 2.4 + mod_php
  - Nginx 1.12 + PHP-FPM
@@ -81,14 +81,14 @@ instead.
 
 ### Integration Testing
 
-The REST API exposed by this project project can be tested on your development machine using the webserver built in to the PHP CLI. Assuming you have followed steps 1 through 4 under Installation, you can in theory open a command shell and issue:
+The REST API exposed by this project ([API Documentation](documentation/api)) can be tested on your development machine using the webserver built in to the PHP CLI. Assuming you have followed steps 1 through 4 under Installation, you can in theory open a command shell and issue:
 
 ```sh
 cd ${PROJECT_DIRECTORY}/public
 php -S localhost:8000
 ```
 
-You should then be able to use the requests available in the included [Postman](https://www.postman.com/) collection, see `documentation/api.postman_collection.json`, or [Bruno](https://www.usebruno.com/), see `documentation/ECE PORTAL Box Management API`, after setting reasonable collection variable values to test the API.
+You should then be able to use the requests available in the included [Bruno](https://www.usebruno.com/) collection, see [test/api](test/api).
 
 ### Live Testing
 
@@ -118,11 +118,6 @@ We would prefer if you used our coding standards but are in the process of forma
 
 ## Roadmap
 
-- modernize code
-    - move to strong typing in PHP
-    - extract business logic in the `public/api` scripts into a business layer that has good unit test coverage
 - work with OAUTH providers other than Google
 - add a way to set a logo other than editing index.html
-- add visualizations of usage data
-- automate Integration testing with Bruno
 - document coding standards for PHP (PSR-12 except with cuddled braces and tab indents) and Javascript (ESlint baseline except with tab indents)
