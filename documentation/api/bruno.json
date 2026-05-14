@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "name": "ECE PORTAL Box Management API",
+  "name": "Portalbox Management Website API",
   "type": "collection",
   "ignore": [
     "node_modules",
